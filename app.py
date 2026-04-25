@@ -3,11 +3,11 @@ import pandas as pd
 import io
 import requests
 
+# 1. CONFIGURACIÓN
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
 
-# URLs de exportación directa
-URL_RESULTADOS = "https://google.com"
-URL_PRONOSTICOS = "https://google.com"
+URL_RES = "https://google.com"
+URL_PRO = "https://google.com"
 
 def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
     try:
@@ -26,13 +26,12 @@ def cargar_datos(url):
     try:
         r = requests.get(url, timeout=10)
         df = pd.read_csv(io.StringIO(r.text))
-        # Limpiamos nombres de columnas (quitar espacios y pasar a mayúsculas)
         df.columns = df.columns.str.strip().str.upper()
         return df
     except: return None
 
-df_res = cargar_datos(URL_RESULTADOS)
-df_pro = cargar_datos(URL_PRONOSTICOS)
+df_res = cargar_datos(URL_RES)
+df_pro = cargar_datos(URL_PRO)
 
 if df_res is not None and df_pro is not None:
     st.title("🏆 Prode Familiar - Mundial 2026")
@@ -44,18 +43,13 @@ if df_res is not None and df_pro is not None:
         for i in range(1, 11):
             total = 0
             col_e1, col_e2 = f"JUGADOR_{i}_E1", f"JUGADOR_{i}_E2"
-            
             for _, part in df_res.iterrows():
                 n_p = part['N_PARTIDO']
-                # Buscamos el pronóstico del partido
                 fila_pro = df_pro[df_pro['N_PARTIDO'] == n_p]
-                
                 if not fila_pro.empty:
-                    # USAMOS .iloc[0] para extraer el valor de la primera coincidencia
-                    p1 = fila_pro[col_e1].iloc[0]
-                    p2 = fila_pro[col_e2].iloc[0]
+                    p1 = fila_pro[col_e1].values[0]
+                    p2 = fila_pro[col_e2].values[0]
                     total += calcular_puntos(part['R1'], part['R2'], p1, p2)
-            
             ranking.append({"Familiar": f"Jugador {i}", "Puntos": int(total)})
         
         df_rank = pd.DataFrame(ranking).sort_values(by="Puntos", ascending=False)
@@ -65,17 +59,14 @@ if df_res is not None and df_pro is not None:
     else:
         jug_sel = st.selectbox("Elegí el Jugador:", range(1, 11), format_func=lambda x: f"Jugador {x}")
         col_e1, col_e2 = f"JUGADOR_{jug_sel}_E1", f"JUGADOR_{jug_sel}_E2"
-        
         detalle = []
         for _, part in df_res.iterrows():
             n_p = part['N_PARTIDO']
             fila_pro = df_pro[df_pro['N_PARTIDO'] == n_p]
-            
             if not fila_pro.empty:
-                p1 = fila_pro[col_e1].iloc[0]
-                p2 = fila_pro[col_e2].iloc[0]
+                p1 = fila_pro[col_e1].values[0]
+                p2 = fila_pro[col_e2].values[0]
                 pts = calcular_puntos(part['R1'], part['R2'], p1, p2)
-                
                 detalle.append({
                     "Partido": f"{part['EQUIPO_1']} vs {part['EQUIPO_2']}",
                     "Real": f"{int(part['R1'])} - {int(part['R2'])}" if not pd.isna(part['R1']) else "⏳",
@@ -84,9 +75,4 @@ if df_res is not None and df_pro is not None:
                 })
         st.dataframe(pd.DataFrame(detalle), hide_index=True, use_container_width=True)
 else:
-    st.error("Error al cargar los datos desde Google Sheets.")
-    
-        st.dataframe(pd.DataFrame(detalle), hide_index=True, use_container_width=True)
-
-else:
-    st.error("Error crítico: No se pudieron cargar las tablas de Google Sheets.")
+    st.error("Error al cargar los datos.")
