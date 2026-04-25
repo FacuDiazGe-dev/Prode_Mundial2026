@@ -78,39 +78,58 @@ df_ranking = df_ranking[["Nº", "JUGADOR", "PUNTOS", "EXACTOS", "GENERALES"]]
 
 # --- VISUALIZACIÓN ---
 
-# Creamos 3 columnas: [proporción 1.2, proporción 1.5, proporción 1.2]
-col_res, col_rank, col_extra = st.columns([1.2, 1.5, 1.2])
+# Configuración de columnas según tus porcentajes: 20%, 50%, 30%
+col_extra, col_res, col_rank = st.columns([0.2, 0.5, 0.3])
 
+# 1. LATERAL IZQUIERDO: EXTRAS (20%)
+with col_extra:
+    st.subheader("➕ Extras")
+    st.info("Espacio para futuras secciones")
+
+# 2. COLUMNA CENTRAL: RESULTADOS OFICIALES (50%)
 with col_res:
-    st.subheader("⚽ Resultados")
-    # Formateamos para que sea una lista compacta y fija
+    st.subheader("⚽ Resultados Oficiales")
+    # Contenedor con scroll para los 24 partidos si la pantalla es chica
     for i, row in df_res.iterrows():
-        # Si tiene resultado, mostrarlo; si no, mostrar vs
         r1 = int(row['R1']) if not pd.isna(row['R1']) else "-"
         r2 = int(row['R2']) if not pd.isna(row['R2']) else "-"
         
         st.markdown(f"""
-        <div style="border-bottom: 1px solid #ddd; padding: 5px;">
-            <small>Part {int(row['N_PARTIDO'])}</small><br>
-            <b>{row['Equipo_1']}</b> {r1} - {r2} <b>{row['Equipo_2']}</b>
+        <div style="border: 1px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; background-color: #f9f9f9; color: #333;">
+            <div style="text-align: center; font-size: 0.8em; color: #666;">Partido {int(row['N_PARTIDO'])}</div>
+            <div style="display: flex; justify-content: space-around; align-items: center; font-size: 1.1em;">
+                <div style="width: 40%; text-align: right;"><b>{row['Equipo_1']}</b></div>
+                <div style="width: 20%; text-align: center; background: #eee; border-radius: 5px; padding: 2px 5px;">{r1} - {r2}</div>
+                <div style="width: 40%; text-align: left;"><b>{row['Equipo_2']}</b></div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
+# 3. LATERAL DERECHO: RANKING Y ESTADÍSTICAS (30%)
 with col_rank:
-    st.subheader("📊 Tabla de Posiciones")
+    st.subheader("📊 Ranking")
+    
+    # Tabla de Ranking sin el fuego en puntos
     st.dataframe(
         df_ranking,
         use_container_width=True,
-        hide_index=True, # Ocultamos el índice de pandas para usar nuestra columna Nº
+        hide_index=True,
         column_config={
             "Nº": st.column_config.TextColumn("Nº", width="small"),
-            "PUNTOS": st.column_config.NumberColumn("PUNTOS", format="%d 🔥"),
-            "EXACTOS": st.column_config.NumberColumn("🎯 Exactos"),
-            "GENERALES": st.column_config.NumberColumn("✅ Gral")
+            "PUNTOS": st.column_config.NumberColumn("PUNTOS"), # Sin fuego
+            "EXACTOS": st.column_config.NumberColumn("🎯"),
+            "GENERALES": st.column_config.NumberColumn("✅")
         }
     )
-
-with col_extra:
-    st.subheader("➕ Extras")
-    st.info("Espacio reservado para futuras funcionalidades (gráficas, perfiles, etc.)")
-    # Aquí puedes agregar lo que quieras más adelante
+    
+    # SECCIÓN DE ESTADÍSTICAS
+    st.markdown("---")
+    st.subheader("📈 Estadísticas Globales")
+    
+    total_exactos = df_ranking["EXACTOS"].sum()
+    total_generales = df_ranking["GENERALES"].sum()
+    promedio_puntos = df_ranking["PUNTOS"].mean()
+    
+    st.metric(label="Total Resultados Exactos", value=int(total_exactos))
+    st.metric(label="Total Aciertos Generales", value=int(total_generales))
+    st.metric(label="Promedio de Puntos", value=f"{promedio_puntos:.1f}")
