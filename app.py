@@ -4,10 +4,15 @@ import pandas as pd
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
 st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
 
-def obtener_url_bandera(pais):
-    # Diccionario de códigos ISO para cada país
+import base64
+import requests
+from io import BytesIO
+
+@st.cache_data(ttl=3600)
+def get_flag_img(pais):
+    # Diccionario de códigos ISO (Mantenemos los que ya tienes)
     codigos = {
-        "Alemania": "de", "Arabia Saudita": "sa", "Argelia": "dz", "Argentina": "🇦🇷",
+        "Alemania": "de", "Arabia Saudita": "sa", "Argelia": "dz", "Argentina": "ar",
         "Australia": "au", "Austria": "at", "Bélgica": "be", "Bosnia y Herzegovina": "ba",
         "Brasil": "br", "Cabo Verde": "cv", "Canadá": "ca", "Catar": "qa",
         "Colombia": "co", "Corea del Sur": "kr", "Costa de Marfil": "ci", "Croacia": "hr",
@@ -21,13 +26,23 @@ def obtener_url_bandera(pais):
         "Suecia": "se", "Suiza": "ch", "Túnez": "tn", "Turquía": "tr",
         "Uruguay": "uy", "Uzbekistán": "uz"
     }
+    
     code = codigos.get(pais)
-    if code:
-        # Usamos flagcdn.com que es gratuita y rápida
-        return f"https://flagcdn.com{code}.png"
-    return "https://flagcdn.comun.png" # Bandera genérica (ONU)
+    if not code: return "⚽" # Fallback si no hay código
 
+    try:
+        # Descargamos la imagen y la convertimos a Base64
+        response = requests.get(f"https://flagcdn.com/w40/{code}.png", timeout=5)
+        if response.status_code == 200:
+            img_b64 = base64.b64encode(response.content).decode()
+            return f"data:image/png;base64,{img_b64}"
+    except:
+        pass
+    
+    return "⚽" # Fallback si falla la descarga
+    
 # --- CARGA DE DATOS ---
+
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
 URL_RES = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 URL_PRO = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=394071446"
@@ -113,26 +128,27 @@ with col_extra:
 with col_res:
     st.subheader("⚽ Resultados Oficiales")
     for i, row in df_res.iterrows():
-        r1 = int(row['R1']) if not pd.isna(row['R1']) else "-"
-        r2 = int(row['R2']) if not pd.isna(row['R2']) else "-"
+        # ... (mantén tu lógica de r1 y r2)
         
-        # Obtenemos URLs de las imágenes
-        url1 = obtener_url_bandera(row['Equipo_1'])
-        url2 = obtener_url_bandera(row['Equipo_2'])
+        data_flag1 = get_flag_img(row['Equipo_1'])
+        data_flag2 = get_flag_img(row['Equipo_2'])
         
+        # Lógica para mostrar IMG o Emoji si falló la carga
+        img1_html = f'<img src="{data_flag1}" width="25">' if "data:image" in data_flag1 else data_flag1
+        img2_html = f'<img src="{data_flag2}" width="25">' if "data:image" in data_flag2 else data_flag2
+
         st.markdown(f"""
         <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 10px; background-color: white; color: #333;">
-            <div style="text-align: center; font-size: 0.7em; color: #999; margin-bottom: 5px;">PARTIDO {int(row['N_PARTIDO'])}</div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="width: 40%; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
                     <span style="font-weight: bold;">{row['Equipo_1']}</span>
-                    <img src="{url1}" width="25" style="border: 1px solid #eee">
+                    {img1_html}
                 </div>
                 <div style="width: 15%; text-align: center; background: #f0f0f0; border-radius: 4px; font-weight: bold; padding: 3px;">
                     {r1} - {r2}
                 </div>
                 <div style="width: 40%; text-align: left; display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
-                    <img src="{url2}" width="25" style="border: 1px solid #eee">
+                    {img2_html}
                     <span style="font-weight: bold;">{row['Equipo_2']}</span>
                 </div>
             </div>
