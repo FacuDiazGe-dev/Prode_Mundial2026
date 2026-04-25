@@ -147,8 +147,20 @@ with col_extra:
 
 # 2. COLUMNA CENTRAL: RESULTADOS OFICIALES (50%)
 with col_res:
-    st.subheader("⚽ Resultados Oficiales")
+    # Creamos una sub-columna interna para alinear el título y el botón
+    col_tit, col_btn = st.columns([0.85, 0.15])
+    
+    with col_tit:
+        st.subheader("⚽ Resultados Oficiales")
+    
+    with col_btn:
+        # Botón pequeño con emoji de flechas circulares
+        if st.button("🔄", help="Actualizar datos desde Google Sheets"):
+            st.cache_data.clear() # Limpia el cache
+            st.rerun() # Recarga la página con datos nuevos
+            
     for i, row in df_res.iterrows():
+        
         # DEFINICIÓN DE VARIABLES (Esto faltaba o estaba mal ubicado)
         r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
         r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
