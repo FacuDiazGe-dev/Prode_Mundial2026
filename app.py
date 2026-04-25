@@ -51,51 +51,74 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 # --- FUNCIONES DE USUARIO ---
 def registrar_usuario(datos):
     try:
-        # Leemos la pestaña de usuarios
         df_actual = conn.read(worksheet="USUARIOS")
         
-        # Generar nuevo ID
+        # --- VALIDACIÓN DE USUARIO EXISTENTE ---
+        if datos["USUARIO"] in df_actual["USUARIO"].values:
+            st.error(f"❌ El usuario '{datos['USUARIO']}' ya existe. Elige otro.")
+            return False # Detenemos la función aquí
+
+        # Generar nuevo ID y Fecha
         nuevo_id = len(df_actual) + 1
         datos["ID"] = nuevo_id
         datos["FECHA_REG"] = datetime.now().strftime("%d/%m/%Y")
         
-        # Unimos el nuevo usuario al dataframe existente
+        # Añadir y actualizar
         df_nuevo = pd.concat([df_actual, pd.DataFrame([datos])], ignore_index=True)
-        
-        # Actualizamos la hoja en Google Sheets
         conn.update(worksheet="USUARIOS", data=df_nuevo)
-        st.success("✅ ¡Registro exitoso! Ya puedes ir a la pestaña 'Entrar'.")
+        
+        # ÉXITO: Preparamos la redirección
+        st.success("✅ ¡Registro exitoso! Redirigiendo al inicio de sesión...")
+        st.session_state['registro_exitoso'] = True # Indicador para el cambio de tab
+        return True
     except Exception as e:
         st.error(f"Error al registrar: {e}")
+        return False
 
 # --- GESTIÓN DE SESIÓN (LOGIN) ---
 if 'autenticado' not in st.session_state:
     st.session_state['autenticado'] = False
-    st.session_state['user_data'] = None
-
+if 'registro_exitoso' not in st.session_state:
+    st.session_state['registro_exitoso'] = False
+# --- PANTALLA DE ACCESO (Si no está logueado) ---
 if not st.session_state['autenticado']:
     st.title("🏆 Prode Mundial 2026")
     tab_login, tab_reg = st.tabs(["🔐 Entrar", "📝 Registrarse"])
+    
+  # Si viene de un registro exitoso, le mostramos un mensaje de éxito en la zona de Login
+    if st.session_state['registro_exitoso']:
+        with tab_login:
+            st.success("✅ Registro completado. ¡Ingresa ahora!")
+        # Importante: No lo reseteamos aquí todavía para que el mensaje no desaparezca al instante
     
     with tab_login:
         with st.form("form_login"):
             u = st.text_input("Usuario")
             p = st.text_input("Contraseña", type="password")
-            btn_login = st.form_submit_button("Iniciar Sesión")
+            if st.form_submit_button("Iniciar Sesión"):
+                # ... (Aquí va tu lógica de validar usuario que ya tienes) ...
+                # Si el login es exitoso, reseteamos el aviso de registro
+                st.session_state['registro_exitoso'] = False
+                # st.session_state['autenticado'] = True (etc...)
+                st.rerun()
+
+    with tab_reg:
+        with st.form("form_registro", clear_on_submit=True):
+            # ... (Tus inputs: new_u, new_p, new_n, etc.) ...
             
-            if btn_login:
-                df_u = conn.read(worksheet="USUARIOS")
-                # Buscamos al usuario y validamos contraseña
-                user_match = df_u[(df_u['USUARIO'] == u) & (df_u['CONTRASEÑA'].astype(str) == str(p))]
+            if st.form_submit_button("Finalizar Registro"):
+                # Llamamos a la función que definimos arriba
+                resultado = registrar_usuario({
+                    "USUARIO": new_u, "CONTRASEÑA": new_p, "NOMBRE": new_n,
+                    "EDAD": new_e, "EQUIPO FAVORITO": new_f, "DESCRIPCION": new_d,
+                    "ROL": "jugador", "AVATAR_URL": ""
+                })
                 
-                if not user_match.empty:
-                    st.session_state['autenticado'] = True
-                    # Guardamos todos los datos del usuario en la sesión
-                    st.session_state['user_data'] = user_match.iloc[0].to_dict()
-                    st.success(f"Bienvenido {st.session_state['user_data']['NOMBRE']}")
-                    st.rerun()
-                else:
-                    st.error("Usuario o contraseña incorrectos")
+                if resultado: # Si la función devolvió True (éxito)
+                    st.session_state['registro_exitoso'] = True
+                    st.rerun() # RECARGA LA APP Y CAE EN EL TAB DE LOGIN POR DEFECTO
+
+    st.stop() # Bloquea el resto de la app hasta que se loguee
 
     with tab_reg:
         with st.form("form_registro"):
