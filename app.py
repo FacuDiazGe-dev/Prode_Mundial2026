@@ -7,6 +7,8 @@ st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wid
 
 # URL de tu Google Sheet (la que copias del navegador)
 URL_SHEET = "https://google.com"
+df_res = conn.read(spreadsheet=URL_SHEET, worksheet="RESULTADOS")
+df_pro = conn.read(spreadsheet=URL_SHEET, worksheet="PRONOSTICOS")
 
 # LÓGICA DE PUNTUACIÓN
 def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
