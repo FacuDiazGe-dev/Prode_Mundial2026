@@ -51,37 +51,48 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 # 3. LA FUNCIÓN CORREGIDA (Copia y pega esto aquí)
 def registrar_usuario(datos):
     try:
-        # 1. FORZAR LECTURA REAL DEL GOOGLE SHEET
-        # Usamos ttl=0 para que Streamlit NO use datos guardados y mire el Excel AHORA
-        df_verificacion = conn.read(worksheet="USUARIOS", ttl=0)
+        # 1. FORZAR LECTURA REAL (Sin caché)
+        # Esto es vital para ver lo que hay en el Excel AHORA MISMO
+        st.cache_data.clear()
+        df_actual = conn.read(worksheet="USUARIOS", ttl=0)
         
-        # 2. LIMPIEZA DE DATOS PARA COMPARAR
-        # Pasamos todo a minúsculas y quitamos espacios para que "Juan" sea igual a "juan"
-        nuevo_usuario = str(datos["USUARIO"]).strip().lower()
-        lista_existentes = df_verificacion["USUARIO"].astype(str).str.strip().str.lower().tolist()
+        # 2. VERIFICACIÓN DE DUPLICADOS (Blindada)
+        nuevo_user = str(datos["USUARIO"]).strip().lower()
+        existentes = df_actual["USUARIO"].astype(str).str.strip().str.lower().tolist()
         
-        # 3. LA VERIFICACIÓN QUE PIDES
-        if nuevo_usuario in lista_existentes:
-            st.error(f"⚠️ El nombre de usuario '{datos['USUARIO']}' ya está en uso. Por favor, elige otro.")
-            return False # Aquí se detiene y NO ejecuta la carga
+        if nuevo_user in existentes:
+            st.error(f"❌ Error: El usuario '{datos['USUARIO']}' ya existe. No se realizó el registro.")
+            return False
 
-        # 4. SI NO EXISTE, PREPARAMOS LA CARGA
-        proximo_id = int(df_verificacion["ID"].max()) + 1 if not df_verificacion.empty else 1
-        datos["ID"] = proximo_id
+        # 3. CÁLCULO DE ID SEGURO
+        # Si la tabla está vacía empezamos en 1, si no, el máximo + 1
+        if not df_actual.empty and "ID" in df_actual.columns:
+            nuevo_id = int(df_actual["ID"].max()) + 1
+        else:
+            nuevo_id = 1
+            
+        datos["ID"] = nuevo_id
         datos["FECHA_REG"] = datetime.now().strftime("%d/%m/%Y")
         
-        # 5. CARGA DE DATOS
-        df_final = pd.concat([df_verificacion, pd.DataFrame([datos])], ignore_index=True)
+        # 4. CREAR EL NUEVO REGISTRO Y LIMPIAR ÍNDICES
+        # Creamos un DataFrame de 1 sola fila con el nuevo usuario
+        df_nuevo = pd.DataFrame([datos])
+        
+        # Concatenamos y RESETEAMOS el índice (Esto evita que se pise la fila 0)
+        df_final = pd.concat([df_actual, df_nuevo], ignore_index=True)
+        
+        # 5. ACTUALIZACIÓN TOTAL DE LA HOJA
+        # Pasamos el DataFrame completo para que reemplace la hoja con la lista crecida
         conn.update(worksheet="USUARIOS", data=df_final)
         
-        # 6. LIMPIAR CACHÉ POST-CARGA
+        # 6. LIMPIEZA FINAL Y ÉXITO
         st.cache_data.clear()
-        st.success("🎉 ¡Usuario creado correctamente!")
+        st.success("✅ Usuario registrado exitosamente al final de la lista.")
         st.session_state['registro_exitoso'] = True
         return True
-        
+
     except Exception as e:
-        st.error(f"Error al conectar con la base de datos: {e}")
+        st.error(f"⚠️ Error crítico: {e}")
         return False
 # --- FUNCIONES DE USUARIO ---
 def registrar_usuario(datos):
