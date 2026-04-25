@@ -9,7 +9,7 @@ SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
 
 # URLs directas de exportación (Formato garantizado para Streamlit)
 URL_RES = f"https://google.com{SHEET_ID}/export?format=csv&gid=0"
-URL_PRO = f"https://google.com{SHEET_ID}/export?format=csv&gid=563587834"
+URL_PRO = f"https://google.com{SHEET_ID}/export?format=csv&gid=394071446"
 
 def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
     if pd.isna(r1_real) or pd.isna(r2_real) or pd.isna(r1_prode) or pd.isna(r2_prode):
