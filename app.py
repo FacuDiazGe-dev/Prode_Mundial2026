@@ -1,79 +1,79 @@
 import streamlit as st
 import pandas as pd
 
-# Configuración de la página
+# Configuración básica
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
 
-# ID de tu documento
+# Datos del Google Sheet
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
-
-# URLs para leer las pestañas específicas como CSV
-# IMPORTANTE: En Google Sheets ve a Archivo > Compartir > Compartir con otros 
-# y asegúrate de que "Cualquier persona con el enlace" pueda leer.
-URL_RESULTADOS = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RESULTADOS"
-URL_PRONOSTICOS = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=PRONOSTICOS"
+URL_RESULTADOS = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RESULTADOS"
+URL_PRONOSTICOS = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=PRONOSTICOS"
 
 def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
-    # Si no hay resultado cargado, no suma
-    if pd.isna(r1_real) or pd.isna(r2_real):
+    if pd.isna(r1_real) or pd.isna(r2_real) or pd.isna(r1_prode) or pd.isna(r2_prode):
         return 0
-    
-    puntos = 0
-    # Lógica de Ganador/Empate (+1)
+    pts = 0
     if (r1_real > r2_real and r1_prode > r2_prode) or \
        (r1_real < r2_real and r1_prode < r2_prode) or \
        (r1_real == r2_real and r1_prode == r2_prode):
-        puntos += 1
-        # Lógica Exacto (+2 adicionales = Total 3)
-        if r1_real == r1_prode and r2_real == r2_prode:
-            puntos += 2
-    return puntos
+        pts += 1
+        if int(r1_real) == int(r1_prode) and int(r2_real) == int(r2_prode):
+            pts += 2
+    return pts
 
 try:
-    # Carga de datos
     df_res = pd.read_csv(URL_RESULTADOS)
     df_pro = pd.read_csv(URL_PRONOSTICOS)
 
-    st.title("🏆 Mundial 2026 - Ranking Familiar")
-    st.write("Resultados actualizados automáticamente desde el Google Sheet.")
+    # Menú de navegación lateral
+    st.sidebar.title("Navegación")
+    seccion = st.sidebar.radio("Ir a:", ["Ranking General", "Detalle por Jugador"])
 
-    ranking = []
-    # Calculamos puntos para los 10 jugadores
-    for i in range(1, 11):
-        total_puntos = 0
-        for _, fila in df_res.iterrows():
-            n_partido = fila['N_Partido']
-            # Buscamos el pronóstico de este jugador para este partido
-            prode_row = df_pro[df_pro['N_Partido'] == n_partido]
-            
-            if not prode_row.empty:
-                p_r1 = prode_row.iloc[0][f'Jugador_{i}_E1']
-                p_r2 = prode_row.iloc[0][f'Jugador_{i}_E2']
-                
-                puntos = calcular_puntos(fila['R1'], fila['R2'], p_r1, p_r2)
-                total_puntos += puntos
+    if seccion == "Ranking General":
+        st.title("🏆 Ranking Prode Familiar")
+        ranking = []
+        for i in range(1, 11):
+            total = 0
+            for _, partido in df_res.iterrows():
+                n = partido['N_Partido']
+                prode = df_pro[df_pro['N_Partido'] == n]
+                if not prode.empty:
+                    puntos = calcular_puntos(partido['R1'], partido['R2'], prode[f'Jugador_{i}_E1'].iloc[0], prode[f'Jugador_{i}_E2'].iloc[0])
+                    total += puntos
+            ranking.append({"Familiar": f"Jugador {i}", "Puntos": total})
         
-        ranking.append({"Familiar": f"Jugador {i}", "Puntos": total_puntos})
+        df_ranking = pd.DataFrame(ranking).sort_values(by="Puntos", ascending=False)
+        
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            st.dataframe(df_ranking.reset_index(drop=True), use_container_width=True)
+        with col2:
+            st.bar_chart(df_ranking.set_index("Familiar"))
 
-    # Crear y ordenar el Ranking
-    df_ranking = pd.DataFrame(ranking).sort_values(by="Puntos", ascending=False).reset_index(drop=True)
-    df_ranking.index += 1 # Para que la posición empiece en 1
-
-    # Interfaz Visual
-    col1, col2 = st.columns([1, 2])
-    
-    with col1:
-        st.subheader("Tabla de Posiciones")
-        st.table(df_ranking)
-
-    with col2:
-        st.subheader("Gráfico de Rendimiento")
-        st.bar_chart(df_ranking.set_index("Familiar"))
-
-    # Mostrar partidos jugados para control
-    with st.expander("Ver resultados cargados"):
-        st.dataframe(df_res.dropna(subset=['R1']))
+    else:
+        st.title("🔍 Detalle de Pronósticos")
+        jugador_sel = st.selectbox("Selecciona un familiar:", [f"Jugador {i}" for i in range(1, 11)])
+        idx = jugador_sel.split(" ")[1] # Sacamos el número
+        
+        # Unimos las tablas para mostrar la comparación
+        detalle = []
+        for _, partido in df_res.iterrows():
+            n = partido['N_Partido']
+            prode = df_pro[df_pro['N_Partido'] == n]
+            
+            p_r1 = prode[f'Jugador_{idx}_E1'].iloc[0]
+            p_r2 = prode[f'Jugador_{idx}_E2'].iloc[0]
+            
+            puntos_obtenidos = calcular_puntos(partido['R1'], partido['R2'], p_r1, p_r2)
+            
+            detalle.append({
+                "Partido": f"{partido['Equipo_1']} vs {partido['Equipo_2']}",
+                "Real": f"{int(partido['R1']) if not pd.isna(partido['R1']) else '-'} - {int(partido['R2']) if not pd.isna(partido['R2']) else '-'}",
+                "Tu Pronóstico": f"{int(p_r1)} - {int(p_r2)}",
+                "Puntos": puntos_obtenidos
+            })
+        
+        st.table(pd.DataFrame(detalle))
 
 except Exception as e:
-    st.error(f"Error al conectar con la hoja: {e}")
-    st.info("Asegúrate de que el archivo de Google Sheets tenga acceso público para lectura.")
+    st.error(f"Hubo un problema al cargar los datos: {e}")
