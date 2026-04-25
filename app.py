@@ -1,38 +1,42 @@
 import streamlit as st
 import pandas as pd
-from streamlit_gsheets import GSheetsConnection
 
-# CONFIGURACIÓN
+# 1. CONFIGURACIÓN
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
 
-# URL de tu Google Sheet (la normal que usas en el navegador)
-URL_HOJA = "https://google.com"
+# ID de tu hoja y GIDs
+SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
+# GID 0 suele ser la primera pestaña, 394071446 es la que me pasaste
+URL_RES = f"https://google.com{SHEET_ID}/export?format=csv&gid=0"
+URL_PRO = f"https://google.com{SHEET_ID}/export?format=csv&gid=394071446"
 
 def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
-    if pd.isna(r1_real) or pd.isna(r2_real) or pd.isna(r1_prode) or pd.isna(r2_prode):
+    try:
+        # Convertimos a entero para evitar errores de comparación
+        r1_r, r2_r = int(r1_real), int(r2_real)
+        r1_p, r2_p = int(r1_prode), int(r2_prode)
+    except:
         return 0
+    
     pts = 0
-    if (r1_real > r2_real and r1_prode > r2_prode) or \
-       (r1_real < r2_real and r1_prode < r2_prode) or \
-       (r1_real == r2_real and r1_prode == r2_prode):
+    # Ganador o Empate (+1)
+    if (r1_r > r2_r and r1_p > r2_p) or (r1_r < r2_r and r1_p < r2_p) or (r1_r == r2_r and r1_p == r2_p):
         pts += 1
-        if int(r1_real) == int(r1_prode) and int(r2_real) == int(r2_prode):
+        # Exacto (+2 adicionales)
+        if r1_r == r1_p and r2_r == r2_p:
             pts += 2
     return pts
 
 try:
-    # CONEXIÓN OFICIAL
-    conn = st.connection("gsheets", type=GSheetsConnection)
-    
-    # Lectura de pestañas por nombre exacto
-    df_res = conn.read(spreadsheet=URL_HOJA, worksheet="RESULTADOS")
-    df_pro = conn.read(spreadsheet=URL_HOJA, worksheet="PRONOSTICOS")
+    # CARGA DIRECTA DE CSV
+    df_res = pd.read_csv(URL_RES)
+    df_pro = pd.read_csv(URL_PRO)
 
-    st.sidebar.title("Navegación")
+    st.sidebar.title("Menú")
     seccion = st.sidebar.radio("Ir a:", ["Ranking General", "Detalle por Jugador"])
 
     if seccion == "Ranking General":
-        st.title("🏆 Ranking Prode Familiar")
+        st.title("🏆 Ranking Familiar - Mundial 2026")
         ranking = []
         for i in range(1, 11):
             total = 0
@@ -40,6 +44,7 @@ try:
                 n = part['N_Partido']
                 prode = df_pro[df_pro['N_Partido'] == n]
                 if not prode.empty:
+                    # Usamos [0] para obtener el valor escalar
                     p1 = prode[f'Jugador_{i}_E1'].values[0]
                     p2 = prode[f'Jugador_{i}_E2'].values[0]
                     total += calcular_puntos(part['R1'], part['R2'], p1, p2)
@@ -51,9 +56,9 @@ try:
         with c2: st.bar_chart(df_rank.set_index("Familiar"))
 
     else:
-        st.title("🔍 Detalle de Pronósticos")
+        st.title("🔍 Detalle por Jugador")
         jugador_sel = st.selectbox("Selecciona un familiar:", [f"Jugador {i}" for i in range(1, 11)])
-        num = jugador_sel.split(" ")[1] # Extrae el número
+        num = jugador_sel.split(" ")[1] # Obtenemos solo el número
         
         detalle = []
         for _, part in df_res.iterrows():
@@ -73,4 +78,4 @@ try:
 
 except Exception as e:
     st.error(f"Error de conexión: {e}")
-    st.info("Asegúrate de que la hoja de Google Sheets sea pública para cualquiera con el enlace.")
+    st.info("Verifica que las pestañas se llamen RESULTADOS y PRONOSTICOS exactamente.")
