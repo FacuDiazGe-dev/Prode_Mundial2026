@@ -1,13 +1,23 @@
 import streamlit as st
 import pandas as pd
+import time
 
-# Configuración básica
+# 1. CONFIGURACIÓN INICIAL
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
 
-# Datos del Google Sheet
+# Tus enlaces de Google Sheets
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
 URL_RESULTADOS = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RESULTADOS"
 URL_PRONOSTICOS = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=PRONOSTICOS"
+
+# 2. FUNCIONES DE APOYO
+def cargar_datos_seguro(url):
+    for i in range(3):
+        try:
+            return pd.read_csv(url)
+        except Exception:
+            time.sleep(1)
+    return None
 
 def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
     if pd.isna(r1_real) or pd.isna(r2_real) or pd.isna(r1_prode) or pd.isna(r2_prode):
@@ -21,11 +31,15 @@ def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
             pts += 2
     return pts
 
+# 3. CARGA Y LÓGICA PRINCIPAL
 try:
-    df_res = pd.read_csv(URL_RESULTADOS)
-    df_pro = pd.read_csv(URL_PRONOSTICOS)
+    df_res = cargar_datos_seguro(URL_RESULTADOS)
+    df_pro = cargar_datos_seguro(URL_PRONOSTICOS)
 
-    # Menú de navegación lateral
+    if df_res is None or df_pro is None:
+        st.error("Error de conexión con Google Sheets. Refresca la página.")
+        st.stop()
+
     st.sidebar.title("Navegación")
     seccion = st.sidebar.radio("Ir a:", ["Ranking General", "Detalle por Jugador"])
 
@@ -43,7 +57,6 @@ try:
             ranking.append({"Familiar": f"Jugador {i}", "Puntos": total})
         
         df_ranking = pd.DataFrame(ranking).sort_values(by="Puntos", ascending=False)
-        
         col1, col2 = st.columns([1, 2])
         with col1:
             st.dataframe(df_ranking.reset_index(drop=True), use_container_width=True)
@@ -53,27 +66,25 @@ try:
     else:
         st.title("🔍 Detalle de Pronósticos")
         jugador_sel = st.selectbox("Selecciona un familiar:", [f"Jugador {i}" for i in range(1, 11)])
-        idx = jugador_sel.split(" ")[1] # Sacamos el número
+        # Extraemos el número del jugador seleccionado
+        num_jugador = jugador_sel.split(" ")[1]
         
-        # Unimos las tablas para mostrar la comparación
         detalle = []
         for _, partido in df_res.iterrows():
             n = partido['N_Partido']
             prode = df_pro[df_pro['N_Partido'] == n]
             
-            p_r1 = prode[f'Jugador_{idx}_E1'].iloc[0]
-            p_r2 = prode[f'Jugador_{idx}_E2'].iloc[0]
-            
-            puntos_obtenidos = calcular_puntos(partido['R1'], partido['R2'], p_r1, p_r2)
+            p_r1 = prode[f'Jugador_{num_jugador}_E1'].iloc[0]
+            p_r2 = prode[f'Jugador_{num_jugador}_E2'].iloc[0]
+            pts = calcular_puntos(partido['R1'], partido['R2'], p_r1, p_r2)
             
             detalle.append({
                 "Partido": f"{partido['Equipo_1']} vs {partido['Equipo_2']}",
                 "Real": f"{int(partido['R1']) if not pd.isna(partido['R1']) else '-'} - {int(partido['R2']) if not pd.isna(partido['R2']) else '-'}",
-                "Tu Pronóstico": f"{int(p_r1)} - {int(p_r2)}",
-                "Puntos": puntos_obtenidos
+                "Pronóstico": f"{int(p_r1)} - {int(p_r2)}",
+                "Pts": pts
             })
-        
         st.table(pd.DataFrame(detalle))
 
 except Exception as e:
-    st.error(f"Hubo un problema al cargar los datos: {e}")
+    st.error(f"Error crítico: {e}")
