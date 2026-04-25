@@ -41,87 +41,103 @@ def get_flag_img(pais):
     
     return "⚽" # Fallback si falla la descarga
 # ----LOGIN---
-import streamlit as st
-from streamlit_gsheets import GSheetsConnection
-import pandas as pd
-from datetime import datetime
-
-# --- CONEXIÓN ---
+# --- CONFIGURACIÓN DE CONEXIÓN A GOOGLE SHEETS ---
+# Asegúrate de tener configurado .streamlit/secrets.toml o los Secrets en Streamlit Cloud
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # --- FUNCIONES DE USUARIO ---
 def registrar_usuario(datos):
-    df_actual = conn.read(worksheet="USUARIOS")
-    # Generar nuevo ID
-    nuevo_id = len(df_actual) + 1
-    datos["ID"] = nuevo_id
-    datos["FECHA_REG"] = datetime.now().strftime("%d/%m/%Y")
-    
-    # Añadir al dataframe y actualizar la hoja
-    df_nuevo = pd.concat([df_actual, pd.DataFrame([datos])], ignore_index=True)
-    conn.update(worksheet="USUARIOS", data=df_nuevo)
-    st.success("✅ ¡Registro exitoso! Ya puedes iniciar sesión.")
-# En la parte del formulario de registro, forzamos el rol:
-if st.form_submit_button("Crear Cuenta"):
-    registrar_usuario({
-        "USUARIO": new_u, 
-        "CONTRASEÑA": new_p, 
-        "NOMBRE": new_n,
-        "EDAD": new_e, 
-        "EQUIPO FAVORITO": new_f, 
-        "DESCRIPCION": new_d,
-        "ROL": "jugador", # <-- NADIE MÁS PUEDE SER ADMIN AL REGISTRARSE
-        "AVATAR_URL": ""
-    })
+    try:
+        # Leemos la pestaña de usuarios
+        df_actual = conn.read(worksheet="USUARIOS")
+        
+        # Generar nuevo ID
+        nuevo_id = len(df_actual) + 1
+        datos["ID"] = nuevo_id
+        datos["FECHA_REG"] = datetime.now().strftime("%d/%m/%Y")
+        
+        # Unimos el nuevo usuario al dataframe existente
+        df_nuevo = pd.concat([df_actual, pd.DataFrame([datos])], ignore_index=True)
+        
+        # Actualizamos la hoja en Google Sheets
+        conn.update(worksheet="USUARIOS", data=df_nuevo)
+        st.success("✅ ¡Registro exitoso! Ya puedes ir a la pestaña 'Entrar'.")
+    except Exception as e:
+        st.error(f"Error al registrar: {e}")
 
-# --- LÓGICA DE ACCESO EN SESSION STATE ---
+# --- GESTIÓN DE SESIÓN (LOGIN) ---
 if 'autenticado' not in st.session_state:
     st.session_state['autenticado'] = False
+    st.session_state['user_data'] = None
 
 if not st.session_state['autenticado']:
+    st.title("🏆 Prode Mundial 2026")
     tab_login, tab_reg = st.tabs(["🔐 Entrar", "📝 Registrarse"])
     
     with tab_login:
-        with st.form("login"):
+        with st.form("form_login"):
             u = st.text_input("Usuario")
             p = st.text_input("Contraseña", type="password")
-            if st.form_submit_button("Iniciar Sesión"):
+            btn_login = st.form_submit_button("Iniciar Sesión")
+            
+            if btn_login:
                 df_u = conn.read(worksheet="USUARIOS")
-                valido = df_u[(df_u['USUARIO'] == u) & (df_u['CONTRASEÑA'].astype(str) == str(p))]
-                if not valido.empty:
+                # Buscamos al usuario y validamos contraseña
+                user_match = df_u[(df_u['USUARIO'] == u) & (df_u['CONTRASEÑA'].astype(str) == str(p))]
+                
+                if not user_match.empty:
                     st.session_state['autenticado'] = True
-                    st.session_state['user_data'] = valido.iloc[0].to_dict()
+                    # Guardamos todos los datos del usuario en la sesión
+                    st.session_state['user_data'] = user_match.iloc[0].to_dict()
+                    st.success(f"Bienvenido {st.session_state['user_data']['NOMBRE']}")
                     st.rerun()
                 else:
-                    st.error("Credenciales incorrectas")
+                    st.error("Usuario o contraseña incorrectos")
 
     with tab_reg:
-        with st.form("registro"):
-            new_u = st.text_input("Elige un Usuario")
+        with st.form("form_registro"):
+            st.subheader("Crea tu cuenta")
+            new_u = st.text_input("Nombre de Usuario (Nick)")
             new_p = st.text_input("Contraseña", type="password")
-            new_n = st.text_input("Nombre Completo")
-            new_e = st.number_input("Edad", min_value=1, max_value=100)
-            new_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "España", "Brasil", "Otros..."])
-            new_d = st.text_area("Descripción (tu frase de batalla)")
+            new_n = st.text_input("Nombre Real")
+            new_e = st.number_input("Edad", min_value=1, max_value=100, value=25)
+            new_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "Canadá", "EEUU", "Brasil", "España", "Otro"])
+            new_d = st.text_area("Descripción (Bio)")
             
-            if st.form_submit_button("Crear Cuenta"):
-                # Verificar si el usuario ya existe
-                df_check = conn.read(worksheet="USUARIOS")
-                if new_u in df_check['USUARIO'].values:
-                    st.warning("Ese nombre de usuario ya existe.")
+            btn_reg = st.form_submit_button("Finalizar Registro")
+            
+            if btn_reg:
+                if new_u and new_p and new_n:
+                    # Validar si el usuario ya existe
+                    df_check = conn.read(worksheet="USUARIOS")
+                    if new_u in df_check['USUARIO'].values:
+                        st.warning("Ese nombre de usuario ya está tomado.")
+                    else:
+                        registrar_usuario({
+                            "USUARIO": new_u,
+                            "CONTRASEÑA": new_p,
+                            "NOMBRE": new_n,
+                            "EDAD": new_e,
+                            "EQUIPO FAVORITO": new_f,
+                            "DESCRIPCION": new_d,
+                            "ROL": "jugador", # Rol por defecto
+                            "AVATAR_URL": ""
+                        })
                 else:
-                    registrar_usuario({
-                        "USUARIO": new_u, "CONTRASEÑA": new_p, "NOMBRE": new_n,
-                        "EDAD": new_e, "EQUIPO FAVORITO": new_f, "DESCRIPCION": new_d,
-                        "ROL": "jugador", "AVATAR_URL": ""
-                    })
-    st.stop()
+                    st.error("Por favor completa los campos obligatorios (Usuario, Clave y Nombre).")
+    
+    st.stop() # Detiene la app aquí si no están logueados
 
-# --- SI ESTÁ AUTENTICADO, CONTINÚA LA APP ---
-st.sidebar.success(f"Hola {st.session_state['user_data']['NOMBRE']}!")
-if st.sidebar.button("Cerrar Sesión"):
-    st.session_state['autenticado'] = False
-    st.rerun()
+# --- SI LLEGAMOS AQUÍ, EL USUARIO ESTÁ LOGUEADO ---
+# Sidebar de usuario
+with st.sidebar:
+    st.image("https://flaticon.com", width=100) # Imagen genérica
+    st.write(f"👤 **{st.session_state['user_data']['NOMBRE']}**")
+    st.write(f"🏅 Rol: {st.session_state['user_data']['ROL']}")
+    if st.button("Cerrar Sesión"):
+        st.session_state['autenticado'] = False
+        st.session_state['user_data'] = None
+        st.rerun()
     
 # --- CARGA DE DATOS ---
 
