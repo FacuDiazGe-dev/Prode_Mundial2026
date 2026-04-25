@@ -4,17 +4,21 @@ import pandas as pd
 # 1. CONFIGURACIÓN
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
 
-# Tus IDs de Google Sheets
+# IDs de Google Sheets
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
 URL_RES = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RESULTADOS"
 URL_PRO = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=PRONOSTICOS"
+
+# 2. FUNCIÓN PARA CARGAR DATOS CON CACHE (Evita el error de conexión)
+@st.cache_data(ttl=300) # Guarda los datos por 5 minutos
+def cargar_datos(url):
+    return pd.read_csv(url)
 
 def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
     try:
         if pd.isna(r1_real) or pd.isna(r2_real): return 0
         r1_r, r2_r = int(r1_real), int(r2_real)
         r1_p, r2_p = int(r1_prode), int(r2_prode)
-        
         pts = 0
         if (r1_r > r2_r and r1_p > r2_p) or (r1_r < r2_r and r1_p < r2_p) or (r1_r == r2_r and r1_p == r2_p):
             pts += 1
@@ -25,8 +29,9 @@ def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
         return 0
 
 try:
-    df_res = pd.read_csv(URL_RES)
-    df_pro = pd.read_csv(URL_PRO)
+    # Carga usando la función con cache
+    df_res = cargar_datos(URL_RES)
+    df_pro = cargar_datos(URL_PRO)
 
     st.sidebar.title("Menú Mundial")
     seccion = st.sidebar.radio("Ir a:", ["Ranking General", "Detalle por Jugador"])
@@ -53,7 +58,6 @@ try:
     else:
         st.title("🔍 Detalle por Jugador")
         jugador_sel = st.selectbox("Selecciona un familiar:", [f"Jugador {i}" for i in range(1, 11)])
-        # Extraemos el número del nombre
         n_jug = jugador_sel.split(" ")[1]
         
         detalle = []
@@ -65,7 +69,6 @@ try:
                 p2_val = prode[f'Jugador_{n_jug}_E2'].values[0]
                 pts = calcular_puntos(part['R1'], part['R2'], p1_val, p2_val)
                 
-                # Visualización con guion "-" si está vacío
                 res_real = f"{int(part['R1'])} - {int(part['R2'])}" if not pd.isna(part['R1']) else "-"
                 res_prode = f"{int(p1_val)} - {int(p2_val)}" if not pd.isna(p1_val) else "-"
                 
@@ -77,5 +80,11 @@ try:
                 })
         st.dataframe(pd.DataFrame(detalle), use_container_width=True, hide_index=True)
 
+    # Botón para forzar actualización si el cache está activo
+    if st.sidebar.button("Actualizar Datos ahora"):
+        st.cache_data.clear()
+        st.rerun()
+
 except Exception as e:
-    st.error(f"Error: {e}")
+    st.error(f"Error de conexión: {e}")
+    st.button("Reintentar conexión")
