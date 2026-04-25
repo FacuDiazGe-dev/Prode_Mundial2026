@@ -119,10 +119,31 @@ df_ranking = df_ranking[["Nº", "JUGADOR", "PUNTOS", "EXACTOS", "GENERALES"]]
 # Configuración de columnas según tus porcentajes: 20%, 50%, 30%
 col_extra, col_res, col_rank = st.columns([0.2, 0.5, 0.3])
 
-# 1. LATERAL IZQUIERDO: EXTRAS (20%)
+# 1. LATERAL IZQUIERDO: MENÚ DE NAVEGACIÓN (20%)
 with col_extra:
-    st.subheader("➕ Extras")
-    st.info("Espacio para futuras secciones")
+    st.subheader("📍 Navegación")
+    
+    # Creamos el menú de opciones
+    menu = st.radio(
+        "Ir a:",
+        ["🏠 Inicio", "👥 Jugadores", "💬 Foro"],
+        key="menu_navegacion"
+    )
+    
+    st.markdown("---")
+    
+    # Lógica para mostrar contenido según la sección elegida
+    if menu == "🏠 Inicio":
+        st.write("Bienvenido al Prode Oficial.")
+        st.info("Aquí verás las noticias generales próximamente.")
+        
+    elif menu == "👥 Jugadores":
+        st.write("Sección de Jugadores")
+        st.info("Aquí pondremos las fotos o perfiles de los participantes.")
+        
+    elif menu == "💬 Foro":
+        st.write("Espacio de Discusión")
+        st.info("Aquí activaremos un chat para los comentarios.")
 
 # 2. COLUMNA CENTRAL: RESULTADOS OFICIALES (50%)
 with col_res:
