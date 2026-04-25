@@ -25,60 +25,56 @@ def load_data():
 df_res, df_pro = load_data()
 
 # --- FUNCIÓN DE CÁLCULO MEJORADA ---
-def calcular_puntos(r1, r2, p1, p2):
-    # Verificación de datos faltantes
+def calcular_detalle(r1, r2, p1, p2):
     if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
-        return 0
+        return 0, 0, 0 # Puntos, Exactos, Generales
     
-    puntos = 0
-    # Convertir a int para asegurar comparación matemática
+    puntos, exactos, generales = 0, 0, 0
     r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
     
-    # 1. Determinar tendencia (1: E1 gana, 2: E2 gana, 0: Empate)
     tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
     tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
     
-    # Acierto de tendencia (+1 punto)
     if tendencia_real == tendencia_pron:
-        puntos += 1
-        # Acierto exacto (+2 puntos adicionales)
         if r1 == p1 and r2 == p2:
-            puntos += 2
+            exactos = 1
+            puntos = 3 # 1 de tendencia + 2 de bonus
+        else:
+            generales = 1
+            puntos = 1
             
-    return puntos
-
+    return puntos, exactos, generales
+    
 # --- CÁLCULO DEL RANKING ---
 ranking = []
-# Iteramos por los 10 jugadores definidos
 for j in range(1, 11):
-    total_puntos = 0
-    col_e1 = f"Jugador_{j}_E1"
-    col_e2 = f"Jugador_{j}_E2"
+    total_pts, total_ex, total_gen = 0, 0, 0
+    col_e1, col_e2 = f"Jugador_{j}_E1", f"Jugador_{j}_E2"
     
-    # Aseguramos que las columnas existan en la pestaña Pronósticos
-    if col_e1 in df_pro.columns and col_e2 in df_pro.columns:
-        # Convertimos pronósticos del jugador a números
+    if col_e1 in df_pro.columns:
         df_pro[col_e1] = pd.to_numeric(df_pro[col_e1], errors='coerce')
         df_pro[col_e2] = pd.to_numeric(df_pro[col_e2], errors='coerce')
 
         for i in range(len(df_res)):
-            n_partido = df_res.loc[i, 'N_PARTIDO']
+            partido_id = df_res.loc[i, 'N_PARTIDO']
+            row_pro = df_pro[df_pro['N_PARTIDO'] == partido_id].iloc[0]
             
-            # Buscamos el pronóstico para este partido específico
-            row_pro = df_pro[df_pro['N_PARTIDO'] == n_partido]
-            
-            if not row_pro.empty:
-                total_puntos += calcular_puntos(
-                    df_res.loc[i, 'R1'], 
-                    df_res.loc[i, 'R2'],
-                    row_pro.iloc[0][col_e1], 
-                    row_pro.iloc[0][col_e2]
-                )
+            pts, ex, gen = calcular_detalle(df_res.loc[i, 'R1'], df_res.loc[i, 'R2'], row_pro[col_e1], row_pro[col_e2])
+            total_pts += pts
+            total_ex += ex
+            total_gen += gen
     
-    ranking.append({"Jugador": f"Jugador {j}", "Puntos": total_puntos})
+    ranking.append({"JUGADOR": f"Jugador {j}", "PUNTOS": total_pts, "EXACTOS": total_ex, "GENERALES": total_gen})
 
-# Crear y ordenar DataFrame
-df_ranking = pd.DataFrame(ranking).sort_values(by="Puntos", ascending=False).reset_index(drop=True)
+# Crear DataFrame y ordenar
+df_ranking = pd.DataFrame(ranking).sort_values(by=["PUNTOS", "EXACTOS"], ascending=False).reset_index(drop=True)
+
+# Agregar columna de posición con la corona
+df_ranking.index = df_ranking.index + 1
+df_ranking["Nº"] = df_ranking.index.map(lambda x: f"👑" if x == 1 else str(x))
+
+# Reordenar columnas
+df_ranking = df_ranking[["Nº", "JUGADOR", "PUNTOS", "EXACTOS", "GENERALES"]]
 
 # --- VISUALIZACIÓN ---
 
@@ -101,12 +97,17 @@ with col_res:
         """, unsafe_allow_html=True)
 
 with col_rank:
-    st.subheader("📊 Ranking de Puntos")
-    # Mostramos el ranking con un estilo más llamativo
+    st.subheader("📊 Tabla de Posiciones")
     st.dataframe(
-        df_ranking.reset_index(drop=True), 
+        df_ranking,
         use_container_width=True,
-        height=850 # Ajusta según la cantidad de jugadores para evitar scroll
+        hide_index=True, # Ocultamos el índice de pandas para usar nuestra columna Nº
+        column_config={
+            "Nº": st.column_config.TextColumn("Nº", width="small"),
+            "PUNTOS": st.column_config.NumberColumn("PUNTOS", format="%d 🔥"),
+            "EXACTOS": st.column_config.NumberColumn("🎯 Exactos"),
+            "GENERALES": st.column_config.NumberColumn("✅ Gral")
+        }
     )
 
 with col_extra:
