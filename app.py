@@ -61,6 +61,18 @@ def registrar_usuario(datos):
     df_nuevo = pd.concat([df_actual, pd.DataFrame([datos])], ignore_index=True)
     conn.update(worksheet="USUARIOS", data=df_nuevo)
     st.success("✅ ¡Registro exitoso! Ya puedes iniciar sesión.")
+# En la parte del formulario de registro, forzamos el rol:
+if st.form_submit_button("Crear Cuenta"):
+    registrar_usuario({
+        "USUARIO": new_u, 
+        "CONTRASEÑA": new_p, 
+        "NOMBRE": new_n,
+        "EDAD": new_e, 
+        "EQUIPO FAVORITO": new_f, 
+        "DESCRIPCION": new_d,
+        "ROL": "jugador", # <-- NADIE MÁS PUEDE SER ADMIN AL REGISTRARSE
+        "AVATAR_URL": ""
+    })
 
 # --- LÓGICA DE ACCESO EN SESSION STATE ---
 if 'autenticado' not in st.session_state:
