@@ -4,6 +4,24 @@ import pandas as pd
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
 st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
 
+def obtener_bandera(pais):
+    banderas = {
+        "Alemania": "🇩🇪", "Arabia Saudita": "🇸🇦", "Argelia": "🇩🇿", "Argentina": "🇦🇷",
+        "Australia": "🇦🇺", "Austria": "🇦🇹", "Bélgica": "🇧🇪", "Bosnia y Herzegovina": "🇧🇦",
+        "Brasil": "🇧🇷", "Cabo Verde": "🇨🇻", "Canadá": "🇨🇦", "Catar": "🇶🇦",
+        "Colombia": "🇨🇴", "Corea del Sur": "🇰🇷", "Costa de Marfil": "🇨🇮", "Croacia": "🇭🇷",
+        "Curazao": "🇨🇼", "Ecuador": "🇪🇨", "Egipto": "🇪🇬", "Escocia": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+        "España": "🇪🇸", "Estados Unidos": "🇺🇸", "Francia": "🇫🇷", "Ghana": "🇬🇭",
+        "Haití": "🇭🇹", "Inglaterra": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Irak": "🇮🇶", "Irán": "🇮🇷",
+        "Japón": "🇯🇵", "Jordania": "🇯🇴", "Marruecos": "🇲🇦", "México": "🇲🇽",
+        "Noruega": "🇳🇴", "Nueva Zelanda": "🇳🇿", "Países Bajos": "🇳🇱", "Panamá": "🇵🇦",
+        "Paraguay": "🇵🇾", "Portugal": "🇵🇹", "República Checa": "🇨🇿", 
+        "República Democrática del Congo": "🇨🇩", "Senegal": "🇸🇳", "Sudáfrica": "🇿🇦",
+        "Suecia": "🇸🇪", "Suiza": "🇨🇭", "Túnez": "🇹🇳", "Turquía": "🇹🇷",
+        "Uruguay": "🇺🇾", "Uzbekistán": "🇺🇿"
+    }
+    return banderas.get(pais, "⚽")
+
 # --- CARGA DE DATOS ---
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
 URL_RES = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
@@ -89,18 +107,27 @@ with col_extra:
 # 2. COLUMNA CENTRAL: RESULTADOS OFICIALES (50%)
 with col_res:
     st.subheader("⚽ Resultados Oficiales")
-    # Contenedor con scroll para los 24 partidos si la pantalla es chica
     for i, row in df_res.iterrows():
         r1 = int(row['R1']) if not pd.isna(row['R1']) else "-"
         r2 = int(row['R2']) if not pd.isna(row['R2']) else "-"
+        
+        # Obtenemos las banderas
+        flag1 = obtener_bandera(row['Equipo_1'])
+        flag2 = obtener_bandera(row['Equipo_2'])
         
         st.markdown(f"""
         <div style="border: 1px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; background-color: #f9f9f9; color: #333;">
             <div style="text-align: center; font-size: 0.8em; color: #666;">Partido {int(row['N_PARTIDO'])}</div>
             <div style="display: flex; justify-content: space-around; align-items: center; font-size: 1.1em;">
-                <div style="width: 40%; text-align: right;"><b>{row['Equipo_1']}</b></div>
-                <div style="width: 20%; text-align: center; background: #eee; border-radius: 5px; padding: 2px 5px;">{r1} - {r2}</div>
-                <div style="width: 40%; text-align: left;"><b>{row['Equipo_2']}</b></div>
+                <div style="width: 40%; text-align: right;">
+                    {flag1} <b>{row['Equipo_1']}</b>
+                </div>
+                <div style="width: 20%; text-align: center; background: #eee; border-radius: 5px; padding: 2px 5px; font-family: monospace; font-weight: bold;">
+                    {r1} - {r2}
+                </div>
+                <div style="width: 40%; text-align: left;">
+                    <b>{row['Equipo_2']}</b> {flag2}
+                </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
