@@ -48,6 +48,37 @@ def get_flag_img(pais):
 # Asegúrate de tener configurado .streamlit/secrets.toml o los Secrets en Streamlit Cloud
 conn = st.connection("gsheets", type=GSheetsConnection)
 
+# 3. LA FUNCIÓN CORREGIDA (Copia y pega esto aquí)
+def registrar_usuario(datos):
+    try:
+        # Leemos datos frescos sin caché para validar bien
+        df_actual = conn.read(worksheet="USUARIOS", ttl=0) 
+        
+        # Validación de usuario existente
+        usuarios_existentes = df_actual["USUARIO"].astype(str).str.strip().tolist()
+        if datos["USUARIO"].strip() in usuarios_existentes:
+            st.error(f"❌ El usuario '{datos['USUARIO']}' ya existe. Elige otro.")
+            return False
+
+        # Generar ID seguro
+        nuevo_id = df_actual["ID"].max() + 1 if not df_actual.empty else 1
+        datos["ID"] = nuevo_id
+        datos["FECHA_REG"] = datetime.now().strftime("%d/%m/%Y")
+        
+        # Concatenar nuevo usuario
+        df_final = pd.concat([df_actual, pd.DataFrame([datos])], ignore_index=True)
+        
+        # Guardar en Google Sheets
+        conn.update(worksheet="USUARIOS", data=df_final)
+        
+        # Limpiar caché de la app para que reconozca al nuevo usuario al loguear
+        st.cache_data.clear()
+        return True
+    except Exception as e:
+        st.error(f"Error crítico al registrar: {e}")
+        return False
+
+
 # --- FUNCIONES DE USUARIO ---
 def registrar_usuario(datos):
     try:
