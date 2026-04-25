@@ -1,6 +1,28 @@
 import streamlit as st
 import pandas as pd
+from streamlit_gsheets import GSheetsConnection
 
+st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
+
+# URL de tu Google Sheet
+URL_SHEET = "https://google.com"
+
+# Conexión con el conector oficial de Streamlit
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+try:
+    # Carga de datos (usa los nombres exactos de tus pestañas)
+    df_res = conn.read(spreadsheet=URL_SHEET, worksheet="0") 
+    df_pro = conn.read(spreadsheet=URL_SHEET, worksheet="394071446")
+
+    st.title("🏆 Prode Familiar 2026")
+    
+    # Aquí iría el resto de tu lógica de ranking y detalles...
+    st.write("Datos cargados correctamente ✅")
+    st.dataframe(df_res.head())
+
+except Exception as e:
+    st.error(f"Error al conectar con Google Sheets: {e}")
 # 1. CONFIGURACIÓN DE LA PÁGINA
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
 
