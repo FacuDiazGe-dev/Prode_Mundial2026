@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import time
 
 # 1. CONFIGURACIÓN
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
@@ -9,10 +10,17 @@ SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
 URL_RES = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RESULTADOS"
 URL_PRO = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=PRONOSTICOS"
 
-# 2. FUNCIÓN PARA CARGAR DATOS CON CACHE (Evita el error de conexión)
-@st.cache_data(ttl=300) # Guarda los datos por 5 minutos
-def cargar_datos(url):
-    return pd.read_csv(url)
+# 2. FUNCIÓN DE CARGA CON REINTENTOS (Evita el error -2)
+@st.cache_data(ttl=300)
+def cargar_datos_con_reintento(url):
+    for i in range(3): # Intenta 3 veces
+        try:
+            return pd.read_csv(url, storage_options={"User-Agent": "Mozilla/5.0"})
+        except Exception:
+            if i < 2: 
+                time.sleep(1)
+                continue
+    return None
 
 def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
     try:
@@ -28,11 +36,16 @@ def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
     except:
         return 0
 
-try:
-    # Carga usando la función con cache
-    df_res = cargar_datos(URL_RES)
-    df_pro = cargar_datos(URL_PRO)
+# 3. LÓGICA PRINCIPAL
+df_res = cargar_datos_con_reintento(URL_RES)
+df_pro = cargar_datos_con_reintento(URL_PRO)
 
+if df_res is None or df_pro is None:
+    st.error("No se pudo conectar con Google Sheets. El servidor está saturado.")
+    if st.button("🔄 Reintentar ahora"):
+        st.cache_data.clear()
+        st.rerun()
+else:
     st.sidebar.title("Menú Mundial")
     seccion = st.sidebar.radio("Ir a:", ["Ranking General", "Detalle por Jugador"])
 
@@ -42,8 +55,8 @@ try:
         for i in range(1, 11):
             total = 0
             for _, part in df_res.iterrows():
-                n = part['N_Partido']
-                prode = df_pro[df_pro['N_Partido'] == n]
+                n_p = part['N_Partido']
+                prode = df_pro[df_pro['N_Partido'] == n_p]
                 if not prode.empty:
                     p1 = prode[f'Jugador_{i}_E1'].values[0]
                     p2 = prode[f'Jugador_{i}_E2'].values[0]
@@ -68,10 +81,8 @@ try:
                 p1_val = prode[f'Jugador_{n_jug}_E1'].values[0]
                 p2_val = prode[f'Jugador_{n_jug}_E2'].values[0]
                 pts = calcular_puntos(part['R1'], part['R2'], p1_val, p2_val)
-                
                 res_real = f"{int(part['R1'])} - {int(part['R2'])}" if not pd.isna(part['R1']) else "-"
                 res_prode = f"{int(p1_val)} - {int(p2_val)}" if not pd.isna(p1_val) else "-"
-                
                 detalle.append({
                     "Partido": f"{part['Equipo_1']} vs {part['Equipo_2']}",
                     "Real": res_real,
@@ -80,11 +91,6 @@ try:
                 })
         st.dataframe(pd.DataFrame(detalle), use_container_width=True, hide_index=True)
 
-    # Botón para forzar actualización si el cache está activo
-    if st.sidebar.button("Actualizar Datos ahora"):
+    if st.sidebar.button("🔄 Actualizar Datos"):
         st.cache_data.clear()
         st.rerun()
-
-except Exception as e:
-    st.error(f"Error de conexión: {e}")
-    st.button("Reintentar conexión")
