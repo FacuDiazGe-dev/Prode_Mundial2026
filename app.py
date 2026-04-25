@@ -103,24 +103,6 @@ if not st.session_state['autenticado']:
                 st.rerun()
 
     with tab_reg:
-        with st.form("form_registro", clear_on_submit=True):
-            # ... (Tus inputs: new_u, new_p, new_n, etc.) ...
-            
-            if st.form_submit_button("Finalizar Registro"):
-                # Llamamos a la función que definimos arriba
-                resultado = registrar_usuario({
-                    "USUARIO": new_u, "CONTRASEÑA": new_p, "NOMBRE": new_n,
-                    "EDAD": new_e, "EQUIPO FAVORITO": new_f, "DESCRIPCION": new_d,
-                    "ROL": "jugador", "AVATAR_URL": ""
-                })
-                
-                if resultado: # Si la función devolvió True (éxito)
-                    st.session_state['registro_exitoso'] = True
-                    st.rerun() # RECARGA LA APP Y CAE EN EL TAB DE LOGIN POR DEFECTO
-
-    st.stop() # Bloquea el resto de la app hasta que se loguee
-
-    with tab_reg:
         with st.form("form_registro"):
             st.subheader("Crea tu cuenta")
             new_u = st.text_input("Nombre de Usuario (Nick)")
