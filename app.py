@@ -5,6 +5,7 @@ import requests
 
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
 
+# URLs de exportación directa
 URL_RESULTADOS = "https://google.com"
 URL_PRONOSTICOS = "https://google.com"
 
@@ -20,16 +21,15 @@ def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
         return pts
     except: return 0
 
+@st.cache_data(ttl=60)
 def cargar_datos(url):
     try:
         r = requests.get(url, timeout=10)
         df = pd.read_csv(io.StringIO(r.text))
-        # Limpieza profunda de columnas
+        # Limpiamos nombres de columnas (quitar espacios y pasar a mayúsculas)
         df.columns = df.columns.str.strip().str.upper()
         return df
-    except Exception as e:
-        st.error(f"Error al bajar datos: {e}")
-        return None
+    except: return None
 
 df_res = cargar_datos(URL_RESULTADOS)
 df_pro = cargar_datos(URL_PRONOSTICOS)
@@ -37,59 +37,55 @@ df_pro = cargar_datos(URL_PRONOSTICOS)
 if df_res is not None and df_pro is not None:
     st.title("🏆 Prode Familiar - Mundial 2026")
     
-    opcion = st.sidebar.radio("Sección:", ["Ranking", "Detalle Jugador"])
+    seccion = st.sidebar.radio("Ir a:", ["Ranking General", "Detalle por Jugador"])
 
-    if opcion == "Ranking":
+    if seccion == "Ranking General":
         ranking = []
-        # Iterar sobre los 10 jugadores
         for i in range(1, 11):
-            puntos_totales = 0
-            col_e1 = f"JUGADOR_{i}_E1"
-            col_e2 = f"JUGADOR_{i}_E2"
+            total = 0
+            col_e1, col_e2 = f"JUGADOR_{i}_E1", f"JUGADOR_{i}_E2"
             
-            for _, partido in df_res.iterrows():
-                n_p = partido['N_PARTIDO']
-                # Buscar la fila del partido en el DataFrame de pronósticos
+            for _, part in df_res.iterrows():
+                n_p = part['N_PARTIDO']
+                # Buscamos el pronóstico del partido
                 fila_pro = df_pro[df_pro['N_PARTIDO'] == n_p]
                 
                 if not fila_pro.empty:
-                    # FORMA CORRECTA: fila_pro.iloc[0] toma la primera fila encontrada
-                    datos_pro = fila_pro.iloc[0]
-                    p1 = datos_pro[col_e1]
-                    p2 = datos_pro[col_e2]
-                    puntos_totales += calcular_puntos(partido['R1'], partido['R2'], p1, p2)
+                    # USAMOS .iloc[0] para extraer el valor de la primera coincidencia
+                    p1 = fila_pro[col_e1].iloc[0]
+                    p2 = fila_pro[col_e2].iloc[0]
+                    total += calcular_puntos(part['R1'], part['R2'], p1, p2)
             
-            ranking.append({"Familiar": f"Jugador {i}", "Puntos": int(puntos_totales)})
+            ranking.append({"Familiar": f"Jugador {i}", "Puntos": int(total)})
         
         df_rank = pd.DataFrame(ranking).sort_values(by="Puntos", ascending=False)
-        st.subheader("Tabla General")
-        st.table(df_rank)
+        st.table(df_rank.reset_index(drop=True))
         st.bar_chart(df_rank.set_index("Familiar"))
 
     else:
-        jug_n = st.selectbox("Elegí el Jugador:", range(1, 11), format_func=lambda x: f"Jugador {x}")
-        col_e1 = f"JUGADOR_{jug_n}_E1"
-        col_e2 = f"JUGADOR_{jug_n}_E2"
+        jug_sel = st.selectbox("Elegí el Jugador:", range(1, 11), format_func=lambda x: f"Jugador {x}")
+        col_e1, col_e2 = f"JUGADOR_{jug_sel}_E1", f"JUGADOR_{jug_sel}_E2"
         
         detalle = []
-        for _, partido in df_res.iterrows():
-            n_p = partido['N_PARTIDO']
+        for _, part in df_res.iterrows():
+            n_p = part['N_PARTIDO']
             fila_pro = df_pro[df_pro['N_PARTIDO'] == n_p]
             
             if not fila_pro.empty:
-                datos_pro = fila_pro.iloc[0]
-                p1 = datos_pro[col_e1]
-                p2 = datos_pro[col_e2]
-                pts = calcular_puntos(partido['R1'], partido['R2'], p1, p2)
+                p1 = fila_pro[col_e1].iloc[0]
+                p2 = fila_pro[col_e2].iloc[0]
+                pts = calcular_puntos(part['R1'], part['R2'], p1, p2)
                 
                 detalle.append({
-                    "Partido": f"{partido['EQUIPO_1']} vs {partido['EQUIPO_2']}",
-                    "Real": f"{int(partido['R1'])} - {int(partido['R2'])}" if not pd.isna(partido['R1']) else "⏳",
+                    "Partido": f"{part['EQUIPO_1']} vs {part['EQUIPO_2']}",
+                    "Real": f"{int(part['R1'])} - {int(part['R2'])}" if not pd.isna(part['R1']) else "⏳",
                     "Pronóstico": f"{int(p1)} - {int(p2)}",
                     "Pts": pts
                 })
-        
-        st.subheader(f"Resumen de Jugador {jug_n}")
+        st.dataframe(pd.DataFrame(detalle), hide_index=True, use_container_width=True)
+else:
+    st.error("Error al cargar los datos desde Google Sheets.")
+    
         st.dataframe(pd.DataFrame(detalle), hide_index=True, use_container_width=True)
 
 else:
