@@ -7,7 +7,7 @@ st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
 def obtener_url_bandera(pais):
     # Diccionario de códigos ISO para cada país
     codigos = {
-        "Alemania": "de", "Arabia Saudita": "sa", "Argelia": "dz", "Argentina": "ar",
+        "Alemania": "de", "Arabia Saudita": "sa", "Argelia": "dz", "Argentina": "🇦🇷",
         "Australia": "au", "Austria": "at", "Bélgica": "be", "Bosnia y Herzegovina": "ba",
         "Brasil": "br", "Cabo Verde": "cv", "Canadá": "ca", "Catar": "qa",
         "Colombia": "co", "Corea del Sur": "kr", "Costa de Marfil": "ci", "Croacia": "hr",
