@@ -3,7 +3,6 @@ import pandas as pd
 import io
 import requests
 
-# 1. CONFIGURACIÓN
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
 
 URL_RES = "https://google.com"
@@ -26,6 +25,7 @@ def cargar_datos(url):
     try:
         r = requests.get(url, timeout=10)
         df = pd.read_csv(io.StringIO(r.text))
+        # Limpia nombres de columnas para que no importe si es N_Partido o n_partido
         df.columns = df.columns.str.strip().str.upper()
         return df
     except: return None
@@ -34,7 +34,7 @@ df_res = cargar_datos(URL_RES)
 df_pro = cargar_datos(URL_PRO)
 
 if df_res is not None and df_pro is not None:
-    st.title("🏆 Prode Familiar - Mundial 2026")
+    st.title("🏆 Prode Mundial 2026")
     
     seccion = st.sidebar.radio("Ir a:", ["Ranking General", "Detalle por Jugador"])
 
@@ -45,8 +45,10 @@ if df_res is not None and df_pro is not None:
             col_e1, col_e2 = f"JUGADOR_{i}_E1", f"JUGADOR_{i}_E2"
             for _, part in df_res.iterrows():
                 n_p = part['N_PARTIDO']
+                # Buscamos la fila en pronósticos que coincida con el número de partido
                 fila_pro = df_pro[df_pro['N_PARTIDO'] == n_p]
                 if not fila_pro.empty:
+                    # Usamos values[0] para extraer el dato puro sin errores de índice
                     p1 = fila_pro[col_e1].values[0]
                     p2 = fila_pro[col_e2].values[0]
                     total += calcular_puntos(part['R1'], part['R2'], p1, p2)
