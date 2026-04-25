@@ -40,6 +40,76 @@ def get_flag_img(pais):
         pass
     
     return "⚽" # Fallback si falla la descarga
+# ----LOGIN---
+import streamlit as st
+from streamlit_gsheets import GSheetsConnection
+import pandas as pd
+from datetime import datetime
+
+# --- CONEXIÓN ---
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+# --- FUNCIONES DE USUARIO ---
+def registrar_usuario(datos):
+    df_actual = conn.read(worksheet="USUARIOS")
+    # Generar nuevo ID
+    nuevo_id = len(df_actual) + 1
+    datos["ID"] = nuevo_id
+    datos["FECHA_REG"] = datetime.now().strftime("%d/%m/%Y")
+    
+    # Añadir al dataframe y actualizar la hoja
+    df_nuevo = pd.concat([df_actual, pd.DataFrame([datos])], ignore_index=True)
+    conn.update(worksheet="USUARIOS", data=df_nuevo)
+    st.success("✅ ¡Registro exitoso! Ya puedes iniciar sesión.")
+
+# --- LÓGICA DE ACCESO EN SESSION STATE ---
+if 'autenticado' not in st.session_state:
+    st.session_state['autenticado'] = False
+
+if not st.session_state['autenticado']:
+    tab_login, tab_reg = st.tabs(["🔐 Entrar", "📝 Registrarse"])
+    
+    with tab_login:
+        with st.form("login"):
+            u = st.text_input("Usuario")
+            p = st.text_input("Contraseña", type="password")
+            if st.form_submit_button("Iniciar Sesión"):
+                df_u = conn.read(worksheet="USUARIOS")
+                valido = df_u[(df_u['USUARIO'] == u) & (df_u['CONTRASEÑA'].astype(str) == str(p))]
+                if not valido.empty:
+                    st.session_state['autenticado'] = True
+                    st.session_state['user_data'] = valido.iloc[0].to_dict()
+                    st.rerun()
+                else:
+                    st.error("Credenciales incorrectas")
+
+    with tab_reg:
+        with st.form("registro"):
+            new_u = st.text_input("Elige un Usuario")
+            new_p = st.text_input("Contraseña", type="password")
+            new_n = st.text_input("Nombre Completo")
+            new_e = st.number_input("Edad", min_value=1, max_value=100)
+            new_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "España", "Brasil", "Otros..."])
+            new_d = st.text_area("Descripción (tu frase de batalla)")
+            
+            if st.form_submit_button("Crear Cuenta"):
+                # Verificar si el usuario ya existe
+                df_check = conn.read(worksheet="USUARIOS")
+                if new_u in df_check['USUARIO'].values:
+                    st.warning("Ese nombre de usuario ya existe.")
+                else:
+                    registrar_usuario({
+                        "USUARIO": new_u, "CONTRASEÑA": new_p, "NOMBRE": new_n,
+                        "EDAD": new_e, "EQUIPO FAVORITO": new_f, "DESCRIPCION": new_d,
+                        "ROL": "jugador", "AVATAR_URL": ""
+                    })
+    st.stop()
+
+# --- SI ESTÁ AUTENTICADO, CONTINÚA LA APP ---
+st.sidebar.success(f"Hola {st.session_state['user_data']['NOMBRE']}!")
+if st.sidebar.button("Cerrar Sesión"):
+    st.session_state['autenticado'] = False
+    st.rerun()
     
 # --- CARGA DE DATOS ---
 
