@@ -128,17 +128,22 @@ with col_extra:
 with col_res:
     st.subheader("⚽ Resultados Oficiales")
     for i, row in df_res.iterrows():
-        # ... (mantén tu lógica de r1 y r2)
+        # DEFINICIÓN DE VARIABLES (Esto faltaba o estaba mal ubicado)
+        r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
+        r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
         
+        # Obtener banderas (usando la función Base64 anterior)
         data_flag1 = get_flag_img(row['Equipo_1'])
         data_flag2 = get_flag_img(row['Equipo_2'])
         
-        # Lógica para mostrar IMG o Emoji si falló la carga
+        # Preparar el HTML de la imagen
         img1_html = f'<img src="{data_flag1}" width="25">' if "data:image" in data_flag1 else data_flag1
         img2_html = f'<img src="{data_flag2}" width="25">' if "data:image" in data_flag2 else data_flag2
 
+        # Renderizado
         st.markdown(f"""
         <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 10px; background-color: white; color: #333;">
+            <div style="text-align: center; font-size: 0.7em; color: #999; margin-bottom: 5px;">PARTIDO {int(row['N_PARTIDO'])}</div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="width: 40%; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
                     <span style="font-weight: bold;">{row['Equipo_1']}</span>
