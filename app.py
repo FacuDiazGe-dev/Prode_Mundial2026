@@ -1,79 +1,97 @@
 import streamlit as st
 import pandas as pd
 
-# Configuración inicial
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
 st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
 
-# --- CONEXIÓN DIRECTA ---
-# Convertimos el link de edición en link de exportación CSV para cada pestaña
+# --- CARGA DE DATOS ---
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
 URL_RES = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 URL_PRO = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=394071446"
 
-@st.cache_data(ttl=600) # Se actualiza cada 10 minutos
+@st.cache_data(ttl=60) # Actualiza cada 1 minuto para pruebas
 def load_data():
+    # Forzamos la lectura de los resultados y pronósticos
     df_res = pd.read_csv(URL_RES)
     df_pro = pd.read_csv(URL_PRO)
+    
+    # LIMPIEZA CRÍTICA: Convertir columnas de goles a números, errores se vuelven NaN
+    cols_res = ['R1', 'R2']
+    for col in cols_res:
+        df_res[col] = pd.to_numeric(df_res[col], errors='coerce')
+        
     return df_res, df_pro
 
-try:
-    df_res, df_pro = load_data()
-except Exception as e:
-    st.error("No se pudo leer la planilla. Verifica que el acceso sea 'Cualquier persona con el enlace'")
-    st.stop()
+df_res, df_pro = load_data()
 
-# --- LÓGICA DE PUNTUACIÓN ---
+# --- FUNCIÓN DE CÁLCULO MEJORADA ---
 def calcular_puntos(r1, r2, p1, p2):
-    # Si no hay resultado cargado (NaN), no suma puntos
+    # Verificación de datos faltantes
     if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
         return 0
     
     puntos = 0
-    # Tendencia real: 1 (Gana E1), -1 (Gana E2), 0 (Empate)
-    tendencia_real = 1 if r1 > r2 else (-1 if r2 > r1 else 0)
-    tendencia_pron = 1 if p1 > p2 else (-1 if p2 > p1 else 0)
+    # Convertir a int para asegurar comparación matemática
+    r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
     
-    # 1. Acierto de Ganador o Empate (+1 pto)
+    # 1. Determinar tendencia (1: E1 gana, 2: E2 gana, 0: Empate)
+    tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
+    tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
+    
+    # Acierto de tendencia (+1 punto)
     if tendencia_real == tendencia_pron:
         puntos += 1
-        # 2. Resultado Exacto (+2 ptos adicionales)
-        if int(r1) == int(p1) and int(r2) == int(p2):
+        # Acierto exacto (+2 puntos adicionales)
+        if r1 == p1 and r2 == p2:
             puntos += 2
             
     return puntos
 
-# --- PROCESAMIENTO DEL RANKING ---
+# --- CÁLCULO DEL RANKING ---
 ranking = []
-for j in range(1, 11): # Jugador 1 al 10
-    total_jugador = 0
+# Iteramos por los 10 jugadores definidos
+for j in range(1, 11):
+    total_puntos = 0
     col_e1 = f"Jugador_{j}_E1"
     col_e2 = f"Jugador_{j}_E2"
     
-    # Iterar por cada uno de los 24 partidos
-    for i in range(len(df_res)):
-        partido_id = df_res.loc[i, 'N_PARTIDO']
-        # Buscar el pronóstico correspondiente a ese N_PARTIDO
-        pronostico_row = df_pro[df_pro['N_PARTIDO'] == partido_id].iloc[0]
-        
-        total_jugador += calcular_puntos(
-            df_res.loc[i, 'R1'], df_res.loc[i, 'R2'],
-            pronostico_row[col_e1], pronostico_row[col_e2]
-        )
-    ranking.append({"Jugador": f"Jugador {j}", "Puntos": total_jugador})
+    # Aseguramos que las columnas existan en la pestaña Pronósticos
+    if col_e1 in df_pro.columns and col_e2 in df_pro.columns:
+        # Convertimos pronósticos del jugador a números
+        df_pro[col_e1] = pd.to_numeric(df_pro[col_e1], errors='coerce')
+        df_pro[col_e2] = pd.to_numeric(df_pro[col_e2], errors='coerce')
 
-df_ranking = pd.DataFrame(ranking).sort_values(by="Puntos", ascending=False)
+        for i in range(len(df_res)):
+            n_partido = df_res.loc[i, 'N_PARTIDO']
+            
+            # Buscamos el pronóstico para este partido específico
+            row_pro = df_pro[df_pro['N_PARTIDO'] == n_partido]
+            
+            if not row_pro.empty:
+                total_puntos += calcular_puntos(
+                    df_res.loc[i, 'R1'], 
+                    df_res.loc[i, 'R2'],
+                    row_pro.iloc[0][col_e1], 
+                    row_pro.iloc[0][col_e2]
+                )
+    
+    ranking.append({"Jugador": f"Jugador {j}", "Puntos": total_puntos})
 
-# --- INTERFAZ ---
-tab1, tab2 = st.tabs(["📊 Ranking", "⚽ Resultados Oficiales"])
+# Crear y ordenar DataFrame
+df_ranking = pd.DataFrame(ranking).sort_values(by="Puntos", ascending=False).reset_index(drop=True)
 
-with tab1:
-    st.subheader("Tabla de Posiciones")
-    # Resaltar al puntero
-    st.dataframe(df_ranking.reset_index(drop=True), use_container_width=True)
+# --- VISUALIZACIÓN ---
+col1, col2 = st.columns([1, 2])
 
-with tab2:
-    st.subheader("Estado de los 24 partidos")
-    st.table(df_res[['N_PARTIDO', 'Equipo_1', 'R1', 'R2', 'Equipo_2']])
+with col1:
+    st.subheader("📊 Ranking")
+    st.table(df_ranking)
 
-st.sidebar.success("Datos sincronizados con Google Sheets")
+with col2:
+    st.subheader("⚽ Resultados cargados")
+    # Mostrar solo partidos que ya tienen resultado para control
+    partidos_jugados = df_res.dropna(subset=['R1', 'R2'])
+    if not partidos_jugados.empty:
+        st.dataframe(partidos_jugados[['N_PARTIDO', 'Equipo_1', 'R1', 'R2', 'Equipo_2']], use_container_width=True)
+    else:
+        st.info("Aún no hay resultados oficiales cargados en la planilla.")
