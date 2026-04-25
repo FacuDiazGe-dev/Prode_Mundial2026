@@ -4,25 +4,28 @@ import pandas as pd
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
 st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
 
-def obtener_bandera(pais):
-    banderas = {
-        "Alemania": "🇩🇪", "Arabia Saudita": "🇸🇦", "Argelia": "🇩🇿", "Argentina": "🇦🇷",
-        "Australia": "🇦🇺", "Austria": "🇦🇹", "Bélgica": "🇧🇪", "Bosnia y Herzegovina": "🇧🇦",
-        "Brasil": "🇧🇷", "Cabo Verde": "🇨🇻", "Canadá": "🇨🇦", "Catar": "🇶🇦",
-        "Colombia": "🇨🇴", "Corea del Sur": "🇰🇷", "Costa de Marfil": "🇨🇮", "Croacia": "🇭🇷",
-        "Curazao": "🇨🇼", "Ecuador": "🇪🇨", "Egipto": "🇪🇬", 
-        # Códigos seguros para Escocia e Inglaterra:
-        "Escocia": "\U0001F3F4\U000E0067\U000E0062\U000E0073\U000E0063\U000E0074\U000E007F",
-        "Inglaterra": "\U0001F3F4\U000E0067\U000E0062\U000E0065\U000E006E\U000E0067\U000E007F",
-        "España": "🇪🇸", "Estados Unidos": "🇺🇸", "Francia": "🇫🇷", "Ghana": "🇬🇭",
-        "Haití": "🇭🇹", "Irak": "🇮🇶", "Irán": "🇮🇷", "Japón": "🇯🇵", "Jordania": "🇯🇴", 
-        "Marruecos": "🇲🇦", "México": "🇲🇽", "Noruega": "🇳🇴", "Nueva Zelanda": "🇳🇿", 
-        "Países Bajos": "🇳🇱", "Panamá": "🇵🇦", "Paraguay": "🇵🇾", "Portugal": "🇵🇹", 
-        "República Checa": "🇨🇿", "República Democrática del Congo": "🇨🇩", 
-        "Senegal": "🇸🇳", "Sudáfrica": "🇿🇦", "Suecia": "🇸🇪", "Suiza": "🇨🇭", 
-        "Túnez": "🇹🇳", "Turquía": "🇹🇷", "Uruguay": "🇺🇾", "Uzbekistán": "🇺🇿"
+def obtener_url_bandera(pais):
+    # Diccionario de códigos ISO para cada país
+    codigos = {
+        "Alemania": "de", "Arabia Saudita": "sa", "Argelia": "dz", "Argentina": "ar",
+        "Australia": "au", "Austria": "at", "Bélgica": "be", "Bosnia y Herzegovina": "ba",
+        "Brasil": "br", "Cabo Verde": "cv", "Canadá": "ca", "Catar": "qa",
+        "Colombia": "co", "Corea del Sur": "kr", "Costa de Marfil": "ci", "Croacia": "hr",
+        "Curazao": "cw", "Ecuador": "ec", "Egipto": "eg", "Escocia": "gb-sct",
+        "España": "es", "Estados Unidos": "us", "Francia": "fr", "Ghana": "gh",
+        "Haití": "ht", "Inglaterra": "gb-eng", "Irak": "iq", "Irán": "ir",
+        "Japón": "jp", "Jordania": "jo", "Marruecos": "ma", "México": "mx",
+        "Noruega": "no", "Nueva Zelanda": "nz", "Países Bajos": "nl", "Panamá": "pa",
+        "Paraguay": "py", "Portugal": "pt", "República Checa": "cz", 
+        "República Democrática del Congo": "cd", "Senegal": "sn", "Sudáfrica": "za",
+        "Suecia": "se", "Suiza": "ch", "Túnez": "tn", "Turquía": "tr",
+        "Uruguay": "uy", "Uzbekistán": "uz"
     }
-    return banderas.get(pais, "⚽")
+    code = codigos.get(pais)
+    if code:
+        # Usamos flagcdn.com que es gratuita y rápida
+        return f"https://flagcdn.com{code}.png"
+    return "https://flagcdn.comun.png" # Bandera genérica (ONU)
 
 # --- CARGA DE DATOS ---
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
@@ -113,22 +116,24 @@ with col_res:
         r1 = int(row['R1']) if not pd.isna(row['R1']) else "-"
         r2 = int(row['R2']) if not pd.isna(row['R2']) else "-"
         
-        # Obtenemos las banderas
-        flag1 = obtener_bandera(row['Equipo_1'])
-        flag2 = obtener_bandera(row['Equipo_2'])
+        # Obtenemos URLs de las imágenes
+        url1 = obtener_url_bandera(row['Equipo_1'])
+        url2 = obtener_url_bandera(row['Equipo_2'])
         
         st.markdown(f"""
-        <div style="border: 1px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; background-color: #f9f9f9; color: #333;">
-            <div style="text-align: center; font-size: 0.8em; color: #666;">Partido {int(row['N_PARTIDO'])}</div>
-            <div style="display: flex; justify-content: space-around; align-items: center; font-size: 1.1em;">
-                <div style="width: 40%; text-align: right;">
-                    {flag1} <b>{row['Equipo_1']}</b>
+        <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 10px; background-color: white; color: #333;">
+            <div style="text-align: center; font-size: 0.7em; color: #999; margin-bottom: 5px;">PARTIDO {int(row['N_PARTIDO'])}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="width: 40%; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                    <span style="font-weight: bold;">{row['Equipo_1']}</span>
+                    <img src="{url1}" width="25" style="border: 1px solid #eee">
                 </div>
-                <div style="width: 20%; text-align: center; background: #eee; border-radius: 5px; padding: 2px 5px; font-family: monospace; font-weight: bold;">
+                <div style="width: 15%; text-align: center; background: #f0f0f0; border-radius: 4px; font-weight: bold; padding: 3px;">
                     {r1} - {r2}
                 </div>
-                <div style="width: 40%; text-align: left;">
-                    <b>{row['Equipo_2']}</b> {flag2}
+                <div style="width: 40%; text-align: left; display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
+                    <img src="{url2}" width="25" style="border: 1px solid #eee">
+                    <span style="font-weight: bold;">{row['Equipo_2']}</span>
                 </div>
             </div>
         </div>
