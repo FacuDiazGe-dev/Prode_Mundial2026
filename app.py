@@ -44,154 +44,114 @@ def get_flag_img(pais):
     
     return "⚽" # Fallback si falla la descarga
 # ----LOGIN---
-# --- CONFIGURACIÓN DE CONEXIÓN A GOOGLE SHEETS ---
-# Asegúrate de tener configurado .streamlit/secrets.toml o los Secrets en Streamlit Cloud
+# --- CONEXIÓN ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# 3. LA FUNCIÓN CORREGIDA (Copia y pega esto aquí)
-def registrar_usuario(datos):
+# --- FUNCIÓN DE REGISTRO BLINDADA ---
+def registrar_usuario(datos_nuevos):
     try:
-        # 1. FORZAR LECTURA REAL (Sin caché)
-        # Esto es vital para ver lo que hay en el Excel AHORA MISMO
-        st.cache_data.clear()
+        # 1. Leer la tabla actual (sin usar caché para ver lo real)
         df_actual = conn.read(worksheet="USUARIOS", ttl=0)
         
-        # 2. VERIFICACIÓN DE DUPLICADOS (Blindada)
-        nuevo_user = str(datos["USUARIO"]).strip().lower()
-        existentes = df_actual["USUARIO"].astype(str).str.strip().str.lower().tolist()
+        # 2. Limpiar nombres para comparar (evita duplicados por espacios o mayúsculas)
+        nuevo_u_clean = str(datos_nuevos["USUARIO"]).strip().lower()
+        usuarios_existentes = df_actual["USUARIO"].astype(str).str.strip().str.lower().tolist()
         
-        if nuevo_user in existentes:
-            st.error(f"❌ Error: El usuario '{datos['USUARIO']}' ya existe. No se realizó el registro.")
+        if nuevo_u_clean in usuarios_existentes:
+            st.error(f"❌ El usuario '{datos_nuevos['USUARIO']}' ya existe. Elige otro nick.")
             return False
 
-        # 3. CÁLCULO DE ID SEGURO
-        # Si la tabla está vacía empezamos en 1, si no, el máximo + 1
-        if not df_actual.empty and "ID" in df_actual.columns:
-            nuevo_id = int(df_actual["ID"].max()) + 1
-        else:
-            nuevo_id = 1
-            
-        datos["ID"] = nuevo_id
-        datos["FECHA_REG"] = datetime.now().strftime("%d/%m/%Y")
+        # 3. Preparar los datos del nuevo usuario
+        # ID automático: Si está vacío empieza en 1, sino Max + 1
+        nuevo_id = int(df_actual["ID"].max() + 1) if not df_actual.empty else 1
         
-        # 4. CREAR EL NUEVO REGISTRO Y LIMPIAR ÍNDICES
-        # Creamos un DataFrame de 1 sola fila con el nuevo usuario
-        df_nuevo = pd.DataFrame([datos])
+        # Creamos un diccionario limpio con el orden exacto de las columnas
+        nuevo_registro = {
+            "ID": nuevo_id,
+            "USUARIO": datos_nuevos["USUARIO"].strip(),
+            "CONTRASEÑA": str(datos_nuevos["CONTRASEÑA"]),
+            "NOMBRE": datos_nuevos["NOMBRE"].strip(),
+            "EDAD": datos_nuevos["EDAD"],
+            "EQUIPO FAVORITO": datos_nuevos["EQUIPO FAVORITO"],
+            "DESCRIPCION": datos_nuevos["DESCRIPCION"],
+            "ROL": "jugador",
+            "FECHA_REG": datetime.now().strftime("%d/%m/%Y"),
+            "AVATAR_URL": ""
+        }
         
-        # Concatenamos y RESETEAMOS el índice (Esto evita que se pise la fila 0)
-        df_final = pd.concat([df_actual, df_nuevo], ignore_index=True)
+        # 4. Concatenar: El nuevo usuario se suma al final del DataFrame actual
+        df_para_subir = pd.concat([df_actual, pd.DataFrame([nuevo_registro])], ignore_index=True)
         
-        # 5. ACTUALIZACIÓN TOTAL DE LA HOJA
-        # Pasamos el DataFrame completo para que reemplace la hoja con la lista crecida
-        conn.update(worksheet="USUARIOS", data=df_final)
+        # 5. ACTUALIZAR GOOGLE SHEETS (Sobrescribe la pestaña con la lista actualizada)
+        conn.update(worksheet="USUARIOS", data=df_para_subir)
         
-        # 6. LIMPIEZA FINAL Y ÉXITO
+        # Limpiamos caché de Streamlit para que la próxima lectura vea al nuevo usuario
         st.cache_data.clear()
-        st.success("✅ Usuario registrado exitosamente al final de la lista.")
-        st.session_state['registro_exitoso'] = True
+        st.success("✅ ¡Usuario creado con éxito!")
         return True
 
     except Exception as e:
-        st.error(f"⚠️ Error crítico: {e}")
-        return False
-# --- FUNCIONES DE USUARIO ---
-def registrar_usuario(datos):
-    try:
-        df_actual = conn.read(worksheet="USUARIOS")
-        
-        # --- VALIDACIÓN DE USUARIO EXISTENTE ---
-        if datos["USUARIO"] in df_actual["USUARIO"].values:
-            st.error(f"❌ El usuario '{datos['USUARIO']}' ya existe. Elige otro.")
-            return False # Detenemos la función aquí
-
-        # Generar nuevo ID y Fecha
-        nuevo_id = len(df_actual) + 1
-        datos["ID"] = nuevo_id
-        datos["FECHA_REG"] = datetime.now().strftime("%d/%m/%Y")
-        
-        # Añadir y actualizar
-        df_nuevo = pd.concat([df_actual, pd.DataFrame([datos])], ignore_index=True)
-        conn.update(worksheet="USUARIOS", data=df_nuevo)
-        
-        # ÉXITO: Preparamos la redirección
-        st.success("✅ ¡Registro exitoso! Redirigiendo al inicio de sesión...")
-        st.session_state['registro_exitoso'] = True # Indicador para el cambio de tab
-        return True
-    except Exception as e:
-        st.error(f"Error al registrar: {e}")
+        st.error(f"Error técnico: {e}")
         return False
 
-# --- GESTIÓN DE SESIÓN (LOGIN) ---
+# --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) ---
 if 'autenticado' not in st.session_state:
     st.session_state['autenticado'] = False
 if 'registro_exitoso' not in st.session_state:
     st.session_state['registro_exitoso'] = False
-# --- PANTALLA DE ACCESO (Si no está logueado) ---
+
 if not st.session_state['autenticado']:
     st.title("🏆 Prode Mundial 2026")
+    
+    # Manejo de pestañas
     tab_login, tab_reg = st.tabs(["🔐 Entrar", "📝 Registrarse"])
     
-  # Si viene de un registro exitoso, le mostramos un mensaje de éxito en la zona de Login
-    if st.session_state['registro_exitoso']:
-        with tab_login:
-            st.success("✅ Registro completado. ¡Ingresa ahora!")
-        # Importante: No lo reseteamos aquí todavía para que el mensaje no desaparezca al instante
-    
     with tab_login:
-        with st.form("form_login"):
+        if st.session_state['registro_exitoso']:
+            st.success("¡Registro completado! Ya puedes ingresar.")
+            
+        with st.form("login_form"):
             u = st.text_input("Usuario")
             p = st.text_input("Contraseña", type="password")
             if st.form_submit_button("Iniciar Sesión"):
-                # ... (Aquí va tu lógica de validar usuario que ya tienes) ...
-                # Si el login es exitoso, reseteamos el aviso de registro
-                st.session_state['registro_exitoso'] = False
-                # st.session_state['autenticado'] = True (etc...)
-                st.rerun()
+                df_u = conn.read(worksheet="USUARIOS", ttl=0)
+                # Validación exacta
+                user_match = df_u[(df_u['USUARIO'].astype(str) == str(u)) & (df_u['CONTRASEÑA'].astype(str) == str(p))]
+                
+                if not user_match.empty:
+                    st.session_state['autenticado'] = True
+                    st.session_state['user_data'] = user_match.iloc[0].to_dict()
+                    st.session_state['registro_exitoso'] = False
+                    st.rerun()
+                else:
+                    st.error("Usuario o contraseña incorrectos")
 
     with tab_reg:
-        with st.form("form_registro"):
-            st.subheader("Crea tu cuenta")
-            new_u = st.text_input("Nombre de Usuario (Nick)")
-            new_p = st.text_input("Contraseña", type="password")
-            new_n = st.text_input("Nombre Real")
-            new_e = st.number_input("Edad", min_value=1, max_value=100, value=25)
-            new_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "Canadá", "EEUU", "Brasil", "España", "Otro"])
-            new_d = st.text_area("Descripción (Bio)")
+        with st.form("reg_form", clear_on_submit=True):
+            r_u = st.text_input("Nick de Usuario")
+            r_p = st.text_input("Contraseña", type="password")
+            r_n = st.text_input("Nombre Completo")
+            r_e = st.number_input("Edad", 1, 100, 25)
+            r_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "Canadá", "EEUU", "Brasil", "España", "Otro"])
+            r_d = st.text_area("Breve descripción")
             
-            btn_reg = st.form_submit_button("Finalizar Registro")
-            
-            if btn_reg:
-                if new_u and new_p and new_n:
-                    # Validar si el usuario ya existe
-                    df_check = conn.read(worksheet="USUARIOS")
-                    if new_u in df_check['USUARIO'].values:
-                        st.warning("Ese nombre de usuario ya está tomado.")
-                    else:
-                        registrar_usuario({
-                            "USUARIO": new_u,
-                            "CONTRASEÑA": new_p,
-                            "NOMBRE": new_n,
-                            "EDAD": new_e,
-                            "EQUIPO FAVORITO": new_f,
-                            "DESCRIPCION": new_d,
-                            "ROL": "jugador", # Rol por defecto
-                            "AVATAR_URL": ""
-                        })
+            if st.form_submit_button("Crear mi cuenta"):
+                if r_u and r_p and r_n:
+                    if registrar_usuario({
+                        "USUARIO": r_u, "CONTRASEÑA": r_p, "NOMBRE": r_n,
+                        "EDAD": r_e, "EQUIPO FAVORITO": r_f, "DESCRIPCION": r_d
+                    }):
+                        st.session_state['registro_exitoso'] = True
+                        st.rerun()
                 else:
-                    st.error("Por favor completa los campos obligatorios (Usuario, Clave y Nombre).")
-    
-    st.stop() # Detiene la app aquí si no están logueados
+                    st.error("Completa Usuario, Contraseña y Nombre.")
+    st.stop()
 
-# --- SI LLEGAMOS AQUÍ, EL USUARIO ESTÁ LOGUEADO ---
-# Sidebar de usuario
-with st.sidebar:
-    st.image("https://flaticon.com", width=100) # Imagen genérica
-    st.write(f"👤 **{st.session_state['user_data']['NOMBRE']}**")
-    st.write(f"🏅 Rol: {st.session_state['user_data']['ROL']}")
-    if st.button("Cerrar Sesión"):
-        st.session_state['autenticado'] = False
-        st.session_state['user_data'] = None
-        st.rerun()
+# --- SIDEBAR DE BIENVENIDA ---
+st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
+if st.sidebar.button("Cerrar Sesión"):
+    st.session_state['autenticado'] = False
+    st.rerun()
     
 # --- CARGA DE DATOS ---
 
