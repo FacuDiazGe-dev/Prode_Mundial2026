@@ -1,26 +1,14 @@
 import streamlit as st
 import pandas as pd
-import time
 
 # 1. CONFIGURACIÓN
 st.set_page_config(page_title="Prode Mundial 2026", page_icon="⚽", layout="wide")
 
-# IDs de Google Sheets
+# IDs de Google Sheets (URL de descarga directa)
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
-URL_RES = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=RESULTADOS"
-URL_PRO = f"https://google.com{SHEET_ID}/gviz/tq?tqx=out:csv&sheet=PRONOSTICOS"
-
-# 2. FUNCIÓN DE CARGA CON REINTENTOS (Evita el error -2)
-@st.cache_data(ttl=300)
-def cargar_datos_con_reintento(url):
-    for i in range(3): # Intenta 3 veces
-        try:
-            return pd.read_csv(url, storage_options={"User-Agent": "Mozilla/5.0"})
-        except Exception:
-            if i < 2: 
-                time.sleep(1)
-                continue
-    return None
+# Forzamos la descarga del CSV por GID (0 para Resultados, 394071446 para Pronósticos)
+URL_RES = f"https://google.com{SHEET_ID}/export?format=csv&gid=0"
+URL_PRO = f"https://google.com{SHEET_ID}/export?format=csv&gid=394071446"
 
 def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
     try:
@@ -33,19 +21,13 @@ def calcular_puntos(r1_real, r2_real, r1_prode, r2_prode):
             if r1_r == r1_p and r2_r == r2_p:
                 pts += 2
         return pts
-    except:
-        return 0
+    except: return 0
 
-# 3. LÓGICA PRINCIPAL
-df_res = cargar_datos_con_reintento(URL_RES)
-df_pro = cargar_datos_con_reintento(URL_PRO)
+try:
+    # Carga de datos sin caché para forzar la lectura
+    df_res = pd.read_csv(URL_RES)
+    df_pro = pd.read_csv(URL_PRO)
 
-if df_res is None or df_pro is None:
-    st.error("No se pudo conectar con Google Sheets. El servidor está saturado.")
-    if st.button("🔄 Reintentar ahora"):
-        st.cache_data.clear()
-        st.rerun()
-else:
     st.sidebar.title("Menú Mundial")
     seccion = st.sidebar.radio("Ir a:", ["Ranking General", "Detalle por Jugador"])
 
@@ -58,8 +40,9 @@ else:
                 n_p = part['N_Partido']
                 prode = df_pro[df_pro['N_Partido'] == n_p]
                 if not prode.empty:
-                    p1 = prode[f'Jugador_{i}_E1'].values[0]
-                    p2 = prode[f'Jugador_{i}_E2'].values[0]
+                    # Acceso seguro a los datos
+                    p1 = prode.iloc[0][f'Jugador_{i}_E1']
+                    p2 = prode.iloc[0][f'Jugador_{i}_E2']
                     total += calcular_puntos(part['R1'], part['R2'], p1, p2)
             ranking.append({"Familiar": f"Jugador {i}", "Puntos": int(total)})
         
@@ -71,15 +54,16 @@ else:
     else:
         st.title("🔍 Detalle por Jugador")
         jugador_sel = st.selectbox("Selecciona un familiar:", [f"Jugador {i}" for i in range(1, 11)])
-        n_jug = jugador_sel.split(" ")[1]
+        # Extraemos el número del texto
+        n_jug = jugador_sel.replace("Jugador ", "")
         
         detalle = []
         for _, part in df_res.iterrows():
             n_p = part['N_Partido']
             prode = df_pro[df_pro['N_Partido'] == n_p]
             if not prode.empty:
-                p1_val = prode[f'Jugador_{n_jug}_E1'].values[0]
-                p2_val = prode[f'Jugador_{n_jug}_E2'].values[0]
+                p1_val = prode.iloc[0][f'Jugador_{n_jug}_E1']
+                p2_val = prode.iloc[0][f'Jugador_{n_jug}_E2']
                 pts = calcular_puntos(part['R1'], part['R2'], p1_val, p2_val)
                 res_real = f"{int(part['R1'])} - {int(part['R2'])}" if not pd.isna(part['R1']) else "-"
                 res_prode = f"{int(p1_val)} - {int(p2_val)}" if not pd.isna(p1_val) else "-"
@@ -91,6 +75,6 @@ else:
                 })
         st.dataframe(pd.DataFrame(detalle), use_container_width=True, hide_index=True)
 
-    if st.sidebar.button("🔄 Actualizar Datos"):
-        st.cache_data.clear()
-        st.rerun()
+except Exception as e:
+    st.error(f"Error de conexión: {e}")
+    st.info("Asegúrate de que el Google Sheet sea público.")
