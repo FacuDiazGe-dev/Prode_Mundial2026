@@ -81,17 +81,35 @@ for j in range(1, 11):
 df_ranking = pd.DataFrame(ranking).sort_values(by="Puntos", ascending=False).reset_index(drop=True)
 
 # --- VISUALIZACIÓN ---
-col1, col2 = st.columns([1, 2])
 
-with col1:
-    st.subheader("📊 Ranking")
-    st.table(df_ranking)
+# Creamos 3 columnas: [proporción 1.2, proporción 1.5, proporción 1.2]
+col_res, col_rank, col_extra = st.columns([1.2, 1.5, 1.2])
 
-with col2:
-    st.subheader("⚽ Resultados cargados")
-    # Mostrar solo partidos que ya tienen resultado para control
-    partidos_jugados = df_res.dropna(subset=['R1', 'R2'])
-    if not partidos_jugados.empty:
-        st.dataframe(partidos_jugados[['N_PARTIDO', 'Equipo_1', 'R1', 'R2', 'Equipo_2']], use_container_width=True)
-    else:
-        st.info("Aún no hay resultados oficiales cargados en la planilla.")
+with col_res:
+    st.subheader("⚽ Resultados")
+    # Formateamos para que sea una lista compacta y fija
+    for i, row in df_res.iterrows():
+        # Si tiene resultado, mostrarlo; si no, mostrar vs
+        r1 = int(row['R1']) if not pd.isna(row['R1']) else "-"
+        r2 = int(row['R2']) if not pd.isna(row['R2']) else "-"
+        
+        st.markdown(f"""
+        <div style="border-bottom: 1px solid #ddd; padding: 5px;">
+            <small>Part {int(row['N_PARTIDO'])}</small><br>
+            <b>{row['Equipo_1']}</b> {r1} - {r2} <b>{row['Equipo_2']}</b>
+        </div>
+        """, unsafe_allow_html=True)
+
+with col_rank:
+    st.subheader("📊 Ranking de Puntos")
+    # Mostramos el ranking con un estilo más llamativo
+    st.dataframe(
+        df_ranking.reset_index(drop=True), 
+        use_container_width=True,
+        height=850 # Ajusta según la cantidad de jugadores para evitar scroll
+    )
+
+with col_extra:
+    st.subheader("➕ Extras")
+    st.info("Espacio reservado para futuras funcionalidades (gráficas, perfiles, etc.)")
+    # Aquí puedes agregar lo que quieras más adelante
