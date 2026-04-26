@@ -51,46 +51,45 @@ from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2 import service_account
 import io
 
-def subir_foto_a_drive(archivo, usuario):
+def upload_image_to_drive(file_bytes, file_name):
     try:
         creds_info = st.secrets["connections"]["gsheets"]
-        creds = service_account.Credentials.from_service_account_info(creds_info)
+        # Es vital incluir el Scope de Drive para que tenga permiso de escritura
+        SCOPES = ['https://googleapis.com']
+        creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES)
         service = build('drive', 'v3', credentials=creds)
         
-        FOLDER_ID = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
+        folder_id = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
         
-        # Eliminar foto anterior si existe para no ocupar espacio
-        try:
-            q = f"name = 'perfil_{usuario}.png' and '{FOLDER_ID}' in parents"
-            res = service.files().list(q=q).execute()
-            for f in res.get('files', []):
-                service.files().delete(fileId=f['id']).execute()
-        except: pass
-
         file_metadata = {
-            'name': f"perfil_{usuario}.png",
-            'parents': [FOLDER_ID]
+            'name': file_name,
+            'parents': [folder_id]
         }
         
-        # Subida simple sin manejador de cuota complejo
-        media = MediaIoBaseUpload(io.BytesIO(archivo.getvalue()), mimetype='image/png')
+        fh = io.BytesIO(file_bytes)
+        media = MediaIoBaseUpload(fh, mimetype='image/jpeg', resumable=True)
+        
+        # Subida con soporte para evitar error de cuota
         file = service.files().create(
             body=file_metadata,
             media_body=media,
             fields='id',
-            supportsAllDrives=True # Clave para usar el espacio de tu carpeta
+            supportsAllDrives=True 
         ).execute()
         
         file_id = file.get('id')
-
-        # Permiso de lectura
-        service.permissions().create(fileId=file_id, body={'type': 'anyone', 'role': 'reader'}).execute()
         
-        # Link de miniatura (el más compatible)
-        return f"https://google.com{file_id}&sz=w500"
+        # Hacemos el archivo público para que el link de visualización funcione
+        service.permissions().create(
+            fileId=file_id,
+            body={'type': 'anyone', 'role': 'reader'}
+        ).execute()
+
+        # RETORNO CON EL FORMATO QUE SOLICITASTE
+        return f"https://drive.google.com/uc?export=view&id={file_id}"
+    
     except Exception as e:
-        st.error(f"Error: {e}")
-        return None
+        return f"Error: {e}"
 
 
 
@@ -418,23 +417,24 @@ if menu == "🏠 Inicio":
                 user_actual = st.session_state['user_data']['USUARIO']
                 # Mostramos los últimos 10 mensajes invertidos
                 for index, m in df_foro_inicio.tail(10).iloc[::-1].iterrows():
-                    es_mio = m['USUARIO'] == user_actual
-                    align = "flex-end" if es_mio else "flex-start"
-                    bg_color = "#dcf8c6" if es_mio else "#ffffff"
+                    user_info = df_usuarios[df_usuarios['USUARIO'] == m['USUARIO']]
+                    foto_u = user_info.iloc[0]['AVATAR_URL'] if not user_info.empty and pd.notna(user_info.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
+    
+                    es_m = m['USUARIO'] == u_act
+                    aln = "flex-end" if es_m else "flex-start"
+                    bg = "#dcf8c6" if es_m else "#ffffff"
                     
                     st.markdown(f"""
-                        <div style="display: flex; flex-direction: column; align-items: {align}; margin-bottom: 10px; width: 100%;">
-                            <div style="max-width: 85%; background-color: {bg_color}; padding: 10px 12px; border-radius: 18px; border: 1px solid #ddd; box-shadow: 1px 1px 3px rgba(0,0,0,0.05);">
-                                <div style="font-size: 0.8em; color: #555; font-weight: bold; margin-bottom: 2px;">
-                                    {m['NOMBRE']} <span style="font-weight: normal; color: #999;">• {m['FECHA']}</span>
-                                </div>
-                                <div style="font-size: 1em; color: #333; line-height: 1.2;">
-                                    {m['MENSAJE']}
+                        <div style="display: flex; flex-direction: column; align-items: {aln}; margin-bottom: 10px; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-direction: {'row-reverse' if es_m else 'row'};">
+                                <img src="{foto_u}" style="border-radius: 50%; width: 30px; height: 30px; object-fit: cover; border: 1px solid #ddd;">
+                                <div style="max-width: 85%; background-color: {bg}; padding: 8px 12px; border-radius: 15px; border: 1px solid #ddd;">
+                                    <div style="font-size: 0.7em; color: #555; font-weight: bold;">{m['NOMBRE']}</div>
+                                    <div style="font-size: 0.9em; color: #333;">{m['MENSAJE']}</div>
                                 </div>
                             </div>
                         </div>
-                    """, unsafe_allow_html=True)
-    
+                """, unsafe_allow_html=True)
 #---------------------------------MENU INICIO / RANKING ------------------------------------------------------
     with col_derecha:
         st.subheader("📊 Ranking")
@@ -527,18 +527,19 @@ elif menu == "📝 Mis Pronósticos":
             else:
                 st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
-    # --- COLUMNA DERECHA: MI PERFIL (Editable) ---
-    with col_derecha:
+        with col_derecha:
         st.subheader("👤 Mi Perfil")
         u_data = st.session_state['user_data']
         
-        # 1. Modo Lectura vs Modo Edición
+        # Modo Lectura vs Modo Edición
         if 'editando_perfil' not in st.session_state:
             st.session_state.editando_perfil = False
 
         if not st.session_state.editando_perfil:
-            # --- VISTA DE LECTURA (La que ya tenías con la foto circular) ---
+            # --- VISTA DE LECTURA ---
+            # Si no hay foto, usamos un avatar genérico de alta calidad
             foto = u_data['AVATAR_URL'] if u_data['AVATAR_URL'] else "https://flaticon.com"
+            
             st.markdown(f"""
                 <div style="text-align: center;">
                     <img src="{foto}" style="border-radius: 50%; width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
@@ -556,50 +557,60 @@ elif menu == "📝 Mis Pronósticos":
                 st.rerun()
         
         else:
+            # --- VISTA DE EDICIÓN ---
             with st.form("form_edit_perfil_v2"):
                 st.write("### 📝 Editar mis datos")
                 
-                # Selector de archivo
+                # Cargador de archivos nativo
                 archivo_perfil = st.file_uploader("Sube tu foto de perfil", type=['jpg', 'jpeg', 'png'])
                 
                 n_nom = st.text_input("Nombre Real", value=u_data['NOMBRE'])
-                n_equ = st.selectbox("Hincha de", ["Argentina", "México", "España", "Brasil", "Otro"], index=0)
+                n_equ = st.selectbox("Hincha de", ["Argentina", "México", "España", "Brasil", "Uruguay", "Colombia", "Otro"], index=0)
                 n_bio = st.text_area("Bio", value=u_data['DESCRIPCION'], max_chars=100)
                 
                 col_b1, col_b2 = st.columns(2)
                 
                 if col_b1.form_submit_button("✅ Guardar"):
-                    # Si subió una foto nueva, la mandamos a Drive
                     nueva_url_foto = u_data['AVATAR_URL']
+                    
                     if archivo_perfil:
-                        with st.spinner("Subiendo imagen a Drive..."):
-                            res_url = subir_foto_a_drive(archivo_perfil, u_data['USUARIO'])
-                            if res_url:
+                        with st.spinner("Subiendo imagen a Google Drive..."):
+                            # Usamos la nueva función enviando los bytes (.getvalue())
+                            res_url = upload_image_to_drive(archivo_perfil.getvalue(), f"perfil_{u_data['USUARIO']}.jpg")
+                            
+                            if "Error" not in res_url:
                                 nueva_url_foto = res_url
+                            else:
+                                st.error(f"No se pudo subir la foto: {res_url}")
 
                     # Actualizamos Google Sheets
-                    df_u = conn.read(worksheet="USUARIOS", ttl=0)
-                    df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], 
-                           ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = \
-                           [n_nom, nueva_url_foto, n_equ, n_bio]
-                    
-                    conn.update(worksheet="USUARIOS", data=df_u)
-                    
-                    # Actualizamos la sesión
-                    st.session_state['user_data'].update({
-                        'NOMBRE': n_nom, 'AVATAR_URL': nueva_url_foto, 
-                        'EQUIPO FAVORITO': n_equ, 'DESCRIPCION': n_bio
-                    })
-                    
-                    st.session_state.editando_perfil = False
-                    st.cache_data.clear()
-                    st.success("¡Perfil actualizado con éxito!")
-                    st.rerun()
+                    try:
+                        df_u = conn.read(worksheet="USUARIOS", ttl=0)
+                        df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], 
+                               ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = \
+                               [n_nom, nueva_url_foto, n_equ, n_bio]
+                        
+                        conn.update(worksheet="USUARIOS", data=df_u)
+                        
+                        # Sincronizamos la sesión actual
+                        st.session_state['user_data'].update({
+                            'NOMBRE': n_nom, 
+                            'AVATAR_URL': nueva_url_foto, 
+                            'EQUIPO FAVORITO': n_equ, 
+                            'DESCRIPCION': n_bio
+                        })
+                        
+                        st.session_state.editando_perfil = False
+                        st.cache_data.clear()
+                        st.success("¡Perfil actualizado!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error al guardar en el Excel: {e}")
                 
                 if col_b2.form_submit_button("❌ Cancelar"):
                     st.session_state.editando_perfil = False
                     st.rerun()
-        
+                    
 # ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Jugadores":
     with col_principal:
@@ -654,6 +665,7 @@ elif menu == "👥 Jugadores":
             # --- LÓGICA DE MEDALLAS ---
             user_sel_name = user_sel['NOMBRE']
             datos_rank_user = df_ranking[df_ranking['JUGADOR'] == user_sel_name]
+            foto_jugador = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
 
             # 1. 🏆 PUNTERO
             es_puntero = not datos_rank_user.empty and "👑" in str(datos_rank_user.iloc[0]['Nº'])
@@ -695,10 +707,10 @@ elif menu == "👥 Jugadores":
             foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
             
             st.markdown(f"""
-                <div style="background-color: #f8f9fa; border-radius: 15px; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+                <div style="background-color: #f8f9fa; ...">
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="flex: 1; text-align: center; border-right: 1px solid #eee; padding-right: 10px;">
-                            <img src="{foto_url}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; border: 3px solid #1f3b4d; margin-bottom: 5px;">
+                        <div style="flex: 1; ...">
+                            <img src="{foto_jugador}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; ...">
                             <div style="font-weight: bold; color: #333; font-size: 1em;">{user_sel['NOMBRE']}</div>
                             <div style="color: #666; font-size: 0.7em;">@{user_sel['USUARIO']}</div>
                         </div>
