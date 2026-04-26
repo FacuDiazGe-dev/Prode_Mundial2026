@@ -495,35 +495,28 @@ elif menu == "👥 Jugadores":
         if not df_usuarios.empty:
             nombres_jugadores = df_usuarios['NOMBRE'].tolist()
             nombre_sel = st.selectbox("Selecciona un jugador:", nombres_jugadores)
-            # Obtenemos la fila del usuario seleccionado
             user_sel = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel].iloc[0]
             
-            # --- LÓGICA DE GRÁFICO DE EVOLUCIÓN (DINÁMICO) ---
             st.markdown("---")
             st.subheader(f"📈 Evolución de {nombre_sel}")
             
-            # Datos necesarios
             df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
             partidos_jugados = df_res.dropna(subset=['R1']).sort_values('N_PARTIDO')
             
             if partidos_jugados.empty:
-                st.info("La evolución aparecerá cuando el Admin cargue el primer resultado oficial.")
+                st.info("La evolución aparecerá con el primer resultado oficial.")
             else:
                 evolucion_data = []
-                suma_user = 0
-                suma_liga = 0
+                suma_user, suma_liga = 0, 0
                 total_jugadores = len(df_usuarios)
 
                 for _, res_row in partidos_jugados.iterrows():
-                    id_p = int(res_row['N_PARTIDO']) # Aseguramos que sea entero
-                    
-                    # 1. Puntos del usuario seleccionado
+                    id_p = int(res_row['N_PARTIDO'])
                     u_pr = df_pro_total[(df_pro_total['USUARIO'] == user_sel['USUARIO']) & (df_pro_total['N_PARTIDO'] == id_p)]
                     if not u_pr.empty:
                         pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], u_pr.iloc[0]['P1'], u_pr.iloc[0]['P2'])
                         suma_user += pts
                     
-                    # 2. Promedio de la liga
                     pts_liga_partido = 0
                     todos_pro_partido = df_pro_total[df_pro_total['N_PARTIDO'] == id_p]
                     for _, p_row in todos_pro_partido.iterrows():
@@ -531,20 +524,10 @@ elif menu == "👥 Jugadores":
                         pts_liga_partido += p_pts
                     
                     suma_liga += (pts_liga_partido / total_jugadores) if total_jugadores > 0 else 0
-                    
-                    evolucion_data.append({
-                        "Partido": id_p, # <--- QUITAMOS LA "P" PARA QUE SEA NUMÉRICO
-                        "Tus Puntos": suma_user,
-                        "Promedio Liga": round(suma_liga, 1)
-                    })
+                    evolucion_data.append({"Partido": id_p, "Tus Puntos": suma_user, "Promedio Liga": round(suma_liga, 1)})
 
-                # Ordenamos el DataFrame por el número de partido antes de graficar
-                df_evo = pd.DataFrame(evolucion_data).sort_values("Partido").set_index("Partido")
-                
-                # Graficamos
+                df_evo = pd.DataFrame(evolucion_data).set_index("Partido")
                 st.area_chart(df_evo, color=["#28a745", "#adb5bd"])
-                st.caption("Eje X: Número de Partido | 🟢 Tus Puntos | ⚪ Promedio Liga")
-
 
             st.markdown("---")
             st.write("### 📋 Lista General")
@@ -552,31 +535,26 @@ elif menu == "👥 Jugadores":
 
     with col_derecha:
         if 'user_sel' in locals():
-            # --- 1. PERFIL VISUAL ---
-            # --- PERFIL VISUAL DIVIDIDO (ESTILO CREDENCIAL) ---
             foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
             
+            # --- PERFIL DISEÑO VERTICAL (SIN COMENTARIOS INTERNOS) ---
             st.markdown(f"""
                 <div style="background-color: #f8f9fa; border-radius: 15px; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
-                    <div style="display: flex; align-items: center; gap: 20px;">
-                        <!-- LADO IZQUIERDO: FOTO Y NICK -->
+                    <div style="display: flex; align-items: center; gap: 15px;">
                         <div style="flex: 1; text-align: center; border-right: 1px solid #eee; padding-right: 10px;">
-                            <img src="{foto_url}" style="border-radius: 50%; width: 85px; height: 85px; object-fit: cover; border: 3px solid #1f3b4d; margin-bottom: 5px;">
-                            <div style="font-weight: bold; color: #333; font-size: 1.1em;">{user_sel['NOMBRE']}</div>
-                            <div style="color: #666; font-size: 0.8em;">@{user_sel['USUARIO']}</div>
+                            <img src="{foto_url}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; border: 3px solid #1f3b4d; margin-bottom: 5px;">
+                            <div style="font-weight: bold; color: #333; font-size: 1em;">{user_sel['NOMBRE']}</div>
+                            <div style="color: #666; font-size: 0.7em;">@{user_sel['USUARIO']}</div>
                         </div>
-                        
-                        <!-- LADO DERECHO: INFO E INSIGNIAS -->
                         <div style="flex: 2; text-align: left;">
                             <div style="margin-bottom: 8px;">
-                                <small style="color: gray; text-transform: uppercase; font-size: 0.7em; font-weight: bold;">HINCHA DE</small><br>
-                                <span style="font-weight: bold; color: #1f3b4d;">{user_sel['EQUIPO FAVORITO']}</span>
+                                <small style="color: gray; text-transform: uppercase; font-size: 0.65em; font-weight: bold;">HINCHA DE</small><br>
+                                <span style="font-weight: bold; color: #1f3b4d; font-size: 0.9em;">{user_sel['EQUIPO FAVORITO']}</span>
                             </div>
                             <div style="margin-bottom: 10px;">
-                                <small style="color: gray; text-transform: uppercase; font-size: 0.7em; font-weight: bold;">BIO</small><br>
-                                <div style="font-size: 0.85em; color: #444; line-height: 1.2;"><i>"{user_sel['DESCRIPCION']}"</i></div>
+                                <small style="color: gray; text-transform: uppercase; font-size: 0.65em; font-weight: bold;">BIO</small><br>
+                                <div style="font-size: 0.8em; color: #444; line-height: 1.2;"><i>"{user_sel['DESCRIPCION']}"</i></div>
                             </div>
-                            <!-- ESPACIO PARA INSIGNIAS -->
                             <div style="display: flex; gap: 5px; margin-top: 10px;">
                                 <span title="Jugador Fundador" style="font-size: 1.2em;">🥇</span>
                                 <span title="Participante Activo" style="font-size: 1.2em;">🛡️</span>
@@ -587,41 +565,35 @@ elif menu == "👥 Jugadores":
                 </div>
             """, unsafe_allow_html=True)
             
-            # --- 2. PREDICCIONES CON BANDERAS (VERSION MINI) ---
-            st.write(f"🗳️ **Pronostico de {user_sel['NOMBRE']}:**")
+            st.markdown("---")
+            st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
             
-            # Cargamos pronósticos del usuario y resultados base para los nombres/banderas
-            df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
             df_res_base = conn.read(worksheet="RESULTADOS", ttl=0)
-            pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
+            pro_user_sel = df_pro_total[df_pro_all['USUARIO'] == user_sel['USUARIO']]
             
             if pro_user_sel.empty:
-                st.warning("Este jugador aún no cargó pronósticos.")
+                st.warning("Sin pronósticos cargados.")
             else:
-                # Contenedor con scroll para no hacer la página infinita
-                with st.container(height=500):
+                with st.container(height=400):
                     for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
-                        # Buscamos la info del partido (Equipos)
-                        p_info = df_res_base[df_res_base['N_PARTIDO'] == p['N_PARTIDO']].iloc[0]
-                        
-                        # Obtenemos banderas
-                        f1 = get_flag_img(p_info['Equipo_1'])
-                        f2 = get_flag_img(p_info['Equipo_2'])
-                        i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
-                        i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
-                        
-                        # Diseño de mini-tarjeta
-                        st.markdown(f"""
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.85em;">
-                            <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
-                            <div style="width: 35%; text-align: right;">{p_info['Equipo_1']} {i1}</div>
-                            <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
-                                {int(p['P1'])} - {int(p['P2'])}
+                        p_match = df_res_base[df_res_base['N_PARTIDO'] == p['N_PARTIDO']]
+                        if not p_match.empty:
+                            p_info = p_match.iloc[0]
+                            f1 = get_flag_img(p_info['Equipo_1'])
+                            f2 = get_flag_img(p_info['Equipo_2'])
+                            i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
+                            i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
+                            
+                            st.markdown(f"""
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.8em;">
+                                <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
+                                <div style="width: 35%; text-align: right;">{p_info['Equipo_1']} {i1}</div>
+                                <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
+                                    {int(p['P1'])} - {int(p['P2'])}
+                                </div>
+                                <div style="width: 35%; text-align: left;">{i2} {p_info['Equipo_2']}</div>
                             </div>
-                            <div style="width: 35%; text-align: left;">{i2} {p_info['Equipo_2']}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-
+                            """, unsafe_allow_html=True)
 
 # ---------- MENU FORO ----------------------------------------------------
 elif menu == "💬 Foro":
