@@ -603,6 +603,7 @@ with col_derecha:
                     st.rerun()
                     
 # ---------- MENU JUGADORES ----------------------------------------------------
+# ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Jugadores":
     with col_principal:
         st.subheader("👥 Jugadores Inscritos")
@@ -632,6 +633,7 @@ elif menu == "👥 Jugadores":
                     id_p = int(res_row['N_PARTIDO'])
                     u_pr = df_pro_total[(df_pro_total['USUARIO'] == user_sel['USUARIO']) & (df_pro_total['N_PARTIDO'] == id_p)]
                     if not u_pr.empty:
+                        # Corregido acceso a iloc[0]
                         pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], u_pr.iloc[0]['P1'], u_pr.iloc[0]['P2'])
                         suma_user += pts
                     
@@ -658,70 +660,67 @@ elif menu == "👥 Jugadores":
             datos_rank_user = df_ranking[df_ranking['JUGADOR'] == user_sel_name]
             foto_jugador = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
 
-            # 1. 🏆 PUNTERO
-            es_puntero = not datos_rank_user.empty and "👑" in str(datos_rank_user.iloc[0]['Nº'])
-            css_puntero = "" if es_puntero else "filter: grayscale(100%); opacity: 0.15;"
+            if not datos_rank_user.empty:
+                # 1. 🏆 PUNTERO
+                es_puntero = "👑" in str(datos_rank_user.iloc[0]['Nº'])
+                css_puntero = "" if es_puntero else "filter: grayscale(100%); opacity: 0.15;"
 
-            # 2. 🎯 MASTER (5+ Exactos)
-            es_master = not datos_rank_user.empty and int(datos_rank_user.iloc[0]['EXACTOS']) >= 5
-            css_master = "" if es_master else "filter: grayscale(100%); opacity: 0.15;"
+                # 2. 🎯 MASTER
+                es_master = int(datos_rank_user.iloc[0]['EXACTOS']) >= 5
+                css_master = "" if es_master else "filter: grayscale(100%); opacity: 0.15;"
 
-            # 3. 🧙‍♂️ MENTALISTA (Máximos generales)
-            max_gen = df_ranking['GENERALES'].max()
-            es_mentalista = not datos_rank_user.empty and int(datos_rank_user.iloc[0]['GENERALES']) == max_gen and max_gen > 0
-            css_mentalista = "" if es_mentalista else "filter: grayscale(100%); opacity: 0.15;"
+                # 3. 🧙‍♂️ MENTALISTA
+                max_gen = df_ranking['GENERALES'].max()
+                es_mentalista = int(datos_rank_user.iloc[0]['GENERALES']) == max_gen and max_gen > 0
+                css_mentalista = "" if es_mentalista else "filter: grayscale(100%); opacity: 0.15;"
+            else:
+                css_puntero = css_master = css_mentalista = "filter: grayscale(100%); opacity: 0.15;"
 
-            # 4. 🥇 FUNDADOR (Top 3)
+            # 4. 🥇 FUNDADOR
             es_fundador = int(user_sel['ID']) <= 3
             css_fundador = "" if es_fundador else "filter: grayscale(100%); opacity: 0.15;"
 
-            # 5. 🐌 EL MÁS LENTO: El último del ranking (solo si hay más de 3 jugadores)
+            # 5. 🐌 EL MÁS LENTO
             es_lento = not datos_rank_user.empty and (user_sel_name == df_ranking.iloc[-1]['JUGADOR']) and len(df_ranking) > 2
             css_lento = "" if es_lento else "filter: grayscale(100%); opacity: 0.15;"
             
-            # 6. 🔥 ON FIRE (Racha de Exactos)
+            # 6. 🔥 ON FIRE
             user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
             racha_act, racha_max = 0, 0
             for _, p in user_pro_sorted.iterrows():
-                res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']].iloc[0]
-                if pd.notna(res_p['R1']):
-                    _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
-                    if exa == 1:
-                        racha_act += 1
-                        racha_max = max(racha_max, racha_act)
-                    else: racha_act = 0
+                # Corregido acceso a iloc[0]
+                partido_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                if not partido_ref.empty:
+                    res_p = partido_ref.iloc[0]
+                    if pd.notna(res_p['R1']):
+                        _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
+                        if exa == 1:
+                            racha_act += 1
+                            racha_max = max(racha_max, racha_act)
+                        else: racha_act = 0
+            
             es_onfire = racha_max >= 2
             css_onfire = "" if es_onfire else "filter: grayscale(100%); opacity: 0.15;"
             label_fire = f"x{racha_max}" if es_onfire else ""
 
-            # --- DISEÑO DEL PERFIL ---
-            foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
-            
+            # --- RENDERIZADO DEL PERFIL ---
             st.markdown(f"""
-                <div style="background-color: #f8f9fa; ...">
+                <div style="background-color: #f8f9fa; border-radius: 15px; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="flex: 1; ...">
-                            <img src="{foto_jugador}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; ...">
-                            <div style="font-weight: bold; color: #333; font-size: 1em;">{user_sel['NOMBRE']}</div>
-                            <div style="color: #666; font-size: 0.7em;">@{user_sel['USUARIO']}</div>
+                        <div style="flex: 1; text-align: center; border-right: 1px solid #eee; padding-right: 10px;">
+                            <img src="{foto_jugador}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; border: 3px solid #1f3b4d;">
+                            <div style="font-weight: bold; font-size: 1em; margin-top:5px;">{user_sel['NOMBRE']}</div>
                         </div>
                         <div style="flex: 2; text-align: left;">
-                            <div style="margin-bottom: 5px;">
-                                <small style="color: gray; text-transform: uppercase; font-size: 0.65em; font-weight: bold;">HINCHA DE: </small>
-                                <span style="font-weight: bold; color: #1f3b4d; font-size: 0.9em;">{user_sel['EQUIPO FAVORITO']}</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                                <span title="Puntero" style="font-size: 1.5em; {css_puntero}">🏆</span>
+                                <span title="Master" style="font-size: 1.5em; {css_master}">🎯</span>
+                                <span title="On Fire" style="font-size: 1.5em; {css_onfire}">🔥<small style="font-size:0.5em;">{label_fire}</small></span>
+                                <span title="Mentalista" style="font-size: 1.5em; {css_mentalista}">🧙‍♂️</span>
+                                <span title="Fundador" style="font-size: 1.5em; {css_fundador}">🥇</span>
+                                <span title="Lento" style="font-size: 1.5em; {css_lento}">🐌</span>
                             </div>
-                            <div style="margin-bottom: 8px;">
-                                <small style="color: gray; text-transform: uppercase; font-size: 0.65em; font-weight: bold;">INSIGNIAS</small><br>
-                                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;">
-                                    <span title="Puntero Actual" style="font-size: 1.5em; {css_puntero}">🏆</span>
-                                    <span title="Master (5+ Exactos)" style="font-size: 1.5em; {css_master}">🎯</span>
-                                    <span title="On Fire (Racha de Exactos)" style="font-size: 1.5em; {css_onfire}">🔥<small style="font-size:0.5em; font-weight:bold;">{label_fire}</small></span>
-                                    <span title="Mentalista (Más aciertos generales)" style="font-size: 1.5em; {css_mentalista}">🧙‍♂️</span>
-                                    <span title="Fundador (Top 3)" style="font-size: 1.5em; {css_fundador}">🥇</span>
-                                    <span title="El Más Lento (Último lugar)" style="font-size: 1.5em; {css_lento}">🐌</span>
-                                </div>
-                            </div>
-                            <div style="font-size: 0.8em; color: #444; line-height: 1.2;"><i>"{user_sel['DESCRIPCION']}"</i></div>
+                            <div style="font-size: 0.85em; color: #444;"><i>"{user_sel['DESCRIPCION']}"</i></div>
                         </div>
                     </div>
                 </div>
