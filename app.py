@@ -527,7 +527,7 @@ elif menu == "📝 Mis Pronósticos":
             else:
                 st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
-with col_derecha:
+    with col_derecha:
         st.subheader("👤 Mi Perfil")
         u_data = st.session_state['user_data']
         
