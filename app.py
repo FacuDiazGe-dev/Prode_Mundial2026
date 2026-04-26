@@ -531,14 +531,11 @@ with col_derecha:
         st.subheader("👤 Mi Perfil")
         u_data = st.session_state['user_data']
         
-        # Modo Lectura vs Modo Edición
         if 'editando_perfil' not in st.session_state:
             st.session_state.editando_perfil = False
 
         if not st.session_state.editando_perfil:
-            # --- VISTA DE LECTURA ---
             foto = u_data['AVATAR_URL'] if u_data['AVATAR_URL'] else "https://flaticon.com"
-            
             st.markdown(f"""
                 <div style="text-align: center;">
                     <img src="{foto}" style="border-radius: 50%; width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
@@ -554,55 +551,34 @@ with col_derecha:
             if st.button("⚙️ Editar Perfil", use_container_width=True):
                 st.session_state.editando_perfil = True
                 st.rerun()
-        
         else:
-            # --- VISTA DE EDICIÓN ---
             with st.form("form_edit_perfil_v2"):
                 st.write("### 📝 Editar mis datos")
                 archivo_perfil = st.file_uploader("Sube tu foto de perfil", type=['jpg', 'jpeg', 'png'])
-                
                 n_nom = st.text_input("Nombre Real", value=u_data['NOMBRE'])
-                n_equ = st.selectbox("Hincha de", ["Argentina", "México", "España", "Brasil", "Uruguay", "Colombia", "Otro"], index=0)
+                n_equ = st.selectbox("Hincha de", ["Argentina", "México", "España", "Brasil", "Uruguay", "Colombia", "Otro"])
                 n_bio = st.text_area("Bio", value=u_data['DESCRIPCION'], max_chars=100)
                 
-                col_b1, col_b2 = st.columns(2)
-                
-                if col_b1.form_submit_button("✅ Guardar"):
-                    nueva_url_foto = u_data['AVATAR_URL']
-                    
+                c_b1, c_b2 = st.columns(2)
+                if c_b1.form_submit_button("✅ Guardar"):
+                    nueva_url = u_data['AVATAR_URL']
                     if archivo_perfil:
-                        with st.spinner("Subiendo imagen a Google Drive..."):
+                        with st.spinner("Subiendo..."):
                             res_url = upload_image_to_drive(archivo_perfil.getvalue(), f"perfil_{u_data['USUARIO']}.jpg")
-                            if "Error" not in res_url:
-                                nueva_url_foto = res_url
-                            else:
-                                st.error(f"No se pudo subir la foto: {res_url}")
-
-                    try:
-                        df_u = conn.read(worksheet="USUARIOS", ttl=0)
-                        df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], 
-                               ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = \
-                               [n_nom, nueva_url_foto, n_equ, n_bio]
-                        
-                        conn.update(worksheet="USUARIOS", data=df_u)
-                        
-                        st.session_state['user_data'].update({
-                            'NOMBRE': n_nom, 'AVATAR_URL': nueva_url_foto, 
-                            'EQUIPO FAVORITO': n_equ, 'DESCRIPCION': n_bio
-                        })
-                        
-                        st.session_state.editando_perfil = False
-                        st.cache_data.clear()
-                        st.success("¡Perfil actualizado!")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Error al guardar: {e}")
+                            if "Error" not in res_url: nueva_url = res_url
+                    
+                    df_u = conn.read(worksheet="USUARIOS", ttl=0)
+                    df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = [n_nom, nueva_url, n_equ, n_bio]
+                    conn.update(worksheet="USUARIOS", data=df_u)
+                    st.session_state['user_data'].update({'NOMBRE': n_nom, 'AVATAR_URL': nueva_url, 'EQUIPO FAVORITO': n_equ, 'DESCRIPCION': n_bio})
+                    st.session_state.editando_perfil = False
+                    st.cache_data.clear()
+                    st.rerun()
                 
-                if col_b2.form_submit_button("❌ Cancelar"):
+                if c_b2.form_submit_button("❌ Cancelar"):
                     st.session_state.editando_perfil = False
                     st.rerun()
                     
-# ---------- MENU JUGADORES ----------------------------------------------------
 # ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Jugadores":
     with col_principal:
