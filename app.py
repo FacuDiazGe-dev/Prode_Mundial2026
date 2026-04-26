@@ -314,7 +314,7 @@ if menu == "🏠 Inicio":
 
 #---------- MENU MIS PRONOSTICOS ----------------------------------------------------
 
-    elif menu == "📝 Mis Pronósticos":
+elif menu == "📝 Mis Pronósticos":
     # --- COLUMNA CENTRAL (50%) ---
     with col_principal:
         st.subheader("📝 Mis Predicciones")
@@ -403,7 +403,7 @@ if menu == "🏠 Inicio":
         
 #--------- MENU JUGADORES -------------------------------------------------------------------
 
-    elif menu == "👥 Jugadores":
+elif menu == "👥 Jugadores":
         with col_principal:
             st.subheader("👥 Jugadores Inscritos")
             df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
@@ -459,11 +459,11 @@ if menu == "🏠 Inicio":
                             </div>
                             """, unsafe_allow_html=True)
 
-    elif menu == "💬 Foro":
+elif menu == "💬 Foro":
         with col_principal:
             st.subheader("💬 Foro")
             st.info("Próximamente...")
 
-    elif menu == "⚙️ Panel Control":
+elif menu == "⚙️ Panel Control":
         # Aquí va el código del Admin...
         pass
