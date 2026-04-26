@@ -69,7 +69,7 @@ def get_drive_service():
     
     return build('drive', 'v3', credentials=creds)
 
-def upload_profile_picture(file_bytes, file_name):
+def upload_photo(file_bytes, file_name):
     try:
         service = get_drive_service()
         folder_id = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
