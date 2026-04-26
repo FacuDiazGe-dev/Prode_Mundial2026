@@ -398,7 +398,6 @@ with st.sidebar:
     with col_derecha:
         st.subheader("📊 Ranking")
         st.dataframe(df_ranking, use_container_width=True, hide_index=True)
-            hide_index=True,
             column_config={
                 "Nº": st.column_config.TextColumn("Nº", width="small"),
                 "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
