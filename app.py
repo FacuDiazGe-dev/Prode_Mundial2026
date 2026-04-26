@@ -55,31 +55,20 @@ def upload_profile_picture(file_bytes, file_name):
     Sube la imagen a Google Cloud Storage y devuelve la URL pública.
     """
     try:
-        # 1. Autenticación usando tus secretos existentes
+        # Usamos los secretos que YA funcionan para Sheets
         creds_info = st.secrets["connections"]["gsheets"] 
         client = storage.Client.from_service_account_info(creds_info)
         
-        # 2. NOMBRE CORREGIDO: foto-prode2026 (con guion medio y el cero)
         bucket_name = "foto-prode2026" 
         bucket = client.bucket(bucket_name)
-        
-        # 3. Preparar el archivo
         blob = bucket.blob(f"perfiles/{file_name}")
         
-        # 4. Manejo de los bytes del archivo
-        if isinstance(file_bytes, (bytes, bytearray)):
-            file_io = io.BytesIO(file_bytes)
-        else:
-            file_io = file_bytes
-
-        # 5. Subida directa
-        blob.upload_from_file(file_io, content_type='image/jpeg')
+        # Subida directa desde el objeto UploadedFile de Streamlit
+        blob.upload_from_file(file_file, content_type='image/jpeg')
         
-        # 6. URL Pública
         return f"https://googleapis.com{bucket_name}/perfiles/{file_name}"
-
     except Exception as e:
-        return f"Error en Storage: {e}"
+        return f"Error: {e}"
 #---------------------------------------------------------------------------------------------
 
 # ----LOGIN---
