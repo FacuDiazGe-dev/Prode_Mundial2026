@@ -196,33 +196,72 @@ def calcular_detalle(r1, r2, p1, p2):
             
     return puntos, exactos, generales
     
-# --- CÁLCULO DEL RANKING ---
-ranking = []
-for j in range(1, 11):
-    total_pts, total_ex, total_gen = 0, 0, 0
-    col_e1, col_e2 = f"Jugador_{j}_E1", f"Jugador_{j}_E2"
-    
-    if col_e1 in df_pro.columns:
-        df_pro[col_e1] = pd.to_numeric(df_pro[col_e1], errors='coerce')
-        df_pro[col_e2] = pd.to_numeric(df_pro[col_e2], errors='coerce')
+# --- LÓGICA DE RANKING ACTUALIZADA (VERTICAL) ---
 
-        for i in range(len(df_res)):
-            partido_id = df_res.loc[i, 'N_PARTIDO']
-            row_pro = df_pro[df_pro['N_PARTIDO'] == partido_id].iloc[0]
-            
-            pts, ex, gen = calcular_detalle(df_res.loc[i, 'R1'], df_res.loc[i, 'R2'], row_pro[col_e1], row_pro[col_e2])
+# 1. Cargamos los datos más recientes
+df_res_oficial = conn.read(worksheet="RESULTADOS", ttl=0)
+df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
+df_users_list = conn.read(worksheet="USUARIOS", ttl=0)
+
+# Función de cálculo (la mantenemos igual)
+def calcular_puntos_pro(r1, r2, p1, p2):
+    if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
+        return 0, 0, 0
+    pts, exa, gen = 0, 0, 0
+    r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
+    t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
+    t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
+    if t_real == t_pron:
+        if r1 == p1 and r2 == p2:
+            exa = 1
+            pts = 3 # 1 de tendencia + 2 de bonus
+        else:
+            gen = 1
+            pts = 1
+    return pts, exa, gen
+
+# 2. Procesamos el Ranking por cada usuario registrado
+ranking_data = []
+
+# Iteramos sobre la lista de usuarios reales
+for _, u_row in df_users_list.iterrows():
+    u_nick = u_row['USUARIO']
+    u_nombre = u_row['NOMBRE']
+    
+    total_pts, total_exa, total_gen = 0, 0, 0
+    
+    # Filtramos todos los pronósticos de este usuario de una vez
+    pronos_usuario = df_pro_total[df_pro_total['USUARIO'] == u_nick]
+    
+    # Comparamos con cada resultado oficial cargado
+    for _, res_row in df_res_oficial.iterrows():
+        id_p = res_row['N_PARTIDO']
+        
+        # Buscamos el pronóstico de este usuario para este partido
+        p_row = pronos_usuario[pronos_usuario['N_PARTIDO'] == id_p]
+        
+        if not p_row.empty:
+            pts, exa, gen = calcular_puntos_pro(
+                res_row['R1'], res_row['R2'],
+                p_row.iloc[0]['P1'], p_row.iloc[0]['P2']
+            )
             total_pts += pts
-            total_ex += ex
+            total_exa += exa
             total_gen += gen
-    
-    ranking.append({"JUGADOR": f"Jugador {j}", "PUNTOS": total_pts, "EXACTOS": total_ex, "GENERALES": total_gen})
+            
+    ranking_data.append({
+        "JUGADOR": u_nombre,
+        "PUNTOS": total_pts,
+        "EXACTOS": total_exa,
+        "GENERALES": total_gen
+    })
 
-# Crear DataFrame y ordenar
-df_ranking = pd.DataFrame(ranking).sort_values(by=["PUNTOS", "EXACTOS"], ascending=False).reset_index(drop=True)
+# 3. Creamos el DataFrame y ordenamos (Puntos y luego Exactos como desempate)
+df_ranking = pd.DataFrame(ranking_data).sort_values(by=["PUNTOS", "EXACTOS"], ascending=False).reset_index(drop=True)
 
-# Agregar columna de posición con la corona
+# 4. Agregamos la columna de posición con la corona
 df_ranking.index = df_ranking.index + 1
-df_ranking["Nº"] = df_ranking.index.map(lambda x: f"👑" if x == 1 else str(x))
+df_ranking.insert(0, "Nº", df_ranking.index.map(lambda x: "👑" if x == 1 else str(x)))
 
 # Reordenar columnas
 df_ranking = df_ranking[["Nº", "JUGADOR", "PUNTOS", "EXACTOS", "GENERALES"]]
