@@ -316,7 +316,7 @@ if menu == "🏠 Inicio":
 elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Mis Predicciones")
-        ahora_arg = datetime.now() - timedelta(hours=3)        
+        ahora_arg = datetime.now() - timedelta(hours=-3)        
         
         # --- CONFIGURACIÓN DE FECHA LÍMITE ---
         # Fecha límite: 8 de junio de 2026 a las 23:59:59
