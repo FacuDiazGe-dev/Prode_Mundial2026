@@ -433,22 +433,22 @@ if menu == "🏠 Inicio":
                         </div>
                 """, unsafe_allow_html=True)
 #---------------------------------MENU INICIO / RANKING ------------------------------------------------------
-with col_derecha:
-    st.subheader("📊 Ranking")
-    try:
+    with col_derecha:
+        st.subheader("📊 Ranking")
+        try:
         # Forzamos lectura fresca
-        df_ranking_view = df_ranking.copy()
-        st.dataframe(
-            df_ranking_view, 
-            use_container_width=True, 
-            hide_index=True,
-            column_config={
-                "Nº": st.column_config.TextColumn("Nº", width="small"),
-                "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
-                "EXACTOS": st.column_config.NumberColumn("🎯"),
-                "GENERALES": st.column_config.NumberColumn("✅")
-            }
-        )
+            df_ranking_view = df_ranking.copy()
+            st.dataframe(
+                df_ranking_view, 
+                use_container_width=True, 
+                hide_index=True,
+                column_config={
+                    "Nº": st.column_config.TextColumn("Nº", width="small"),
+                    "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
+                    "EXACTOS": st.column_config.NumberColumn("🎯"),
+                    "GENERALES": st.column_config.NumberColumn("✅")
+                }
+            )
     except Exception as e:
         st.error("No se pudo cargar el ranking. Reintentando...")
         st.cache_data.clear()
