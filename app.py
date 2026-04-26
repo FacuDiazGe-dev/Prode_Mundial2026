@@ -47,21 +47,28 @@ def get_flag_img(pais):
     return "⚽" # Fallback si falla la descarga
 #--------------------------------cargar foto drive----------------------------------
 
-from google.oauth2 import service_account
+import io
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
-from google.auth.transport.requests import Request
-import io
+from google.oauth2 import service_account
+import google.auth.transport.requests
 
 def get_drive_service():
-    # SCOPES específicos para Drive
-    SCOPES = ['https://googleapis.com', 'https://googleapis.com']
+    # SCOPE específico para Drive (Vital para el access_token)
+    SCOPES = ['https://www.googleapis.com/auth/drive']
     creds_info = st.secrets["connections"]["gsheets"]
-    creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES)
     
-    # Forzar la obtención del access_token para evitar el error de "No access token"
-    if not creds.valid:
-        creds.refresh(Request())
+    creds = service_account.Credentials.from_service_account_info(
+        creds_info, scopes=SCOPES
+    )
+    
+    # FORZAR REFRESH: Genera el access_token necesario
+    try:
+        auth_request = google.auth.transport.requests.Request()
+        creds.refresh(auth_request)
+    except Exception as e:
+        st.error(f"Error al refrescar token: {e}")
+        
     return build('drive', 'v3', credentials=creds)
 
 def upload_profile_picture(file_bytes, file_name):
@@ -70,13 +77,10 @@ def upload_profile_picture(file_bytes, file_name):
         folder_id = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
         
         file_metadata = {'name': file_name, 'parents': [folder_id]}
-        
-        if isinstance(file_bytes, bytes):
-            file_bytes = io.BytesIO(file_bytes)
-            
-        media = MediaIoBaseUpload(file_bytes, mimetype='image/jpeg', resumable=True)
+        fh = io.BytesIO(file_bytes)
+        media = MediaIoBaseUpload(fh, mimetype='image/jpeg', resumable=True)
 
-        # Subida con supportsAllDrives=True para evitar error de cuota
+        # SUBIDA: Evita error de cuota 403
         file = service.files().create(
             body=file_metadata,
             media_body=media,
@@ -86,16 +90,17 @@ def upload_profile_picture(file_bytes, file_name):
 
         file_id = file.get('id')
 
-        # Hacerlo público para que funcione el <img>
+        # PERMISOS: Público para que el <img> funcione
         service.permissions().create(
             fileId=file_id,
             body={'type': 'anyone', 'role': 'reader'},
             supportsAllDrives=True
         ).execute()
 
-        return f"https://google.com{file_id}"
+        return f"https://drive.google.com/uc?export=view&id={file_id}"
+        
     except Exception as e:
-        return f"Error: {e}"
+        return f"Error detallado: {e}"
 
 # ----LOGIN---
 # --- CONEXIÓN ---
