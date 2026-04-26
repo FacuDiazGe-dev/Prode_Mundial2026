@@ -557,13 +557,19 @@ elif menu == "📝 Mis Pronósticos":
                 n_bio = st.text_area("Bio", value=u_data['DESCRIPCION'], max_chars=100)
                 
                 c_b1, c_b2 = st.columns(2)
-                if c_b1.form_submit_button("✅ Guardar"):
-                    nueva_url = u_data['AVATAR_URL']
-                    if archivo_perfil:
-                        with st.spinner("Subiendo..."):
+                if c1.form_submit_button("✅ Guardar"):
+                    nueva_url_foto = u_data['AVATAR_URL']
+    
+                    if archivo_perfil: # El st.file_uploader
+                        with st.spinner("Subiendo foto a Drive..."):
+            # LLAMADA A LA FUNCIÓN
                             res_url = upload_image_to_drive(archivo_perfil.getvalue(), f"perfil_{u_data['USUARIO']}.jpg")
-                            if "Error" not in res_url: nueva_url = res_url
-                    
+            
+                            if "Error" not in res_url:
+                                nueva_url_foto = res_url
+                            else:
+                                st.error(res_url)
+
                     df_u = conn.read(worksheet="USUARIOS", ttl=0)
                     df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = [n_nom, nueva_url, n_equ, n_bio]
                     conn.update(worksheet="USUARIOS", data=df_u)
