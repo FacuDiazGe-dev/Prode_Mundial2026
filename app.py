@@ -550,12 +550,12 @@ elif menu == "👥 Jugadores":
             st.write("### 📋 Lista General")
             st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
 
-    with col_derecha:
+        with col_derecha:
         if 'user_sel' in locals():
-            # (Mantenemos tu bloque de perfil actual)
+            # --- 1. PERFIL VISUAL ---
             foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
             st.markdown(f"""
-                <div style="text-align: center; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
+                <div style="text-align: center; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px;">
                     <img src="{foto_url}" style="border-radius: 50%; width: 90px; height: 90px; object-fit: cover; border: 2px solid #28a745;">
                     <h4 style="margin: 10px 0 0 0;">{user_sel['NOMBRE']}</h4>
                     <p style="color: #666; font-size: 0.8em; margin-bottom: 5px;">@{user_sel['USUARIO']}</p>
@@ -565,16 +565,40 @@ elif menu == "👥 Jugadores":
                 </div>
             """, unsafe_allow_html=True)
             
-            st.markdown("---")
-            st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
+            # --- 2. PREDICCIONES CON BANDERAS (VERSION MINI) ---
+            st.write(f"🗳️ **Cartilla de {user_sel['NOMBRE']}:**")
+            
+            # Cargamos pronósticos del usuario y resultados base para los nombres/banderas
+            df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
+            df_res_base = conn.read(worksheet="RESULTADOS", ttl=0)
             pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
             
-            if not pro_user_sel.empty:
-                for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
-                    st.write(f"Part {int(p['N_PARTIDO'])}: **{int(p['P1'])} - {int(p['P2'])}**")
+            if pro_user_sel.empty:
+                st.warning("Este jugador aún no cargó pronósticos.")
             else:
-                st.warning("Sin pronósticos.")
-
+                # Contenedor con scroll para no hacer la página infinita
+                with st.container(height=500):
+                    for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
+                        # Buscamos la info del partido (Equipos)
+                        p_info = df_res_base[df_res_base['N_PARTIDO'] == p['N_PARTIDO']].iloc[0]
+                        
+                        # Obtenemos banderas
+                        f1 = get_flag_img(p_info['Equipo_1'])
+                        f2 = get_flag_img(p_info['Equipo_2'])
+                        i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
+                        i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
+                        
+                        # Diseño de mini-tarjeta
+                        st.markdown(f"""
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.85em;">
+                            <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
+                            <div style="width: 35%; text-align: right;">{p_info['Equipo_1']} {i1}</div>
+                            <div style="width: 20%; text-align: center; background: #28a745; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
+                                {int(p['P1'])} - {int(p['P2'])}
+                            </div>
+                            <div style="width: 35%; text-align: left;">{i2} {p_info['Equipo_2']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
 # ---------- MENU FORO ----------------------------------------------------
 elif menu == "💬 Foro":
