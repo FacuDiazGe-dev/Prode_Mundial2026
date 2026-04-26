@@ -62,7 +62,7 @@ def subir_foto_a_drive(archivo, usuario):
         
         # ID de tu carpeta FOTO_PRODE26
         FOLDER_ID = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
-        
+       
         # 1. Configuración del archivo
         file_metadata = {
             'name': f"perfil_{usuario}.png",
@@ -78,7 +78,9 @@ def subir_foto_a_drive(archivo, usuario):
             body=file_metadata, 
             media_body=media, 
             fields='id',
-            supportsAllDrives=True # <-- ESTA LÍNEA ES CLAVE
+            supportsAllDrives=True,
+            # Forzamos a que no intente usar el espacio de la Service Account
+            keepRevisionForever=False 
         ).execute()
 
         # 3. PASO CLAVE: Dar permiso de lectura para que se vea en la web
