@@ -577,40 +577,46 @@ elif menu == "📝 Mis Pronósticos":
                 c_b1, c_b2 = st.columns(2)
                 
                 if c_b1.form_submit_button("✅ Guardar"):
+                    # Iniciamos con la URL que ya tiene el usuario por si no sube una nueva
                     nueva_url = u_data['AVATAR_URL']
     
                     if archivo_perfil:
                         with st.spinner("Subiendo foto al servidor..."):
-                            # Usamos la función de GCS que ya testeamos
-                            nombre_archivo = f"perfil_{u_data['USUARIO']}_{datetime.now().strftime('%M%S')}.jpg"
+                            # Generamos nombre único para evitar problemas de caché del navegador
+                            nombre_archivo = f"perfil_{u_data['USUARIO']}_{datetime.now().strftime('%H%M%S')}.jpg"
+                            # LLAMADA A LA FUNCIÓN (Asegúrate de que se llame upload_profile_picture arriba)
                             res_url = upload_profile_picture(archivo_perfil, nombre_archivo)
             
-                            if "Error" not in res_url:
+                            if res_url and "Error" not in res_url:
                                 nueva_url = res_url
                             else:
-                                st.error(res_url)
+                                st.error(f"Error al subir: {res_url}")
 
-                    # Guardado en Google Sheets
-                    df_u = conn.read(worksheet="USUARIOS", ttl=0)
-                    df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = [n_nom, nueva_url, n_equ, n_bio]
-                    conn.update(worksheet="USUARIOS", data=df_u)
-                    
-                    # Actualizar Sesión
-                    st.session_state['user_data'].update({
-                        'NOMBRE': n_nom, 
-                        'AVATAR_URL': nueva_url, 
-                        'EQUIPO FAVORITO': n_equ, 
-                        'DESCRIPCION': n_bio
-                    })
-                    
-                    st.session_state.editando_perfil = False
-                    st.cache_data.clear()
-                    st.success("¡Perfil actualizado!")
-                    st.rerun()
+                    try:
+                        # Guardado en Google Sheets
+                        df_u = conn.read(worksheet="USUARIOS", ttl=0)
+                        df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = [n_nom, nueva_url, n_equ, n_bio]
+                        conn.update(worksheet="USUARIOS", data=df_u)
+                        
+                        # Actualizar Sesión en tiempo real
+                        st.session_state['user_data'].update({
+                            'NOMBRE': n_nom, 
+                            'AVATAR_URL': nueva_url, 
+                            'EQUIPO FAVORITO': n_equ, 
+                            'DESCRIPCION': n_bio
+                        })
+                        
+                        st.session_state.editando_perfil = False
+                        st.cache_data.clear()
+                        st.success("¡Perfil actualizado con éxito!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error al conectar con la base de datos: {e}")
                 
                 if c_b2.form_submit_button("❌ Cancelar"):
                     st.session_state.editando_perfil = False
                     st.rerun()
+                
 
 # ---------- MENU JUGADORES ----------------------------------------------------
 # --- NO DEBE HABER NINGÚN ESPACIO ANTES DE ESTE ELIF ---
