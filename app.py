@@ -309,58 +309,53 @@ if menu == "🏠 Inicio":
     with col_principal:
         st.subheader("⚽ Cronograma y Resultados")
         
-        # FILTRO DINÁMICO: Solo partidos marcados como visibles (VIZ == True)
-        # Convertimos a booleano por seguridad
-        df_res['VIZ'] = df_res['VIZ'].fillna(False).astype(bool)
-        df_visibles = df_res[df_res['VIZ'] == True]
-        
-        # Los mostramos invertidos para que el último (el más reciente o próximo) esté arriba
-        df_mostrar = df_visibles.iloc[::-1]
+        # 1. Limpieza y Filtro de Visibilidad
+        # Aseguramos que la columna VIZ exista y sea booleana
+        if 'VIZ' in df_res.columns:
+            df_res['VIZ'] = df_res['VIZ'].fillna(False).astype(bool)
+            df_mostrar = df_res[df_res['VIZ'] == True].iloc[::-1]
+        else:
+            # Si aún no creaste la columna en Excel, mostramos todo para no dar error
+            df_mostrar = df_res.iloc[::-1]
 
         with st.container(height=500):
             if df_mostrar.empty:
                 st.info("Próximamente se publicarán los partidos de la jornada.")
             else:
                 for i, row in df_mostrar.iterrows():
-                    # Aquí va tu código HTML de las tarjetas...
-                    # (El color_tema puede seguir siendo azul para finalizados y gris para próximos)
+                    # DEFINICIÓN SEGURA DE VARIABLES (Esto evita el NameError)
                     r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
-                    color_tema = "#007bff" if r1 != "-" else "#6c757d"
+                    r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
+                    dia_p = str(row['DIA']) if pd.notna(row['DIA']) else "---"
+                    hora_p = str(row['HORA']) if pd.notna(row['HORA']) else "--:--"
                     
-                st.markdown(f"""
-                <div style="border: 1px solid #ddd; border-top: 5px solid {color_tema}; border-radius: 12px; padding: 15px; margin-bottom: 20px; background-color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;">
-                        <span style="font-size: 0.75em; font-weight: bold; color: {color_tema}; text-transform: uppercase;">PARTIDO {int(row['N_PARTIDO'])}</span>
-                        <span style="font-size: 0.75em; color: #666; font-weight: bold;">📅 {dia_p} | 🕒 {hora_p}</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="width: 38%; text-align: center;">
-                            <div style="margin-bottom: 8px;">{i1}</div>
-                            <div style="font-weight: bold; font-size: 1.1em; color: #333;">{row['Equipo_1']}</div>
+                    f1, f2 = get_flag_img(row['Equipo_1']), get_flag_img(row['Equipo_2'])
+                    i1 = f'<img src="{f1}" width="35" style="border-radius:3px;">' if "data" in f1 else f1
+                    i2 = f'<img src="{f2}" width="35" style="border-radius:3px;">' if "data" in f2 else f2
+                    
+                    # Color: Azul si terminó, Gris si es próximo
+                    color_tema = "#007bff" if r1 != "-" else "#6c757d"
+
+                    st.markdown(f"""
+                    <div style="border: 1px solid #ddd; border-top: 5px solid {color_tema}; border-radius: 12px; padding: 15px; margin-bottom: 20px; background-color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;">
+                            <span style="font-size: 0.75em; font-weight: bold; color: {color_tema}; text-transform: uppercase;">PARTIDO {int(row['N_PARTIDO'])}</span>
+                            <span style="font-size: 0.75em; color: #666; font-weight: bold;">📅 {dia_p} | 🕒 {hora_p}</span>
                         </div>
-                        <div style="width: 24%; text-align: center;">
-                            <div style="background: #f8f9fa; border: 1px solid #ddd; color: #333; font-size: 1.8em; font-weight: bold; border-radius: 8px; padding: 5px 0;">{r1} : {r2}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="width: 38%; text-align: center;">
+                                <div style="margin-bottom: 8px;">{i1}</div>
+                                <div style="font-weight: bold; font-size: 1.1em; color: #333;">{row['Equipo_1']}</div>
+                            </div>
+                            <div style="width: 24%; text-align: center;">
+                                <div style="background: #f8f9fa; border: 1px solid #ddd; color: #333; font-size: 1.8em; font-weight: bold; border-radius: 8px; padding: 5px 0;">{r1} : {r2}</div>
+                            </div>
+                            <div style="width: 38%; text-align: center;">
+                                <div style="margin-bottom: 8px;">{i2}</div>
+                                <div style="font-weight: bold; font-size: 1.1em; color: #333;">{row['Equipo_2']}</div>
+                            </div>
                         </div>
-                        <div style="width: 38%; text-align: center;">
-                            <div style="margin-bottom: 8px;">{i2}</div>
-                            <div style="font-weight: bold; font-size: 1.1em; color: #333;">{row['Equipo_2']}</div>
-                        </div>
-                    </div>
-                </div>""", unsafe_allow_html=True)
-        
-        # --- BLOQUE DEL FORO EN INICIO ---
-        st.subheader("💬 Actividad Reciente")
-        df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
-        with st.container(height=350):
-            if df_foro_inicio.empty:
-                st.info("No hay mensajes aún.")
-            else:
-                u_act = st.session_state['user_data']['USUARIO']
-                for idx, m in df_foro_inicio.tail(10).iloc[::-1].iterrows():
-                    es_m = m['USUARIO'] == u_act
-                    aln = "flex-end" if es_m else "flex-start"
-                    bg = "#dcf8c6" if es_m else "#ffffff"
-                    st.markdown(f"""<div style="display: flex; flex-direction: column; align-items: {aln}; margin-bottom: 10px; width: 100%;"><div style="max-width: 85%; background-color: {bg}; padding: 10px 12px; border-radius: 18px; border: 1px solid #ddd;"><div style="font-size: 0.8em; color: #555; font-weight: bold;">{m['NOMBRE']} • {m['FECHA']}</div><div style="font-size: 1em; color: #333;">{m['MENSAJE']}</div></div></div>""", unsafe_allow_html=True)
+                    </div>""", unsafe_allow_html=True)
 #---------------------------------MENU INICIO / RANKING ------------------------------------------------------
     with col_derecha:
         st.subheader("📊 Ranking")
