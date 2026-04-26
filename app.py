@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 from datetime import datetime
+from datetime import datetime, timedelta
 
 
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
@@ -315,8 +316,7 @@ if menu == "🏠 Inicio":
 elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Mis Predicciones")
-        ahora_arg = datetime.now() - timedelta(hours=3)
-        from datetime import datetime, timedelta
+        ahora_arg = datetime.now() - timedelta(hours=3)        
         
         # --- CONFIGURACIÓN DE FECHA LÍMITE ---
         # Fecha límite: 8 de junio de 2026 a las 23:59:59
