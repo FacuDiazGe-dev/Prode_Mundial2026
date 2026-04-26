@@ -46,48 +46,44 @@ def get_flag_img(pais):
     return "⚽" # Fallback si falla la descarga
 #--------------------------------cargar foto drive----------------------------------
 
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-from google.oauth2 import service_account
-import io
+def upload_profile_picture(file_bytes, file_name):
+    # Usamos la estructura exacta de tus secretos
+    st_secrets = st.secrets["connections"]["gsheets"]
+    SCOPES = ['https://www.googleapis.com/auth/drive']
+    folder_id = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
+    
+    creds = service_account.Credentials.from_service_account_info(st_secrets, scopes=SCOPES)
+    service = build('drive', 'v3', credentials=creds)
 
-def upload_image_to_drive(file_bytes, file_name):
+    file_metadata = {'name': file_name, 'parents': [folder_id]}
+
+    if isinstance(file_bytes, bytes):
+        file_bytes = io.BytesIO(file_bytes)
+        
+    media = MediaIoBaseUpload(file_bytes, mimetype='image/jpeg', resumable=True)
+
     try:
-        from googleapiclient.discovery import build
-        from googleapiclient.http import MediaIoBaseUpload
-        from google.oauth2 import service_account
-        import io
-
-        creds_info = st.secrets["connections"]["gsheets"]
-        # Importante incluir el scope de Drive
-        SCOPES = ['https://googleapis.com']
-        creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES)
-        service = build('drive', 'v3', credentials=creds)
-        
-        folder_id = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
-        
-        file_metadata = {
-            'name': file_name,
-            'parents': [folder_id]
-        }
-        
-        fh = io.BytesIO(file_bytes)
-        media = MediaIoBaseUpload(fh, mimetype='image/jpeg', resumable=True)
-        
-        # supportsAllDrives=True es vital para usar el espacio de TU carpeta
+        # Subida configurada para usar tu cuota de espacio personal
         file = service.files().create(
             body=file_metadata,
             media_body=media,
             fields='id',
             supportsAllDrives=True 
         ).execute()
-        
-        file_id = file.get('id')
-        service.permissions().create(fileId=file_id, body={'type': 'anyone', 'role': 'reader'}).execute()
 
-        return f"https://google.com{file_id}"
+        file_id = file.get('id')
+
+        # Permiso público automático
+        service.permissions().create(
+            fileId=file_id,
+            body={'type': 'anyone', 'role': 'reader'},
+            supportsAllDrives=True
+        ).execute()
+
+        # Link directo para el círculo de perfil
+        return f"https://drive.google.com/uc?export=view&id={file_id}"
+
     except Exception as e:
-        # Evitamos que el error bloquee la app, solo devolvemos el mensaje
         return f"Error: {e}"
 
 # ----LOGIN---
