@@ -52,23 +52,30 @@ import io
 
 def upload_profile_picture(archivo, file_name):
     from google.cloud import storage
+    import io
     try:
-        # 1. Autenticación con tus secretos
         creds_info = st.secrets["connections"]["gsheets"] 
         client = storage.Client.from_service_account_info(creds_info)
         
-        # 2. Configuración del Bucket
         bucket_name = "foto-prode2026" 
         bucket = client.bucket(bucket_name)
         blob = bucket.blob(f"perfiles/{file_name}")
         
-        # 3. SUBIDA (Aquí es donde daba el error: el nombre debe ser 'archivo')
-        blob.upload_from_file(archivo, content_type='image/jpeg')
+        if isinstance(archivo, bytes):
+            objeto_archivo = io.BytesIO(archivo)
+        else:
+            objeto_archivo = archivo
+            objeto_archivo.seek(0)
         
-        # 4. Retorno de la URL
-        return f"https://googleapis.com{bucket_name}/perfiles/{file_name}"
+        tipo_mimo = getattr(archivo, 'type', 'image/jpeg')
+
+        blob.upload_from_file(objeto_archivo, content_type=tipo_mimo)
+        
+        return f"https://storage.googleapis.com/{bucket_name}/perfiles/{file_name}"
+        
     except Exception as e:
         return f"Error: {e}"
+
 #---------------------------------------------------------------------------------------------
 
 # ----LOGIN---
