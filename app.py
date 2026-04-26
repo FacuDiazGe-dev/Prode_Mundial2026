@@ -53,48 +53,45 @@ import io
 
 def subir_foto_a_drive(archivo, usuario):
     try:
-        # Cargamos credenciales desde tus secretos de Streamlit
         creds_info = st.secrets["connections"]["gsheets"]
         creds = service_account.Credentials.from_service_account_info(creds_info)
-        
-        # Construimos el servicio de Drive
         service = build('drive', 'v3', credentials=creds)
         
-        # ID de tu carpeta FOTO_PRODE26
         FOLDER_ID = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
-       
-        # 1. Configuración del archivo
+        
+        # Eliminar foto anterior si existe para no ocupar espacio
+        try:
+            q = f"name = 'perfil_{usuario}.png' and '{FOLDER_ID}' in parents"
+            res = service.files().list(q=q).execute()
+            for f in res.get('files', []):
+                service.files().delete(fileId=f['id']).execute()
+        except: pass
+
         file_metadata = {
             'name': f"perfil_{usuario}.png",
             'parents': [FOLDER_ID]
         }
         
-        # Preparamos la imagen
-        img_byte_arr = io.BytesIO(archivo.getvalue())
-        media = MediaIoBaseUpload(img_byte_arr, mimetype='image/png', resumable=True)
-        
-        # 2. Subimos a Drive (AJUSTADO PARA EVITAR EL ERROR DE QUOTA)
+        # Subida simple sin manejador de cuota complejo
+        media = MediaIoBaseUpload(io.BytesIO(archivo.getvalue()), mimetype='image/png')
         file = service.files().create(
-            body=file_metadata, 
-            media_body=media, 
+            body=file_metadata,
+            media_body=media,
             fields='id',
-            supportsAllDrives=True,
-            # Forzamos a que no intente usar el espacio de la Service Account
-            keepRevisionForever=False 
-        ).execute()
-
-        # 3. PASO CLAVE: Dar permiso de lectura para que se vea en la web
-        service.permissions().create(
-            fileId=file_id,
-            body={'type': 'anyone', 'role': 'reader'}
+            supportsAllDrives=True # Clave para usar el espacio de tu carpeta
         ).execute()
         
-        # 4. Retornamos el link de miniatura (es el más estable para Streamlit)
-        return f"https://google.com{file_id}&sz=w500"
+        file_id = file.get('id')
 
+        # Permiso de lectura
+        service.permissions().create(fileId=file_id, body={'type': 'anyone', 'role': 'reader'}).execute()
+        
+        # Link de miniatura (el más compatible)
+        return f"https://google.com{file_id}&sz=w500"
     except Exception as e:
-        st.error(f"Error al subir: {e}")
+        st.error(f"Error: {e}")
         return None
+
 
 
 # ----LOGIN---
