@@ -550,7 +550,7 @@ elif menu == "👥 Jugadores":
             st.write("### 📋 Lista General")
             st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
 
-        with col_derecha:
+    with col_derecha:
         if 'user_sel' in locals():
             # --- 1. PERFIL VISUAL ---
             foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
@@ -599,6 +599,7 @@ elif menu == "👥 Jugadores":
                             <div style="width: 35%; text-align: left;">{i2} {p_info['Equipo_2']}</div>
                         </div>
                         """, unsafe_allow_html=True)
+
 
 # ---------- MENU FORO ----------------------------------------------------
 elif menu == "💬 Foro":
