@@ -288,7 +288,34 @@ if menu == "🏠 Inicio":
                 </div>
             </div>
             """, unsafe_allow_html=True)
+         with col_derecha:
+        st.subheader("📊 Ranking")
         
+        # Mostramos la tabla de ranking que calculamos previamente
+        st.dataframe(
+            df_ranking,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Nº": st.column_config.TextColumn("Nº", width="small"),
+                "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
+                "EXACTOS": st.column_config.NumberColumn("🎯"),
+                "GENERALES": st.column_config.NumberColumn("✅")
+            }
+        )
+        
+        st.markdown("---")
+        st.subheader("📈 Estadísticas Globales")
+        
+        # Métricas rápidas
+        if not df_ranking.empty:
+            total_exactos = df_ranking["EXACTOS"].sum()
+            total_generales = df_ranking["GENERALES"].sum()
+            promedio_puntos = df_ranking["PUNTOS"].mean()
+            
+            st.metric(label="Total Exactos", value=int(total_exactos))
+            st.metric(label="Total Aciertos Grales", value=int(total_generales))
+            st.metric(label="Promedio Puntos", value=f"{promedio_puntos:.1f}")
 elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Cargar Predicciones")
