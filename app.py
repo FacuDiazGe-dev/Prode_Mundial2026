@@ -581,11 +581,6 @@ with col_derecha:
                     
 # ---------- MENU JUGADORES ----------------------------------------------------
 
-                if c_b2.form_submit_button("❌ Cancelar"):
-                    st.session_state.editando_perfil = False
-                    st.rerun()
-
-# --- ESTA LÍNEA (elif) DEBE ESTAR ALINEADA A LA IZQUIERDA CON EL 'if menu ==' ---
 elif menu == "👥 Jugadores":
     with col_principal:
         st.subheader("👥 Jugadores Inscritos")
