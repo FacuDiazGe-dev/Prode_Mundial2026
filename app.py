@@ -59,26 +59,24 @@ def upload_profile_picture(file_bytes, file_name):
         creds_info = st.secrets["connections"]["gsheets"] 
         client = storage.Client.from_service_account_info(creds_info)
         
-        # 2. Configuración del Bucket
-        # IMPORTANTE: Reemplaza con el nombre exacto de tu bucket creado en Google Cloud
-        bucket_name = "foto_prode26" 
+        # 2. NOMBRE CORREGIDO: foto-prode2026 (con guion medio y el cero)
+        bucket_name = "foto-prode2026" 
         bucket = client.bucket(bucket_name)
         
         # 3. Preparar el archivo
-        # Al poner 'perfiles/' adelante, organizamos las fotos en esa carpeta
         blob = bucket.blob(f"perfiles/{file_name}")
         
-        # Convertimos los bytes para la subida
-        if isinstance(file_bytes, bytes):
+        # 4. Manejo de los bytes del archivo
+        if isinstance(file_bytes, (bytes, bytearray)):
             file_io = io.BytesIO(file_bytes)
         else:
-            file_io = file_bytes # Si ya viene como BytesIO
+            file_io = file_bytes
 
-        # 4. Subida directa
+        # 5. Subida directa
         blob.upload_from_file(file_io, content_type='image/jpeg')
         
-        # 5. URL Pública (Requiere que el bucket tenga permiso allUsers como Reader)
-        return f"https://storage.googleapis.com/{bucket_name}/perfiles/{file_name}"
+        # 6. URL Pública
+        return f"https://googleapis.com{bucket_name}/perfiles/{file_name}"
 
     except Exception as e:
         return f"Error en Storage: {e}"
