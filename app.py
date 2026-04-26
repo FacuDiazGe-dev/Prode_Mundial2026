@@ -63,24 +63,41 @@ def subir_foto_a_drive(archivo, usuario):
         # ID de tu carpeta FOTO_PRODE26
         FOLDER_ID = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
         
-        # Nombre del archivo (le ponemos el nombre del usuario para identificarlo)
+        # 1. Buscamos si ya existe una foto anterior de este usuario para borrarla (opcional, evita llenar el Drive)
+        try:
+            query = f"name = 'perfil_{usuario}.png' and '{FOLDER_ID}' in parents and trashed = false"
+            results = service.files().list(q=query, fields="files(id)").execute()
+            for f in results.get('files', []):
+                service.files().delete(fileId=f['id']).execute()
+        except:
+            pass
+
+        # 2. Configuración del nuevo archivo
         file_metadata = {
             'name': f"perfil_{usuario}.png",
             'parents': [FOLDER_ID]
         }
         
-        # Preparamos la imagen
+        # Preparamos la imagen desde Streamlit
         img_byte_arr = io.BytesIO(archivo.getvalue())
         media = MediaIoBaseUpload(img_byte_arr, mimetype='image/png', resumable=True)
         
-        # Subimos a Drive
+        # 3. Subimos a Drive
         file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
         file_id = file.get('id')
+
+        # 4. IMPORTANTE: Hacer el archivo público para que se vea en la web
+        service.permissions().create(
+            fileId=file_id,
+            body={'type': 'anyone', 'role': 'reader'}
+        ).execute()
         
-        # Retornamos el link directo "mágico" para que se vea en el círculo
-        return f"https://googleusercontent.com{file_id}"
+        # 5. URL CORRECTA para visualizar en HTML (Thumbnail directo)
+        return f"https://google.com{file_id}&sz=w500"
+
     except Exception as e:
-        st.error(f"Error al conectar con Drive: {e}")
+        # Esto te mostrará el error real si algo falla (ej: API no habilitada)
+        st.error(f"Error detallado: {type(e).__name__} - {e}")
         return None
 
 # ----LOGIN---
