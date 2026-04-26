@@ -364,19 +364,7 @@ if menu == "🏠 Inicio":
                     es_mio = m['USUARIO'] == user_actual
                     align = "flex-end" if es_mio else "flex-start"
                     bg_color = "#dcf8c6" if es_mio else "#ffffff"
-                     st.markdown(f"""
-                    <div style="display: flex; flex-direction: column; align-items: {align}; margin-bottom: 15px; width: 100%;">
-                        <div style="max-width: 85%; background-color: {bg_color}; padding: 15px; border-radius: 18px; border: 1px solid #ddd; box-shadow: 1px 1px 3px rgba(0,0,0,0.1);">
-                            <div style="font-size: 0.9em; color: #555; font-weight: bold; margin-bottom: 5px;">
-                                {m['NOMBRE']} <span style="font-weight: normal; color: #999;">• {m['FECHA']}</span>
-                            </div>
-                            <div style="font-size: 1.1em; color: #222; line-height: 1.5; font-weight: 450;">
-                                {m['MENSAJE']}
-                            </div>
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
-                    
+                               
                     st.markdown(f"""
                         <div style="display: flex; flex-direction: column; align-items: {align}; margin-bottom: 10px; width: 100%;">
                             <div style="max-width: 85%; background-color: {bg_color}; padding: 10px 12px; border-radius: 18px; border: 1px solid #ddd; box-shadow: 1px 1px 3px rgba(0,0,0,0.1);">
