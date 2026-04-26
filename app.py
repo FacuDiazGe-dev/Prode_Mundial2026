@@ -272,9 +272,9 @@ elif menu == "📝 Mis Pronósticos":
             for i, row in df_res.iterrows():
                 id_p = int(row['N_PARTIDO'])
                 match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
-                v1 = int(match.iloc['P1']) if not match.empty else 0
-                v2 = int(match.iloc['P2']) if not match.empty else 0
-                
+               v1 = int(match.iloc['P1']) if not match.empty else 0
+               v2 = int(match.iloc['P2']) if not match.empty else 0
+
                 # Diseño idéntico a Resultados Oficiales
                 st.markdown(f"""
                 <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 5px; background-color: #f9f9f9; text-align: center;">
