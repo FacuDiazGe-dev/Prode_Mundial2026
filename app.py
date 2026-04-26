@@ -199,9 +199,11 @@ def calcular_detalle(r1, r2, p1, p2):
 # --- LÓGICA DE RANKING ACTUALIZADA (VERTICAL) ---
 
 # 1. Cargamos los datos más recientes
-df_res_oficial = conn.read(worksheet="RESULTADOS", ttl=0)
+df_res_oficial = df_res # Ya cargado por tu función load_data()
 df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
 df_users_list = conn.read(worksheet="USUARIOS", ttl=0)
+
+ranking_data = []
 
 # Función de cálculo (la mantenemos igual)
 def calcular_puntos_pro(r1, r2, p1, p2):
@@ -234,14 +236,16 @@ for _, u_row in df_users_list.iterrows():
     pronos_usuario = df_pro_total[df_pro_total['USUARIO'] == u_nick]
     
     # Comparamos con cada resultado oficial cargado
+    
     for _, res_row in df_res_oficial.iterrows():
         id_p = res_row['N_PARTIDO']
-        
+                    
         # Buscamos el pronóstico de este usuario para este partido
         p_row = pronos_usuario[pronos_usuario['N_PARTIDO'] == id_p]
         
-        if not p_row.empty:
-            pts, exa, gen = calcular_puntos_pro(
+if not p_row.empty:
+            # Usamos tu función calcular_detalle()
+            pts, exa, gen = calcular_detalle(
                 res_row['R1'], res_row['R2'],
                 p_row.iloc[0]['P1'], p_row.iloc[0]['P2']
             )
@@ -258,8 +262,6 @@ for _, u_row in df_users_list.iterrows():
 
 # 3. Creamos el DataFrame y ordenamos (Puntos y luego Exactos como desempate)
 df_ranking = pd.DataFrame(ranking_data).sort_values(by=["PUNTOS", "EXACTOS"], ascending=False).reset_index(drop=True)
-
-# 4. Agregamos la columna de posición con la corona
 df_ranking.index = df_ranking.index + 1
 df_ranking.insert(0, "Nº", df_ranking.index.map(lambda x: "👑" if x == 1 else str(x)))
 
@@ -267,24 +269,35 @@ df_ranking.insert(0, "Nº", df_ranking.index.map(lambda x: "👑" if x == 1 else
 df_ranking = df_ranking[["Nº", "JUGADOR", "PUNTOS", "EXACTOS", "GENERALES"]]
 
 # --- VISUALIZACIÓN ---
-
-# --- ESTRUCTURA PRINCIPAL DE DISEÑO (PROPORCIONES 20/50/30) ---
-col_nav, col_principal, col_derecha = st.columns([0.2, 0.5, 0.3])
-
-# 1. PANEL IZQUIERDO: SIEMPRE FIJO (20%)
-with col_nav:
+# --- NAVEGACIÓN EN SIDEBAR (OPTIMIZADO PARA MÓVILES) ---
+with st.sidebar:
+    st.markdown("---")
     st.subheader("📍 Navegación")
     opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
     if st.session_state['user_data']['ROL'] == 'admin':
         opciones.append("⚙️ Panel Control")
     
-    menu = st.radio("Ir a:", opciones, key="menu_navegacion")
+    menu = st.radio("Ir a:", opciones, key="menu_nav_principal")
+
+# --- ESTRUCTURA PRINCIPAL DE DISEÑO (PROPORCIONES 60/40) ---
+col_principal, col_derecha = st.columns([0.6, 0.4])
+
+# 1. NAVEGACIÓN EN EL SIDEBAR (Ideal para móviles y PC)
+with st.sidebar:
+    st.subheader("📍 Navegación")
+    opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
+    if st.session_state['user_data']['ROL'] == 'admin':
+        opciones.append("⚙️ Panel Control")
+    
+    # Creamos el menú aquí adentro
+    menu = st.radio("Ir a:", opciones, key="menu_navegacion_unificado")
+    
     st.markdown("---")
-    # Botón de cerrar sesión al final del menú
+    # Botón de cerrar sesión
     if st.button("🚪 Cerrar Sesión", use_container_width=True):
         st.session_state['autenticado'] = False
         st.rerun()
-
+        
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 
 if menu == "🏠 Inicio":
@@ -354,14 +367,13 @@ if menu == "🏠 Inicio":
 #---------- MENU MIS PRONOSTICOS ----------------------------------------------------
 
 elif menu == "📝 Mis Pronósticos":
-    # --- COLUMNA CENTRAL (50%) ---
     with col_principal:
         st.subheader("📝 Mis Predicciones")
         
-        # Ajuste de hora para Argentina
+        # Ajuste de hora Argentina
         ahora_arg = datetime.now() - timedelta(hours=3)        
         fecha_limite = datetime(2026, 6, 8, 23, 59, 59)
-        es_tiempo_valido = ahora_arg < fecha_limite # Usamos ahora_arg para la validación
+        es_tiempo_valido = ahora_arg < fecha_limite
         
         # Carga de datos
         user_actual = st.session_state['user_data']['USUARIO']
@@ -369,20 +381,16 @@ elif menu == "📝 Mis Pronósticos":
         df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
         df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
 
-        # --- AVISOS DE TIEMPO (Ahora correctamente indentados) ---
+        # Avisos visuales optimizados
         if es_tiempo_valido:
-            st.success(f"⏳ Hora en Argentina: {ahora_arg.strftime('%H:%M')}. Tienes tiempo hasta el 08/06.")
+            st.success(f"⏳ Tienes tiempo hasta el 08/06. (Hora Arg: {ahora_arg.strftime('%H:%M')})")
+            modo_edicion = st.toggle("🔓 Editar mis resultados", help="Activa para modificar")
         else:
-            st.error(f"🔒 El plazo finalizó. Hora actual: {ahora_arg.strftime('%H:%M')}.")
-        
-        # --- LÓGICA DE EDICIÓN ---
-        modo_edicion = False
-        if es_tiempo_valido:
-            modo_edicion = st.toggle("🔓 Habilitar Edición", help="Activa para modificar tus resultados guardados")
+            st.error("🔒 Plazo finalizado. No se permiten más cambios.")
+            modo_edicion = False
         
         esta_bloqueado = not (es_tiempo_valido and modo_edicion)
 
-        # --- FORMULARIO ---
         with st.form("form_pronosticos_v2"):
             lista_nuevos_pro = []
             
@@ -390,178 +398,141 @@ elif menu == "📝 Mis Pronósticos":
                 id_p = int(row['N_PARTIDO'])
                 match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
                 
-                v1 = int(match.iloc[0]['P1']) if not match.empty else 0
-                v2 = int(match.iloc[0]['P2']) if not match.empty else 0
+                # Valores seguros de Pandas
+                v1 = int(match.iloc[0]['P1']) if not match.empty and pd.notna(match.iloc[0]['P1']) else 0
+                v2 = int(match.iloc[0]['P2']) if not match.empty and pd.notna(match.iloc[0]['P2']) else 0
                 
+                # DISEÑO OPTIMIZADO PARA MÓVIL (Tarjeta compacta)
                 st.markdown(f"""
-                    <div style='text-align:center; background-color:#f1f3f4; border-radius:5px; padding:2px; margin-top:10px;'>
-                        <small style='color:#5f6368;'>PARTIDO {id_p}</small>
+                    <div style='background-color:#f8f9fa; border-radius:10px; padding:10px; border-left:5px solid #007bff; margin-bottom:5px;'>
+                        <small style='color:gray;'>PARTIDO {id_p}</small><br>
+                        <b>{row['Equipo_1']} vs {row['Equipo_2']}</b>
                     </div>
                 """, unsafe_allow_html=True)
                 
-                c1, v, c2 = st.columns([3, 1, 3])
+                # Usamos columnas pequeñas solo para los inputs
+                c1, c_vs, c2 = st.columns([1, 0.2, 1])
                 with c1:
-                    st.write(f"**{row['Equipo_1']}**")
-                    p1_val = st.number_input(f"G1_{id_p}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
-                with v: 
-                    st.write("<h4 style='text-align:center;'>-</h4>", unsafe_allow_html=True)
+                    p1_val = st.number_input(f"{row['Equipo_1']}", 0, 15, v1, key=f"f1_{id_p}", disabled=esta_bloqueado)
+                with c_vs:
+                    st.write("<br><center>-</center>", unsafe_allow_html=True)
                 with c2:
-                    st.write(f"**{row['Equipo_2']}**")
-                    p2_val = st.number_input(f"G2_{id_p}", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
+                    p2_val = st.number_input(f"{row['Equipo_2']}", 0, 15, v2, key=f"f2_{id_p}", disabled=esta_bloqueado)
                 
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
 
-            # --- BOTÓN DE GUARDADO ---
             if es_tiempo_valido and modo_edicion:
-                if st.form_submit_button("💾 Guardar Cambios", use_container_width=True):
+                if st.form_submit_button("💾 GUARDAR TODO", use_container_width=True):
+                    # Lógica de guardado robusta
                     df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
                     df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
                     conn.update(worksheet="PRONOSTICOS", data=df_final)
                     st.cache_data.clear()
-                    st.success("✅ ¡Pronósticos actualizados!")
+                    st.success("✅ ¡Pronósticos guardados!")
+                    st.balloons()
                     st.rerun()
             else:
-                st.form_submit_button("🔒 Bloqueado", disabled=True, use_container_width=True)
+                st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
-    # --- COLUMNA DERECHA (30%) ---
     with col_derecha:
+        # Aquí mantienes tu código del Perfil (foto circular, bio, etc.)
+        # Es ideal que el perfil esté a la derecha en PC, pero en móvil aparecerá abajo
         st.subheader("👤 Mi Perfil")
         u_data = st.session_state['user_data']
         foto = u_data['AVATAR_URL'] if u_data['AVATAR_URL'] else "https://flaticon.com"
-        
         st.markdown(f"""
             <div style="text-align: center;">
-                <img src="{foto}" style="border-radius: 50%; width: 120px; height: 120px; object-fit: cover; border: 3px solid #007bff;">
-                <h3 style="margin-bottom: 0;">{u_data['NOMBRE']}</h3>
-                <p style="color: gray;">@{u_data['USUARIO']}</p>
+                <img src="{foto}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff;">
+                <h4>{u_data['NOMBRE']}</h4>
+                <p style="color: gray; font-size: 0.8em;">@{u_data['USUARIO']}</p>
             </div>
-            <hr>
-            <p><b>⚽ Equipo:</b> {u_data['EQUIPO FAVORITO']}</p>
-            <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
         """, unsafe_allow_html=True)
         
-#--------- MENU JUGADORES -------------------------------------------------------------------
-
+# ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Jugadores":
-        with col_principal:
-            st.subheader("👥 Jugadores Inscritos")
-            df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
+    with col_principal:
+        st.subheader("👥 Jugadores Inscritos")
+        df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
+        
+        if not df_usuarios.empty:
+            nombres_jugadores = df_usuarios['NOMBRE'].tolist()
+            nombre_sel = st.selectbox("Selecciona un jugador:", nombres_jugadores)
+            user_sel = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel].iloc[0]
             
-            if df_usuarios.empty:
-                st.info("Aún no hay jugadores registrados.")
+            st.markdown("---")
+            st.write("### 📋 Lista General")
+            st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
+
+    with col_derecha:
+        if 'user_sel' in locals():
+            foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
+            st.markdown(f"""
+                <div style="text-align: center; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
+                    <img src="{foto_url}" style="border-radius: 50%; width: 90px; height: 90px; object-fit: cover; border: 2px solid #28a745;">
+                    <h4 style="margin: 10px 0 0 0;">{user_sel['NOMBRE']}</h4>
+                    <p style="color: #666; font-size: 0.8em; margin-bottom: 5px;">@{user_sel['USUARIO']}</p>
+                    <hr style="margin: 10px 0;">
+                    <p style="font-size: 0.85em; text-align: left; margin: 0;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}</p>
+                    <p style="font-size: 0.85em; text-align: left; margin: 0;"><b>📝 Bio:</b> <i>"{user_sel['DESCRIPCION']}"</i></p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Pronósticos del jugador seleccionado
+            st.markdown("---")
+            st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
+            df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
+            pro_user_sel = df_pro_all[df_pro_all['USUARIO'] == user_sel['USUARIO']]
+            
+            if not pro_user_sel.empty:
+                for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
+                    st.write(f"Part {int(p['N_PARTIDO'])}: **{int(p['P1'])} - {int(p['P2'])}**")
             else:
-                nombres_jugadores = df_usuarios['NOMBRE'].tolist()
-                nombre_sel = st.selectbox("Selecciona un jugador:", nombres_jugadores)
-                
-                # Buscamos la fila del usuario seleccionado
-                user_sel_df = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel]
-                if not user_sel_df.empty:
-                    user_sel = user_sel_df.iloc[0] # Usamos index 0 para obtener la fila
-                
-                st.markdown("---")
-                st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
+                st.warning("Sin pronósticos.")
 
-        with col_derecha:
-            if 'user_sel' in locals():
-                foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
-                
-                st.markdown(f"""
-                    <div style="text-align: center; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
-                        <img src="{foto_url}" style="border-radius: 50%; width: 90px; height: 90px; object-fit: cover; border: 2px solid #28a745;">
-                        <h4 style="margin: 10px 0 0 0;">{user_sel['NOMBRE']}</h4>
-                        <p style="color: #666; font-size: 0.8em; margin-bottom: 5px;">@{user_sel['USUARIO']}</p>
-                        <hr style="margin: 10px 0;">
-                        <p style="font-size: 0.85em; text-align: left; margin: 0;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}</p>
-                        <p style="font-size: 0.85em; text-align: left; margin: 0;"><b>📝 Bio:</b> <i>"{user_sel['DESCRIPCION']}"</i></p>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown("---")
-                st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
-                
-                df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
-                df_res_ref = conn.read(worksheet="RESULTADOS", ttl=0)
-                pro_user_sel = df_pro_all[df_pro_all['USUARIO'] == user_sel['USUARIO']]
-                
-                if pro_user_sel.empty:
-                    st.warning("Este jugador aún no cargó pronósticos.")
-                else:
-                    for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
-                        p_match = df_res_ref[df_res_ref['N_PARTIDO'] == p['N_PARTIDO']]
-                        if not p_match.empty:
-                            p_info = p_match.iloc[0]
-                            st.markdown(f"""
-                            <div style="display: flex; justify-content: space-between; font-size: 0.8em; border-bottom: 1px solid #eee; padding: 4px 0;">
-                                <div style="width: 10%; color: #999;">{int(p['N_PARTIDO'])}</div>
-                                <div style="width: 70%;">{p_info['Equipo_1']} vs {p_info['Equipo_2']}</div>
-                                <div style="width: 20%; text-align: right; font-weight: bold; color: #28a745;">{int(p['P1'])} - {int(p['P2'])}</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                            
-#----------------------- MENU FORO ----------------------------------------------------------------------------------------------
-
+# ---------- MENU FORO ----------------------------------------------------
 elif menu == "💬 Foro":
-    # 1. CARGA DE DATOS (Fuerza lectura fresca)
     df_foro = conn.read(worksheet="FORO", ttl=0)
-    
-    # --- COLUMNA CENTRAL: EL MURO (50%) ---
     with col_principal:
         st.subheader("💬 Muro de la Comunidad")
+        with st.expander("✍️ Publicar un comentario", expanded=False):
+            with st.form("nuevo_post_mobile", clear_on_submit=True):
+                texto = st.text_area("¿Qué quieres decir?", max_chars=250)
+                if st.form_submit_button("🚀 Publicar", use_container_width=True):
+                    if texto.strip():
+                        nuevo_msg = {
+                            "FECHA": (datetime.now() - timedelta(hours=3)).strftime("%d/%m %H:%M"),
+                            "USUARIO": st.session_state['user_data']['USUARIO'],
+                            "NOMBRE": st.session_state['user_data']['NOMBRE'],
+                            "MENSAJE": texto.strip(),
+                            "PARTIDO_ID": 0
+                        }
+                        df_update = pd.concat([df_foro, pd.DataFrame([nuevo_msg])], ignore_index=True)
+                        conn.update(worksheet="FORO", data=df_update)
+                        st.cache_data.clear()
+                        st.rerun()
         
-        if df_foro.empty:
-            st.info("Aún no hay mensajes en el muro. ¡Sé el primero en romper el hielo!")
-        else:
-            # Contenedor con scroll para los mensajes
-            container_chat = st.container()
-            with container_chat:
-                # Mostramos del más nuevo al más viejo
-                for index, m in df_foro.iloc[::-1].iterrows():
-                    with st.chat_message("user"):
-                        # Encabezado del mensaje: Nombre y Fecha
-                        st.markdown(f"**{m['NOMBRE']}** <span style='color:gray; font-size:0.8em;'>• {m['FECHA']}</span>", unsafe_allow_html=True)
-                        st.write(m['MENSAJE'])
-                        
-                        # Botón de eliminar exclusivo para ADMIN
-                        if st.session_state['user_data']['ROL'] == 'admin':
-                            if st.button("🗑️", key=f"del_{index}", help="Eliminar este comentario"):
-                                df_borrado = df_foro.drop(index)
-                                conn.update(worksheet="FORO", data=df_borrado)
-                                st.cache_data.clear()
-                                st.rerun()
+        for index, m in df_foro.iloc[::-1].iterrows():
+            with st.chat_message("user"):
+                st.write(f"**{m['NOMBRE']}** - <small>{m['FECHA']}</small>", unsafe_allow_html=True)
+                st.write(m['MENSAJE'])
 
-    # --- COLUMNA DERECHA: ESCRIBIR (30%) ---
-    with col_derecha:
-        st.subheader("✍️ Participar")
-        
-        with st.form("nuevo_post", clear_on_submit=True):
-            texto = st.text_area("Escribe tu mensaje:", placeholder="¿Quién gana hoy?", max_chars=250, height=150)
-            
-            # El botón de enviar
-            enviar_msg = st.form_submit_button("🚀 Publicar en el Muro", use_container_width=True)
-            
-            if enviar_msg:
-                if texto.strip() != "":
-                    nuevo_registro = {
-                        "FECHA": (datetime.utcnow() - timedelta(hours=3)).strftime("%d/%m %H:%M"),
-                        "USUARIO": st.session_state['user_data']['USUARIO'],
-                        "NOMBRE": st.session_state['user_data']['NOMBRE'],
-                        "MENSAJE": texto.strip(),
-                        "PARTIDO_ID": 0 # Lo dejamos en 0 por defecto
-                    }
-                    
-                    # Subida a Google Sheets
-                    df_update = pd.concat([df_foro, pd.DataFrame([nuevo_registro])], ignore_index=True)
-                    conn.update(worksheet="FORO", data=df_update)
-                    
-                    st.cache_data.clear()
-                    st.success("¡Publicado!")
-                    st.rerun()
-                else:
-                    st.error("El mensaje no puede estar vacío.")
-        
-        st.markdown("---")
-        st.caption("⚠️ Recuerda que todos los jugadores pueden leer tus comentarios.")
-
+# ---------- MENU ADMIN ----------------------------------------------------
 elif menu == "⚙️ Panel Control":
-        # Aquí va el código del Admin...
+    if st.session_state['user_data']['ROL'] == 'admin':
+        with col_principal:
+            st.subheader("⚙️ Gestión de Resultados Oficiales")
+            df_res_admin = conn.read(worksheet="RESULTADOS", ttl=0)
+            with st.form("form_admin"):
+                upd = []
+                for i, row in df_res_admin.iterrows():
+                    st.write(f"Part {int(row['N_PARTIDO'])}: {row['Equipo_1']} vs {row['Equipo_2']}")
+                    c1, c2 = st.columns(2)
+                    r1 = c1.number_input("G1", 0, 20, int(row['R1']) if pd.notna(row['R1']) else 0, key=f"ar1_{i}")
+                    r2 = c2.number_input("G2", 0, 20, int(row['R2']) if pd.notna(row['R2']) else 0, key=f"ar2_{i}")
+                    fin = st.checkbox("Finalizado", value=pd.notna(row['R1']), key=f"fin_{i}")
+                    upd.append({"N_PARTIDO": row['N_PARTIDO'], "Equipo_1": row['Equipo_1'], "R1": r1 if fin else None, "Equipo_2": row['Equipo_2'], "R2": r2 if fin else None})
+                if st.form_submit_button("📢 Publicar Resultados"):
+                    conn.update(worksheet="RESULTADOS", data=pd.DataFrame(upd))
+                    st.cache_data.clear()
+                    st.rerun()
         pass
