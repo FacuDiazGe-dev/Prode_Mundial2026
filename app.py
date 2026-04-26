@@ -553,20 +553,42 @@ elif menu == "👥 Jugadores":
     with col_derecha:
         if 'user_sel' in locals():
             # --- 1. PERFIL VISUAL ---
+            # --- PERFIL VISUAL DIVIDIDO (ESTILO CREDENCIAL) ---
             foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
+            
             st.markdown(f"""
-                <div style="text-align: center; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px;">
-                    <img src="{foto_url}" style="border-radius: 50%; width: 90px; height: 90px; object-fit: cover; border: 2px solid #28a745;">
-                    <h4 style="margin: 10px 0 0 0;">{user_sel['NOMBRE']}</h4>
-                    <p style="color: #666; font-size: 0.8em; margin-bottom: 5px;">@{user_sel['USUARIO']}</p>
-                    <hr style="margin: 10px 0;">
-                    <p style="font-size: 0.85em; text-align: left; margin: 0;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}</p>
-                    <p style="font-size: 0.85em; text-align: left; margin: 0;"><b>📝 Bio:</b> <i>"{user_sel['DESCRIPCION']}"</i></p>
+                <div style="background-color: #f8f9fa; border-radius: 15px; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+                    <div style="display: flex; align-items: center; gap: 20px;">
+                        <!-- LADO IZQUIERDO: FOTO Y NICK -->
+                        <div style="flex: 1; text-align: center; border-right: 1px solid #eee; padding-right: 10px;">
+                            <img src="{foto_url}" style="border-radius: 50%; width: 85px; height: 85px; object-fit: cover; border: 3px solid #1f3b4d; margin-bottom: 5px;">
+                            <div style="font-weight: bold; color: #333; font-size: 1.1em;">{user_sel['NOMBRE']}</div>
+                            <div style="color: #666; font-size: 0.8em;">@{user_sel['USUARIO']}</div>
+                        </div>
+                        
+                        <!-- LADO DERECHO: INFO E INSIGNIAS -->
+                        <div style="flex: 2; text-align: left;">
+                            <div style="margin-bottom: 8px;">
+                                <small style="color: gray; text-transform: uppercase; font-size: 0.7em; font-weight: bold;">HINCHA DE</small><br>
+                                <span style="font-weight: bold; color: #1f3b4d;">{user_sel['EQUIPO FAVORITO']}</span>
+                            </div>
+                            <div style="margin-bottom: 10px;">
+                                <small style="color: gray; text-transform: uppercase; font-size: 0.7em; font-weight: bold;">BIO</small><br>
+                                <div style="font-size: 0.85em; color: #444; line-height: 1.2;"><i>"{user_sel['DESCRIPCION']}"</i></div>
+                            </div>
+                            <!-- ESPACIO PARA INSIGNIAS -->
+                            <div style="display: flex; gap: 5px; margin-top: 10px;">
+                                <span title="Jugador Fundador" style="font-size: 1.2em;">🥇</span>
+                                <span title="Participante Activo" style="font-size: 1.2em;">🛡️</span>
+                                <span title="Puntero" style="font-size: 1.2em; filter: grayscale(100%); opacity: 0.3;">🏆</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
             
             # --- 2. PREDICCIONES CON BANDERAS (VERSION MINI) ---
-            st.write(f"🗳️ **Cartilla de {user_sel['NOMBRE']}:**")
+            st.write(f"🗳️ **Pronostico de {user_sel['NOMBRE']}:**")
             
             # Cargamos pronósticos del usuario y resultados base para los nombres/banderas
             df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
@@ -593,7 +615,7 @@ elif menu == "👥 Jugadores":
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.85em;">
                             <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
                             <div style="width: 35%; text-align: right;">{p_info['Equipo_1']} {i1}</div>
-                            <div style="width: 20%; text-align: center; background: #28a745; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
+                            <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
                                 {int(p['P1'])} - {int(p['P2'])}
                             </div>
                             <div style="width: 35%; text-align: left;">{i2} {p_info['Equipo_2']}</div>
