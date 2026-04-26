@@ -314,58 +314,65 @@ if menu == "🏠 Inicio":
 
 elif menu == "📝 Mis Pronósticos":
     with col_principal:
-        st.subheader("📝 Cargar Predicciones")
+        st.subheader("📝 Mis Predicciones")
         
-        # Lectura de datos
-        df_res = conn.read(worksheet="RESULTADOS", ttl=0)
-        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
+        # --- LÓGICA DE BLOQUEO POR FECHA ---
+        fecha_limite = datetime(2026, 6, 8, 23, 59) # 8 de Junio de 2026
+        es_tiempo_valido = datetime.now() < fecha_limite
+        
+        # Datos del usuario
         user_actual = st.session_state['user_data']['USUARIO']
+        df_res_p = conn.read(worksheet="RESULTADOS", ttl=0)
+        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
         df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
 
-        # FORMULARIO DE CARGA
+        if not es_tiempo_valido:
+            st.warning("⚠️ El plazo para cargar o editar pronósticos finalizó el 08/06/2026.")
+        
+        # Botón para habilitar edición (solo si estamos a tiempo)
+        modo_edicion = False
+        if es_tiempo_valido:
+            modo_edicion = st.toggle("🔓 Habilitar Edición", help="Activa esto para modificar tus resultados guardados")
+        
+        # FORMULARIO
         with st.form("form_pronosticos_v2"):
             lista_nuevos_pro = []
             
-            for i, row in df_res.iterrows():
+            # Si ya pasó la fecha o el switch está apagado, deshabilitamos los campos
+            esta_bloqueado = not (es_tiempo_valido and modo_edicion)
+
+            for i, row in df_res_p.iterrows():
                 id_p = int(row['N_PARTIDO'])
                 match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
+                v1 = int(match.iloc[0]['P1']) if not match.empty else 0
+                v2 = int(match.iloc[0]['P2']) if not match.empty else 0
                 
-                # Obtener valores previos si existen
-                if not match.empty:
-                    v1 = int(match.iloc[0]['P1']) if pd.notna(match.iloc[0]['P1']) else 0
-                    v2 = int(match.iloc[0]['P2']) if pd.notna(match.iloc[0]['P2']) else 0
-                else:
-                    v1, v2 = 0, 0
-                
-                # Diseño visual de la tarjeta de partido
-                st.markdown(f"""
-                <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 5px; background-color: #f9f9f9; text-align: center;">
-                    <small>PARTIDO {id_p}</small>
-                </div>""", unsafe_allow_html=True)
-                
+                st.markdown(f"<div style='text-align:center; background:#eee; border-radius:5px;'>PARTIDO {id_p}</div>", unsafe_allow_html=True)
                 c1, v, c2 = st.columns([3, 1, 3])
-                with c1:
-                    st.write(f"**{row['Equipo_1']}**")
-                    p1_val = st.number_input(f"G1_{id_p}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed")
-                with v: 
-                    st.write("---")
-                with c2:
-                    st.write(f"**{row['Equipo_2']}**")
-                    p2_val = st.number_input(f"G2_{id_p}", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed")
                 
-                # Añadir a la lista para guardar
+                with c1:
+                    st.write(row['Equipo_1'])
+                    # 'disabled' congela el campo según la lógica de arriba
+                    p1_val = st.number_input(f"G1_{id_p}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
+                with v: st.write("---")
+                with c2:
+                    st.write(row['Equipo_2'])
+                    p2_val = st.number_input(f"G2_{id_p}", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
+                
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
-            
-            # Botón de envío DENTRO del form pero FUERA del bucle for
-            enviar = st.form_submit_button("💾 Guardar Pronósticos", use_container_width=True)
-            
-            if enviar:
-                df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
-                df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
-                conn.update(worksheet="PRONOSTICOS", data=df_final)
-                st.cache_data.clear()
-                st.success("✅ ¡Pronósticos guardados!")
-                st.rerun()
+
+            # Botón de guardar (Solo aparece si estamos en modo edición y a tiempo)
+            if es_tiempo_valido and modo_edicion:
+                if st.form_submit_button("💾 Guardar Cambios", use_container_width=True):
+                    df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
+                    df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
+                    conn.update(worksheet="PRONOSTICOS", data=df_final)
+                    st.cache_data.clear()
+                    st.success("✅ ¡Pronósticos actualizados!")
+                    st.rerun()
+            else:
+                # Si está bloqueado, ponemos un botón informativo deshabilitado
+                st.form_submit_button("🔒 Edición Deshabilitada", disabled=True, use_container_width=True)
 
     with col_derecha:
         st.subheader("👤 Mi Perfil")
