@@ -269,12 +269,20 @@ elif menu == "📝 Mis Pronósticos":
 
         with st.form("form_pronosticos_v2"):
             lista_nuevos_pro = []
-            for i, row in df_res.iterrows():
-                id_p = int(row['N_PARTIDO'])
-                match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
-               v1 = int(match.iloc['P1']) if not match.empty else 0
-               v2 = int(match.iloc['P2']) if not match.empty else 0
-
+        for i, row in df_res.iterrows():
+            id_p = int(row['N_PARTIDO'])
+            # Filtramos el pronóstico para este partido específico
+            match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
+            
+            # CORRECCIÓN DE INDENTACIÓN Y SINTAXIS:
+            if not match.empty:
+                # Usamos .iloc[0] para extraer el valor de la primera fila encontrada
+                v1 = int(match.iloc[0]['P1']) if pd.notna(match.iloc[0]['P1']) else 0
+                v2 = int(match.iloc[0]['P2']) if pd.notna(match.iloc[0]['P2']) else 0
+            else:
+                v1 = 0
+                v2 = 0
+                
                 # Diseño idéntico a Resultados Oficiales
                 st.markdown(f"""
                 <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 5px; background-color: #f9f9f9; text-align: center;">
