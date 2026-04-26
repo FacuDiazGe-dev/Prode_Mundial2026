@@ -45,62 +45,43 @@ def get_flag_img(pais):
         pass
     
     return "⚽" # Fallback si falla la descarga
-#--------------------------------cargar foto drive----------------------------------
-
-import io
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-from google.oauth2 import service_account
-import google.auth.transport.requests
-
-def get_drive_service():
-    # SCOPE específico para Drive (Vital para el access_token)
-    SCOPES = ['https://www.googleapis.com/auth/drive']
-    creds_info = st.secrets["connections"]["gsheets"]
     
-    creds = service_account.Credentials.from_service_account_info(
-        creds_info, scopes=SCOPES
-    )
-    
-    # FORZAR REFRESH: Genera el access_token necesario
-    try:
-        auth_request = google.auth.transport.requests.Request()
-        creds.refresh(auth_request)
-    except Exception as e:
-        st.error(f"Error al refrescar token: {e}")
-        
-    return build('drive', 'v3', credentials=creds)
+#-------------------------------- CARGAR FOTO STORAGE (GCS) ----------------------------------
+from google.cloud import storage
 
 def upload_profile_picture(file_bytes, file_name):
+    """
+    Sube la imagen a Google Cloud Storage y devuelve la URL pública.
+    """
     try:
-        service = get_drive_service()
-        folder_id = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
+        # 1. Autenticación usando tus secretos existentes
+        creds_info = st.secrets["connections"]["gsheets"] 
+        client = storage.Client.from_service_account_info(creds_info)
         
-        file_metadata = {'name': file_name, 'parents': [folder_id]}
-        fh = io.BytesIO(file_bytes)
-        media = MediaIoBaseUpload(fh, mimetype='image/jpeg', resumable=True)
-
-        # SUBIDA: Evita error de cuota 403
-        file = service.files().create(
-            body=file_metadata,
-            media_body=media,
-            fields='id',
-            supportsAllDrives=True 
-        ).execute()
-
-        file_id = file.get('id')
-
-        # PERMISOS: Público para que el <img> funcione
-        service.permissions().create(
-            fileId=file_id,
-            body={'type': 'anyone', 'role': 'reader'},
-            supportsAllDrives=True
-        ).execute()
-
-        return f"https://drive.google.com/uc?export=view&id={file_id}"
+        # 2. Configuración del Bucket
+        # IMPORTANTE: Reemplaza con el nombre exacto de tu bucket creado en Google Cloud
+        bucket_name = "foto_prode26" 
+        bucket = client.bucket(bucket_name)
         
+        # 3. Preparar el archivo
+        # Al poner 'perfiles/' adelante, organizamos las fotos en esa carpeta
+        blob = bucket.blob(f"perfiles/{file_name}")
+        
+        # Convertimos los bytes para la subida
+        if isinstance(file_bytes, bytes):
+            file_io = io.BytesIO(file_bytes)
+        else:
+            file_io = file_bytes # Si ya viene como BytesIO
+
+        # 4. Subida directa
+        blob.upload_from_file(file_io, content_type='image/jpeg')
+        
+        # 5. URL Pública (Requiere que el bucket tenga permiso allUsers como Reader)
+        return f"https://storage.googleapis.com/{bucket_name}/perfiles/{file_name}"
+
     except Exception as e:
-        return f"Error detallado: {e}"
+        return f"Error en Storage: {e}"
+#---------------------------------------------------------------------------------------------
 
 # ----LOGIN---
 # --- CONEXIÓN ---
