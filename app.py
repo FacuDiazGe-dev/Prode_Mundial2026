@@ -234,14 +234,80 @@ col_extra, col_res, col_rank = st.columns([0.2, 0.5, 0.3])
 # 1. LATERAL IZQUIERDO: MENÚ DE NAVEGACIÓN (20%)
 with col_extra:
     st.subheader("📍 Navegación")
-    
-    # Definimos las opciones del menú
     opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
     if st.session_state['user_data']['ROL'] == 'admin':
         opciones.append("⚙️ Panel Control")
     
     menu = st.radio("Ir a:", opciones, key="menu_navegacion")
-    st.markdown("---")
+
+# --- CONTROL DE PÁGINAS SEPARADAS ---
+
+if menu == "🏠 Inicio":
+    # Aquí va tu estructura original de 50% y 30%
+    col_res, col_rank = st.columns([0.6, 0.4])
+    
+    with col_res:
+        # Aquí pegas el bloque: st.subheader("⚽ Resultados Oficiales") y el bucle for de los partidos
+        pass 
+        
+    with col_rank:
+        # Aquí pegas el bloque: st.subheader("📊 Ranking") y las estadísticas
+        pass
+
+elif menu == "📝 Mis Pronósticos":
+    # PÁGINA SEPARADA (Ocupa todo el ancho debajo del lateral)
+    st.title("📝 Mis Predicciones")
+    st.info("Completa tus resultados para los 24 partidos de la fase de grupos.")
+    
+    df_res = conn.read(worksheet="RESULTADOS", ttl=0)
+    df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
+    user_actual = st.session_state['user_data']['USUARIO']
+    df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
+
+    with st.form("form_pronosticos_full"):
+        # Mostramos los partidos en una cuadrícula de 2 columnas para que no sea tan larga
+        cols_form = st.columns(2)
+        lista_nuevos_pro = []
+        
+        for i, row in df_res.iterrows():
+            # Alternamos entre columna 1 y 2
+            target_col = cols_form[0] if i % 2 == 0 else cols_form[1]
+            
+            id_p = int(row['N_PARTIDO'])
+            match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
+            v1 = int(match.iloc[0]['P1']) if not match.empty else 0
+            v2 = int(match.iloc[0]['P2']) if not match.empty else 0
+            
+            with target_col:
+                st.markdown(f"**Partido {id_p}**")
+                c1, vs, c2 = st.columns([2, 1, 2])
+                with c1:
+                    st.write(row['Equipo_1'])
+                    p1_val = st.number_input("G1", 0, 15, v1, key=f"full_p1_{id_p}", label_visibility="collapsed")
+                with vs:
+                    st.write("vs")
+                with c2:
+                    st.write(row['Equipo_2'])
+                    p2_val = st.number_input("G2", 0, 15, v2, key=f"full_p2_{id_p}", label_visibility="collapsed")
+                st.markdown("---")
+            
+            lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
+
+        if st.form_submit_button("💾 Guardar Todos mis Pronósticos", use_container_width=True):
+            df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
+            df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
+            conn.update(worksheet="PRONOSTICOS", data=df_final)
+            st.cache_data.clear()
+            st.success("✅ ¡Pronósticos guardados correctamente!")
+            st.balloons() # Animación de éxito
+
+elif menu == "👥 Jugadores":
+    st.title("👥 Perfiles de Jugadores")
+    # Mostrar la tabla de usuarios registrados
+    df_u = conn.read(worksheet="USUARIOS")
+    st.table(df_u[['NOMBRE', 'EQUIPO FAVORITO', 'DESCRIPCION']])
+
+# ... seguir con el resto de opciones
     
     # --- LÓGICA DE SECCIONES ---
     if menu == "🏠 Inicio":
