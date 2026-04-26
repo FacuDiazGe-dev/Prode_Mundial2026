@@ -315,20 +315,28 @@ if menu == "🏠 Inicio":
                 r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
                 r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
                 
+                # Nuevos campos (Día y Hora)
+                dia_partido = row['DIA'] if pd.notna(row['DIA']) else "Por definir"
+                hora_partido = row['HORA'] if pd.notna(row['HORA']) else "--:--"
+                
                 f1, f2 = get_flag_img(row['Equipo_1']), get_flag_img(row['Equipo_2'])
                 i1 = f'<img src="{f1}" width="35" style="border-radius:3px;">' if "data" in f1 else f1
                 i2 = f'<img src="{f2}" width="35" style="border-radius:3px;">' if "data" in f2 else f2
                 
                 color_tema = "#007bff" if r1 != "-" else "#6c757d"
 
-                # Bloque HTML limpio sin comentarios internos
                 st.markdown(f"""
                 <div style="border: 1px solid #ddd; border-top: 5px solid {color_tema}; border-radius: 12px; padding: 15px; margin-bottom: 20px; background-color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <div style="text-align: center; margin-bottom: 15px;">
-                        <span style="font-size: 0.8em; font-weight: bold; color: {color_tema}; text-transform: uppercase; letter-spacing: 1px;">
-                            Partido Nº {int(row['N_PARTIDO'])}
+                    <!-- CABECERA CON DÍA Y HORA -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-size: 0.75em; font-weight: bold; color: {color_tema};">
+                            PARTIDO Nº {int(row['N_PARTIDO'])}
+                        </span>
+                        <span style="font-size: 0.75em; color: #666; font-weight: bold;">
+                            📅 {dia_partido} | 🕒 {hora_partido}
                         </span>
                     </div>
+                    
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="width: 38%; text-align: center;">
                             <div style="margin-bottom: 8px;">{i1}</div>
