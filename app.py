@@ -53,7 +53,13 @@ import io
 
 def upload_image_to_drive(file_bytes, file_name):
     try:
+        from googleapiclient.discovery import build
+        from googleapiclient.http import MediaIoBaseUpload
+        from google.oauth2 import service_account
+        import io
+
         creds_info = st.secrets["connections"]["gsheets"]
+        # Importante incluir el scope de Drive
         SCOPES = ['https://googleapis.com']
         creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES)
         service = build('drive', 'v3', credentials=creds)
@@ -68,26 +74,20 @@ def upload_image_to_drive(file_bytes, file_name):
         fh = io.BytesIO(file_bytes)
         media = MediaIoBaseUpload(fh, mimetype='image/jpeg', resumable=True)
         
-        # EL TRUCO PARA LA CUOTA:
+        # supportsAllDrives=True es vital para usar el espacio de TU carpeta
         file = service.files().create(
             body=file_metadata,
             media_body=media,
             fields='id',
-            supportsAllDrives=True, # Permite usar carpetas compartidas
-            ignoreDefaultVisibility=True # Evita conflictos de cuota
+            supportsAllDrives=True 
         ).execute()
         
         file_id = file.get('id')
-        
-        # Hacerlo público para ver en el <img>
-        service.permissions().create(
-            fileId=file_id,
-            body={'type': 'anyone', 'role': 'reader'}
-        ).execute()
+        service.permissions().create(fileId=file_id, body={'type': 'anyone', 'role': 'reader'}).execute()
 
         return f"https://google.com{file_id}"
-    
     except Exception as e:
+        # Evitamos que el error bloquee la app, solo devolvemos el mensaje
         return f"Error: {e}"
 
 # ----LOGIN---
@@ -433,10 +433,13 @@ if menu == "🏠 Inicio":
                         </div>
                 """, unsafe_allow_html=True)
 #---------------------------------MENU INICIO / RANKING ------------------------------------------------------
-    with col_derecha:
-        st.subheader("📊 Ranking")
+with col_derecha:
+    st.subheader("📊 Ranking")
+    try:
+        # Forzamos lectura fresca
+        df_ranking_view = df_ranking.copy()
         st.dataframe(
-            df_ranking, 
+            df_ranking_view, 
             use_container_width=True, 
             hide_index=True,
             column_config={
@@ -446,6 +449,10 @@ if menu == "🏠 Inicio":
                 "GENERALES": st.column_config.NumberColumn("✅")
             }
         )
+    except Exception as e:
+        st.error("No se pudo cargar el ranking. Reintentando...")
+        st.cache_data.clear()
+
         st.markdown("---")
         st.subheader("📈 Estadísticas")
         if not df_ranking.empty:
