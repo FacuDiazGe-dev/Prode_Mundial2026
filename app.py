@@ -248,15 +248,14 @@ with col_nav:
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 
 if menu == "🏠 Inicio":
-    # CAMBIA 'with col_res:' POR:
+    # 1. COLUMNA CENTRAL (50%)
     with col_principal: 
-        # Aquí va el botón de actualizar y el bucle de partidos
         col_tit, col_btn = st.columns([0.85, 0.15])
         with col_tit:
             st.subheader("⚽ Resultados Oficiales")
         with col_btn:
             if st.session_state['user_data']['ROL'] == 'admin':
-                if st.button("🔄", help="Actualizar datos"):
+                if st.button("🔄", help="Actualizar datos", key="btn_refresco_inicio"):
                     st.cache_data.clear()
                     st.rerun()
 
@@ -288,10 +287,10 @@ if menu == "🏠 Inicio":
                 </div>
             </div>
             """, unsafe_allow_html=True)
-         with col_derecha:
+
+    # 2. COLUMNA DERECHA (30%) - NOTA: Esta línea debe estar alineada con "with col_principal"
+    with col_derecha:
         st.subheader("📊 Ranking")
-        
-        # Mostramos la tabla de ranking que calculamos previamente
         st.dataframe(
             df_ranking,
             use_container_width=True,
@@ -305,17 +304,14 @@ if menu == "🏠 Inicio":
         )
         
         st.markdown("---")
-        st.subheader("📈 Estadísticas Globales")
-        
-        # Métricas rápidas
+        st.subheader("📈 Estadísticas")
         if not df_ranking.empty:
-            total_exactos = df_ranking["EXACTOS"].sum()
-            total_generales = df_ranking["GENERALES"].sum()
-            promedio_puntos = df_ranking["PUNTOS"].mean()
-            
-            st.metric(label="Total Exactos", value=int(total_exactos))
-            st.metric(label="Total Aciertos Grales", value=int(total_generales))
-            st.metric(label="Promedio Puntos", value=f"{promedio_puntos:.1f}")
+            total_ex = df_ranking["EXACTOS"].sum()
+            total_gr = df_ranking["GENERALES"].sum()
+            st.metric("Total Exactos", int(total_ex))
+            st.metric("Total Generales", int(total_gr))
+
+
 elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Cargar Predicciones")
