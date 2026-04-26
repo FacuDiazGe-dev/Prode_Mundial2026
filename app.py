@@ -515,15 +515,15 @@ elif menu == "👥 Jugadores":
                 total_jugadores = len(df_usuarios)
 
                 for _, res_row in partidos_jugados.iterrows():
-                    id_p = res_row['N_PARTIDO']
+                    id_p = int(res_row['N_PARTIDO']) # Aseguramos que sea entero
                     
-                    # 1. Puntos del usuario seleccionado en este partido
+                    # 1. Puntos del usuario seleccionado
                     u_pr = df_pro_total[(df_pro_total['USUARIO'] == user_sel['USUARIO']) & (df_pro_total['N_PARTIDO'] == id_p)]
                     if not u_pr.empty:
                         pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], u_pr.iloc[0]['P1'], u_pr.iloc[0]['P2'])
                         suma_user += pts
                     
-                    # 2. Promedio de la liga en este partido
+                    # 2. Promedio de la liga
                     pts_liga_partido = 0
                     todos_pro_partido = df_pro_total[df_pro_total['N_PARTIDO'] == id_p]
                     for _, p_row in todos_pro_partido.iterrows():
@@ -533,15 +533,18 @@ elif menu == "👥 Jugadores":
                     suma_liga += (pts_liga_partido / total_jugadores) if total_jugadores > 0 else 0
                     
                     evolucion_data.append({
-                        "Partido": f"P{int(id_p)}",
+                        "Partido": id_p, # <--- QUITAMOS LA "P" PARA QUE SEA NUMÉRICO
                         "Tus Puntos": suma_user,
                         "Promedio Liga": round(suma_liga, 1)
                     })
 
-                df_evo = pd.DataFrame(evolucion_data).set_index("Partido")
-                # Gráfico de área con dos líneas
+                # Ordenamos el DataFrame por el número de partido antes de graficar
+                df_evo = pd.DataFrame(evolucion_data).sort_values("Partido").set_index("Partido")
+                
+                # Graficamos
                 st.area_chart(df_evo, color=["#28a745", "#adb5bd"])
-                st.caption("🟢 Tus Puntos acumulados | ⚪ Promedio de la Liga")
+                st.caption("Eje X: Número de Partido | 🟢 Tus Puntos | ⚪ Promedio Liga")
+
 
             st.markdown("---")
             st.write("### 📋 Lista General")
