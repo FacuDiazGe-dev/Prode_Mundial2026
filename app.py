@@ -580,7 +580,7 @@ with col_derecha:
                     st.rerun()
                     
 # ---------- MENU JUGADORES ----------------------------------------------------
-
+# --- NO DEBE HABER NINGÚN ESPACIO ANTES DE ESTE ELIF ---
 elif menu == "👥 Jugadores":
     with col_principal:
         st.subheader("👥 Jugadores Inscritos")
@@ -589,48 +589,47 @@ elif menu == "👥 Jugadores":
         if not df_usuarios.empty:
             nombres_jugadores = df_usuarios['NOMBRE'].tolist()
             nombre_sel = st.selectbox("Selecciona un jugador:", nombres_jugadores)
-            # Obtenemos la fila del usuario seleccionado
-            user_sel = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel].iloc[0]
+            # Buscamos la fila del usuario seleccionado
+            user_sel_row = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel]
+            if not user_sel_row.empty:
+                user_sel = user_sel_row.iloc[0]
             
-            # --- LÓGICA DE GRÁFICO DE EVOLUCIÓN ---
-            st.markdown("---")
-            st.subheader(f"📈 Evolución de {nombre_sel}")
-            
-            df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
-            partidos_jugados = df_res.dropna(subset=['R1']).sort_values('N_PARTIDO')
-            
-            if partidos_jugados.empty:
-                st.info("La evolución aparecerá con el primer resultado oficial.")
-            else:
-                evolucion_data = []
-                suma_user, suma_liga = 0, 0
-                total_jugadores = len(df_usuarios)
+                st.markdown("---")
+                st.subheader(f"📈 Evolución de {nombre_sel}")
+                
+                df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
+                partidos_jugados = df_res.dropna(subset=['R1']).sort_values('N_PARTIDO')
+                
+                if partidos_jugados.empty:
+                    st.info("La evolución aparecerá con el primer resultado oficial.")
+                else:
+                    evolucion_data = []
+                    suma_user, suma_liga = 0, 0
+                    total_jugadores = len(df_usuarios)
 
-                for _, res_row in partidos_jugados.iterrows():
-                    id_p = int(res_row['N_PARTIDO'])
-                    u_pr = df_pro_total[(df_pro_total['USUARIO'] == user_sel['USUARIO']) & (df_pro_total['N_PARTIDO'] == id_p)]
-                    if not u_pr.empty:
-                        # Acceso correcto a la primera fila del prono
-                        pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], u_pr.iloc[0]['P1'], u_pr.iloc[0]['P2'])
-                        suma_user += pts
-                    
-                    pts_liga_partido = 0
-                    todos_pro_partido = df_pro_total[df_pro_total['N_PARTIDO'] == id_p]
-                    for _, p_row in todos_pro_partido.iterrows():
-                        p_pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], p_row['P1'], p_row['P2'])
-                        pts_liga_partido += p_pts
-                    
-                    suma_liga += (pts_liga_partido / total_jugadores) if total_jugadores > 0 else 0
-                    evolucion_data.append({"Partido": id_p, "Tus Puntos": suma_user, "Promedio Liga": round(suma_liga, 1)})
+                    for _, res_row in partidos_jugados.iterrows():
+                        id_p = int(res_row['N_PARTIDO'])
+                        u_pr = df_pro_total[(df_pro_total['USUARIO'] == user_sel['USUARIO']) & (df_pro_total['N_PARTIDO'] == id_p)]
+                        if not u_pr.empty:
+                            pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], u_pr.iloc[0]['P1'], u_pr.iloc[0]['P2'])
+                            suma_user += pts
+                        
+                        pts_liga_partido = 0
+                        todos_pro_partido = df_pro_total[df_pro_total['N_PARTIDO'] == id_p]
+                        for _, p_row in todos_pro_partido.iterrows():
+                            p_pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], p_row['P1'], p_row['P2'])
+                            pts_liga_partido += p_pts
+                        
+                        suma_liga += (pts_liga_partido / total_jugadores) if total_jugadores > 0 else 0
+                        evolucion_data.append({"Partido": id_p, "Tus Puntos": suma_user, "Promedio Liga": round(suma_liga, 1)})
 
-                df_evo = pd.DataFrame(evolucion_data).sort_values("Partido").set_index("Partido")
-                st.area_chart(df_evo, color=["#28a745", "#adb5bd"])
+                    df_evo = pd.DataFrame(evolucion_data).sort_values("Partido").set_index("Partido")
+                    st.area_chart(df_evo, color=["#28a745", "#adb5bd"])
 
-            st.markdown("---")
-            st.write("### 📋 Lista General")
-            st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
-
-
+                st.markdown("---")
+                st.write("### 📋 Lista General")
+                st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
+                
     with col_derecha:
         if 'user_sel' in locals():
             # --- LÓGICA DE MEDALLAS ---
