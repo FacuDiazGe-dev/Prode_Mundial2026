@@ -499,9 +499,76 @@ elif menu == "👥 Jugadores":
                             """, unsafe_allow_html=True)
 
 elif menu == "💬 Foro":
-        with col_principal:
-            st.subheader("💬 Foro")
-            st.info("Próximamente...")
+    with col_principal:
+        st.subheader("💬 Muro de Discusión")
+        
+        # 1. CARGA DE DATOS
+        df_foro = conn.read(worksheet="FORO", ttl=0)
+        df_res_ref = conn.read(worksheet="RESULTADOS", ttl=0)
+        
+        # 2. FORMULARIO PARA PUBLICAR
+        with st.expander("✍️ Escribir un mensaje", expanded=True):
+            with st.form("form_nuevo_mensaje", clear_on_submit=True):
+                msg_texto = st.text_area("¿Qué tienes en mente?", placeholder="¡Qué buen partido!", max_chars=280)
+                
+                # Selector de Partido (Opcional)
+                lista_partidos = ["General"] + [f"Partido {i}" for i in range(1, 25)]
+                msg_partido = st.selectbox("Etiquetar partido (opcional):", lista_partidos)
+                partido_id = 0 if msg_partido == "General" else int(msg_partido.replace("Partido ", ""))
+                
+                if st.form_submit_button("🚀 Publicar", use_container_width=True):
+                    if msg_texto.strip() != "":
+                        nuevo_msg = {
+                            "FECHA": (datetime.now() - timedelta(hours=3)).strftime("%d/%m/%Y %H:%M"),
+                            "USUARIO": st.session_state['user_data']['USUARIO'],
+                            "NOMBRE": st.session_state['user_data']['NOMBRE'],
+                            "MENSAJE": msg_texto,
+                            "PARTIDO_ID": partido_id
+                        }
+                        
+                        # Concatenar y subir
+                        df_nuevo_foro = pd.concat([df_foro, pd.DataFrame([nuevo_msg])], ignore_index=True)
+                        conn.update(worksheet="FORO", data=df_nuevo_foro)
+                        
+                        st.cache_data.clear()
+                        st.success("Mensaje publicado.")
+                        st.rerun()
+                    else:
+                        st.warning("El mensaje no puede estar vacío.")
+
+        st.markdown("---")
+
+        # 3. VISUALIZACIÓN DEL MURO (Más nuevo primero)
+        if df_foro.empty:
+            st.info("Aún no hay mensajes. ¡Sé el primero en escribir!")
+        else:
+            # Ordenamos por índice invertido para mostrar lo más reciente arriba
+            for _, m in df_foro.iloc[::-1].iterrows():
+                # Buscamos si el mensaje tiene un partido etiquetado
+                etiqueta = ""
+                if int(m['PARTIDO_ID']) > 0:
+                    p_info = df_res_ref[df_res_ref['N_PARTIDO'] == m['PARTIDO_ID']].iloc[0]
+                    etiqueta = f"📢 *Sobre: {p_info['Equipo_1']} vs {p_info['Equipo_2']}*"
+
+                # Usamos el componente de chat de Streamlit
+                with st.chat_message("user"):
+                    st.write(f"**{m['NOMBRE']}** <small style='color:gray;'>{m['FECHA']}</small>", unsafe_allow_html=True)
+                    if etiqueta:
+                        st.caption(etiqueta)
+                    st.write(m['MENSAJE'])
+                    
+                    # Botón de eliminar para el ADMIN
+                    if st.session_state['user_data']['ROL'] == 'admin':
+                        if st.button("🗑️", key=f"del_{_}", help="Eliminar mensaje"):
+                            df_foro_clean = df_foro.drop(_)
+                            conn.update(worksheet="FORO", data=df_foro_clean)
+                            st.cache_data.clear()
+                            st.rerun()
+
+    with col_derecha:
+        st.subheader("📢 Actividad")
+        st.write("Participa en el foro para comentar las predicciones y los resultados en tiempo real.")
+        st.info("Recuerda mantener el respeto con los demás jugadores.")
 
 elif menu == "⚙️ Panel Control":
         # Aquí va el código del Admin...
