@@ -395,16 +395,20 @@ with st.sidebar:
 
 #---------------------------------MENU INICIO / RANKING ------------------------------------------------------
     # 2. COLUMNA DERECHA (30%) - NOTA: Esta línea debe estar alineada con "with col_principal"
-    with col_derecha:
+with col_derecha:
         st.subheader("📊 Ranking")
-        st.dataframe(df_ranking, use_container_width=True, hide_index=True)
+        
+        st.dataframe(
+            df_ranking, 
+            use_container_width=True, 
+            hide_index=True,
             column_config={
                 "Nº": st.column_config.TextColumn("Nº", width="small"),
                 "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
                 "EXACTOS": st.column_config.NumberColumn("🎯"),
                 "GENERALES": st.column_config.NumberColumn("✅")
             }
-        )
+        ) # Aquí es donde debe cerrar el paréntesis
         
         st.markdown("---")
         st.subheader("📈 Estadísticas")
@@ -413,7 +417,6 @@ with st.sidebar:
             total_gr = df_ranking["GENERALES"].sum()
             st.metric("Total Exactos", int(total_ex))
             st.metric("Total Generales", int(total_gr))
-
 #---------- MENU MIS PRONOSTICOS ----------------------------------------------------
 
 elif menu == "📝 Mis Pronósticos":
