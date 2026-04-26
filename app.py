@@ -64,7 +64,7 @@ def upload_profile_picture(file_bytes, file_name):
         blob = bucket.blob(f"perfiles/{file_name}")
         
         # Subida directa desde el objeto UploadedFile de Streamlit
-        blob.upload_from_file(file_file, content_type='image/jpeg')
+        blob.upload_from_file(archivo, content_type='image/jpeg')
         
         return f"https://googleapis.com{bucket_name}/perfiles/{file_name}"
     except Exception as e:
