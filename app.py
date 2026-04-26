@@ -406,34 +406,33 @@ if menu == "🏠 Inicio":
         # --- BLOQUE 2: FORO (Actividad Reciente) ---------------------------------------------------------------------------------------
         st.subheader("💬 Actividad Reciente")
         df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
-        df_users_foro = conn.read(worksheet="USUARIOS", ttl=0)
+        df_u_ref = conn.read(worksheet="USUARIOS", ttl=0) 
         
         with st.container(height=350):
             if df_foro_inicio.empty:
                 st.info("No hay mensajes aún.")
             else:
-                user_actual = st.session_state['user_data']['USUARIO']
-                # Mostramos los últimos 10 mensajes invertidos
+                u_act = st.session_state['user_data']['USUARIO']
                 for idx, m in df_foro_inicio.tail(10).iloc[::-1].iterrows():
-                    # CAMBIO AQUÍ: Usar df_users en lugar de df_usuarios
-                    user_info = df_users[df_users['USUARIO'] == m['USUARIO']]
-                    if not user_info.empty:
-                        # Usamos .iloc[0] para obtener la primera fila encontrada
-                        foto_u = user_info.iloc[0]['AVATAR_URL'] if pd.notna(user_info.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
-                    else:
-                        foto_u = "https://flaticon.com"
+                    # Buscamos la foto en la tabla de usuarios
+                    u_match = df_u_ref[df_u_ref['USUARIO'] == m['USUARIO']]
+                    foto_url = u_match.iloc[0]['AVATAR_URL'] if not u_match.empty and pd.notna(u_match.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
+                    
+                    es_m = m['USUARIO'] == u_act
+                    aln = "flex-end" if es_m else "flex-start"
+                    bg = "#dcf8c6" if es_m else "#ffffff"
                     
                     st.markdown(f"""
                         <div style="display: flex; flex-direction: column; align-items: {aln}; margin-bottom: 10px; width: 100%;">
                             <div style="display: flex; align-items: center; gap: 8px; flex-direction: {'row-reverse' if es_m else 'row'};">
-                                <img src="{foto_u}" style="border-radius: 50%; width: 30px; height: 30px; object-fit: cover; border: 1px solid #ddd;">
-                                <div style="max-width: 85%; background-color: {bg}; padding: 8px 12px; border-radius: 15px; border: 1px solid #ddd;">
-                                    <div style="font-size: 0.7em; color: #555; font-weight: bold;">{m['NOMBRE']}</div>
-                                    <div style="font-size: 0.9em; color: #333;">{m['MENSAJE']}</div>
+                                <img src="{foto_url}" style="border-radius: 50%; width: 30px; height: 30px; object-fit: cover; border: 1px solid #ddd;">
+                                <div style="max-width: 85%; background-color: {bg}; padding: 10px 12px; border-radius: 18px; border: 1px solid #ddd;">
+                                    <div style="font-size: 0.8em; color: #555; font-weight: bold;">{m['NOMBRE']}</div>
+                                    <div style="font-size: 1em; color: #333;">{m['MENSAJE']}</div>
                                 </div>
                             </div>
                         </div>
-                """, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
 #---------------------------------MENU INICIO / RANKING ------------------------------------------------------
     with col_derecha:
         st.subheader("📊 Ranking")
