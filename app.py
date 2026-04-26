@@ -539,4 +539,40 @@ elif menu == "⚙️ Panel Control":
                     conn.update(worksheet="RESULTADOS", data=pd.DataFrame(upd))
                     st.cache_data.clear()
                     st.rerun()
+                    
+# --- SECCIÓN: GESTIÓN DE USUARIOS ----------------------------------------------------------------------------
+        
+        st.markdown("---")
+        st.subheader("🗑️ Eliminar Jugadores")
+        st.warning("Cuidado: Al borrar un usuario se eliminarán permanentemente todos sus pronósticos.")
+
+        # Volvemos a leer para tener la lista fresca
+        df_users_adm = conn.read(worksheet="USUARIOS", ttl=0)
+        df_pro_adm = conn.read(worksheet="PRONOSTICOS", ttl=0)
+
+        # Filtramos para no permitir que el admin se borre a sí mismo por error
+        lista_borrar = df_users_adm[df_users_adm['USUARIO'] != st.session_state['user_data']['USUARIO']]
+        
+        user_a_eliminar = st.selectbox("Selecciona el usuario a eliminar:", 
+                                        lista_borrar['USUARIO'].tolist(), 
+                                        index=None, 
+                                        placeholder="Elegir usuario...")
+
+        if user_a_eliminar:
+            confirmar = st.checkbox(f"Confirmo que quiero eliminar a {user_a_eliminar}")
+            
+            if st.button("❌ Eliminar Permanentemente", type="primary", disabled=not confirmar):
+                # 1. Borrar de la tabla USUARIOS
+                df_users_final = df_users_adm[df_users_adm['USUARIO'] != user_a_eliminar]
+                
+                # 2. Borrar de la tabla PRONOSTICOS
+                df_pro_final = df_pro_adm[df_pro_adm['USUARIO'] != user_a_eliminar]
+                
+                # 3. Subir ambos cambios
+                conn.update(worksheet="USUARIOS", data=df_users_final)
+                conn.update(worksheet="PRONOSTICOS", data=df_pro_final)
+                
+                st.cache_data.clear()
+                st.success(f"El usuario {user_a_eliminar} y sus datos han sido borrados.")
+                st.rerun()
         pass
