@@ -50,22 +50,22 @@ def get_flag_img(pais):
 from google.cloud import storage
 import io 
 
-def upload_profile_picture(file_bytes, file_name):
-    """
-    Sube la imagen a Google Cloud Storage y devuelve la URL pública.
-    """
+def upload_profile_picture(archivo, file_name):
+    from google.cloud import storage
     try:
-        # Usamos los secretos que YA funcionan para Sheets
+        # 1. Autenticación con tus secretos
         creds_info = st.secrets["connections"]["gsheets"] 
         client = storage.Client.from_service_account_info(creds_info)
         
+        # 2. Configuración del Bucket
         bucket_name = "foto-prode2026" 
         bucket = client.bucket(bucket_name)
         blob = bucket.blob(f"perfiles/{file_name}")
         
-        # Subida directa desde el objeto UploadedFile de Streamlit
+        # 3. SUBIDA (Aquí es donde daba el error: el nombre debe ser 'archivo')
         blob.upload_from_file(archivo, content_type='image/jpeg')
         
+        # 4. Retorno de la URL
         return f"https://googleapis.com{bucket_name}/perfiles/{file_name}"
     except Exception as e:
         return f"Error: {e}"
