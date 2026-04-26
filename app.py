@@ -3,11 +3,6 @@ import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 from datetime import datetime
 from datetime import datetime, timedelta
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
-import io
-
 
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
 st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
@@ -51,9 +46,14 @@ def get_flag_img(pais):
 #--------------------------------cargar foto drive----------------------------------
 
 def upload_profile_picture(file_bytes, file_name):
-    # Usamos la estructura exacta de tus secretos
+    # Imports internos para evitar NameError
+    from google.oauth2 import service_account
+    from googleapiclient.discovery import build
+    from googleapiclient.http import MediaIoBaseUpload
+    import io
+
     st_secrets = st.secrets["connections"]["gsheets"]
-    SCOPES = ['https://www.googleapis.com/auth/drive']
+    SCOPES = ['https://googleapis.com']
     folder_id = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
     
     creds = service_account.Credentials.from_service_account_info(st_secrets, scopes=SCOPES)
