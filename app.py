@@ -580,6 +580,12 @@ with col_derecha:
                     st.rerun()
                     
 # ---------- MENU JUGADORES ----------------------------------------------------
+
+                if c_b2.form_submit_button("❌ Cancelar"):
+                    st.session_state.editando_perfil = False
+                    st.rerun()
+
+# --- ESTA LÍNEA (elif) DEBE ESTAR ALINEADA A LA IZQUIERDA CON EL 'if menu ==' ---
 elif menu == "👥 Jugadores":
     with col_principal:
         st.subheader("👥 Jugadores Inscritos")
@@ -609,7 +615,7 @@ elif menu == "👥 Jugadores":
                     id_p = int(res_row['N_PARTIDO'])
                     u_pr = df_pro_total[(df_pro_total['USUARIO'] == user_sel['USUARIO']) & (df_pro_total['N_PARTIDO'] == id_p)]
                     if not u_pr.empty:
-                        # Corregido acceso a iloc[0]
+                        # Acceso correcto a la primera fila del prono
                         pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], u_pr.iloc[0]['P1'], u_pr.iloc[0]['P2'])
                         suma_user += pts
                     
@@ -628,6 +634,7 @@ elif menu == "👥 Jugadores":
             st.markdown("---")
             st.write("### 📋 Lista General")
             st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
+
 
     with col_derecha:
         if 'user_sel' in locals():
