@@ -304,23 +304,29 @@ with st.sidebar:
         
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 #------------------------------------------------MENU INICIO-----------------------------------------------
+
 if menu == "🏠 Inicio":
     with col_principal:
-        st.subheader("⚽ Resultados de la Fase de Grupos")
-        df_res_invertido = df_res.iloc[::-1]
+        st.subheader("⚽ Cronograma y Resultados")
+        
+        # FILTRO DINÁMICO: Solo partidos marcados como visibles (VIZ == True)
+        # Convertimos a booleano por seguridad
+        df_res['VIZ'] = df_res['VIZ'].fillna(False).astype(bool)
+        df_visibles = df_res[df_res['VIZ'] == True]
+        
+        # Los mostramos invertidos para que el último (el más reciente o próximo) esté arriba
+        df_mostrar = df_visibles.iloc[::-1]
 
-        with st.container(height=500): 
-            for i, row in df_res_invertido.iterrows():
-                r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
-                r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
-                dia_p = row['DIA'] if pd.notna(row['DIA']) else "---"
-                hora_p = row['HORA'] if pd.notna(row['HORA']) else "--:--"
-                
-                f1, f2 = get_flag_img(row['Equipo_1']), get_flag_img(row['Equipo_2'])
-                i1 = f'<img src="{f1}" width="35" style="border-radius:3px;">' if "data" in f1 else f1
-                i2 = f'<img src="{f2}" width="35" style="border-radius:3px;">' if "data" in f2 else f2
-                color_tema = "#007bff" if r1 != "-" else "#6c757d"
-
+        with st.container(height=500):
+            if df_mostrar.empty:
+                st.info("Próximamente se publicarán los partidos de la jornada.")
+            else:
+                for i, row in df_mostrar.iterrows():
+                    # Aquí va tu código HTML de las tarjetas...
+                    # (El color_tema puede seguir siendo azul para finalizados y gris para próximos)
+                    r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
+                    color_tema = "#007bff" if r1 != "-" else "#6c757d"
+                    
                 st.markdown(f"""
                 <div style="border: 1px solid #ddd; border-top: 5px solid {color_tema}; border-radius: 12px; padding: 15px; margin-bottom: 20px; background-color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;">
@@ -681,31 +687,39 @@ elif menu == "💬 Foro":
 
 elif menu == "⚙️ Panel Control":
     if st.session_state['user_data']['ROL'] == 'admin':
-        # COLUMNA CENTRAL: CARGA DE RESULTADOS (60%)
         with col_principal:
-            st.subheader("⚙️ Gestión de Resultados Oficiales")
+            st.subheader("⚙️ Gestión de Resultados y Horarios")
             df_res_admin = conn.read(worksheet="RESULTADOS", ttl=0)
             
-            with st.form("form_admin"):
+            with st.form("form_admin_full"):
                 upd = []
+                # --- DENTRO DEL FORM DE ADMIN ---
                 for i, row in df_res_admin.iterrows():
-                    st.write(f"Part {int(row['N_PARTIDO'])}: {row['Equipo_1']} vs {row['Equipo_2']}")
-                    c1, c2 = st.columns(2)
+                    st.markdown(f"**Partido Nº {int(row['N_PARTIDO'])}: {row['Equipo_1']} vs {row['Equipo_2']}**")
+    
+                    c_dia, c_hora, c_viz = st.columns([1, 1, 1])
+                    n_dia = c_dia.text_input("Día", value=row['DIA'] if pd.notna(row['DIA']) else "", key=f"d_{i}")
+                    n_hora = c_hora.text_input("Hora", value=row['HORA'] if pd.notna(row['HORA']) else "", key=f"h_{i}")
+    # Checkbox para visibilidad
+                    v_actual = bool(row['VIZ']) if pd.notna(row['VIZ']) else False
+                    n_viz = c_viz.checkbox("👁️ Visible", value=v_actual, key=f"v_{i}")
+    
+                    c1, c2, c3 = st.columns([1, 1, 1])
                     r1 = c1.number_input("G1", 0, 20, int(row['R1']) if pd.notna(row['R1']) else 0, key=f"ar1_{i}")
                     r2 = c2.number_input("G2", 0, 20, int(row['R2']) if pd.notna(row['R2']) else 0, key=f"ar2_{i}")
-                    fin = st.checkbox("Finalizado", value=pd.notna(row['R1']), key=f"fin_{i}")
+                    fin = c3.checkbox("¿Finalizado?", value=pd.notna(row['R1']), key=f"fin_{i}")
+    
                     upd.append({
-                        "N_PARTIDO": row['N_PARTIDO'], 
-                        "Equipo_1": row['Equipo_1'], 
-                        "R1": r1 if fin else None, 
-                        "Equipo_2": row['Equipo_2'], 
-                        "R2": r2 if fin else None
+                    "N_PARTIDO": row['N_PARTIDO'], "Equipo_1": row['Equipo_1'], 
+                    "R1": r1 if fin else None, "Equipo_2": row['Equipo_2'], "R2": r2 if fin else None,
+                    "DIA": n_dia, "HORA": n_hora, "VIZ": n_viz # Guardamos la visibilidad
                     })
+                    st.markdown("---")
                 
-                if st.form_submit_button("📢 Publicar Resultados", use_container_width=True):
+                if st.form_submit_button("📢 Guardar Cambios Globales", use_container_width=True):
                     conn.update(worksheet="RESULTADOS", data=pd.DataFrame(upd))
                     st.cache_data.clear()
-                    st.success("✅ ¡Resultados oficiales actualizados!")
+                    st.success("✅ ¡Base de datos actualizada!")
                     st.rerun()
 
         # COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%)
