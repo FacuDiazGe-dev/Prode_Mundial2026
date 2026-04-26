@@ -303,13 +303,11 @@ with st.sidebar:
         st.rerun()
         
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
-
+#------------------------------------------------MENU INICIO-----------------------------------------------
 if menu == "🏠 Inicio":
     with col_principal:
-        # --- BLOQUE 1: RESULTADOS (Tarjetas con Cabecera Central) ---
         st.subheader("⚽ Resultados de la Fase de Grupos")
         
-        # Invertimos para ver lo más reciente arriba
         df_res_invertido = df_res.iloc[::-1]
 
         with st.container(height=500): 
@@ -318,36 +316,29 @@ if menu == "🏠 Inicio":
                 r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
                 
                 f1, f2 = get_flag_img(row['Equipo_1']), get_flag_img(row['Equipo_2'])
-                # Banderas nítidas
                 i1 = f'<img src="{f1}" width="35" style="border-radius:3px;">' if "data" in f1 else f1
                 i2 = f'<img src="{f2}" width="35" style="border-radius:3px;">' if "data" in f2 else f2
                 
-                # Colores según estado del partido
                 color_tema = "#007bff" if r1 != "-" else "#6c757d"
-                bg_card = "#ffffff"
 
+                # Bloque HTML limpio sin comentarios internos
                 st.markdown(f"""
-                <div style="border: 1px solid #ddd; border-top: 5px solid {color_tema}; border-radius: 12px; padding: 15px; margin-bottom: 20px; background-color: {bg_card}; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <!-- CABECERA CENTRAL -->
+                <div style="border: 1px solid #ddd; border-top: 5px solid {color_tema}; border-radius: 12px; padding: 15px; margin-bottom: 20px; background-color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="text-align: center; margin-bottom: 15px;">
                         <span style="font-size: 0.8em; font-weight: bold; color: {color_tema}; text-transform: uppercase; letter-spacing: 1px;">
                             Partido Nº {int(row['N_PARTIDO'])}
                         </span>
                     </div>
-                    
-                    <!-- CUERPO DEL PARTIDO -->
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="width: 38%; text-align: center;">
                             <div style="margin-bottom: 8px;">{i1}</div>
                             <div style="font-weight: bold; font-size: 1.1em;">{row['Equipo_1']}</div>
                         </div>
-                        
                         <div style="width: 24%; text-align: center;">
                             <div style="background: #f8f9fa; border: 1px solid #ddd; color: #333; font-size: 1.8em; font-weight: bold; border-radius: 8px; padding: 5px 0;">
                                 {r1} : {r2}
                             </div>
                         </div>
-                        
                         <div style="width: 38%; text-align: center;">
                             <div style="margin-bottom: 8px;">{i2}</div>
                             <div style="font-weight: bold; font-size: 1.1em;">{row['Equipo_2']}</div>
@@ -369,7 +360,7 @@ if menu == "🏠 Inicio":
                         st.markdown(f"**{m['NOMBRE']}** <small style='color:gray;'>{m['FECHA']}</small>", unsafe_allow_html=True)
                         st.write(m['MENSAJE'])
 
-#-----------------------------------------RANKING ------------------------------------------------------
+#---------------------------------MENU INICIO / RANKING ------------------------------------------------------
     # 2. COLUMNA DERECHA (30%) - NOTA: Esta línea debe estar alineada con "with col_principal"
     with col_derecha:
         st.subheader("📊 Ranking")
