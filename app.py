@@ -365,18 +365,6 @@ elif menu == "📝 Mis Pronósticos":
    # --- 1. DEFINICIÓN DE COLUMNAS PRINCIPALES (Fuera de los IF) ---
 col_nav, col_principal, col_derecha = st.columns([0.2, 0.5, 0.3])
 
-# --- 2. PANEL IZQUIERDO: NAVEGACIÓN SIEMPRE VISIBLE ---
-with col_nav:
-    st.subheader("📍 Navegación")
-    opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
-    if st.session_state['user_data']['ROL'] == 'admin':
-        opciones.append("⚙️ Panel Control")
-    
-    menu = st.radio("Ir a:", opciones, key="menu_navegacion")
-    st.markdown("---")
-    if st.button("🚪 Cerrar Sesión", use_container_width=True):
-        st.session_state['autenticado'] = False
-        st.rerun()
 
 # --- 3. LÓGICA DE SECCIONES (CONTENIDO CENTRAL Y DERECHO) ---
 
