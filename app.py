@@ -530,16 +530,20 @@ elif menu == "👥 Jugadores":
 # ---------- MENU FORO ----------------------------------------------------
 elif menu == "💬 Foro":
     df_foro = conn.read(worksheet="FORO", ttl=0)
+    user_actual = st.session_state['user_data']['USUARIO']
+    
     with col_principal:
         st.subheader("💬 Muro de la Comunidad")
+        
+        # Caja para publicar
         with st.expander("✍️ Publicar un comentario", expanded=False):
-            with st.form("nuevo_post_mobile", clear_on_submit=True):
+            with st.form("nuevo_post_full", clear_on_submit=True):
                 texto = st.text_area("¿Qué quieres decir?", max_chars=250)
                 if st.form_submit_button("🚀 Publicar", use_container_width=True):
                     if texto.strip():
                         nuevo_msg = {
                             "FECHA": (datetime.now() - timedelta(hours=3)).strftime("%d/%m %H:%M"),
-                            "USUARIO": st.session_state['user_data']['USUARIO'],
+                            "USUARIO": user_actual,
                             "NOMBRE": st.session_state['user_data']['NOMBRE'],
                             "MENSAJE": texto.strip(),
                             "PARTIDO_ID": 0
@@ -548,11 +552,43 @@ elif menu == "💬 Foro":
                         conn.update(worksheet="FORO", data=df_update)
                         st.cache_data.clear()
                         st.rerun()
-        
-        for index, m in df_foro.iloc[::-1].iterrows():
-            with st.chat_message("user"):
-                st.write(f"**{m['NOMBRE']}** - <small>{m['FECHA']}</small>", unsafe_allow_html=True)
-                st.write(m['MENSAJE'])
+
+        st.markdown("---")
+
+        # Listado de mensajes estilo Chat
+        if df_foro.empty:
+            st.info("No hay mensajes aún.")
+        else:
+            for index, m in df_foro.iloc[::-1].iterrows():
+                es_mio = m['USUARIO'] == user_actual
+                align = "flex-end" if es_mio else "flex-start"
+                bg_color = "#dcf8c6" if es_mio else "#ffffff"
+                
+                # Burbuja de mensaje
+                st.markdown(f"""
+                    <div style="display: flex; flex-direction: column; align-items: {align}; margin-bottom: 15px; width: 100%;">
+                        <div style="max-width: 85%; background-color: {bg_color}; padding: 15px; border-radius: 18px; border: 1px solid #ddd; box-shadow: 1px 1px 3px rgba(0,0,0,0.1);">
+                            <div style="font-size: 0.9em; color: #555; font-weight: bold; margin-bottom: 5px;">
+                                {m['NOMBRE']} <span style="font-weight: normal; color: #999;">• {m['FECHA']}</span>
+                            </div>
+                            <div style="font-size: 1.1em; color: #222; line-height: 1.5; font-weight: 450;">
+                                {m['MENSAJE']}
+                            </div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                # Botón de eliminar (Solo para Admin o dueño del mensaje)
+                # Lo ponemos alineado con la burbuja
+                col_del_1, col_del_2 = st.columns([0.8, 0.2]) if es_mio else st.columns([0.2, 0.8])
+                
+                with (col_del_2 if es_mio else col_del_1):
+                    if st.session_state['user_data']['ROL'] == 'admin' or es_mio:
+                        if st.button("🗑️", key=f"del_full_{index}", help="Eliminar"):
+                            df_final = df_foro.drop(index)
+                            conn.update(worksheet="FORO", data=df_final)
+                            st.cache_data.clear()
+                            st.rerun()
 
 # ---------- MENU ADMIN ----------------------------------------------------
 
