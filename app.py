@@ -521,11 +521,14 @@ elif menu == "💬 Foro":
                 st.write(m['MENSAJE'])
 
 # ---------- MENU ADMIN ----------------------------------------------------
+
 elif menu == "⚙️ Panel Control":
     if st.session_state['user_data']['ROL'] == 'admin':
+        # COLUMNA CENTRAL: CARGA DE RESULTADOS (60%)
         with col_principal:
             st.subheader("⚙️ Gestión de Resultados Oficiales")
             df_res_admin = conn.read(worksheet="RESULTADOS", ttl=0)
+            
             with st.form("form_admin"):
                 upd = []
                 for i, row in df_res_admin.iterrows():
@@ -534,56 +537,53 @@ elif menu == "⚙️ Panel Control":
                     r1 = c1.number_input("G1", 0, 20, int(row['R1']) if pd.notna(row['R1']) else 0, key=f"ar1_{i}")
                     r2 = c2.number_input("G2", 0, 20, int(row['R2']) if pd.notna(row['R2']) else 0, key=f"ar2_{i}")
                     fin = st.checkbox("Finalizado", value=pd.notna(row['R1']), key=f"fin_{i}")
-                    upd.append({"N_PARTIDO": row['N_PARTIDO'], "Equipo_1": row['Equipo_1'], "R1": r1 if fin else None, "Equipo_2": row['Equipo_2'], "R2": r2 if fin else None})
-                if st.form_submit_button("📢 Publicar Resultados"):
+                    upd.append({
+                        "N_PARTIDO": row['N_PARTIDO'], 
+                        "Equipo_1": row['Equipo_1'], 
+                        "R1": r1 if fin else None, 
+                        "Equipo_2": row['Equipo_2'], 
+                        "R2": r2 if fin else None
+                    })
+                
+                if st.form_submit_button("📢 Publicar Resultados", use_container_width=True):
                     conn.update(worksheet="RESULTADOS", data=pd.DataFrame(upd))
                     st.cache_data.clear()
+                    st.success("✅ ¡Resultados oficiales actualizados!")
                     st.rerun()
+
+        # COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%)
+        with col_derecha:
+            st.subheader("👥 Gestión de Usuarios")
+            df_users_adm = conn.read(worksheet="USUARIOS", ttl=0)
+            df_pro_adm = conn.read(worksheet="PRONOSTICOS", ttl=0)
+
+            # Filtramos para no borrar al admin logueado
+            usuarios_borrables = df_users_adm[df_users_adm['USUARIO'] != st.session_state['user_data']['USUARIO']]
+            
+            if usuarios_borrables.empty:
+                st.info("No hay otros usuarios para gestionar.")
+            else:
+                user_a_eliminar = st.selectbox(
+                    "Selecciona un jugador para eliminar:", 
+                    usuarios_borrables['USUARIO'].tolist(),
+                    index=None,
+                    placeholder="Elegir usuario..."
+                )
+
+                if user_a_eliminar:
+                    st.warning(f"⚠️ Estás por borrar a **{user_a_eliminar}**.")
+                    confirmado = st.checkbox("Confirmo que deseo borrar este usuario y sus pronósticos", key="conf_borrar")
                     
-# --- SECCIÓN: GESTIÓN DE USUARIOS ----------------------------------------------------------------------------
-
-    with col_derecha:
-        st.subheader("👥 Gestión de Usuarios")
-        
-        # Leemos datos frescos
-        df_users_adm = conn.read(worksheet="USUARIOS", ttl=0)
-        df_pro_adm = conn.read(worksheet="PRONOSTICOS", ttl=0)
-
-        # Filtramos para que el admin no se borre a sí mismo
-        usuarios_borrables = df_users_adm[df_users_adm['USUARIO'] != st.session_state['user_data']['USUARIO']]
-        
-        if usuarios_borrables.empty:
-            st.info("No hay otros usuarios para gestionar.")
-        else:
-            user_a_eliminar = st.selectbox(
-                "Selecciona un jugador para eliminar:", 
-                usuarios_borrables['USUARIO'].tolist(),
-                index=None,
-                placeholder="Elegir usuario..."
-            )
-
-            if user_a_eliminar:
-                st.warning(f"⚠️ Estás por borrar a **{user_a_eliminar}**.")
-                st.write("Esta acción eliminará su cuenta y sus 24 pronósticos permanentemente.")
-                
-                # Casilla de confirmación obligatoria
-                confirmado = st.checkbox("Confirmo que deseo borrar este usuario", key="conf_borrar")
-                
-                # Botón de borrado (solo se activa si el checkbox está marcado)
-                if st.button("❌ BORRAR PERMANENTEMENTE", type="primary", use_container_width=True, disabled=not confirmado):
-                    try:
-                        # 1. Filtramos las tablas para quitar al usuario
+                    if st.button("❌ BORRAR PERMANENTEMENTE", type="primary", use_container_width=True, disabled=not confirmado):
                         df_users_final = df_users_adm[df_users_adm['USUARIO'] != user_a_eliminar]
                         df_pro_final = df_pro_adm[df_pro_adm['USUARIO'] != user_a_eliminar]
                         
-                        # 2. Subimos los cambios a Google Sheets
                         conn.update(worksheet="USUARIOS", data=df_users_final)
                         conn.update(worksheet="PRONOSTICOS", data=df_pro_final)
                         
-                        # 3. Limpieza y reinicio
                         st.cache_data.clear()
-                        st.success(f"✅ {user_a_eliminar} ha sido eliminado.")
+                        st.success(f"✅ {user_a_eliminar} eliminado.")
                         st.rerun()
-                    except Exception as e:
-                        st.error(f"Error al eliminar: {e}")
+    else:
+        st.error("No tienes permisos para acceder a esta sección.")
         pass
