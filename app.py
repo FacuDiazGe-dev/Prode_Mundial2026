@@ -314,39 +314,35 @@ if menu == "🏠 Inicio":
 
 
 elif menu == "📝 Mis Pronósticos":
+    # --- COLUMNA CENTRAL (50%) ---
     with col_principal:
         st.subheader("📝 Mis Predicciones")
+        
+        # Ajuste de hora para Argentina
         ahora_arg = datetime.now() - timedelta(hours=3)        
-        
-        # --- CONFIGURACIÓN DE FECHA LÍMITE ---
-        # Fecha límite: 8 de junio de 2026 a las 23:59:59
-        
         fecha_limite = datetime(2026, 6, 8, 23, 59, 59)
-        ahora = datetime.now()
-        es_tiempo_valido = ahora < fecha_limite
+        es_tiempo_valido = ahora_arg < fecha_limite # Usamos ahora_arg para la validación
         
-        # --- CARGA DE DATOS ---
+        # Carga de datos
         user_actual = st.session_state['user_data']['USUARIO']
         df_res_p = conn.read(worksheet="RESULTADOS", ttl=0)
         df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
         df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
 
-        # --- AVISOS DE TIEMPO ---
-    if es_tiempo_valido:
-        st.success(f"⏳ Hora en Argentina: {ahora_arg.strftime('%H:%M')}. Tienes tiempo hasta el 08/06.")
-    else:
-        st.error(f"🔒 El plazo finalizó. Hora actual: {ahora_arg.strftime('%H:%M')}.")
+        # --- AVISOS DE TIEMPO (Ahora correctamente indentados) ---
+        if es_tiempo_valido:
+            st.success(f"⏳ Hora en Argentina: {ahora_arg.strftime('%H:%M')}. Tienes tiempo hasta el 08/06.")
+        else:
+            st.error(f"🔒 El plazo finalizó. Hora actual: {ahora_arg.strftime('%H:%M')}.")
         
         # --- LÓGICA DE EDICIÓN ---
-        
-        # Solo permitimos el toggle de edición si estamos dentro del plazo
         modo_edicion = False
         if es_tiempo_valido:
             modo_edicion = st.toggle("🔓 Habilitar Edición", help="Activa para modificar tus resultados guardados")
         
-        # El formulario se bloquea si pasó la fecha O si el usuario no activó el toggle
         esta_bloqueado = not (es_tiempo_valido and modo_edicion)
 
+        # --- FORMULARIO ---
         with st.form("form_pronosticos_v2"):
             lista_nuevos_pro = []
             
@@ -354,7 +350,6 @@ elif menu == "📝 Mis Pronósticos":
                 id_p = int(row['N_PARTIDO'])
                 match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
                 
-                # Valores recuperados del Sheet
                 v1 = int(match.iloc[0]['P1']) if not match.empty else 0
                 v2 = int(match.iloc[0]['P2']) if not match.empty else 0
                 
@@ -376,21 +371,19 @@ elif menu == "📝 Mis Pronósticos":
                 
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
 
-            # --- BOTÓN DE GUARDADO DINÁMICO ---
+            # --- BOTÓN DE GUARDADO ---
             if es_tiempo_valido and modo_edicion:
                 if st.form_submit_button("💾 Guardar Cambios", use_container_width=True):
-                    # Filtrar para no borrar a los demás usuarios
                     df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
                     df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
-                    
                     conn.update(worksheet="PRONOSTICOS", data=df_final)
                     st.cache_data.clear()
-                    st.success("✅ ¡Pronósticos actualizados exitosamente!")
+                    st.success("✅ ¡Pronósticos actualizados!")
                     st.rerun()
             else:
                 st.form_submit_button("🔒 Bloqueado", disabled=True, use_container_width=True)
 
-
+    # --- COLUMNA DERECHA (30%) ---
     with col_derecha:
         st.subheader("👤 Mi Perfil")
         u_data = st.session_state['user_data']
@@ -403,9 +396,6 @@ elif menu == "📝 Mis Pronósticos":
                 <p style="color: gray;">@{u_data['USUARIO']}</p>
             </div>
             <hr>
-            <p><b>🎂 Edad:</b> {u_data['EDAD']} años</p>
             <p><b>⚽ Equipo:</b> {u_data['EQUIPO FAVORITO']}</p>
             <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
         """, unsafe_allow_html=True)
-    
-    
