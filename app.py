@@ -248,16 +248,20 @@ with col_nav:
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 
 if menu == "🏠 Inicio":
-    # Usamos las columnas col_principal y col_derecha definidas arriba
+    # Cambiamos col_res por col_principal
     with col_principal:
         st.subheader("⚽ Resultados Oficiales")
-        # Aquí va tu bucle actual de resultados (for i, row in df_res.iterrows(): ...)
-        # Asegúrate de que esté indentado correctamente dentro de este bloque
-        
+        # Aquí va tu bucle de resultados
+        for i, row in df_res.iterrows():
+            # ... (todo tu código de banderas, r1, r2, etc.)
+            pass # Reemplaza este pass con tu código real de tarjetas de partidos
+
+    # Cambiamos col_rank por col_derecha
     with col_derecha:
         st.subheader("📊 Ranking")
         # Aquí va tu tabla de ranking y estadísticas
-
+        st.dataframe(df_ranking, use_container_width=True, hide_index=True)
+        
 elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Cargar Predicciones")
