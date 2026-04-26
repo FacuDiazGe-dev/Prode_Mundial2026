@@ -44,6 +44,45 @@ def get_flag_img(pais):
         pass
     
     return "⚽" # Fallback si falla la descarga
+#--------------------------------cargar foto drive----------------------------------
+
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+from google.oauth2 import service_account
+import io
+
+def subir_foto_a_drive(archivo, usuario):
+    try:
+        # Cargamos credenciales desde tus secretos de Streamlit
+        creds_info = st.secrets["connections"]["gsheets"]
+        creds = service_account.Credentials.from_service_account_info(creds_info)
+        
+        # Construimos el servicio de Drive
+        service = build('drive', 'v3', credentials=creds)
+        
+        # ID de tu carpeta FOTO_PRODE26
+        FOLDER_ID = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
+        
+        # Nombre del archivo (le ponemos el nombre del usuario para identificarlo)
+        file_metadata = {
+            'name': f"perfil_{usuario}.png",
+            'parents': [FOLDER_ID]
+        }
+        
+        # Preparamos la imagen
+        img_byte_arr = io.BytesIO(archivo.getvalue())
+        media = MediaIoBaseUpload(img_byte_arr, mimetype='image/png', resumable=True)
+        
+        # Subimos a Drive
+        file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        file_id = file.get('id')
+        
+        # Retornamos el link directo "mágico" para que se vea en el círculo
+        return f"https://googleusercontent.com{file_id}"
+    except Exception as e:
+        st.error(f"Error al conectar con Drive: {e}")
+        return None
+
 # ----LOGIN---
 # --- CONEXIÓN ---
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -506,39 +545,49 @@ elif menu == "📝 Mis Pronósticos":
                 st.rerun()
         
         else:
-            # --- VISTA DE EDICIÓN (Formulario) ---
-            with st.form("form_edit_perfil"):
-                st.write("📝 Actualizar mis datos")
-                nuevo_nombre = st.text_input("Nombre Real", value=u_data['NOMBRE'])
-                nueva_foto = st.text_input("URL de tu Foto (Link)", value=u_data['AVATAR_URL'], help="Puedes subir tu foto a un sitio como imgbb.com y pegar el link aquí")
-                nuevo_equipo = st.selectbox("Equipo Favorito", ["Argentina", "México", "Brasil", "España", "Otro"], index=0)
-                nueva_edad = st.number_input("Edad", 1, 100, int(u_data['EDAD']))
-                nueva_bio = st.text_area("Descripción/Bio", value=u_data['DESCRIPCION'], max_chars=100)
+            with st.form("form_edit_perfil_v2"):
+                st.write("### 📝 Editar mis datos")
                 
-                c1, c2 = st.columns(2)
-                if c1.form_submit_button("✅ Guardar"):
-                    # Lógica para actualizar en Google Sheets
+                # Selector de archivo
+                archivo_perfil = st.file_uploader("Sube tu foto de perfil", type=['jpg', 'jpeg', 'png'])
+                
+                n_nom = st.text_input("Nombre Real", value=u_data['NOMBRE'])
+                n_equ = st.selectbox("Hincha de", ["Argentina", "México", "España", "Brasil", "Otro"], index=0)
+                n_bio = st.text_area("Bio", value=u_data['DESCRIPCION'], max_chars=100)
+                
+                col_b1, col_b2 = st.columns(2)
+                
+                if col_b1.form_submit_button("✅ Guardar"):
+                    # Si subió una foto nueva, la mandamos a Drive
+                    nueva_url_foto = u_data['AVATAR_URL']
+                    if archivo_perfil:
+                        with st.spinner("Subiendo imagen a Drive..."):
+                            res_url = subir_foto_a_drive(archivo_perfil, u_data['USUARIO'])
+                            if res_url:
+                                nueva_url_foto = res_url
+
+                    # Actualizamos Google Sheets
                     df_u = conn.read(worksheet="USUARIOS", ttl=0)
-                    # Buscamos la fila del usuario y actualizamos
-                    df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'EDAD', 'DESCRIPCION']] = [nuevo_nombre, nueva_foto, nuevo_equipo, nueva_edad, nueva_bio]
+                    df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], 
+                           ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = \
+                           [n_nom, nueva_url_foto, n_equ, n_bio]
                     
                     conn.update(worksheet="USUARIOS", data=df_u)
                     
-                    # Actualizamos la sesión para que los cambios se vean ya
+                    # Actualizamos la sesión
                     st.session_state['user_data'].update({
-                        'NOMBRE': nuevo_nombre, 'AVATAR_URL': nueva_foto, 
-                        'EQUIPO FAVORITO': nuevo_equipo, 'EDAD': nueva_edad, 'DESCRIPCION': nueva_bio
+                        'NOMBRE': n_nom, 'AVATAR_URL': nueva_url_foto, 
+                        'EQUIPO FAVORITO': n_equ, 'DESCRIPCION': n_bio
                     })
                     
                     st.session_state.editando_perfil = False
-                    st.success("¡Perfil actualizado!")
                     st.cache_data.clear()
+                    st.success("¡Perfil actualizado con éxito!")
                     st.rerun()
                 
-                if c2.form_submit_button("❌ Cancelar"):
+                if col_b2.form_submit_button("❌ Cancelar"):
                     st.session_state.editando_perfil = False
                     st.rerun()
-
         
 # ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Jugadores":
