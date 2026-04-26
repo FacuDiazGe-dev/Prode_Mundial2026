@@ -527,7 +527,7 @@ elif menu == "📝 Mis Pronósticos":
             else:
                 st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
-        with col_derecha:
+with col_derecha:
         st.subheader("👤 Mi Perfil")
         u_data = st.session_state['user_data']
         
@@ -537,7 +537,6 @@ elif menu == "📝 Mis Pronósticos":
 
         if not st.session_state.editando_perfil:
             # --- VISTA DE LECTURA ---
-            # Si no hay foto, usamos un avatar genérico de alta calidad
             foto = u_data['AVATAR_URL'] if u_data['AVATAR_URL'] else "https://flaticon.com"
             
             st.markdown(f"""
@@ -560,8 +559,6 @@ elif menu == "📝 Mis Pronósticos":
             # --- VISTA DE EDICIÓN ---
             with st.form("form_edit_perfil_v2"):
                 st.write("### 📝 Editar mis datos")
-                
-                # Cargador de archivos nativo
                 archivo_perfil = st.file_uploader("Sube tu foto de perfil", type=['jpg', 'jpeg', 'png'])
                 
                 n_nom = st.text_input("Nombre Real", value=u_data['NOMBRE'])
@@ -575,15 +572,12 @@ elif menu == "📝 Mis Pronósticos":
                     
                     if archivo_perfil:
                         with st.spinner("Subiendo imagen a Google Drive..."):
-                            # Usamos la nueva función enviando los bytes (.getvalue())
                             res_url = upload_image_to_drive(archivo_perfil.getvalue(), f"perfil_{u_data['USUARIO']}.jpg")
-                            
                             if "Error" not in res_url:
                                 nueva_url_foto = res_url
                             else:
                                 st.error(f"No se pudo subir la foto: {res_url}")
 
-                    # Actualizamos Google Sheets
                     try:
                         df_u = conn.read(worksheet="USUARIOS", ttl=0)
                         df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], 
@@ -592,12 +586,9 @@ elif menu == "📝 Mis Pronósticos":
                         
                         conn.update(worksheet="USUARIOS", data=df_u)
                         
-                        # Sincronizamos la sesión actual
                         st.session_state['user_data'].update({
-                            'NOMBRE': n_nom, 
-                            'AVATAR_URL': nueva_url_foto, 
-                            'EQUIPO FAVORITO': n_equ, 
-                            'DESCRIPCION': n_bio
+                            'NOMBRE': n_nom, 'AVATAR_URL': nueva_url_foto, 
+                            'EQUIPO FAVORITO': n_equ, 'DESCRIPCION': n_bio
                         })
                         
                         st.session_state.editando_perfil = False
@@ -605,7 +596,7 @@ elif menu == "📝 Mis Pronósticos":
                         st.success("¡Perfil actualizado!")
                         st.rerun()
                     except Exception as e:
-                        st.error(f"Error al guardar en el Excel: {e}")
+                        st.error(f"Error al guardar: {e}")
                 
                 if col_b2.form_submit_button("❌ Cancelar"):
                     st.session_state.editando_perfil = False
