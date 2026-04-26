@@ -495,14 +495,61 @@ elif menu == "👥 Jugadores":
         if not df_usuarios.empty:
             nombres_jugadores = df_usuarios['NOMBRE'].tolist()
             nombre_sel = st.selectbox("Selecciona un jugador:", nombres_jugadores)
+            # Obtenemos la fila del usuario seleccionado
             user_sel = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel].iloc[0]
             
+            # --- LÓGICA DE GRÁFICO DE EVOLUCIÓN (DINÁMICO) ---
+            st.markdown("---")
+            st.subheader(f"📈 Evolución de {nombre_sel}")
+            
+            # Datos necesarios
+            df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
+            partidos_jugados = df_res.dropna(subset=['R1']).sort_values('N_PARTIDO')
+            
+            if partidos_jugados.empty:
+                st.info("La evolución aparecerá cuando el Admin cargue el primer resultado oficial.")
+            else:
+                evolucion_data = []
+                suma_user = 0
+                suma_liga = 0
+                total_jugadores = len(df_usuarios)
+
+                for _, res_row in partidos_jugados.iterrows():
+                    id_p = res_row['N_PARTIDO']
+                    
+                    # 1. Puntos del usuario seleccionado en este partido
+                    u_pr = df_pro_total[(df_pro_total['USUARIO'] == user_sel['USUARIO']) & (df_pro_total['N_PARTIDO'] == id_p)]
+                    if not u_pr.empty:
+                        pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], u_pr.iloc[0]['P1'], u_pr.iloc[0]['P2'])
+                        suma_user += pts
+                    
+                    # 2. Promedio de la liga en este partido
+                    pts_liga_partido = 0
+                    todos_pro_partido = df_pro_total[df_pro_total['N_PARTIDO'] == id_p]
+                    for _, p_row in todos_pro_partido.iterrows():
+                        p_pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], p_row['P1'], p_row['P2'])
+                        pts_liga_partido += p_pts
+                    
+                    suma_liga += (pts_liga_partido / total_jugadores) if total_jugadores > 0 else 0
+                    
+                    evolucion_data.append({
+                        "Partido": f"P{int(id_p)}",
+                        "Tus Puntos": suma_user,
+                        "Promedio Liga": round(suma_liga, 1)
+                    })
+
+                df_evo = pd.DataFrame(evolucion_data).set_index("Partido")
+                # Gráfico de área con dos líneas
+                st.area_chart(df_evo, color=["#28a745", "#adb5bd"])
+                st.caption("🟢 Tus Puntos acumulados | ⚪ Promedio de la Liga")
+
             st.markdown("---")
             st.write("### 📋 Lista General")
             st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
 
     with col_derecha:
         if 'user_sel' in locals():
+            # (Mantenemos tu bloque de perfil actual)
             foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
             st.markdown(f"""
                 <div style="text-align: center; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
@@ -515,17 +562,16 @@ elif menu == "👥 Jugadores":
                 </div>
             """, unsafe_allow_html=True)
             
-            # Pronósticos del jugador seleccionado
             st.markdown("---")
             st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
-            df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
-            pro_user_sel = df_pro_all[df_pro_all['USUARIO'] == user_sel['USUARIO']]
+            pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
             
             if not pro_user_sel.empty:
                 for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
                     st.write(f"Part {int(p['N_PARTIDO'])}: **{int(p['P1'])} - {int(p['P2'])}**")
             else:
                 st.warning("Sin pronósticos.")
+
 
 # ---------- MENU FORO ----------------------------------------------------
 elif menu == "💬 Foro":
