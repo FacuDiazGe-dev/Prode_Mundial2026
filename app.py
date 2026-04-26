@@ -400,6 +400,7 @@ elif menu == "📝 Mis Pronósticos":
             <p><b>⚽ Equipo:</b> {u_data['EQUIPO FAVORITO']}</p>
             <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
         """, unsafe_allow_html=True)
+        pass
         
     # --- SECCIÓN JUGADORES ---
     elif menu == "👥 Jugadores":
