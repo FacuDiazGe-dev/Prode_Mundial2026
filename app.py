@@ -306,50 +306,70 @@ with st.sidebar:
 
 if menu == "🏠 Inicio":
     with col_principal:
-        # --- BLOQUE 1: RESULTADOS (Últimos arriba para evitar scroll) ---
-        st.subheader("⚽ Resultados (Más recientes arriba)")
+        # --- BLOQUE 1: RESULTADOS (Tarjetas con Cabecera Central) ---
+        st.subheader("⚽ Resultados de la Fase de Grupos")
         
-        # Invertimos el DataFrame de resultados para que el 24 esté arriba
+        # Invertimos para ver lo más reciente arriba
         df_res_invertido = df_res.iloc[::-1]
 
-        with st.container(height=350): 
+        with st.container(height=500): 
             for i, row in df_res_invertido.iterrows():
                 r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
                 r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
                 
                 f1, f2 = get_flag_img(row['Equipo_1']), get_flag_img(row['Equipo_2'])
-                i1 = f'<img src="{f1}" width="20">' if "data" in f1 else f1
-                i2 = f'<img src="{f2}" width="20">' if "data" in f2 else f2
+                # Banderas nítidas
+                i1 = f'<img src="{f1}" width="35" style="border-radius:3px;">' if "data" in f1 else f1
+                i2 = f'<img src="{f2}" width="35" style="border-radius:3px;">' if "data" in f2 else f2
                 
-                # Resaltamos con color si el partido ya terminó
-                bg_color = "#e8f0fe" if r1 != "-" else "transparent"
-                
+                # Colores según estado del partido
+                color_tema = "#007bff" if r1 != "-" else "#6c757d"
+                bg_card = "#ffffff"
+
                 st.markdown(f"""
-                <div style="border-bottom:1px solid #eee; padding:8px; margin-bottom:2px; background:{bg_color}; border-radius:5px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.9em;">
-                        <div style="width:10%; color:gray;"><small>P{int(row['N_PARTIDO'])}</small></div>
-                        <div style="width:35%; text-align:right;">{row['Equipo_1']} {i1}</div>
-                        <div style="width:20%; text-align:center; background:#f0f2f6; border-radius:5px; font-weight:bold;">{r1} - {r2}</div>
-                        <div style="width:35%; text-align:left;">{i2} {row['Equipo_2']}</div>
+                <div style="border: 1px solid #ddd; border-top: 5px solid {color_tema}; border-radius: 12px; padding: 15px; margin-bottom: 20px; background-color: {bg_card}; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <!-- CABECERA CENTRAL -->
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <span style="font-size: 0.8em; font-weight: bold; color: {color_tema}; text-transform: uppercase; letter-spacing: 1px;">
+                            Partido Nº {int(row['N_PARTIDO'])}
+                        </span>
+                    </div>
+                    
+                    <!-- CUERPO DEL PARTIDO -->
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="width: 38%; text-align: center;">
+                            <div style="margin-bottom: 8px;">{i1}</div>
+                            <div style="font-weight: bold; font-size: 1.1em;">{row['Equipo_1']}</div>
+                        </div>
+                        
+                        <div style="width: 24%; text-align: center;">
+                            <div style="background: #f8f9fa; border: 1px solid #ddd; color: #333; font-size: 1.8em; font-weight: bold; border-radius: 8px; padding: 5px 0;">
+                                {r1} : {r2}
+                            </div>
+                        </div>
+                        
+                        <div style="width: 38%; text-align: center;">
+                            <div style="margin-bottom: 8px;">{i2}</div>
+                            <div style="font-weight: bold; font-size: 1.1em;">{row['Equipo_2']}</div>
+                        </div>
                     </div>
                 </div>""", unsafe_allow_html=True)
 
-        # --- BLOQUE 2: FORO (Últimos mensajes arriba) ---
-        st.subheader("💬 Últimos Comentarios")
+        # --- BLOQUE 2: FORO ---
+        st.subheader("💬 Actividad Reciente")
         df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
-        
-        # Mostramos los últimos 15 mensajes, más nuevo ARRIBA
-        ultimos_msg = df_foro_inicio.tail(15).iloc[::-1]
+        ultimos_msg = df_foro_inicio.tail(8).iloc[::-1]
 
-        with st.container(height=300):
+        with st.container(height=350):
             if ultimos_msg.empty:
-                st.write("No hay mensajes recientes.")
+                st.info("No hay mensajes aún.")
             else:
                 for _, m in ultimos_msg.iterrows():
                     with st.chat_message("user"):
                         st.markdown(f"**{m['NOMBRE']}** <small style='color:gray;'>{m['FECHA']}</small>", unsafe_allow_html=True)
                         st.write(m['MENSAJE'])
 
+#-----------------------------------------RANKING ------------------------------------------------------
     # 2. COLUMNA DERECHA (30%) - NOTA: Esta línea debe estar alineada con "with col_principal"
     with col_derecha:
         st.subheader("📊 Ranking")
