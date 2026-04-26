@@ -362,136 +362,138 @@ elif menu == "📝 Mis Pronósticos":
         """, unsafe_allow_html=True)
     
     # --- LÓGICA DE SECCIONES ---
-    if menu == "🏠 Inicio":
-        st.write(f"¡Hola **{st.session_state['user_data']['NOMBRE']}**!")
-        st.info("Selecciona 'Mis Pronósticos' para cargar tus resultados.")
+   # --- 1. DEFINICIÓN DE COLUMNAS PRINCIPALES (Fuera de los IF) ---
+col_nav, col_principal, col_derecha = st.columns([0.2, 0.5, 0.3])
+
+# --- 2. PANEL IZQUIERDO: NAVEGACIÓN SIEMPRE VISIBLE ---
+with col_nav:
+    st.subheader("📍 Navegación")
+    opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
+    if st.session_state['user_data']['ROL'] == 'admin':
+        opciones.append("⚙️ Panel Control")
+    
+    menu = st.radio("Ir a:", opciones, key="menu_navegacion")
+    st.markdown("---")
+    if st.button("🚪 Cerrar Sesión", use_container_width=True):
+        st.session_state['autenticado'] = False
+        st.rerun()
+
+# --- 3. LÓGICA DE SECCIONES (CONTENIDO CENTRAL Y DERECHO) ---
+
+if menu == "🏠 Inicio":
+    # CONTENIDO CENTRAL: RESULTADOS
+    with col_principal:
+        col_tit, col_btn = st.columns([0.85, 0.15])
+        with col_tit:
+            st.subheader("⚽ Resultados Oficiales")
+        with col_btn:
+            if st.session_state['user_data']['ROL'] == 'admin':
+                if st.button("🔄", help="Actualizar datos"):
+                    st.cache_data.clear()
+                    st.rerun()
+            
+        for i, row in df_res.iterrows():
+            r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
+            r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
+            
+            data_flag1 = get_flag_img(row['Equipo_1'])
+            data_flag2 = get_flag_img(row['Equipo_2'])
+            
+            img1_html = f'<img src="{data_flag1}" width="25">' if "data:image" in data_flag1 else data_flag1
+            img2_html = f'<img src="{data_flag2}" width="25">' if "data:image" in data_flag2 else data_flag2
+
+            st.markdown(f"""
+            <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 10px; background-color: white; color: #333;">
+                <div style="text-align: center; font-size: 0.7em; color: #999; margin-bottom: 5px;">PARTIDO {int(row['N_PARTIDO'])}</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="width: 40%; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                        <span style="font-weight: bold;">{row['Equipo_1']}</span>
+                        {img1_html}
+                    </div>
+                    <div style="width: 15%; text-align: center; background: #f0f0f0; border-radius: 4px; font-weight: bold; padding: 3px;">
+                        {r1} - {r2}
+                    </div>
+                    <div style="width: 40%; text-align: left; display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
+                        {img2_html}
+                        <span style="font-weight: bold;">{row['Equipo_2']}</span>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    # CONTENIDO DERECHO: RANKING
+    with col_derecha:
+        st.subheader("📊 Ranking")
+        st.dataframe(
+            df_ranking,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Nº": st.column_config.TextColumn("Nº", width="small"),
+                "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
+                "EXACTOS": st.column_config.NumberColumn("🎯"),
+                "GENERALES": st.column_config.NumberColumn("✅")
+            }
+        )
         
-    elif menu == "📝 Mis Pronósticos":
-        st.subheader("Mis Predicciones")
-        # Cargamos datos frescos de ambas tablas
-        df_res = conn.read(worksheet="RESULTADOS", ttl=0)
+        st.markdown("---")
+        st.subheader("📈 Estadísticas")
+        total_exactos = df_ranking["EXACTOS"].sum()
+        total_generales = df_ranking["GENERALES"].sum()
+        promedio_puntos = df_ranking["PUNTOS"].mean()
+        
+        st.metric(label="Total Exactos", value=int(total_exactos))
+        st.metric(label="Total Generales", value=int(total_generales))
+        st.metric(label="Promedio Puntos", value=f"{promedio_puntos:.1f}")
+
+elif menu == "📝 Mis Pronósticos":
+    with col_principal:
+        st.subheader("📝 Mis Predicciones")
+        df_res_p = conn.read(worksheet="RESULTADOS", ttl=0)
         df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
         user_actual = st.session_state['user_data']['USUARIO']
-        
-        # Filtramos lo que ya tiene el usuario
         df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
 
-        with st.form("form_pronosticos"):
-            st.caption("Carga tus goles para los 24 partidos:")
+        with st.form("form_pronosticos_full"):
             lista_nuevos_pro = []
-            
-            for i, row in df_res.iterrows():
+            for i, row in df_res_p.iterrows():
                 id_p = int(row['N_PARTIDO'])
-                # Buscamos si ya existe el pronóstico para este partido
                 match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
                 v1 = int(match.iloc[0]['P1']) if not match.empty else 0
                 v2 = int(match.iloc[0]['P2']) if not match.empty else 0
                 
-                # Diseño compacto para el lateral
-                st.write(f"**P{id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}")
-                c1, v, c2 = st.columns([1, 0.5, 1])
+                st.markdown(f"<div style='text-align:center; background:#eee; border-radius:5px;'>PARTIDO {id_p}</div>", unsafe_allow_html=True)
+                c1, v, c2 = st.columns([3, 1, 3])
                 with c1:
+                    st.write(row['Equipo_1'])
                     p1_val = st.number_input("G1", 0, 15, v1, key=f"p1_{id_p}", label_visibility="collapsed")
-                with v: st.write("-")
+                with v: st.write("vs")
                 with c2:
+                    st.write(row['Equipo_2'])
                     p2_val = st.number_input("G2", 0, 15, v2, key=f"p2_{id_p}", label_visibility="collapsed")
                 
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
-                st.markdown("<hr style='margin:2px'>", unsafe_allow_html=True)
+                st.markdown("---")
 
             if st.form_submit_button("💾 Guardar Todo", use_container_width=True):
-                # Quitamos lo viejo y ponemos lo nuevo
                 df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
                 df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
-                
                 conn.update(worksheet="PRONOSTICOS", data=df_final)
                 st.cache_data.clear()
                 st.success("¡Pronósticos guardados!")
                 st.rerun()
 
-    elif menu == "👥 Jugadores":
-        st.info("Aquí verás el perfil de tus oponentes próximamente.")
-        
-    elif menu == "💬 Foro":
-        st.info("Chat grupal en mantenimiento.")
-        
-    elif menu == "⚙️ Panel Control":
-        st.subheader("Administración")
-        st.write("Solo visible para administradores.")
-
-# 2. COLUMNA CENTRAL: RESULTADOS OFICIALES (50%)
-with col_res:
-    # Creamos una sub-columna interna para alinear el título y el botón
-    col_tit, col_btn = st.columns([0.85, 0.15])
-    
-    with col_tit:
-        st.subheader("⚽ Resultados Oficiales")
-    
-    with col_btn:
-        # Botón pequeño con emoji de flechas circulares
-        if st.button("🔄", help="Actualizar datos desde Google Sheets"):
-            st.cache_data.clear() # Limpia el cache
-            st.rerun() # Recarga la página con datos nuevos
-            
-    for i, row in df_res.iterrows():
-        
-        # DEFINICIÓN DE VARIABLES (Esto faltaba o estaba mal ubicado)
-        r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
-        r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
-        
-        # Obtener banderas (usando la función Base64 anterior)
-        data_flag1 = get_flag_img(row['Equipo_1'])
-        data_flag2 = get_flag_img(row['Equipo_2'])
-        
-        # Preparar el HTML de la imagen
-        img1_html = f'<img src="{data_flag1}" width="25">' if "data:image" in data_flag1 else data_flag1
-        img2_html = f'<img src="{data_flag2}" width="25">' if "data:image" in data_flag2 else data_flag2
-
-        # Renderizado
+    with col_derecha:
+        st.subheader("👤 Mi Perfil")
+        u_data = st.session_state['user_data']
+        foto = u_data['AVATAR_URL'] if u_data['AVATAR_URL'] else "https://flaticon.com"
         st.markdown(f"""
-        <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 10px; background-color: white; color: #333;">
-            <div style="text-align: center; font-size: 0.7em; color: #999; margin-bottom: 5px;">PARTIDO {int(row['N_PARTIDO'])}</div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="width: 40%; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
-                    <span style="font-weight: bold;">{row['Equipo_1']}</span>
-                    {img1_html}
-                </div>
-                <div style="width: 15%; text-align: center; background: #f0f0f0; border-radius: 4px; font-weight: bold; padding: 3px;">
-                    {r1} - {r2}
-                </div>
-                <div style="width: 40%; text-align: left; display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
-                    {img2_html}
-                    <span style="font-weight: bold;">{row['Equipo_2']}</span>
-                </div>
+            <div style="text-align: center;">
+                <img src="{foto}" style="border-radius: 50%; width: 120px; height: 120px; object-fit: cover; border: 3px solid #007bff;">
+                <h3>{u_data['NOMBRE']}</h3>
             </div>
-        </div>
+            <hr>
+            <p><b>⚽ Equipo:</b> {u_data['EQUIPO FAVORITO']}</p>
+            <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
         """, unsafe_allow_html=True)
-
-# 3. LATERAL DERECHO: RANKING Y ESTADÍSTICAS (30%)
-with col_rank:
-    st.subheader("📊 Ranking")
-    
-    # Tabla de Ranking sin el fuego en puntos
-    st.dataframe(
-        df_ranking,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "Nº": st.column_config.TextColumn("Nº", width="small"),
-            "PUNTOS": st.column_config.NumberColumn("PUNTOS"), # Sin fuego
-            "EXACTOS": st.column_config.NumberColumn("🎯"),
-            "GENERALES": st.column_config.NumberColumn("✅")
-        }
-    )
-    
-    # SECCIÓN DE ESTADÍSTICAS
-    st.markdown("---")
-    st.subheader("📈 Estadísticas Globales")
-    
-    total_exactos = df_ranking["EXACTOS"].sum()
-    total_generales = df_ranking["GENERALES"].sum()
-    promedio_puntos = df_ranking["PUNTOS"].mean()
-    
-    st.metric(label="Total Resultados Exactos", value=int(total_exactos))
-    st.metric(label="Total Aciertos Generales", value=int(total_generales))
-    st.metric(label="Promedio de Puntos", value=f"{promedio_puntos:.1f}")
+        
