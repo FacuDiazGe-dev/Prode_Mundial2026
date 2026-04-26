@@ -305,45 +305,50 @@ with st.sidebar:
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 
 if menu == "🏠 Inicio":
-    # 1. COLUMNA CENTRAL (50%)
-    with col_principal: 
-        col_tit, col_btn = st.columns([0.85, 0.15])
-        with col_tit:
-            st.subheader("⚽ Resultados Oficiales")
-        with col_btn:
-            if st.session_state['user_data']['ROL'] == 'admin':
-                if st.button("🔄", help="Actualizar datos", key="btn_refresco_inicio"):
-                    st.cache_data.clear()
-                    st.rerun()
+    with col_principal:
+        # --- BLOQUE 1: RESULTADOS OFICIALES (Slider de los últimos 5) ---
+        st.subheader("⚽ Últimos Resultados")
+        
+        # Filtramos partidos que ya tienen resultado (R1 no es nulo)
+        df_jugados = df_res.dropna(subset=['R1'])
+        # Tomamos los últimos 5 y los ordenamos para que el más nuevo esté abajo
+        ultimos_5_res = df_jugados.tail(5)
 
-        # Bucle de los 24 partidos
-        for i, row in df_res.iterrows():
-            r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
-            r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
-            
-            data_flag1 = get_flag_img(row['Equipo_1'])
-            data_flag2 = get_flag_img(row['Equipo_2'])
-            
-            img1_html = f'<img src="{data_flag1}" width="25">' if "data:image" in data_flag1 else data_flag1
-            img2_html = f'<img src="{data_flag2}" width="25">' if "data:image" in data_flag2 else data_flag2
+        # Contenedor con altura fija para forzar el scroll lateral si es necesario
+        with st.container(height=350): 
+            if ultimos_5_res.empty:
+                st.info("Aún no hay partidos finalizados.")
+            else:
+                for i, row in ultimos_5_res.iterrows():
+                    r1, r2 = int(row['R1']), int(row['R2'])
+                    f1, f2 = get_flag_img(row['Equipo_1']), get_flag_img(row['Equipo_2'])
+                    i1 = f'<img src="{f1}" width="25">' if "data" in f1 else f1
+                    i2 = f'<img src="{f2}" width="25">' if "data" in f2 else f2
+                    
+                    st.markdown(f"""
+                    <div style="border:1px solid #eee; border-radius:10px; padding:8px; margin-bottom:8px; background:#fff;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div style="width:40%; text-align:right; font-size:0.9em;">{row['Equipo_1']} {i1}</div>
+                            <div style="width:20%; text-align:center; background:#f0f2f6; border-radius:5px; font-weight:bold;">{r1} - {r2}</div>
+                            <div style="width:40%; text-align:left; font-size:0.9em;">{i2} {row['Equipo_2']}</div>
+                        </div>
+                    </div>""", unsafe_allow_html=True)
 
-            st.markdown(f"""
-            <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 10px; background-color: white; color: #333;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="width: 40%; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
-                        <span style="font-weight: bold;">{row['Equipo_1']}</span>
-                        {img1_html}
-                    </div>
-                    <div style="width: 15%; text-align: center; background: #f0f0f0; border-radius: 4px; font-weight: bold; padding: 3px;">
-                        {r1} - {r2}
-                    </div>
-                    <div style="width: 40%; text-align: left; display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
-                        {img2_html}
-                        <span style="font-weight: bold;">{row['Equipo_2']}</span>
-                    </div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+        # --- BLOQUE 2: RECORTE DEL FORO (Últimos 5 mensajes) ---
+        st.subheader("💬 Últimos Comentarios")
+        df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
+        
+        # Tomamos los últimos 5 y los invertimos para que el más reciente esté arriba
+        ultimos_5_msg = df_foro_inicio.tail(5).iloc[::-1]
+
+        with st.container(height=300):
+            if ultimos_5_msg.empty:
+                st.write("El muro está silencioso...")
+            else:
+                for _, m in ultimos_5_msg.iterrows():
+                    with st.chat_message("user"):
+                        st.markdown(f"**{m['NOMBRE']}** <small style='color:gray;'>{m['FECHA']}</small>", unsafe_allow_html=True)
+                        st.write(m['MENSAJE'])
 
     # 2. COLUMNA DERECHA (30%) - NOTA: Esta línea debe estar alineada con "with col_principal"
     with col_derecha:
