@@ -3,6 +3,8 @@ import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 from datetime import datetime
 from datetime import datetime, timedelta
+from google.auth.transport.requests import Request
+from googleapiclient.http import MediaIoBaseUpload
 
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
 st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
@@ -45,29 +47,46 @@ def get_flag_img(pais):
     return "⚽" # Fallback si falla la descarga
 #--------------------------------cargar foto drive----------------------------------
 
-def upload_profile_picture(file_bytes, file_name):
-    # Imports internos para evitar NameError
-    from google.oauth2 import service_account
-    from googleapiclient.discovery import build
-    from googleapiclient.http import MediaIoBaseUpload
-    import io
+import io
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+from google.oauth2 import service_account
+from google.auth.transport.requests import Request
 
-    st_secrets = st.secrets["connections"]["gsheets"]
-    SCOPES = ['https://googleapis.com']
-    folder_id = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
+def get_drive_service():
+    # 1. SCOPES CORRECTOS (Importante: drive.file y drive)
+    SCOPES = ['https://googleapis.com', 
+              'https://googleapis.com']
     
-    creds = service_account.Credentials.from_service_account_info(st_secrets, scopes=SCOPES)
-    service = build('drive', 'v3', credentials=creds)
+    creds_info = st.secrets["connections"]["gsheets"]
+    creds = service_account.Credentials.from_service_account_info(
+        creds_info, scopes=SCOPES
+    )
 
-    file_metadata = {'name': file_name, 'parents': [folder_id]}
+    # 2. FORZAR OBTENCIÓN DEL TOKEN (Soluciona el 'No access token')
+    if not creds.valid:
+        creds.refresh(Request())
+    
+    return build('drive', 'v3', credentials=creds)
 
-    if isinstance(file_bytes, bytes):
-        file_bytes = io.BytesIO(file_bytes)
-        
-    media = MediaIoBaseUpload(file_bytes, mimetype='image/jpeg', resumable=True)
-
+def upload_profile_picture(file_bytes, file_name):
     try:
-        # Subida configurada para usar tu cuota de espacio personal
+        service = get_drive_service()
+        folder_id = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
+        
+        # Metadatos
+        file_metadata = {
+            'name': file_name,
+            'parents': [folder_id]
+        }
+
+        # Preparar el archivo (soporta bytes o BytesIO)
+        if isinstance(file_bytes, bytes):
+            file_bytes = io.BytesIO(file_bytes)
+            
+        media = MediaIoBaseUpload(file_bytes, mimetype='image/jpeg', resumable=True)
+
+        # 3. SUBIDA (supportsAllDrives=True evita el error de Quota 403)
         file = service.files().create(
             body=file_metadata,
             media_body=media,
@@ -77,14 +96,14 @@ def upload_profile_picture(file_bytes, file_name):
 
         file_id = file.get('id')
 
-        # Permiso público automático
+        # 4. HACER PÚBLICO (Para que funcione el <img>)
         service.permissions().create(
             fileId=file_id,
             body={'type': 'anyone', 'role': 'reader'},
             supportsAllDrives=True
         ).execute()
 
-        # Link directo para el círculo de perfil
+        # Link directo final
         return f"https://drive.google.com/uc?export=view&id={file_id}"
 
     except Exception as e:
@@ -355,18 +374,17 @@ with st.sidebar:
     
     if archivo_test:
         if st.button("🚀 Subir a Drive", use_container_width=True):
-            with st.spinner("Conectando con Google Drive..."):
-                # Generamos un nombre de archivo único para la prueba
-                nombre_test = f"test_{datetime.now().strftime('%H%M%S')}.jpg"
-                resultado_url = upload_profile_picture(archivo_test.getvalue(), nombre_test)
-                
-                if "Error" in resultado_url:
-                    st.error(f"❌ Falló: {resultado_url}")
+            with st.spinner("Autenticando y subiendo..."):
+                nombre_t = f"test_{datetime.now().strftime('%H%M%S')}.jpg"
+                # Llamamos a la nueva función
+                resultado_url = upload_photo(archivo_test.getvalue(), nombre_t)
+            
+                if resultado_url:
+                    st.success("✅ ¡Token obtenido y subida exitosa!")
+                    st.image(resultado_url, caption="Foto desde Drive")
+                    st.code(resultado_url)
                 else:
-                    st.success("✅ ¡Subida Exitosa!")
-                    # Intentamos mostrar la imagen que acabamos de subir
-                    st.image(resultado_url, caption="Vista previa desde Drive")
-                    st.code(resultado_url, language="text")
+                    st.error("❌ Falló la subida. Revisa los logs.")
 
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 #------------------------------------------------MENU INICIO-----------------------------------------------
