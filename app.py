@@ -552,85 +552,89 @@ elif menu == "📝 Mis Pronósticos":
             else:
                 st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
-    # --- COLUMNA DERECHA: PERFIL EDITABLE ---
-    with col_derecha:
-        st.subheader("👤 Mi Perfil")
-        u_data = st.session_state['user_data']
-        
-        if 'editando_perfil' not in st.session_state:
-            st.session_state.editando_perfil = False
-
-        if not st.session_state.editando_perfil:
-            # Vista de lectura con avatar de W3Schools si está vacío
-            foto = u_data['AVATAR_URL'] if u_data['AVATAR_URL'] else "https://w3schools.com"
-            st.markdown(f"""
-                <div style="text-align: center;">
-                    <img src="{foto}" style="border-radius: 50%; width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
-                    <h3 style="margin-bottom: 0;">{u_data['NOMBRE']}</h3>
-                    <p style="color: gray;">@{u_data['USUARIO']}</p>
-                </div>
-                <hr>
-                <p><b>⚽ Equipo:</b> {u_data['EQUIPO FAVORITO']}</p>
-                <p><b>🎂 Edad:</b> {u_data['EDAD']} años</p>
-                <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
-            """, unsafe_allow_html=True)
-            
-            if st.button("⚙️ Editar Perfil", use_container_width=True):
-                st.session_state.editando_perfil = True
-                st.rerun()
-        else:
-            with st.form("form_edit_perfil_v3"):
-                st.write("### 📝 Editar Perfil")
-                
-                # CARGADOR DE FOTO (GCS)
-                archivo_perfil = st.file_uploader("Actualizar foto de perfil", type=['jpg', 'jpeg', 'png'])
-                
-                n_nom = st.text_input("Nombre Real", value=u_data['NOMBRE'])
-                n_equ = st.selectbox("Hincha de", ["Argentina", "México", "España", "Brasil", "Uruguay", "Colombia", "Otro"], index=0)
-                n_bio = st.text_area("Bio", value=u_data['DESCRIPCION'], max_chars=100)
-                
-                c_b1, c_b2 = st.columns(2)
-                
-                if c_b1.form_submit_button("✅ Guardar"):
-                    # Iniciamos con la URL que ya tiene el usuario por si no sube una nueva
-                    nueva_url = u_data['AVATAR_URL']
+# --- COLUMNA DERECHA: PERFIL EDITABLE ---
+with col_derecha:
+    st.subheader("👤 Mi Perfil")
+    u_data = st.session_state['user_data']
     
-                    if archivo_perfil:
-                        with st.spinner("Subiendo foto al servidor..."):
-                            # Generamos nombre único para evitar problemas de caché del navegador
-                            nombre_archivo = f"perfil_{u_data['USUARIO']}_{datetime.now().strftime('%H%M%S')}.jpg"
-                            # LLAMADA A LA FUNCIÓN (Asegúrate de que se llame upload_profile_picture arriba)
-                            res_url = upload_profile_picture(archivo_perfil, nombre_archivo)
-            
-                            if res_url and "Error" not in res_url:
-                                nueva_url = res_url
-                            else:
-                                st.error(f"Error al subir: {res_url}")
+    if 'editando_perfil' not in st.session_state:
+        st.session_state.editando_perfil = False
 
-                    try:
-                        # Guardado en Google Sheets
-                        df_u = conn.read(worksheet="USUARIOS", ttl=0)
-                        df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = [n_nom, nueva_url, n_equ, n_bio]
-                        conn.update(worksheet="USUARIOS", data=df_u)
+    if not st.session_state.editando_perfil:
+        # 1. Avatar por defecto si AVATAR_URL está vacío o es nulo
+        foto = u_data['AVATAR_URL'] if u_data.get('AVATAR_URL') else "https://ui-avatars.com/api/?name=" + u_data['NOMBRE'] + "&background=random"
+        
+        st.markdown(f"""
+            <div style="text-align: center;">
+                <img src="{foto}" style="border-radius: 50%; width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
+                <h3 style="margin-bottom: 0;">{u_data['NOMBRE']}</h3>
+                <p style="color: gray;">@{u_data['USUARIO']}</p>
+            </div>
+            <hr>
+            <p><b>⚽ Equipo:</b> {u_data['EQUIPO FAVORITO']}</p>
+            <p><b>🎂 Edad:</b> {u_data['EDAD']} años</p>
+            <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
+        """, unsafe_allow_html=True)
+        
+        if st.button("⚙️ Editar Perfil", use_container_width=True):
+            st.session_state.editando_perfil = True
+            st.rerun()
+    else:
+        with st.form("form_edit_perfil_v3"):
+            st.write("### 📝 Editar Perfil")
+            
+            # CARGADOR DE FOTO (GCS)
+            archivo_perfil = st.file_uploader("Actualizar foto de perfil", type=['jpg', 'jpeg', 'png'])
+            
+            n_nom = st.text_input("Nombre Real", value=u_data['NOMBRE'])
+            n_equ = st.selectbox("Hincha de", ["Argentina", "México", "España", "Brasil", "Uruguay", "Colombia", "Otro"], 
+                                 index=["Argentina", "México", "España", "Brasil", "Uruguay", "Colombia", "Otro"].index(u_data['EQUIPO FAVORITO']) if u_data['EQUIPO FAVORITO'] in ["Argentina", "México", "España", "Brasil", "Uruguay", "Colombia", "Otro"] else 0)
+            n_bio = st.text_area("Bio", value=u_data['DESCRIPCION'], max_chars=100)
+            
+            c_b1, c_b2 = st.columns(2)
+            
+            if c_b1.form_submit_button("✅ Guardar"):
+                nueva_url = u_data['AVATAR_URL']
+
+                if archivo_perfil:
+                    with st.spinner("Subiendo foto al servidor..."):
+                        # Generamos nombre único con timestamp para que la URL sea "nueva" para el navegador
+                        from datetime import datetime
+                        ts = datetime.now().strftime('%H%M%S')
+                        nombre_archivo = f"perfil_{u_data['USUARIO']}_{ts}.jpg"
                         
-                        # Actualizar Sesión en tiempo real
-                        st.session_state['user_data'].update({
-                            'NOMBRE': n_nom, 
-                            'AVATAR_URL': nueva_url, 
-                            'EQUIPO FAVORITO': n_equ, 
-                            'DESCRIPCION': n_bio
-                        })
-                        
-                        st.session_state.editando_perfil = False
-                        st.cache_data.clear()
-                        st.success("¡Perfil actualizado con éxito!")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Error al conectar con la base de datos: {e}")
-                
-                if c_b2.form_submit_button("❌ Cancelar"):
+                        # Llamada a tu función de subida corregida
+                        res_url = upload_profile_picture(archivo_perfil, nombre_archivo)
+        
+                        if res_url and "Error" not in res_url:
+                            nueva_url = res_url
+                        else:
+                            st.error(f"Error al subir: {res_url}")
+
+                try:
+                    # Guardado en Google Sheets
+                    df_u = conn.read(worksheet="USUARIOS", ttl=0)
+                    df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = [n_nom, nueva_url, n_equ, n_bio]
+                    conn.update(worksheet="USUARIOS", data=df_u)
+                    
+                    # Actualizar Sesión en tiempo real
+                    st.session_state['user_data'].update({
+                        'NOMBRE': n_nom, 
+                        'AVATAR_URL': nueva_url, 
+                        'EQUIPO FAVORITO': n_equ, 
+                        'DESCRIPCION': n_bio
+                    })
+                    
                     st.session_state.editando_perfil = False
+                    st.cache_data.clear()
+                    st.success("¡Perfil actualizado con éxito!")
                     st.rerun()
+                except Exception as e:
+                    st.error(f"Error al conectar con la base de datos: {e}")
+            
+            if c_b2.form_submit_button("❌ Cancelar"):
+                st.session_state.editando_perfil = False
+                st.rerun()
                 
 
 # ---------- MENU JUGADORES ----------------------------------------------------
