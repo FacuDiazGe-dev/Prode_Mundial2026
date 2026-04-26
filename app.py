@@ -84,7 +84,7 @@ def upload_photo(file_bytes, file_name):
         if isinstance(file_bytes, bytes):
             file_bytes = io.BytesIO(file_bytes)
             
-        media = MediaIoBaseUpload(file_bytes, mimetype='image/jpeg', resumable=True)
+        media = MediaIoBaseUpload(file_bytes, mimetype='application/octet-stream', resumable=True)
 
         # 3. SUBIDA (supportsAllDrives=True evita el error de Quota 403)
         file = service.files().create(
@@ -379,12 +379,16 @@ with st.sidebar:
                 # Llamamos a la nueva función
                 resultado_url = upload_photo(archivo_test.getvalue(), nombre_t)
             
-                if resultado_url:
-                    st.success("✅ ¡Token obtenido y subida exitosa!")
-                    st.image(resultado_url, caption="Foto desde Drive")
-                    st.code(resultado_url)
-                else:
-                    st.error("❌ Falló la subida. Revisa los logs.")
+        if resultado_url:
+            if resultado_url.startswith("https"):
+                st.success("✅ ¡Token obtenido y subida exitosa!")
+                # Solo mostramos la imagen si es una URL de verdad
+                st.image(resultado_url, caption="Foto desde Drive")
+                st.code(resultado_url)
+            else:
+                # Si resultado_url contiene el texto del "Error: ..."
+                st.error(f"❌ Falló la subida: {resultado_url}")
+
 
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 #------------------------------------------------MENU INICIO-----------------------------------------------
