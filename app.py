@@ -63,42 +63,33 @@ def subir_foto_a_drive(archivo, usuario):
         # ID de tu carpeta FOTO_PRODE26
         FOLDER_ID = "1xlP71aJSTIKpFUqBA7eYe47MKOQA43jU"
         
-        # 1. Buscamos si ya existe una foto anterior de este usuario para borrarla (opcional, evita llenar el Drive)
-        try:
-            query = f"name = 'perfil_{usuario}.png' and '{FOLDER_ID}' in parents and trashed = false"
-            results = service.files().list(q=query, fields="files(id)").execute()
-            for f in results.get('files', []):
-                service.files().delete(fileId=f['id']).execute()
-        except:
-            pass
-
-        # 2. Configuración del nuevo archivo
+        # 1. Configuración del archivo
         file_metadata = {
             'name': f"perfil_{usuario}.png",
             'parents': [FOLDER_ID]
         }
         
-        # Preparamos la imagen desde Streamlit
+        # Preparamos la imagen
         img_byte_arr = io.BytesIO(archivo.getvalue())
         media = MediaIoBaseUpload(img_byte_arr, mimetype='image/png', resumable=True)
         
-        # 3. Subimos a Drive
+        # 2. Subimos a Drive
         file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
         file_id = file.get('id')
 
-        # 4. IMPORTANTE: Hacer el archivo público para que se vea en la web
+        # 3. PASO CLAVE: Dar permiso de lectura para que se vea en la web
         service.permissions().create(
             fileId=file_id,
             body={'type': 'anyone', 'role': 'reader'}
         ).execute()
         
-        # 5. URL CORRECTA para visualizar en HTML (Thumbnail directo)
+        # 4. Retornamos el link de miniatura (es el más estable para Streamlit)
         return f"https://google.com{file_id}&sz=w500"
 
     except Exception as e:
-        # Esto te mostrará el error real si algo falla (ej: API no habilitada)
-        st.error(f"Error detallado: {type(e).__name__} - {e}")
+        st.error(f"Error al subir: {e}")
         return None
+
 
 # ----LOGIN---
 # --- CONEXIÓN ---
