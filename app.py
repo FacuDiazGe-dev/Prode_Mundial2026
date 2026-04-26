@@ -316,10 +316,12 @@ elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Mis Predicciones")
         ahora_arg = datetime.now() - timedelta(hours=3)
-
+        from datetime import datetime, timedelta
+        
         # --- CONFIGURACIÓN DE FECHA LÍMITE ---
         # Fecha límite: 8 de junio de 2026 a las 23:59:59
-        fecha_limite = datetime(2026, 4, 25, 22, 55, 00)
+        
+        fecha_limite = datetime(2026, 4, 25, 23, 00, 00)
         ahora = datetime.now()
         es_tiempo_valido = ahora < fecha_limite
         
