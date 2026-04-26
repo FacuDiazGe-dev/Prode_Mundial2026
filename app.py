@@ -54,7 +54,6 @@ import io
 def upload_image_to_drive(file_bytes, file_name):
     try:
         creds_info = st.secrets["connections"]["gsheets"]
-        # Es vital incluir el Scope de Drive para que tenga permiso de escritura
         SCOPES = ['https://googleapis.com']
         creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES)
         service = build('drive', 'v3', credentials=creds)
@@ -69,29 +68,27 @@ def upload_image_to_drive(file_bytes, file_name):
         fh = io.BytesIO(file_bytes)
         media = MediaIoBaseUpload(fh, mimetype='image/jpeg', resumable=True)
         
-        # Subida con soporte para evitar error de cuota
+        # EL TRUCO PARA LA CUOTA:
         file = service.files().create(
             body=file_metadata,
             media_body=media,
             fields='id',
-            supportsAllDrives=True 
+            supportsAllDrives=True, # Permite usar carpetas compartidas
+            ignoreDefaultVisibility=True # Evita conflictos de cuota
         ).execute()
         
         file_id = file.get('id')
         
-        # Hacemos el archivo público para que el link de visualización funcione
+        # Hacerlo público para ver en el <img>
         service.permissions().create(
             fileId=file_id,
             body={'type': 'anyone', 'role': 'reader'}
         ).execute()
 
-        # RETORNO CON EL FORMATO QUE SOLICITASTE
-        return f"https://drive.google.com/uc?export=view&id={file_id}"
+        return f"https://google.com{file_id}"
     
     except Exception as e:
         return f"Error: {e}"
-
-
 
 # ----LOGIN---
 # --- CONEXIÓN ---
