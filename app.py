@@ -449,9 +449,9 @@ if menu == "🏠 Inicio":
                     "GENERALES": st.column_config.NumberColumn("✅")
                 }
             )
-    except Exception as e:
-        st.error("No se pudo cargar el ranking. Reintentando...")
-        st.cache_data.clear()
+        except Exception as e:
+            st.error("No se pudo cargar el ranking. Reintentando...")
+            st.cache_data.clear()
 
         st.markdown("---")
         st.subheader("📈 Estadísticas")
