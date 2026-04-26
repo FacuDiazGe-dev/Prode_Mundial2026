@@ -401,7 +401,7 @@ elif menu == "📝 Mis Pronósticos":
             <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
         """, unsafe_allow_html=True)
         
-# --- SECCIÓN JUGADORES ---
+    # --- SECCIÓN JUGADORES ---
     elif menu == "👥 Jugadores":
         with col_principal:
             st.subheader("👥 Jugadores Inscritos")
@@ -420,7 +420,8 @@ elif menu == "📝 Mis Pronósticos":
                 user_sel_df = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel]
                 
                 if not user_sel_df.empty:
-                    user_sel = user_sel_df.iloc[0] # Tomamos la primera coincidencia
+                    # Usamos iloc[0] para extraer la fila como objeto
+                    user_sel = user_sel_df.iloc[0]
                     
                     st.markdown("---")
                     st.write("### 📋 Lista General")
@@ -446,7 +447,7 @@ elif menu == "📝 Mis Pronósticos":
                 st.markdown("---")
                 st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
                 
-                # Cargamos pronósticos y resultados para mostrar nombres de equipos
+                # Cargamos pronósticos y resultados para comparar
                 df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
                 df_res_ref = conn.read(worksheet="RESULTADOS", ttl=0)
                 pro_user_sel = df_pro_all[df_pro_all['USUARIO'] == user_sel['USUARIO']]
@@ -454,28 +455,17 @@ elif menu == "📝 Mis Pronósticos":
                 if pro_user_sel.empty:
                     st.warning("Este jugador aún no cargó pronósticos.")
                 else:
-                    # Ordenamos por número de partido
                     pro_user_sel = pro_user_sel.sort_values('N_PARTIDO')
                     for _, p in pro_user_sel.iterrows():
-                        # Buscamos la info del partido para mostrar los nombres de los equipos
-                        p_info = df_res_ref[df_res_ref['N_PARTIDO'] == p['N_PARTIDO']].iloc[0]
-                        
-                        st.markdown(f"""
-                        <div style="display: flex; justify-content: space-between; font-size: 0.8em; border-bottom: 1px solid #eee; padding: 4px 0;">
-                            <div style="width: 10%; color: #999;">{int(p['N_PARTIDO'])}</div>
-                            <div style="width: 70%;">{p_info['Equipo_1']} vs {p_info['Equipo_2']}</div>
-                            <div style="width: 20%; text-align: right; font-weight: bold; color: #28a745;">{int(p['P1'])} - {int(p['P2'])}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
+                        # Buscamos la info del partido
+                        p_match = df_res_ref[df_res_ref['N_PARTIDO'] == p['N_PARTIDO']]
+                        if not p_match.empty:
+                            p_info = p_match.iloc[0]
+                            st.markdown(f"""
+                            <div style="display: flex; justify-content: space-between; font-size: 0.8em; border-bottom: 1px solid #eee; padding: 4px 0;">
+                                <div style="width: 10%; color: #999;">{int(p['N_PARTIDO'])}</div>
+                                <div style="width: 70%;">{p_info['Equipo_1']} vs {p_info['Equipo_2']}</div>
+                                <div style="width: 20%; text-align: right; font-weight: bold; color: #28a745;">{int(p['P1'])} - {int(p['P2'])}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
 
-    # --- SECCIÓN FORO (OPCIONAL/VACÍA) ---
-    elif menu == "💬 Foro":
-        with col_principal:
-            st.subheader("💬 Foro de Discusión")
-            st.info("Próximamente: Chat en vivo para comentar los partidos.")
-
-    # --- SECCIÓN PANEL CONTROL (SOLO ADMIN) ---
-    elif menu == "⚙️ Panel Control":
-        if st.session_state['user_data']['ROL'] == 'admin':
-            # Aquí va el código de tu Panel de Control que ya armamos
-            pass
