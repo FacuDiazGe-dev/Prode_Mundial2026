@@ -557,9 +557,10 @@ elif menu == "📝 Mis Pronósticos":
                 st.session_state.editando_perfil = True
                 st.rerun()
         else:
-            with st.form("form_edit_perfil_v2"):
-                st.write("### 📝 Editar mis datos")
-                archivo_perfil = st.file_uploader("Sube tu foto de perfil", type=['jpg', 'jpeg', 'png'])
+            with st.form("form_edit_perfil"):
+                st.write("### 📝 Editar Perfil")
+                # Quitamos el file_uploader de Drive y ponemos un texto
+                n_foto = st.text_input("Link de tu foto (opcional)", value=u_data['AVATAR_URL'], placeholder="https://ejemplo.com")
                 n_nom = st.text_input("Nombre Real", value=u_data['NOMBRE'])
                 n_equ = st.selectbox("Hincha de", ["Argentina", "México", "España", "Brasil", "Uruguay", "Colombia", "Otro"])
                 n_bio = st.text_area("Bio", value=u_data['DESCRIPCION'], max_chars=100)
