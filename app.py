@@ -235,16 +235,27 @@ for _, u_row in df_users_list.iterrows():
     # Filtramos todos los pronósticos de este usuario de una vez
     pronos_usuario = df_pro_total[df_pro_total['USUARIO'] == u_nick]
     
-    # Comparamos con cada resultado oficial cargado
+# Iteramos sobre la lista de usuarios reales
+for _, u_row in df_users_list.iterrows():
+    u_nick = u_row['USUARIO']
+    u_nombre = u_row['NOMBRE']
     
+    total_pts, total_exa, total_gen = 0, 0, 0
+    
+    # Filtramos todos los pronósticos de este usuario
+    pronos_usuario = df_pro_total[df_pro_total['USUARIO'] == u_nick]
+    
+    # Comparamos con cada resultado oficial cargado
     for _, res_row in df_res_oficial.iterrows():
         id_p = res_row['N_PARTIDO']
                     
         # Buscamos el pronóstico de este usuario para este partido
         p_row = pronos_usuario[pronos_usuario['N_PARTIDO'] == id_p]
         
-if not p_row.empty:
+        # Este IF debe estar DENTRO del for de los partidos
+        if not p_row.empty:
             # Usamos tu función calcular_detalle()
+            # Accedemos con iloc[0] para obtener los valores de la fila
             pts, exa, gen = calcular_detalle(
                 res_row['R1'], res_row['R2'],
                 p_row.iloc[0]['P1'], p_row.iloc[0]['P2']
@@ -253,12 +264,14 @@ if not p_row.empty:
             total_exa += exa
             total_gen += gen
             
+    # Este APPEND debe estar FUERA del for de partidos, pero DENTRO del for de usuarios
     ranking_data.append({
         "JUGADOR": u_nombre,
         "PUNTOS": total_pts,
         "EXACTOS": total_exa,
         "GENERALES": total_gen
     })
+
 
 # 3. Creamos el DataFrame y ordenamos (Puntos y luego Exactos como desempate)
 df_ranking = pd.DataFrame(ranking_data).sort_values(by=["PUNTOS", "EXACTOS"], ascending=False).reset_index(drop=True)
