@@ -329,13 +329,13 @@ df_ranking = df_ranking[["Nº", "JUGADOR", "PUNTOS", "EXACTOS", "GENERALES"]]
 col_principal, col_derecha = st.columns([0.6, 0.4])
 
 # 1. NAVEGACIÓN EN EL SIDEBAR (Ideal para móviles y PC)
+# --- 1. NAVEGACIÓN EN EL SIDEBAR ---
 with st.sidebar:
     st.subheader("📍 Navegación")
     opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
     if st.session_state['user_data']['ROL'] == 'admin':
         opciones.append("⚙️ Panel Control")
     
-    # Creamos el menú aquí adentro
     menu = st.radio("Ir a:", opciones, key="menu_navegacion_unificado")
     
     st.markdown("---")
@@ -343,7 +343,27 @@ with st.sidebar:
     if st.button("🚪 Cerrar Sesión", use_container_width=True):
         st.session_state['autenticado'] = False
         st.rerun()
-        
+
+    # --- LABORATORIO DE PRUEBA: SUBIDA A DRIVE ---
+    st.markdown("---")
+    st.subheader("🧪 Test de Subida")
+    archivo_test = st.file_uploader("Probá subir una foto aquí", type=['jpg', 'png', 'jpeg'], key="test_uploader")
+    
+    if archivo_test:
+        if st.button("🚀 Subir a Drive", use_container_width=True):
+            with st.spinner("Conectando con Google Drive..."):
+                # Generamos un nombre de archivo único para la prueba
+                nombre_test = f"test_{datetime.now().strftime('%H%M%S')}.jpg"
+                resultado_url = upload_profile_picture(archivo_test.getvalue(), nombre_test)
+                
+                if "Error" in resultado_url:
+                    st.error(f"❌ Falló: {resultado_url}")
+                else:
+                    st.success("✅ ¡Subida Exitosa!")
+                    # Intentamos mostrar la imagen que acabamos de subir
+                    st.image(resultado_url, caption="Vista previa desde Drive")
+                    st.code(resultado_url, language="text")
+
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 #------------------------------------------------MENU INICIO-----------------------------------------------
 
