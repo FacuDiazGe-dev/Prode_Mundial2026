@@ -283,15 +283,6 @@ df_ranking = df_ranking[["Nº", "JUGADOR", "PUNTOS", "EXACTOS", "GENERALES"]]
 
 # --- VISUALIZACIÓN ---
 # --- NAVEGACIÓN EN SIDEBAR (OPTIMIZADO PARA MÓVILES) ---
-with st.sidebar:
-    st.markdown("---")
-    st.subheader("📍 Navegación")
-    opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
-    if st.session_state['user_data']['ROL'] == 'admin':
-        opciones.append("⚙️ Panel Control")
-    
-    menu = st.radio("Ir a:", opciones, key="menu_nav_principal")
-
 # --- ESTRUCTURA PRINCIPAL DE DISEÑO (PROPORCIONES 60/40) ---
 col_principal, col_derecha = st.columns([0.6, 0.4])
 
