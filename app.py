@@ -315,7 +315,8 @@ if menu == "🏠 Inicio":
 elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Mis Predicciones")
-        
+        ahora_arg = datetime.now() - timedelta(hours=3)
+
         # --- CONFIGURACIÓN DE FECHA LÍMITE ---
         # Fecha límite: 8 de junio de 2026 a las 23:59:59
         fecha_limite = datetime(2026, 4, 25, 22, 55, 00)
@@ -329,13 +330,13 @@ elif menu == "📝 Mis Pronósticos":
         df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
 
         # --- AVISOS DE TIEMPO ---
-        if es_tiempo_valido:
-            dias_restantes = (fecha_limite - ahora).days
-            st.success(f"⏳ Tienes tiempo para editar hasta el 08/06/2026 (Faltan {dias_restantes} días).")
-        else:
-            st.error("🔒 El plazo de carga ha finalizado. Los pronósticos están congelados.")
-
+    if es_tiempo_valido:
+        st.success(f"⏳ Hora en Argentina: {ahora_arg.strftime('%H:%M')}. Tienes tiempo hasta el 08/06.")
+    else:
+        st.error(f"🔒 El plazo finalizó. Hora actual: {ahora_arg.strftime('%H:%M')}.")
+        
         # --- LÓGICA DE EDICIÓN ---
+        
         # Solo permitimos el toggle de edición si estamos dentro del plazo
         modo_edicion = False
         if es_tiempo_valido:
