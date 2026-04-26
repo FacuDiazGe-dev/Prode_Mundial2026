@@ -267,23 +267,21 @@ elif menu == "📝 Mis Pronósticos":
         user_actual = st.session_state['user_data']['USUARIO']
         df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
 
-        with st.form("form_pronosticos_v2"):
-            lista_nuevos_pro = []
-        for i, row in df_res.iterrows():
-            id_p = int(row['N_PARTIDO'])
-            # Filtramos el pronóstico para este partido específico
-            match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
-            
-            # CORRECCIÓN DE INDENTACIÓN Y SINTAXIS:
-            if not match.empty:
-                # Usamos .iloc[0] para extraer el valor de la primera fila encontrada
-                v1 = int(match.iloc[0]['P1']) if pd.notna(match.iloc[0]['P1']) else 0
-                v2 = int(match.iloc[0]['P2']) if pd.notna(match.iloc[0]['P2']) else 0
-            else:
-                v1 = 0
-                v2 = 0
+      with st.form("form_pronosticos_v2"):
+    lista_nuevos_pro = []
+    
+    # Todo el bucle FOR debe estar dentro del WITH FORM
+    for i, row in df_res.iterrows():
+        id_p = int(row['N_PARTIDO'])
+        match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
+        
+        if not match.empty:
+            v1 = int(match.iloc[0]['P1']) if pd.notna(match.iloc[0]['P1']) else 0
+            v2 = int(match.iloc[0]['P2']) if pd.notna(match.iloc[0]['P2']) else 0
+        else:
+            v1, v2 = 0, 0
                 
-                # Diseño idéntico a Resultados Oficiales
+            # Diseño idéntico a Resultados Oficiales
                 st.markdown(f"""
                 <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 5px; background-color: #f9f9f9; text-align: center;">
                     <small>PARTIDO {id_p}</small>
@@ -298,16 +296,18 @@ elif menu == "📝 Mis Pronósticos":
                 with c2:
                     st.write(f"**{row['Equipo_2']}**")
                     p2_val = st.number_input("G2", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed")
-                
+
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
             
-            if st.form_submit_button("💾 Guardar Pronósticos", use_container_width=True):
-                df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
-                df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
-                conn.update(worksheet="PRONOSTICOS", data=df_final)
-                st.cache_data.clear()
-                st.success("✅ ¡Guardado!")
-                st.rerun()
+    enviar = st.form_submit_button("💾 Guardar Pronósticos", use_container_width=True)
+    
+    if enviar:
+        df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
+        df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
+        conn.update(worksheet="PRONOSTICOS", data=df_final)
+        st.cache_data.clear()
+        st.success("✅ ¡Guardado!")
+        st.rerun()
 
     with col_derecha:
         st.subheader("👤 Mi Perfil")
