@@ -601,7 +601,7 @@ elif menu == "👥 Jugadores":
                                     <span title="On Fire (Racha de Exactos)" style="font-size: 1.5em; {css_onfire}">🔥<small style="font-size:0.5em; font-weight:bold;">{label_fire}</small></span>
                                     <span title="Mentalista (Más aciertos generales)" style="font-size: 1.5em; {css_mentalista}">🧙‍♂️</span>
                                     <span title="Fundador (Top 3)" style="font-size: 1.5em; {css_fundador}">🥇</span>
-                                    <span title="El más Burro (Último lugar)" style="font-size: 1.5em; {css_burro}">🪵</span>
+                                    <span title="El más Burro (Último lugar)" style="font-size: 1.5em; {css_burro}">🫏</span
                                 </div>
                             </div>
                             <div style="font-size: 0.8em; color: #444; line-height: 1.2;"><i>"{user_sel['DESCRIPCION']}"</i></div>
