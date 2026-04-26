@@ -235,27 +235,71 @@ col_extra, col_res, col_rank = st.columns([0.2, 0.5, 0.3])
 with col_extra:
     st.subheader("📍 Navegación")
     
-    # Creamos el menú de opciones
-    menu = st.radio(
-        "Ir a:",
-        ["🏠 Inicio", "👥 Jugadores", "💬 Foro"],
-        key="menu_navegacion"
-    )
+    # Definimos las opciones del menú
+    opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
+    if st.session_state['user_data']['ROL'] == 'admin':
+        opciones.append("⚙️ Panel Control")
     
+    menu = st.radio("Ir a:", opciones, key="menu_navegacion")
     st.markdown("---")
     
-    # Lógica para mostrar contenido según la sección elegida
+    # --- LÓGICA DE SECCIONES ---
     if menu == "🏠 Inicio":
-        st.write("Bienvenido al Prode Oficial.")
-        st.info("Aquí verás las noticias generales próximamente.")
+        st.write(f"¡Hola **{st.session_state['user_data']['NOMBRE']}**!")
+        st.info("Selecciona 'Mis Pronósticos' para cargar tus resultados.")
         
+    elif menu == "📝 Mis Pronósticos":
+        st.subheader("Mis Predicciones")
+        # Cargamos datos frescos de ambas tablas
+        df_res = conn.read(worksheet="RESULTADOS", ttl=0)
+        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
+        user_actual = st.session_state['user_data']['USUARIO']
+        
+        # Filtramos lo que ya tiene el usuario
+        df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
+
+        with st.form("form_pronosticos"):
+            st.caption("Carga tus goles para los 24 partidos:")
+            lista_nuevos_pro = []
+            
+            for i, row in df_res.iterrows():
+                id_p = int(row['N_PARTIDO'])
+                # Buscamos si ya existe el pronóstico para este partido
+                match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
+                v1 = int(match.iloc[0]['P1']) if not match.empty else 0
+                v2 = int(match.iloc[0]['P2']) if not match.empty else 0
+                
+                # Diseño compacto para el lateral
+                st.write(f"**P{id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}")
+                c1, v, c2 = st.columns([1, 0.5, 1])
+                with c1:
+                    p1_val = st.number_input("G1", 0, 15, v1, key=f"p1_{id_p}", label_visibility="collapsed")
+                with v: st.write("-")
+                with c2:
+                    p2_val = st.number_input("G2", 0, 15, v2, key=f"p2_{id_p}", label_visibility="collapsed")
+                
+                lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
+                st.markdown("<hr style='margin:2px'>", unsafe_allow_html=True)
+
+            if st.form_submit_button("💾 Guardar Todo", use_container_width=True):
+                # Quitamos lo viejo y ponemos lo nuevo
+                df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
+                df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
+                
+                conn.update(worksheet="PRONOSTICOS", data=df_final)
+                st.cache_data.clear()
+                st.success("¡Pronósticos guardados!")
+                st.rerun()
+
     elif menu == "👥 Jugadores":
-        st.write("Sección de Jugadores")
-        st.info("Aquí pondremos las fotos o perfiles de los participantes.")
+        st.info("Aquí verás el perfil de tus oponentes próximamente.")
         
     elif menu == "💬 Foro":
-        st.write("Espacio de Discusión")
-        st.info("Aquí activaremos un chat para los comentarios.")
+        st.info("Chat grupal en mantenimiento.")
+        
+    elif menu == "⚙️ Panel Control":
+        st.subheader("Administración")
+        st.write("Solo visible para administradores.")
 
 # 2. COLUMNA CENTRAL: RESULTADOS OFICIALES (50%)
 with col_res:
