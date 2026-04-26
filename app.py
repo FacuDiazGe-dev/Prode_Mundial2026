@@ -367,23 +367,19 @@ with st.sidebar:
 
         # --- BLOQUE 2: FORO -----------------------------------------------------------
             # --- BLOQUE 2: RECORTE DEL FORO ESTILO WHATSAPP ---
+        
         st.subheader("💬 Actividad Reciente")
         df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
-        
         with st.container(height=350):
             if df_foro_inicio.empty:
                 st.info("No hay mensajes aún.")
             else:
-                user_actual = st.session_state['user_data']['USUARIO']
-                # Tomamos los últimos 10
-                ultimos_msg = df_foro_inicio.tail(10)
-                
-                for index, m in ultimos_msg.iloc[::-1].iterrows():
-                    # Lógica de estilo WhatsApp
-                    es_mio = m['USUARIO'] == user_actual
-                    align = "flex-end" if es_mio else "flex-start"
-                    bg_color = "#dcf8c6" if es_mio else "#ffffff"
-                               
+                u_act = st.session_state['user_data']['USUARIO']
+                for idx, m in df_foro_inicio.tail(10).iloc[::-1].iterrows():
+                    es_m = m['USUARIO'] == u_act
+                    aln = "flex-end" if es_m else "flex-start"
+                    bg = "#dcf8c6" if es_m else "#ffffff"
+                    
                     st.markdown(f"""
                         <div style="display: flex; flex-direction: column; align-items: {align}; margin-bottom: 10px; width: 100%;">
                             <div style="max-width: 85%; background-color: {bg_color}; padding: 10px 12px; border-radius: 18px; border: 1px solid #ddd; box-shadow: 1px 1px 3px rgba(0,0,0,0.1);">
@@ -401,9 +397,7 @@ with st.sidebar:
     # 2. COLUMNA DERECHA (30%) - NOTA: Esta línea debe estar alineada con "with col_principal"
     with col_derecha:
         st.subheader("📊 Ranking")
-        st.dataframe(
-            df_ranking,
-            use_container_width=True,
+        st.dataframe(df_ranking, use_container_width=True, hide_index=True)
             hide_index=True,
             column_config={
                 "Nº": st.column_config.TextColumn("Nº", width="small"),
