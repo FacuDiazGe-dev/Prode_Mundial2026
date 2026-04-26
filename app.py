@@ -400,67 +400,82 @@ elif menu == "📝 Mis Pronósticos":
             <p><b>⚽ Equipo:</b> {u_data['EQUIPO FAVORITO']}</p>
             <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
         """, unsafe_allow_html=True)
- # --- MENU JUGADORES  ---------------------------------------------------------
-        elif menu == "👥 Jugadores":
-    # Ajustamos proporciones dinámicamente para esta sección si lo deseas, 
-    # o mantenemos la estructura 20/40/40 usando col_principal y col_derecha.
-    
-    with col_principal:
-        st.subheader("👥 Jugadores Inscritos")
         
-        # Leemos la lista de usuarios
-        df_usuarios = conn.read(worksheet="USUARIOS", ttl=600)
-        
-        # Creamos una lista de nombres para el selector
-        lista_nombres = df_usuarios['NOMBRE'].tolist()
-        
-        st.write("Selecciona un jugador para ver su perfil y sus cartas:")
-        nombre_seleccionado = st.selectbox("Buscar jugador", lista_nombres, label_visibility="collapsed")
-        
-        # Obtenemos los datos del usuario seleccionado
-        user_sel = df_usuarios[df_usuarios['NOMBRE'] == nombre_seleccionado].iloc[0]
-        
-        # Listado simple en la columna central para rellenar espacio si quieres
-        st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
-
-    with col_derecha:
-        # --- 1. PERFIL DEL JUGADOR SELECCIONADO ---
-        foto_sel = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
-        
-        st.markdown(f"""
-            <div style="text-align: center; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
-                <img src="{foto_sel}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 2px solid #28a745;">
-                <h4 style="margin: 10px 0 0 0;">{user_sel['NOMBRE']}</h4>
-                <p style="color: #666; font-size: 0.9em;">@{user_sel['USUARIO']}</p>
-                <hr>
-                <p style="font-size: 0.85em; text-align: left;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}<br>
-                <b>📝 Bio:</b> <i>"{user_sel['DESCRIPCION']}"</i></p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("---")
-        
-        # --- 2. PRONÓSTICOS COMPACTOS ---
-        st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
-        
-        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=600)
-        df_res = conn.read(worksheet="RESULTADOS", ttl=600)
-        
-        # Filtramos los pronósticos del usuario seleccionado
-        pro_user_sel = df_pro_all[df_pro_all['USUARIO'] == user_sel['USUARIO']]
-        
-        if pro_user_sel.empty:
-            st.warning("Este jugador aún no ha cargado sus pronósticos.")
-        else:
-            # Mostramos una lista compacta
-            for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
-                # Buscamos nombres de equipos en df_res
-                partido_info = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']].iloc[0]
+# --- SECCIÓN JUGADORES ---
+    elif menu == "👥 Jugadores":
+        with col_principal:
+            st.subheader("👥 Jugadores Inscritos")
+            
+            # Leemos usuarios
+            df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
+            
+            if df_usuarios.empty:
+                st.info("Aún no hay jugadores registrados.")
+            else:
+                st.write("Selecciona un jugador para ver su perfil y sus predicciones:")
+                nombres_jugadores = df_usuarios['NOMBRE'].tolist()
+                nombre_sel = st.selectbox("Buscar jugador", nombres_jugadores, label_visibility="collapsed")
                 
+                # Buscamos la fila del usuario seleccionado
+                user_sel_df = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel]
+                
+                if not user_sel_df.empty:
+                    user_sel = user_sel_df.iloc[0] # Tomamos la primera coincidencia
+                    
+                    st.markdown("---")
+                    st.write("### 📋 Lista General")
+                    st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
+
+        with col_derecha:
+            # Solo mostramos si se seleccionó un usuario
+            if 'user_sel' in locals():
+                foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
+                
+                # Perfil Visual
                 st.markdown(f"""
-                <div style="display: flex; justify-content: space-between; font-size: 0.85em; border-bottom: 1px solid #eee; padding: 2px 0;">
-                    <div style="width: 10%; color: #999;">{int(p['N_PARTIDO'])}</div>
-                    <div style="width: 70%;">{partido_info['Equipo_1']} vs {partido_info['Equipo_2']}</div>
-                    <div style="width: 20%; text-align: right; font-weight: bold; color: #28a745;">{int(p['P1'])} - {int(p['P2'])}</div>
-                </div>
+                    <div style="text-align: center; background-color: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
+                        <img src="{foto_url}" style="border-radius: 50%; width: 90px; height: 90px; object-fit: cover; border: 2px solid #28a745;">
+                        <h4 style="margin: 10px 0 0 0;">{user_sel['NOMBRE']}</h4>
+                        <p style="color: #666; font-size: 0.8em; margin-bottom: 5px;">@{user_sel['USUARIO']}</p>
+                        <hr style="margin: 10px 0;">
+                        <p style="font-size: 0.85em; text-align: left; margin: 0;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}</p>
+                        <p style="font-size: 0.85em; text-align: left; margin: 0;"><b>📝 Bio:</b> <i>"{user_sel['DESCRIPCION']}"</i></p>
+                    </div>
                 """, unsafe_allow_html=True)
+                
+                st.markdown("---")
+                st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
+                
+                # Cargamos pronósticos y resultados para mostrar nombres de equipos
+                df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
+                df_res_ref = conn.read(worksheet="RESULTADOS", ttl=0)
+                pro_user_sel = df_pro_all[df_pro_all['USUARIO'] == user_sel['USUARIO']]
+                
+                if pro_user_sel.empty:
+                    st.warning("Este jugador aún no cargó pronósticos.")
+                else:
+                    # Ordenamos por número de partido
+                    pro_user_sel = pro_user_sel.sort_values('N_PARTIDO')
+                    for _, p in pro_user_sel.iterrows():
+                        # Buscamos la info del partido para mostrar los nombres de los equipos
+                        p_info = df_res_ref[df_res_ref['N_PARTIDO'] == p['N_PARTIDO']].iloc[0]
+                        
+                        st.markdown(f"""
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8em; border-bottom: 1px solid #eee; padding: 4px 0;">
+                            <div style="width: 10%; color: #999;">{int(p['N_PARTIDO'])}</div>
+                            <div style="width: 70%;">{p_info['Equipo_1']} vs {p_info['Equipo_2']}</div>
+                            <div style="width: 20%; text-align: right; font-weight: bold; color: #28a745;">{int(p['P1'])} - {int(p['P2'])}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+    # --- SECCIÓN FORO (OPCIONAL/VACÍA) ---
+    elif menu == "💬 Foro":
+        with col_principal:
+            st.subheader("💬 Foro de Discusión")
+            st.info("Próximamente: Chat en vivo para comentar los partidos.")
+
+    # --- SECCIÓN PANEL CONTROL (SOLO ADMIN) ---
+    elif menu == "⚙️ Panel Control":
+        if st.session_state['user_data']['ROL'] == 'admin':
+            # Aquí va el código de tu Panel de Control que ya armamos
+            pass
