@@ -245,43 +245,45 @@ with col_nav:
         st.session_state['autenticado'] = False
         st.rerun()
 
-# --- CONTROL DE PÁGINAS SEPARADAS ---
+# --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 
 if menu == "🏠 Inicio":
-    # Aquí va tu estructura original de 50% y 30%
-    col_res, col_rank = st.columns([0.6, 0.4])
-    
-    with col_res:
-        # Aquí pegas el bloque: st.subheader("⚽ Resultados Oficiales") y el bucle for de los partidos
-        pass 
+    # Usamos las columnas col_principal y col_derecha definidas arriba
+    with col_principal:
+        st.subheader("⚽ Resultados Oficiales")
+        # Aquí va tu bucle actual de resultados (for i, row in df_res.iterrows(): ...)
+        # Asegúrate de que esté indentado correctamente dentro de este bloque
         
-    with col_rank:
-        # Aquí pegas el bloque: st.subheader("📊 Ranking") y las estadísticas
-        pass
+    with col_derecha:
+        st.subheader("📊 Ranking")
+        # Aquí va tu tabla de ranking y estadísticas
 
 elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Cargar Predicciones")
+        
+        # Lectura de datos
         df_res = conn.read(worksheet="RESULTADOS", ttl=0)
         df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
         user_actual = st.session_state['user_data']['USUARIO']
         df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
 
-      with st.form("form_pronosticos_v2"):
-    lista_nuevos_pro = []
-    
-    # Todo el bucle FOR debe estar dentro del WITH FORM
-    for i, row in df_res.iterrows():
-        id_p = int(row['N_PARTIDO'])
-        match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
-        
-        if not match.empty:
-            v1 = int(match.iloc[0]['P1']) if pd.notna(match.iloc[0]['P1']) else 0
-            v2 = int(match.iloc[0]['P2']) if pd.notna(match.iloc[0]['P2']) else 0
-        else:
-            v1, v2 = 0, 0
+        # FORMULARIO DE CARGA
+        with st.form("form_pronosticos_v2"):
+            lista_nuevos_pro = []
+            
+            for i, row in df_res.iterrows():
+                id_p = int(row['N_PARTIDO'])
+                match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
                 
-            # Diseño idéntico a Resultados Oficiales
+                # Obtener valores previos si existen
+                if not match.empty:
+                    v1 = int(match.iloc[0]['P1']) if pd.notna(match.iloc[0]['P1']) else 0
+                    v2 = int(match.iloc[0]['P2']) if pd.notna(match.iloc[0]['P2']) else 0
+                else:
+                    v1, v2 = 0, 0
+                
+                # Diseño visual de la tarjeta de partido
                 st.markdown(f"""
                 <div style="border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 5px; background-color: #f9f9f9; text-align: center;">
                     <small>PARTIDO {id_p}</small>
@@ -290,35 +292,37 @@ elif menu == "📝 Mis Pronósticos":
                 c1, v, c2 = st.columns([3, 1, 3])
                 with c1:
                     st.write(f"**{row['Equipo_1']}**")
-                    p1_val = st.number_input("G1", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed")
+                    p1_val = st.number_input(f"G1_{id_p}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed")
                 with v: 
                     st.write("---")
                 with c2:
                     st.write(f"**{row['Equipo_2']}**")
-                    p2_val = st.number_input("G2", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed")
-
+                    p2_val = st.number_input(f"G2_{id_p}", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed")
+                
+                # Añadir a la lista para guardar
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
             
-    enviar = st.form_submit_button("💾 Guardar Pronósticos", use_container_width=True)
-    
-    if enviar:
-        df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
-        df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
-        conn.update(worksheet="PRONOSTICOS", data=df_final)
-        st.cache_data.clear()
-        st.success("✅ ¡Guardado!")
-        st.rerun()
+            # Botón de envío DENTRO del form pero FUERA del bucle for
+            enviar = st.form_submit_button("💾 Guardar Pronósticos", use_container_width=True)
+            
+            if enviar:
+                df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
+                df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
+                conn.update(worksheet="PRONOSTICOS", data=df_final)
+                st.cache_data.clear()
+                st.success("✅ ¡Pronósticos guardados!")
+                st.rerun()
 
     with col_derecha:
         st.subheader("👤 Mi Perfil")
         u_data = st.session_state['user_data']
-        # Foto circular con HTML
         foto = u_data['AVATAR_URL'] if u_data['AVATAR_URL'] else "https://flaticon.com"
+        
         st.markdown(f"""
             <div style="text-align: center;">
                 <img src="{foto}" style="border-radius: 50%; width: 120px; height: 120px; object-fit: cover; border: 3px solid #007bff;">
                 <h3 style="margin-bottom: 0;">{u_data['NOMBRE']}</h3>
-                <p style="color: gray;">{u_data['USUARIO']}</p>
+                <p style="color: gray;">@{u_data['USUARIO']}</p>
             </div>
             <hr>
             <p><b>🎂 Edad:</b> {u_data['EDAD']} años</p>
