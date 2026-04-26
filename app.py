@@ -356,6 +356,35 @@ if menu == "🏠 Inicio":
                             </div>
                         </div>
                     </div>""", unsafe_allow_html=True)
+
+        # --- BLOQUE 2: FORO (Actividad Reciente) ---------------------------------------------------------------------------------------
+        st.subheader("💬 Actividad Reciente")
+        df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
+        
+        with st.container(height=350):
+            if df_foro_inicio.empty:
+                st.info("No hay mensajes aún.")
+            else:
+                user_actual = st.session_state['user_data']['USUARIO']
+                # Mostramos los últimos 10 mensajes invertidos
+                for index, m in df_foro_inicio.tail(10).iloc[::-1].iterrows():
+                    es_mio = m['USUARIO'] == user_actual
+                    align = "flex-end" if es_mio else "flex-start"
+                    bg_color = "#dcf8c6" if es_mio else "#ffffff"
+                    
+                    st.markdown(f"""
+                        <div style="display: flex; flex-direction: column; align-items: {align}; margin-bottom: 10px; width: 100%;">
+                            <div style="max-width: 85%; background-color: {bg_color}; padding: 10px 12px; border-radius: 18px; border: 1px solid #ddd; box-shadow: 1px 1px 3px rgba(0,0,0,0.05);">
+                                <div style="font-size: 0.8em; color: #555; font-weight: bold; margin-bottom: 2px;">
+                                    {m['NOMBRE']} <span style="font-weight: normal; color: #999;">• {m['FECHA']}</span>
+                                </div>
+                                <div style="font-size: 1em; color: #333; line-height: 1.2;">
+                                    {m['MENSAJE']}
+                                </div>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+    
 #---------------------------------MENU INICIO / RANKING ------------------------------------------------------
     with col_derecha:
         st.subheader("📊 Ranking")
