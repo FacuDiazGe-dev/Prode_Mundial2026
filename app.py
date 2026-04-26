@@ -406,6 +406,7 @@ if menu == "🏠 Inicio":
         # --- BLOQUE 2: FORO (Actividad Reciente) ---------------------------------------------------------------------------------------
         st.subheader("💬 Actividad Reciente")
         df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
+        df_users_foro = conn.read(worksheet="USUARIOS", ttl=0)
         
         with st.container(height=350):
             if df_foro_inicio.empty:
