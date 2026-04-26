@@ -477,19 +477,68 @@ elif menu == "📝 Mis Pronósticos":
             else:
                 st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
+    # --- COLUMNA DERECHA: MI PERFIL (Editable) ---
     with col_derecha:
-        # Aquí mantienes tu código del Perfil (foto circular, bio, etc.)
-        # Es ideal que el perfil esté a la derecha en PC, pero en móvil aparecerá abajo
         st.subheader("👤 Mi Perfil")
         u_data = st.session_state['user_data']
-        foto = u_data['AVATAR_URL'] if u_data['AVATAR_URL'] else "https://flaticon.com"
-        st.markdown(f"""
-            <div style="text-align: center;">
-                <img src="{foto}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff;">
-                <h4>{u_data['NOMBRE']}</h4>
-                <p style="color: gray; font-size: 0.8em;">@{u_data['USUARIO']}</p>
-            </div>
-        """, unsafe_allow_html=True)
+        
+        # 1. Modo Lectura vs Modo Edición
+        if 'editando_perfil' not in st.session_state:
+            st.session_state.editando_perfil = False
+
+        if not st.session_state.editando_perfil:
+            # --- VISTA DE LECTURA (La que ya tenías con la foto circular) ---
+            foto = u_data['AVATAR_URL'] if u_data['AVATAR_URL'] else "https://flaticon.com"
+            st.markdown(f"""
+                <div style="text-align: center;">
+                    <img src="{foto}" style="border-radius: 50%; width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
+                    <h3 style="margin-bottom: 0;">{u_data['NOMBRE']}</h3>
+                    <p style="color: gray;">@{u_data['USUARIO']}</p>
+                </div>
+                <hr>
+                <p><b>⚽ Equipo:</b> {u_data['EQUIPO FAVORITO']}</p>
+                <p><b>🎂 Edad:</b> {u_data['EDAD']} años</p>
+                <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
+            """, unsafe_allow_html=True)
+            
+            if st.button("⚙️ Editar Perfil", use_container_width=True):
+                st.session_state.editando_perfil = True
+                st.rerun()
+        
+        else:
+            # --- VISTA DE EDICIÓN (Formulario) ---
+            with st.form("form_edit_perfil"):
+                st.write("📝 Actualizar mis datos")
+                nuevo_nombre = st.text_input("Nombre Real", value=u_data['NOMBRE'])
+                nueva_foto = st.text_input("URL de tu Foto (Link)", value=u_data['AVATAR_URL'], help="Puedes subir tu foto a un sitio como imgbb.com y pegar el link aquí")
+                nuevo_equipo = st.selectbox("Equipo Favorito", ["Argentina", "México", "Brasil", "España", "Otro"], index=0)
+                nueva_edad = st.number_input("Edad", 1, 100, int(u_data['EDAD']))
+                nueva_bio = st.text_area("Descripción/Bio", value=u_data['DESCRIPCION'], max_chars=100)
+                
+                c1, c2 = st.columns(2)
+                if c1.form_submit_button("✅ Guardar"):
+                    # Lógica para actualizar en Google Sheets
+                    df_u = conn.read(worksheet="USUARIOS", ttl=0)
+                    # Buscamos la fila del usuario y actualizamos
+                    df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'EDAD', 'DESCRIPCION']] = [nuevo_nombre, nueva_foto, nuevo_equipo, nueva_edad, nueva_bio]
+                    
+                    conn.update(worksheet="USUARIOS", data=df_u)
+                    
+                    # Actualizamos la sesión para que los cambios se vean ya
+                    st.session_state['user_data'].update({
+                        'NOMBRE': nuevo_nombre, 'AVATAR_URL': nueva_foto, 
+                        'EQUIPO FAVORITO': nuevo_equipo, 'EDAD': nueva_edad, 'DESCRIPCION': nueva_bio
+                    })
+                    
+                    st.session_state.editando_perfil = False
+                    st.success("¡Perfil actualizado!")
+                    st.cache_data.clear()
+                    st.rerun()
+                
+                if c2.form_submit_button("❌ Cancelar"):
+                    st.session_state.editando_perfil = False
+                    st.rerun()
+
         
 # ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Jugadores":
