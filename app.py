@@ -73,9 +73,13 @@ def subir_foto_a_drive(archivo, usuario):
         img_byte_arr = io.BytesIO(archivo.getvalue())
         media = MediaIoBaseUpload(img_byte_arr, mimetype='image/png', resumable=True)
         
-        # 2. Subimos a Drive
-        file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        file_id = file.get('id')
+        # 2. Subimos a Drive (AJUSTADO PARA EVITAR EL ERROR DE QUOTA)
+        file = service.files().create(
+            body=file_metadata, 
+            media_body=media, 
+            fields='id',
+            supportsAllDrives=True # <-- ESTA LÍNEA ES CLAVE
+        ).execute()
 
         # 3. PASO CLAVE: Dar permiso de lectura para que se vea en la web
         service.permissions().create(
