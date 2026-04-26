@@ -316,63 +316,77 @@ elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Mis Predicciones")
         
-        # --- LÓGICA DE BLOQUEO POR FECHA ---
-        fecha_limite = datetime(2026, 6, 8, 23, 59) # 8 de Junio de 2026
-        es_tiempo_valido = datetime.now() < fecha_limite
+        # --- CONFIGURACIÓN DE FECHA LÍMITE ---
+        # Fecha límite: 8 de junio de 2026 a las 23:59:59
+        fecha_limite = datetime(2026, 4, 25, 22, 55, 00)
+        ahora = datetime.now()
+        es_tiempo_valido = ahora < fecha_limite
         
-        # Datos del usuario
+        # --- CARGA DE DATOS ---
         user_actual = st.session_state['user_data']['USUARIO']
         df_res_p = conn.read(worksheet="RESULTADOS", ttl=0)
         df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
         df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
 
-        if not es_tiempo_valido:
-            st.warning("⚠️ El plazo para cargar o editar pronósticos finalizó el 08/06/2026.")
-        
-        # Botón para habilitar edición (solo si estamos a tiempo)
+        # --- AVISOS DE TIEMPO ---
+        if es_tiempo_valido:
+            dias_restantes = (fecha_limite - ahora).days
+            st.success(f"⏳ Tienes tiempo para editar hasta el 08/06/2026 (Faltan {dias_restantes} días).")
+        else:
+            st.error("🔒 El plazo de carga ha finalizado. Los pronósticos están congelados.")
+
+        # --- LÓGICA DE EDICIÓN ---
+        # Solo permitimos el toggle de edición si estamos dentro del plazo
         modo_edicion = False
         if es_tiempo_valido:
-            modo_edicion = st.toggle("🔓 Habilitar Edición", help="Activa esto para modificar tus resultados guardados")
+            modo_edicion = st.toggle("🔓 Habilitar Edición", help="Activa para modificar tus resultados guardados")
         
-        # FORMULARIO
+        # El formulario se bloquea si pasó la fecha O si el usuario no activó el toggle
+        esta_bloqueado = not (es_tiempo_valido and modo_edicion)
+
         with st.form("form_pronosticos_v2"):
             lista_nuevos_pro = []
             
-            # Si ya pasó la fecha o el switch está apagado, deshabilitamos los campos
-            esta_bloqueado = not (es_tiempo_valido and modo_edicion)
-
             for i, row in df_res_p.iterrows():
                 id_p = int(row['N_PARTIDO'])
                 match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
+                
+                # Valores recuperados del Sheet
                 v1 = int(match.iloc[0]['P1']) if not match.empty else 0
                 v2 = int(match.iloc[0]['P2']) if not match.empty else 0
                 
-                st.markdown(f"<div style='text-align:center; background:#eee; border-radius:5px;'>PARTIDO {id_p}</div>", unsafe_allow_html=True)
-                c1, v, c2 = st.columns([3, 1, 3])
+                st.markdown(f"""
+                    <div style='text-align:center; background-color:#f1f3f4; border-radius:5px; padding:2px; margin-top:10px;'>
+                        <small style='color:#5f6368;'>PARTIDO {id_p}</small>
+                    </div>
+                """, unsafe_allow_html=True)
                 
+                c1, v, c2 = st.columns([3, 1, 3])
                 with c1:
-                    st.write(row['Equipo_1'])
-                    # 'disabled' congela el campo según la lógica de arriba
+                    st.write(f"**{row['Equipo_1']}**")
                     p1_val = st.number_input(f"G1_{id_p}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
-                with v: st.write("---")
+                with v: 
+                    st.write("<h4 style='text-align:center;'>-</h4>", unsafe_allow_html=True)
                 with c2:
-                    st.write(row['Equipo_2'])
+                    st.write(f"**{row['Equipo_2']}**")
                     p2_val = st.number_input(f"G2_{id_p}", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
                 
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
 
-            # Botón de guardar (Solo aparece si estamos en modo edición y a tiempo)
+            # --- BOTÓN DE GUARDADO DINÁMICO ---
             if es_tiempo_valido and modo_edicion:
                 if st.form_submit_button("💾 Guardar Cambios", use_container_width=True):
+                    # Filtrar para no borrar a los demás usuarios
                     df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
                     df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
+                    
                     conn.update(worksheet="PRONOSTICOS", data=df_final)
                     st.cache_data.clear()
-                    st.success("✅ ¡Pronósticos actualizados!")
+                    st.success("✅ ¡Pronósticos actualizados exitosamente!")
                     st.rerun()
             else:
-                # Si está bloqueado, ponemos un botón informativo deshabilitado
-                st.form_submit_button("🔒 Edición Deshabilitada", disabled=True, use_container_width=True)
+                st.form_submit_button("🔒 Bloqueado", disabled=True, use_container_width=True)
+
 
     with col_derecha:
         st.subheader("👤 Mi Perfil")
