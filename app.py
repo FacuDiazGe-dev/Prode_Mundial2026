@@ -347,18 +347,34 @@ if menu == "🏠 Inicio":
                 </div>""", unsafe_allow_html=True)
 
         # --- BLOQUE 2: FORO ---
-        st.subheader("💬 Actividad Reciente")
-        df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
-        ultimos_msg = df_foro_inicio.tail(8).iloc[::-1]
+if df_foro.empty:
+    st.info("No hay mensajes aún.")
+else:
+    user_actual = st.session_state['user_data']['USUARIO']
+    
+    for index, m in df_foro.iloc[::-1].iterrows():
+        # Verificamos si el mensaje es del usuario logueado
+        es_mio = m['USUARIO'] == user_actual
+        
+        # Definimos la alineación y el color según el autor
+        align = "flex-end" if es_mio else "flex-start"
+        bg_color = "#dcf8c6" if es_mio else "#ffffff" # Verde clarito para mí, blanco para otros
+        margin = "50px" if es_mio else "0px" # Espacio a la izquierda si es mío, a la derecha si no
+        text_align = "right" if es_mio else "left"
 
-        with st.container(height=350):
-            if ultimos_msg.empty:
-                st.info("No hay mensajes aún.")
-            else:
-                for _, m in ultimos_msg.iterrows():
-                    with st.chat_message("user"):
-                        st.markdown(f"**{m['NOMBRE']}** <small style='color:gray;'>{m['FECHA']}</small>", unsafe_allow_html=True)
-                        st.write(m['MENSAJE'])
+        st.markdown(f"""
+            <div style="display: flex; flex-direction: column; align-items: {align}; margin-bottom: 10px;">
+                <div style="max-width: 80%; background-color: {bg_color}; padding: 10px; border-radius: 15px; border: 1px solid #ddd; box-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+                    <div style="font-size: 0.75em; color: #555; font-weight: bold; margin-bottom: 3px;">
+                        {m['NOMBRE']} <span style="font-weight: normal; color: #999;">• {m['FECHA']}</span>
+                    </div>
+                    <div style="font-size: 0.95em; color: #333;">
+                        {m['MENSAJE']}
+                    </div>
+                </div>
+                {"<div style='margin-top: 2px;'><small>🗑️ Eliminar</small></div>" if (st.session_state['user_data']['ROL'] == 'admin' or es_mio) and st.button("Eliminar", key=f"del_{index}") else ""}
+            </div>
+        """, unsafe_allow_html=True)
 
 #---------------------------------MENU INICIO / RANKING ------------------------------------------------------
     # 2. COLUMNA DERECHA (30%) - NOTA: Esta línea debe estar alineada con "with col_principal"
