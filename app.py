@@ -376,18 +376,18 @@ with st.sidebar:
         if st.button("🚀 Subir a Drive", use_container_width=True):
             with st.spinner("Autenticando y subiendo..."):
                 nombre_t = f"test_{datetime.now().strftime('%H%M%S')}.jpg"
-                # Llamamos a la nueva función
-                resultado_url = upload_photo(archivo_test.getvalue(), nombre_t)
-            
-        if resultado_url:
-            if resultado_url.startswith("https"):
-                st.success("✅ ¡Token obtenido y subida exitosa!")
-                # Solo mostramos la imagen si es una URL de verdad
-                st.image(resultado_url, caption="Foto desde Drive")
-                st.code(resultado_url)
-            else:
-                # Si resultado_url contiene el texto del "Error: ..."
-                st.error(f"❌ Falló la subida: {resultado_url}")
+                # Llamamos a la función
+                resultado_url = upload_profile_picture(archivo_test.getvalue(), nombre_t)
+                
+                # LA VALIDACIÓN DEBE IR DENTRO DEL BLOQUE DEL BOTÓN
+                if resultado_url:
+                    if resultado_url.startswith("https"):
+                        st.success("✅ ¡Subida exitosa!")
+                        st.image(resultado_url, caption="Foto desde Drive")
+                        st.code(resultado_url)
+                    else:
+                        # Aquí verás el error real de Google (403, 404, etc)
+                        st.error(f"❌ Falló: {resultado_url}")
 
 
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
