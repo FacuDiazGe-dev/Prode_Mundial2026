@@ -417,7 +417,6 @@ if menu == "🏠 Inicio":
                 for idx, m in df_foro_inicio.tail(10).iloc[::-1].iterrows():
                     # CAMBIO AQUÍ: Usar df_users en lugar de df_usuarios
                     user_info = df_users[df_users['USUARIO'] == m['USUARIO']]
-    
                     if not user_info.empty:
                         # Usamos .iloc[0] para obtener la primera fila encontrada
                         foto_u = user_info.iloc[0]['AVATAR_URL'] if pd.notna(user_info.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
