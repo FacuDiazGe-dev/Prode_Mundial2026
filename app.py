@@ -413,13 +413,15 @@ if menu == "🏠 Inicio":
             else:
                 user_actual = st.session_state['user_data']['USUARIO']
                 # Mostramos los últimos 10 mensajes invertidos
-                for index, m in df_foro_inicio.tail(10).iloc[::-1].iterrows():
-                    user_info = df_usuarios[df_usuarios['USUARIO'] == m['USUARIO']]
-                    foto_u = user_info.iloc[0]['AVATAR_URL'] if not user_info.empty and pd.notna(user_info.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
+                for idx, m in df_foro_inicio.tail(10).iloc[::-1].iterrows():
+                    # CAMBIO AQUÍ: Usar df_users en lugar de df_usuarios
+                    user_info = df_users[df_users['USUARIO'] == m['USUARIO']]
     
-                    es_m = m['USUARIO'] == u_act
-                    aln = "flex-end" if es_m else "flex-start"
-                    bg = "#dcf8c6" if es_m else "#ffffff"
+                    if not user_info.empty:
+                        # Usamos .iloc[0] para obtener la primera fila encontrada
+                        foto_u = user_info.iloc[0]['AVATAR_URL'] if pd.notna(user_info.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
+                    else:
+                        foto_u = "https://flaticon.com"
                     
                     st.markdown(f"""
                         <div style="display: flex; flex-direction: column; align-items: {aln}; margin-bottom: 10px; width: 100%;">
