@@ -558,10 +558,10 @@ elif menu == "👥 Jugadores":
             es_fundador = int(user_sel['ID']) <= 3
             css_fundador = "" if es_fundador else "filter: grayscale(100%); opacity: 0.15;"
 
-            # 5. 🪵 EL MÁS BURRO (Último lugar)
-            es_burro = not datos_rank_user.empty and (user_sel_name == df_ranking.iloc[-1]['JUGADOR']) and len(df_ranking) > 2
-            css_burro = "" if es_burro else "filter: grayscale(100%); opacity: 0.15;"
-
+            # 5. 🐌 EL MÁS LENTO: El último del ranking (solo si hay más de 3 jugadores)
+            es_lento = not datos_rank_user.empty and (user_sel_name == df_ranking.iloc[-1]['JUGADOR']) and len(df_ranking) > 2
+            css_lento = "" if es_lento else "filter: grayscale(100%); opacity: 0.15;"
+            
             # 6. 🔥 ON FIRE (Racha de Exactos)
             user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
             racha_act, racha_max = 0, 0
@@ -601,7 +601,7 @@ elif menu == "👥 Jugadores":
                                     <span title="On Fire (Racha de Exactos)" style="font-size: 1.5em; {css_onfire}">🔥<small style="font-size:0.5em; font-weight:bold;">{label_fire}</small></span>
                                     <span title="Mentalista (Más aciertos generales)" style="font-size: 1.5em; {css_mentalista}">🧙‍♂️</span>
                                     <span title="Fundador (Top 3)" style="font-size: 1.5em; {css_fundador}">🥇</span>
-                                    <span title="El más Burro (Último lugar)" style="font-size: 1.5em; {css_burro}">🫏</span
+                                    <span title="El Más Lento (Último lugar)" style="font-size: 1.5em; {css_lento}">🐌</span>
                                 </div>
                             </div>
                             <div style="font-size: 0.8em; color: #444; line-height: 1.2;"><i>"{user_sel['DESCRIPCION']}"</i></div>
