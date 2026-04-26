@@ -347,14 +347,14 @@ if menu == "🏠 Inicio":
                 </div>""", unsafe_allow_html=True)
 
         # --- BLOQUE 2: FORO ---
-if df_foro.empty:
+    if df_foro.empty:
     st.info("No hay mensajes aún.")
-else:
-    user_actual = st.session_state['user_data']['USUARIO']
+        else:
+            user_actual = st.session_state['user_data']['USUARIO']
     
-    for index, m in df_foro.iloc[::-1].iterrows():
+            for index, m in df_foro.iloc[::-1].iterrows():
         # Verificamos si el mensaje es del usuario logueado
-        es_mio = m['USUARIO'] == user_actual
+                es_mio = m['USUARIO'] == user_actual
         
         # Definimos la alineación y el color según el autor
         align = "flex-end" if es_mio else "flex-start"
