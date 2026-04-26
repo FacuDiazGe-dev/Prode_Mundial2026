@@ -48,6 +48,7 @@ def get_flag_img(pais):
     
 #-------------------------------- CARGAR FOTO STORAGE (GCS) ----------------------------------
 from google.cloud import storage
+import io 
 
 def upload_profile_picture(file_bytes, file_name):
     """
