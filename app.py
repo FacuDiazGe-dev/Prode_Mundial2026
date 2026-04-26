@@ -541,38 +541,49 @@ elif menu == "⚙️ Panel Control":
                     st.rerun()
                     
 # --- SECCIÓN: GESTIÓN DE USUARIOS ----------------------------------------------------------------------------
-        
-        st.markdown("---")
-        st.subheader("🗑️ Eliminar Jugadores")
-        st.warning("Cuidado: Al borrar un usuario se eliminarán permanentemente todos sus pronósticos.")
 
-        # Volvemos a leer para tener la lista fresca
+    with col_derecha:
+        st.subheader("👥 Gestión de Usuarios")
+        
+        # Leemos datos frescos
         df_users_adm = conn.read(worksheet="USUARIOS", ttl=0)
         df_pro_adm = conn.read(worksheet="PRONOSTICOS", ttl=0)
 
-        # Filtramos para no permitir que el admin se borre a sí mismo por error
-        lista_borrar = df_users_adm[df_users_adm['USUARIO'] != st.session_state['user_data']['USUARIO']]
+        # Filtramos para que el admin no se borre a sí mismo
+        usuarios_borrables = df_users_adm[df_users_adm['USUARIO'] != st.session_state['user_data']['USUARIO']]
         
-        user_a_eliminar = st.selectbox("Selecciona el usuario a eliminar:", 
-                                        lista_borrar['USUARIO'].tolist(), 
-                                        index=None, 
-                                        placeholder="Elegir usuario...")
+        if usuarios_borrables.empty:
+            st.info("No hay otros usuarios para gestionar.")
+        else:
+            user_a_eliminar = st.selectbox(
+                "Selecciona un jugador para eliminar:", 
+                usuarios_borrables['USUARIO'].tolist(),
+                index=None,
+                placeholder="Elegir usuario..."
+            )
 
-        if user_a_eliminar:
-            confirmar = st.checkbox(f"Confirmo que quiero eliminar a {user_a_eliminar}")
-            
-            if st.button("❌ Eliminar Permanentemente", type="primary", disabled=not confirmar):
-                # 1. Borrar de la tabla USUARIOS
-                df_users_final = df_users_adm[df_users_adm['USUARIO'] != user_a_eliminar]
+            if user_a_eliminar:
+                st.warning(f"⚠️ Estás por borrar a **{user_a_eliminar}**.")
+                st.write("Esta acción eliminará su cuenta y sus 24 pronósticos permanentemente.")
                 
-                # 2. Borrar de la tabla PRONOSTICOS
-                df_pro_final = df_pro_adm[df_pro_adm['USUARIO'] != user_a_eliminar]
+                # Casilla de confirmación obligatoria
+                confirmado = st.checkbox("Confirmo que deseo borrar este usuario", key="conf_borrar")
                 
-                # 3. Subir ambos cambios
-                conn.update(worksheet="USUARIOS", data=df_users_final)
-                conn.update(worksheet="PRONOSTICOS", data=df_pro_final)
-                
-                st.cache_data.clear()
-                st.success(f"El usuario {user_a_eliminar} y sus datos han sido borrados.")
-                st.rerun()
+                # Botón de borrado (solo se activa si el checkbox está marcado)
+                if st.button("❌ BORRAR PERMANENTEMENTE", type="primary", use_container_width=True, disabled=not confirmado):
+                    try:
+                        # 1. Filtramos las tablas para quitar al usuario
+                        df_users_final = df_users_adm[df_users_adm['USUARIO'] != user_a_eliminar]
+                        df_pro_final = df_pro_adm[df_pro_adm['USUARIO'] != user_a_eliminar]
+                        
+                        # 2. Subimos los cambios a Google Sheets
+                        conn.update(worksheet="USUARIOS", data=df_users_final)
+                        conn.update(worksheet="PRONOSTICOS", data=df_pro_final)
+                        
+                        # 3. Limpieza y reinicio
+                        st.cache_data.clear()
+                        st.success(f"✅ {user_a_eliminar} ha sido eliminado.")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error al eliminar: {e}")
         pass
