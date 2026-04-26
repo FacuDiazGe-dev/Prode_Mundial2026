@@ -529,10 +529,81 @@ elif menu == "👥 Jugadores":
                 df_evo = pd.DataFrame(evolucion_data).set_index("Partido")
                 st.area_chart(df_evo, color=["#28a745", "#adb5bd"])
 
-            st.markdown("---")
-            st.write("### 📋 Lista General")
-            st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
+# --- CÁLCULO DE LOGROS PARA EL PERFIL ---
+datos_rank_todo = df_ranking.copy()
+user_sel_name = user_sel['NOMBRE']
+datos_rank_user = datos_rank_todo[datos_rank_todo['JUGADOR'] == user_sel_name]
 
+# 1. 🏆 PUNTERO: Si tiene la corona en el ranking
+es_puntero = not datos_rank_user.empty and "👑" in str(datos_rank_user.iloc[0]['Nº'])
+css_puntero = "" if es_puntero else "filter: grayscale(100%); opacity: 0.15;"
+
+# 2. 🎯 MASTER: 5 o más resultados exactos
+es_master = not datos_rank_user.empty and int(datos_rank_user.iloc[0]['EXACTOS']) >= 5
+css_master = "" if es_master else "filter: grayscale(100%); opacity: 0.15;"
+
+# 3. 🧙‍♂️ MENTALISTA: El que más resultados generales (✅) acertó en toda la liga
+max_grales = datos_rank_todo['GENERALES'].max()
+es_mentalista = not datos_rank_user.empty and int(datos_rank_user.iloc[0]['GENERALES']) == max_grales and max_grales > 0
+css_mentalista = "" if es_mentalista else "filter: grayscale(100%); opacity: 0.15;"
+
+# 4. 🥇 FUNDADOR: Los primeros 3 IDs registrados
+es_fundador = int(user_sel['ID']) <= 3
+css_fundador = "" if es_fundador else "filter: grayscale(100%); opacity: 0.15;"
+
+# 5. 🪵 EL MÁS BURRO: El último del ranking (solo si hay más de 3 jugadores)
+es_burro = not datos_rank_user.empty and (user_sel_name == datos_rank_todo.iloc[-1]['JUGADOR']) and len(datos_rank_todo) > 2
+css_burro = "" if es_burro else "filter: grayscale(100%); opacity: 0.15;"
+
+# 6. 🔥 ON FIRE: Mejor racha consecutiva de exactos (Cálculo especial)
+# Buscamos la racha de este usuario comparando sus pronos con resultados oficiales
+user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
+racha_actual, max_racha_user = 0, 0
+for _, p in user_pro_sorted.iterrows():
+    res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']].iloc[0]
+    if pd.notna(res_p['R1']):
+        _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
+        if exa == 1:
+            racha_actual += 1
+            max_racha_user = max(max_racha_user, racha_actual)
+        else:
+            racha_actual = 0
+
+# Verificamos si su racha es la máxima de todos los jugadores (simplificado a racha > 1)
+es_onfire = max_racha_user >= 2 # Se activa con racha de 2 o más exactos seguidos
+css_onfire = "" if es_onfire else "filter: grayscale(100%); opacity: 0.15;"
+
+st.markdown(f"""
+    <div style="background-color: #f8f9fa; border-radius: 15px; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="flex: 1; text-align: center; border-right: 1px solid #eee; padding-right: 10px;">
+                <img src="{foto_url}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; border: 3px solid #1f3b4d; margin-bottom: 5px;">
+                <div style="font-weight: bold; color: #333; font-size: 1em;">{user_sel['NOMBRE']}</div>
+                <div style="color: #666; font-size: 0.7em;">@{user_sel['USUARIO']}</div>
+            </div>
+            <div style="flex: 2; text-align: left;">
+                <div style="margin-bottom: 5px;">
+                    <small style="color: gray; text-transform: uppercase; font-size: 0.65em; font-weight: bold;">HINCHA DE: </small>
+                    <span style="font-weight: bold; color: #1f3b4d; font-size: 0.9em;">{user_sel['EQUIPO FAVORITO']}</span>
+                </div>
+                <div style="margin-bottom: 8px;">
+                    <small style="color: gray; text-transform: uppercase; font-size: 0.65em; font-weight: bold;">INSIGNIAS</small><br>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;">
+                        <span title="Puntero Actual" style="font-size: 1.6em; {css_puntero}">🏆</span>
+                        <span title="Master (5+ Exactos)" style="font-size: 1.6em; {css_master}">🎯</span>
+                        <span title="On Fire (Racha de Exactos)" style="font-size: 1.6em; {css_onfire}">🔥</span>
+                        <span title="Mentalista (Más aciertos generales)" style="font-size: 1.6em; {css_mentalista}">🧙‍♂️</span>
+                        <span title="Fundador (Top 3)" style="font-size: 1.6em; {css_fundador}">🥇</span>
+                        <span title="El más Burro (Último lugar)" style="font-size: 1.6em; {css_burro}">🪵</span>
+                    </div>
+                </div>
+                <div style="font-size: 0.8em; color: #444; line-height: 1.2;"><i>"{user_sel['DESCRIPCION']}"</i></div>
+            </div>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
+            
     with col_derecha:
         if 'user_sel' in locals():
             foto_url = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
