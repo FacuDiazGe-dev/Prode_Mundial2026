@@ -336,32 +336,32 @@ with st.sidebar:
         st.session_state['autenticado'] = False
         st.rerun()
 
-    # --- LABORATORIO DE PRUEBA: SUBIDA A DRIVE ---
-    st.markdown("---")
-    st.subheader("🧪 Test de Subida")
-    archivo_test = st.file_uploader("Probá subir una foto aquí", type=['jpg', 'png', 'jpeg'], key="test_uploader")
-    
-    if archivo_test:
-        if st.button("🚀 Subir a Drive", use_container_width=True):
-            with st.spinner("Autenticando y subiendo..."):
-                # Generamos el nombre
-                nombre_t = f"test_{datetime.now().strftime('%H%M%S')}.jpg"
-                
-                # Intentamos la subida
-                try:
-                    # USAMOS EL NOMBRE CORRECTO DE LA FUNCIÓN
-                    resultado_url = upload_profile_picture(archivo_test.getvalue(), nombre_t)
-                    
-                    if resultado_url and resultado_url.startswith("https"):
-                        st.success("✅ ¡Subida exitosa!")
-                        st.image(resultado_url, caption="Foto desde Drive")
-                        st.code(resultado_url)
-                    else:
-                        st.error(f"❌ Error de Google: {resultado_url}")
-                except NameError:
-                    st.error("❌ Error: La función 'upload_profile_picture' no está definida arriba del código.")
-                except Exception as e:
-                    st.error(f"❌ Error inesperado: {e}")
+    # --- LABORATORIO DE PRUEBA: SUBIDA A DRIVE ( OCULTO )---
+    #st.markdown("---")
+    #st.subheader("🧪 Test de Subida")
+    #archivo_test = st.file_uploader("Probá subir una foto aquí", type=['jpg', 'png', 'jpeg'], key="test_uploader")
+    #
+    #if archivo_test: 
+    #    if st.button("🚀 Subir a Drive", use_container_width=True):
+    #        with st.spinner("Autenticando y subiendo..."):
+    #            # Generamos el nombre
+    #            nombre_t = f"test_{datetime.now().strftime('%H%M%S')}.jpg"
+    #            
+    #            # Intentamos la subida
+    #            try:
+    #                # USAMOS EL NOMBRE CORRECTO DE LA FUNCIÓN
+    #                resultado_url = upload_profile_picture(archivo_test.getvalue(), nombre_t)
+    #                
+    #                if resultado_url and resultado_url.startswith("https"):
+    #                    st.success("✅ ¡Subida exitosa!")
+    #                    st.image(resultado_url, caption="Foto desde Drive")
+    #                    st.code(resultado_url)
+    #                else:
+    #                    st.error(f"❌ Error de Google: {resultado_url}")
+    #            except NameError:
+    #                st.error("❌ Error: La función 'upload_profile_picture' no está definida arriba del código.")
+    #            except Exception as e:
+    #                st.error(f"❌ Error inesperado: {e}")
 
 
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
