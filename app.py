@@ -306,13 +306,14 @@ with st.sidebar:
 
 if menu == "🏠 Inicio":
     with col_principal:
-        # --- BLOQUE 1: TODOS LOS RESULTADOS (Con scroll) ---
-        st.subheader("⚽ Resultados de la Fase de Grupos")
+        # --- BLOQUE 1: RESULTADOS (Últimos arriba para evitar scroll) ---
+        st.subheader("⚽ Resultados (Más recientes arriba)")
         
-        # Mostramos los 24 partidos. El alto de 350px equivale aprox. a 5 o 6 filas.
+        # Invertimos el DataFrame de resultados para que el 24 esté arriba
+        df_res_invertido = df_res.iloc[::-1]
+
         with st.container(height=350): 
-            for i, row in df_res.iterrows():
-                # Si no hay resultado, ponemos "-"
+            for i, row in df_res_invertido.iterrows():
                 r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
                 r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
                 
@@ -320,24 +321,25 @@ if menu == "🏠 Inicio":
                 i1 = f'<img src="{f1}" width="20">' if "data" in f1 else f1
                 i2 = f'<img src="{f2}" width="20">' if "data" in f2 else f2
                 
-                # Fondo blanco para los ya jugados, transparente para los pendientes
-                bg_color = "#fdfdfd" if r1 != "-" else "transparent"
+                # Resaltamos con color si el partido ya terminó
+                bg_color = "#e8f0fe" if r1 != "-" else "transparent"
                 
                 st.markdown(f"""
-                <div style="border-bottom:1px solid #eee; padding:8px; margin-bottom:2px; background:{bg_color};">
+                <div style="border-bottom:1px solid #eee; padding:8px; margin-bottom:2px; background:{bg_color}; border-radius:5px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.9em;">
-                        <div style="width:40%; text-align:right;">{row['Equipo_1']} {i1}</div>
+                        <div style="width:10%; color:gray;"><small>P{int(row['N_PARTIDO'])}</small></div>
+                        <div style="width:35%; text-align:right;">{row['Equipo_1']} {i1}</div>
                         <div style="width:20%; text-align:center; background:#f0f2f6; border-radius:5px; font-weight:bold;">{r1} - {r2}</div>
-                        <div style="width:40%; text-align:left;">{i2} {row['Equipo_2']}</div>
+                        <div style="width:35%; text-align:left;">{i2} {row['Equipo_2']}</div>
                     </div>
                 </div>""", unsafe_allow_html=True)
 
-        # --- BLOQUE 2: RECORTE DEL FORO (Últimos 10 mensajes) ---
+        # --- BLOQUE 2: FORO (Últimos mensajes arriba) ---
         st.subheader("💬 Últimos Comentarios")
         df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
         
-        # Mostramos los últimos 10 mensajes, con el más nuevo ARRIBA
-        ultimos_msg = df_foro_inicio.tail(10).iloc[::-1]
+        # Mostramos los últimos 15 mensajes, más nuevo ARRIBA
+        ultimos_msg = df_foro_inicio.tail(15).iloc[::-1]
 
         with st.container(height=300):
             if ultimos_msg.empty:
@@ -347,7 +349,6 @@ if menu == "🏠 Inicio":
                     with st.chat_message("user"):
                         st.markdown(f"**{m['NOMBRE']}** <small style='color:gray;'>{m['FECHA']}</small>", unsafe_allow_html=True)
                         st.write(m['MENSAJE'])
-
 
     # 2. COLUMNA DERECHA (30%) - NOTA: Esta línea debe estar alineada con "with col_principal"
     with col_derecha:
