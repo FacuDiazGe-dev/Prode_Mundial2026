@@ -256,7 +256,7 @@ def procesar_nombres_ranking(row, df, df_pro, df_res, df_users):
     
     max_gen = df['GENERALES'].max()
     if row['GENERALES'] == max_gen and max_gen > 0: insignias += " 🧙‍♂️" # Mentalista
-    if u_id <= 3: insignias += " 🥇" # Fundador
+    if u_id <= 3: insignias += " 🏅" # Fundador
     if len(df) > 2 and posicion == len(df): insignias += " 🐌" # Lento
         
     # Lógica ON FIRE (Racha de 3 o más exactos)
@@ -710,7 +710,7 @@ elif menu == "👥 Jugadores":
             else:
                 css_puntero = css_master = css_mentalista = "filter: grayscale(100%); opacity: 0.15;"
 
-            # 4. 🥇 FUNDADOR
+            # 4. 🏅 FUNDADOR
             es_fundador = int(user_sel['ID']) <= 3
             css_fundador = "" if es_fundador else "filter: grayscale(100%); opacity: 0.15;"
 
@@ -751,7 +751,7 @@ elif menu == "👥 Jugadores":
                                 <span title="Master" style="font-size: 1.5em; {css_master}">🎯</span>
                                 <span title="On Fire" style="font-size: 1.5em; {css_onfire}">🔥<small style="font-size:0.5em;">{label_fire}</small></span>
                                 <span title="Mentalista" style="font-size: 1.5em; {css_mentalista}">🧙‍♂️</span>
-                                <span title="Fundador" style="font-size: 1.5em; {css_fundador}">🥇</span>
+                                <span title="Fundador" style="font-size: 1.5em; {css_fundador}">🏅</span>
                                 <span title="Lento" style="font-size: 1.5em; {css_lento}">🐌</span>
                             </div>
                             <div style="font-size: 0.85em; color: #444;"><i>"{user_sel['DESCRIPCION']}"</i></div>
