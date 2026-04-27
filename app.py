@@ -242,6 +242,57 @@ df_users_list = conn.read(worksheet="USUARIOS", ttl=0)
 
 ranking_data = []
 
+ # --- FUNCIÓN PARA CONCATENAR INSIGNIAS EN EL NOMBRE ---------------------------------------------------
+def procesar_nombres_ranking(row, df, df_pro, df_res, df_users):
+    nombre = row['JUGADOR']
+    posicion = row.name + 1  # Fila actual + 1
+    insignias = ""
+    
+    # Buscamos datos extra del usuario (ID y Usuario nick) para racha y fundador
+    u_info = df_users[df_users['NOMBRE'] == nombre].iloc[0]
+    u_nick = u_info['USUARIO']
+    u_id = int(u_info['ID'])
+
+    # 1. 👑 PUNTERO (Posición 1)
+    if posicion == 1:
+        insignias += " 👑"
+    
+    # 2. 🎯 MASTER (5 o más exactos)
+    if row['EXACTOS'] >= 5:
+        insignias += " 🎯"
+    
+    # 3. 🧙‍♂️ MENTALISTA (Máximos generales)
+    max_gen = df['GENERALES'].max()
+    if row['GENERALES'] == max_gen and max_gen > 0:
+        insignias += " 🧙‍♂️"
+        
+    # 4. 🥇 FUNDADOR (ID <= 3)
+    if u_id <= 3:
+        insignias += " 🥇"
+        
+    # 5. 🐌 EL MÁS LENTO (Último lugar, min 3 jugadores)
+    if len(df) > 2 and posicion == len(df):
+        insignias += " 🐌"
+        
+    # 6. 🔥 ON FIRE (Racha de 3 o más exactos - Tal cual tu lógica de Jugadores)
+    user_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
+    r_act, r_max = 0, 0
+    for _, p in user_pro_sorted.iterrows():
+        partido_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+        if not partido_ref.empty:
+            res_p = partido_ref.iloc[0]
+            if pd.notna(res_p['R1']):
+                # Usamos tu función de cálculo
+                _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
+                if exa == 1:
+                    r_act += 1
+                    r_max = max(r_max, r_act)
+                else: r_act = 0
+    if r_max >= 3:
+        insignias += f" 🔥x{r_max}"
+
+    return f"{nombre}{insignias}"
+    
 # Función de cálculo (la mantenemos igual)
 def calcular_puntos_pro(r1, r2, p1, p2):
     if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
@@ -308,56 +359,7 @@ for _, u_row in df_users_list.iterrows():
         "EXACTOS": total_exa,
         "GENERALES": total_gen
     })
-    # --- FUNCIÓN PARA CONCATENAR INSIGNIAS EN EL NOMBRE ---------------------------------------------------
-def procesar_nombres_ranking(row, df, df_pro, df_res, df_users):
-    nombre = row['JUGADOR']
-    posicion = row.name + 1  # Fila actual + 1
-    insignias = ""
-    
-    # Buscamos datos extra del usuario (ID y Usuario nick) para racha y fundador
-    u_info = df_users[df_users['NOMBRE'] == nombre].iloc[0]
-    u_nick = u_info['USUARIO']
-    u_id = int(u_info['ID'])
-
-    # 1. 👑 PUNTERO (Posición 1)
-    if posicion == 1:
-        insignias += " 👑"
-    
-    # 2. 🎯 MASTER (5 o más exactos)
-    if row['EXACTOS'] >= 5:
-        insignias += " 🎯"
-    
-    # 3. 🧙‍♂️ MENTALISTA (Máximos generales)
-    max_gen = df['GENERALES'].max()
-    if row['GENERALES'] == max_gen and max_gen > 0:
-        insignias += " 🧙‍♂️"
-        
-    # 4. 🥇 FUNDADOR (ID <= 3)
-    if u_id <= 3:
-        insignias += " 🥇"
-        
-    # 5. 🐌 EL MÁS LENTO (Último lugar, min 3 jugadores)
-    if len(df) > 2 and posicion == len(df):
-        insignias += " 🐌"
-        
-    # 6. 🔥 ON FIRE (Racha de 3 o más exactos - Tal cual tu lógica de Jugadores)
-    user_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
-    r_act, r_max = 0, 0
-    for _, p in user_pro_sorted.iterrows():
-        partido_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-        if not partido_ref.empty:
-            res_p = partido_ref.iloc[0]
-            if pd.notna(res_p['R1']):
-                # Usamos tu función de cálculo
-                _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
-                if exa == 1:
-                    r_act += 1
-                    r_max = max(r_max, r_act)
-                else: r_act = 0
-    if r_max >= 3:
-        insignias += f" 🔥x{r_max}"
-
-    return f"{nombre}{insignias}"
+   
 
 # 3. Creamos el DataFrame y ordenamos (Puntos y luego Exactos como desempate)
 df_ranking = pd.DataFrame(ranking_data).sort_values(by=["PUNTOS", "EXACTOS"], ascending=False).reset_index(drop=True)
