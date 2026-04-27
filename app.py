@@ -406,13 +406,12 @@ if menu == "🏠 Inicio":
 
                     st.markdown(f"""
                     <div style="border: 1px solid #ddd; border-top: 3px solid {color_tema}; border-radius: 8px; padding: 8px; margin-bottom: 10px; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <!-- Cabecera más pequeña -->
+
                         <div style="display: flex; justify-content: space-between; margin-bottom: 5px; align-items: center;">
                             <span style="font-size: 0.65em; font-weight: bold; color: {color_tema}; text-transform: uppercase;">PARTIDO {int(row['N_PARTIDO'])}</span>
                             <span style="font-size: 0.65em; color: #666; font-weight: bold;">📅 {dia_p} | 🕒 {hora_p}</span>
                         </div>
                         
-                        <!-- Contenido compacto -->
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="width: 38%; text-align: center;">
                                 <div style="margin-bottom: 3px;"><img src="{f1}" width="25" style="border-radius:2px;"></div> <!-- Bandera más chica -->
