@@ -405,22 +405,27 @@ if menu == "🏠 Inicio":
                     color_tema = "#007bff" if r1 != "-" else "#6c757d"
 
                     st.markdown(f"""
-                    <div style="border: 1px solid #ddd; border-top: 5px solid {color_tema}; border-radius: 12px; padding: 15px; margin-bottom: 20px; background-color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;">
-                            <span style="font-size: 0.75em; font-weight: bold; color: {color_tema}; text-transform: uppercase;">PARTIDO {int(row['N_PARTIDO'])}</span>
-                            <span style="font-size: 0.75em; color: #666; font-weight: bold;">📅 {dia_p} | 🕒 {hora_p}</span>
+                    <div style="border: 1px solid #ddd; border-top: 3px solid {color_tema}; border-radius: 8px; padding: 8px; margin-bottom: 10px; background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <!-- Cabecera más pequeña -->
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; align-items: center;">
+                            <span style="font-size: 0.65em; font-weight: bold; color: {color_tema}; text-transform: uppercase;">PARTIDO {int(row['N_PARTIDO'])}</span>
+                            <span style="font-size: 0.65em; color: #666; font-weight: bold;">📅 {dia_p} | 🕒 {hora_p}</span>
                         </div>
+                        
+                        <!-- Contenido compacto -->
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="width: 38%; text-align: center;">
-                                <div style="margin-bottom: 8px;">{i1}</div>
-                                <div style="font-weight: bold; font-size: 1.1em; color: #333;">{row['Equipo_1']}</div>
+                                <div style="margin-bottom: 3px;"><img src="{f1}" width="25" style="border-radius:2px;"></div> <!-- Bandera más chica -->
+                                <div style="font-weight: bold; font-size: 0.85em; color: #333;">{row['Equipo_1']}</div> <!-- Texto más chico -->
                             </div>
+                            
                             <div style="width: 24%; text-align: center;">
-                                <div style="background: #f8f9fa; border: 1px solid #ddd; color: #333; font-size: 1.8em; font-weight: bold; border-radius: 8px; padding: 5px 0;">{r1} : {r2}</div>
+                                <div style="background: #f8f9fa; border: 1px solid #ddd; color: #333; font-size: 1.2em; font-weight: bold; border-radius: 5px; padding: 2px 0;">{r1}:{r2}</div> <!-- Marcador reducido -->
                             </div>
+                            
                             <div style="width: 38%; text-align: center;">
-                                <div style="margin-bottom: 8px;">{i2}</div>
-                                <div style="font-weight: bold; font-size: 1.1em; color: #333;">{row['Equipo_2']}</div>
+                                <div style="margin-bottom: 3px;"><img src="{f2}" width="25" style="border-radius:2px;"></div> <!-- Bandera más chica -->
+                                <div style="font-weight: bold; font-size: 0.85em; color: #333;">{row['Equipo_2']}</div> <!-- Texto más chico -->
                             </div>
                         </div>
                     </div>""", unsafe_allow_html=True)
