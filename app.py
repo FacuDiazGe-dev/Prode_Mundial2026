@@ -46,10 +46,10 @@ def get_flag_img(pais):
     
     return "⚽" # Fallback si falla la descarga
     
-#-------------------------------- CARGAR FOTO STORAGE (GCS) ----------------------------------
+#-------------------------------- CARGAR FOTO STORAGE (GCS) -----------------------------------------------------
 from google.cloud import storage
 import io 
-
+#Definicion variable carga de la imagen
 def upload_profile_picture(archivo, file_name):
     from google.cloud import storage
     import io
@@ -82,7 +82,7 @@ def upload_profile_picture(archivo, file_name):
 # --- CONEXIÓN ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# --- FUNCIÓN DE REGISTRO BLINDADA ---
+# --- FUNCIÓN DE REGISTRO BLINDADA -------------------------------------------------------------------------------------
 def registrar_usuario(datos_nuevos):
     try:
         # 1. Leer la tabla actual (sin usar caché para ver lo real)
@@ -129,7 +129,7 @@ def registrar_usuario(datos_nuevos):
         st.error(f"Error técnico: {e}")
         return False
 
-# --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) ---
+# --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) --------------------------------------------------------
 if 'autenticado' not in st.session_state:
     st.session_state['autenticado'] = False
 if 'registro_exitoso' not in st.session_state:
@@ -188,8 +188,8 @@ if st.sidebar.button("Cerrar Sesión"):
     st.session_state['autenticado'] = False
     st.rerun()
     
-# --- CARGA DE DATOS ---
-
+# --- CARGA DE DATOS DE TABLAS GSHEET ---------------------------------------------------------------------------------------------
+# ----LINK de Tablas
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
 URL_RES = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 URL_PRO = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=394071446"
@@ -209,10 +209,10 @@ def load_data():
 
 df_res, df_pro = load_data()
 
-# --- FUNCIÓN DE CÁLCULO MEJORADA ---
-def calcular_detalle(r1, r2, p1, p2):
+# --- FUNCIÓN DE CÁLCULO MEJORADA -------------------------------------------
+    def calcular_detalle(r1, r2, p1, p2):
     if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
-        return 0, 0, 0 # Puntos, Exactos, Generales
+        return 0, 0, 0 
     
     puntos, exactos, generales = 0, 0, 0
     r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
@@ -220,13 +220,15 @@ def calcular_detalle(r1, r2, p1, p2):
     tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
     tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
     
+    # 1. Si acertó la tendencia, SIEMPRE es un acierto general
     if tendencia_real == tendencia_pron:
+        generales = 1
+        puntos = 1 # Punto base por tendencia
+        
+        # 2. Si además los goles son idénticos, sumamos el bono de exacto
         if r1 == p1 and r2 == p2:
             exactos = 1
-            puntos = 3 # 1 de tendencia + 2 de bonus
-        else:
-            generales = 1
-            puntos = 1
+            puntos = 3 # Cambia a 3 (o += 2 si prefieres verlo como bono)
             
     return puntos, exactos, generales
     
