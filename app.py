@@ -210,7 +210,8 @@ def load_data():
 df_res, df_pro = load_data()
 
 # --- FUNCIÓN DE CÁLCULO MEJORADA -------------------------------------------
-    def calcular_detalle(r1, r2, p1, p2):
+    
+def calcular_detalle(r1, r2, p1, p2):
     if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
         return 0, 0, 0 
     
