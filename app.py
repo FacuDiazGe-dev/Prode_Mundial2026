@@ -233,48 +233,33 @@ def calcular_detalle(r1, r2, p1, p2):
             
     return puntos, exactos, generales
     
-# --- LÓGICA DE RANKING ACTUALIZADA (VERTICAL) ---
+# --- LÓGICA DE RANKING ACTUALIZADA (VERTICAL) -------------------------------------
 
 # 1. Cargamos los datos más recientes
-df_res_oficial = df_res # Ya cargado por tu función load_data()
+df_res_oficial = df_res 
 df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
 df_users_list = conn.read(worksheet="USUARIOS", ttl=0)
 
-ranking_data = []
-
- # --- FUNCIÓN PARA CONCATENAR INSIGNIAS EN EL NOMBRE ---------------------------------------------------
+# Función de apoyo para procesar insignias dentro de la tabla
 def procesar_nombres_ranking(row, df, df_pro, df_res, df_users):
     nombre = row['JUGADOR']
-    posicion = row.name + 1  # Fila actual + 1
+    posicion = row.name + 1 
     insignias = ""
     
-    # Buscamos datos extra del usuario (ID y Usuario nick) para racha y fundador
+    # Buscamos datos extra del usuario (ID y Nick) para racha y fundador
     u_info = df_users[df_users['NOMBRE'] == nombre].iloc[0]
     u_nick = u_info['USUARIO']
     u_id = int(u_info['ID'])
 
-    # 1. 👑 PUNTERO (Posición 1)
-    if posicion == 1:
-        insignias += " 👑"
+    if posicion == 1: insignias += " 👑" # Puntero
+    if row['EXACTOS'] >= 5: insignias += " 🎯" # Master
     
-    # 2. 🎯 MASTER (5 o más exactos)
-    if row['EXACTOS'] >= 5:
-        insignias += " 🎯"
-    
-    # 3. 🧙‍♂️ MENTALISTA (Máximos generales)
     max_gen = df['GENERALES'].max()
-    if row['GENERALES'] == max_gen and max_gen > 0:
-        insignias += " 🧙‍♂️"
+    if row['GENERALES'] == max_gen and max_gen > 0: insignias += " 🧙‍♂️" # Mentalista
+    if u_id <= 3: insignias += " 🥇" # Fundador
+    if len(df) > 2 and posicion == len(df): insignias += " 🐌" # Lento
         
-    # 4. 🥇 FUNDADOR (ID <= 3)
-    if u_id <= 3:
-        insignias += " 🥇"
-        
-    # 5. 🐌 EL MÁS LENTO (Último lugar, min 3 jugadores)
-    if len(df) > 2 and posicion == len(df):
-        insignias += " 🐌"
-        
-    # 6. 🔥 ON FIRE (Racha de 3 o más exactos - Tal cual tu lógica de Jugadores)
+    # Lógica ON FIRE (Racha de 3 o más exactos)
     user_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
     r_act, r_max = 0, 0
     for _, p in user_pro_sorted.iterrows():
@@ -282,68 +267,30 @@ def procesar_nombres_ranking(row, df, df_pro, df_res, df_users):
         if not partido_ref.empty:
             res_p = partido_ref.iloc[0]
             if pd.notna(res_p['R1']):
-                # Usamos tu función de cálculo
                 _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
                 if exa == 1:
                     r_act += 1
                     r_max = max(r_max, r_act)
                 else: r_act = 0
-    if r_max >= 3:
-        insignias += f" 🔥x{r_max}"
+    if r_max >= 3: insignias += f" 🔥x{r_max}"
 
     return f"{nombre}{insignias}"
-    
-# Función de cálculo (la mantenemos igual)
-def calcular_puntos_pro(r1, r2, p1, p2):
-    if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
-        return 0, 0, 0
-    pts, exa, gen = 0, 0, 0
-    r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
-    t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
-    t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
-    if t_real == t_pron:
-        if r1 == p1 and r2 == p2:
-            exa = 1
-            pts = 3 # 1 de tendencia + 2 de bonus
-        else:
-            gen = 1
-            pts = 1
-    return pts, exa, gen
 
 # 2. Procesamos el Ranking por cada usuario registrado
 ranking_data = []
 
-# Iteramos sobre la lista de usuarios reales
 for _, u_row in df_users_list.iterrows():
     u_nick = u_row['USUARIO']
     u_nombre = u_row['NOMBRE']
-    
     total_pts, total_exa, total_gen = 0, 0, 0
     
-    # Filtramos todos los pronósticos de este usuario de una vez
     pronos_usuario = df_pro_total[df_pro_total['USUARIO'] == u_nick]
     
-# Iteramos sobre la lista de usuarios reales
-for _, u_row in df_users_list.iterrows():
-    u_nick = u_row['USUARIO']
-    u_nombre = u_row['NOMBRE']
-    
-    total_pts, total_exa, total_gen = 0, 0, 0
-    
-    # Filtramos todos los pronósticos de este usuario
-    pronos_usuario = df_pro_total[df_pro_total['USUARIO'] == u_nick]
-    
-    # Comparamos con cada resultado oficial cargado
     for _, res_row in df_res_oficial.iterrows():
         id_p = res_row['N_PARTIDO']
-                    
-        # Buscamos el pronóstico de este usuario para este partido
         p_row = pronos_usuario[pronos_usuario['N_PARTIDO'] == id_p]
         
-        # Este IF debe estar DENTRO del for de los partidos
         if not p_row.empty:
-            # Usamos tu función calcular_detalle()
-            # Accedemos con iloc[0] para obtener los valores de la fila
             pts, exa, gen = calcular_detalle(
                 res_row['R1'], res_row['R2'],
                 p_row.iloc[0]['P1'], p_row.iloc[0]['P2']
@@ -352,21 +299,25 @@ for _, u_row in df_users_list.iterrows():
             total_exa += exa
             total_gen += gen
             
-    # Este APPEND debe estar FUERA del for de partidos, pero DENTRO del for de usuarios
     ranking_data.append({
         "JUGADOR": u_nombre,
         "PUNTOS": total_pts,
         "EXACTOS": total_exa,
         "GENERALES": total_gen
     })
-   
 
-# 3. Creamos el DataFrame y ordenamos (Puntos y luego Exactos como desempate)
+# 3. Creamos el DataFrame, ordenamos y aplicamos insignias
 df_ranking = pd.DataFrame(ranking_data).sort_values(by=["PUNTOS", "EXACTOS"], ascending=False).reset_index(drop=True)
-df_ranking.index = df_ranking.index + 1
-df_ranking.insert(0, "Nº", df_ranking.index.map(lambda x: "👑" if x == 1 else str(x)))
 
-# Reordenar columnas
+if not df_ranking.empty:
+    df_ranking['JUGADOR'] = df_ranking.apply(
+        lambda row: procesar_nombres_ranking(row, df_ranking, df_pro_total, df_res_oficial, df_users_list), 
+        axis=1
+    )
+
+# 4. Formateo final de la tabla
+df_ranking.index = df_ranking.index + 1
+df_ranking.insert(0, "Nº", df_ranking.index.astype(str))
 df_ranking = df_ranking[["Nº", "JUGADOR", "PUNTOS", "EXACTOS", "GENERALES"]]
 
 
