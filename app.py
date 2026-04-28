@@ -630,7 +630,7 @@ elif menu == "👥 Jugadores":
         st.subheader("👥 Jugadores Inscritos")
         df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
         
-         1. Recorremos los partidos (FUERA DEL FORM)
+         #1. Recorremos los partidos (FUERA DEL FORM)
         for i, row in df_res_p.sort_values('N_PARTIDO').iterrows():
             id_p = int(row['N_PARTIDO'])
             match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
