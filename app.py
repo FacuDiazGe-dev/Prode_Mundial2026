@@ -976,102 +976,91 @@ elif menu == "⚙️ Panel Control":
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
 #---------------------------test
-                        # --- SELECTOR DE PERFILES PARA PRUEBAS ---
-            st.subheader("🔍 Selector de Perfil")
-            
-            # 1. Cargamos los datos PRIMERO
-            df_users_adm = conn.read(worksheet="USUARIOS", ttl=10)
-            
-            # 2. Ahora sí podemos sacar la lista de nombres
-            nombres_usuarios = df_users_adm['NOMBRE'].unique().tolist()
-            
-            nombre_seleccionado = st.selectbox(
-                "Selecciona un jugador para ver su tarjeta de perfil y testear insignias:",
-                options=nombres_usuarios,
-                index=None,
-                placeholder="Busca un nombre..."
-            )
-            
-            # 3. Asignamos los datos del usuario seleccionado a user_sel
-            if nombre_seleccionado:
-                user_sel = df_users_adm[df_users_adm['NOMBRE'] == nombre_seleccionado].iloc[0]
-            else:
-                user_sel = None
+    with col_derecha:
+        if 'user_sel' in locals() and user_sel is not None:
+            # 1. Preparar datos de usuarios para el cálculo
+            u_sel = user_sel
+            u_nick = u_sel['USUARIO']
+            u_nombre = u_sel['NOMBRE']
 
-# --- A partir de aquí sigue tu bloque de "Test de Insignias" ---
+            # 2. Generar Ranking "al vuelo" para insignias de posición (Puntero/Lento)
+            # Procesamos puntos para TODOS los usuarios para poder comparar
+            ranking_rapido = []
+            todos_los_usuarios = df_users_adm['USUARIO'].unique()
+            
+            for usr in todos_los_usuarios:
+                pts_total, exa_total, gen_total = 0, 0, 0
+                pro_usr = df_pro[df_pro['USUARIO'] == usr]
+                
+                for _, p in pro_usr.iterrows():
+                    res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                    if not res_p.empty and pd.notna(res_p.iloc[0]['R1']):
+                        pts, exa, gen = calcular_detalle(res_p.iloc[0]['R1'], res_p.iloc[0]['R2'], p['P1'], p['P2'])
+                        pts_total += pts
+                        exa_total += exa
+                        gen_total += gen
+                
+                ranking_rapido.append({
+                    'USUARIO': usr, 
+                    'PUNTOS': pts_total, 
+                    'EXACTOS': exa_total, 
+                    'GENERALES': gen_total
+                })
+            
+            df_test_rank = pd.DataFrame(ranking_rapido).sort_values(by='PUNTOS', ascending=False).reset_index(drop=True)
+            
+            # 3. Extraer datos específicos del usuario seleccionado
+            datos_usr = df_test_rank[df_test_rank['USUARIO'] == u_nick].iloc[0]
+            posicion_usr = df_test_rank[df_test_rank['USUARIO'] == u_nick].index[0]
+            
+            # 4. Lógica de insignias (Basada en el cálculo fresco)
+            css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
+            
+            if posicion_usr == 0 and datos_usr['PUNTOS'] > 0: css["puntero"] = ""
+            if datos_usr['EXACTOS'] >= 5: css["master"] = ""
+            
+            max_gen = df_test_rank['GENERALES'].max()
+            if datos_usr['GENERALES'] == max_gen and max_gen > 0: css["mentalista"] = ""
+            
+            if len(df_test_rank) > 2 and posicion_usr == (len(df_test_rank) - 1): css["lento"] = ""
+            if int(u_sel.get('ID', 99)) <= 3: css["fundador"] = ""
 
-            st.subheader("🧪 Test de Insignias")
-# --- LÓGICA DE INSIGNIAS: MODO SEGURO (Toma datos directos del Ranking) ---
-            if 'user_sel' in locals() and user_sel is not None:
-                u_sel = user_sel
-                nom_sel = str(u_sel['NOMBRE']).strip().lower()
-                
-                # 1. Buscamos al usuario en el df_ranking que ya está calculado
-                # Importante: df_ranking debe existir y estar ordenado como en la tabla
-                df_rank_copy = df_ranking.copy().reset_index(drop=True)
-                match_rank = df_rank_copy[df_rank_copy['JUGADOR'].astype(str).str.strip().str.lower() == nom_sel]
-                
-                css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
-                label_fire = ""
+            # 5. Racha ON FIRE
+            u_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
+            r_act, r_max = 0, 0
+            for _, p in u_pro_sorted.iterrows():
+                p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
+                    _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
+                    if exa == 1:
+                        r_act += 1
+                        r_max = max(r_max, r_act)
+                    else: r_act = 0
             
-                if not match_rank.empty:
-                    idx = match_rank.index[0] # Su posición real (0 es el primero)
-                    row_r = match_rank.iloc[0]
-                    
-                    # 🏆 PUNTERO: Si es el índice 0 del ranking
-                    if idx == 0: css["puntero"] = ""
-            
-                    # 🎯 MASTER: Exactos >= 5
-                    if row_r.get('EXACTOS', 0) >= 5: css["master"] = ""
-                    
-                    # 🧙‍♂️ MENTALISTA: Si sus generales son iguales al máximo global
-                    max_gen_global = df_rank_copy['GENERALES'].max()
-                    if row_r.get('GENERALES', 0) == max_gen_global and max_gen_global > 0:
-                        css["mentalista"] = ""
-            
-                    # 🐌 LENTO: Si es el último de la lista
-                    if len(df_rank_copy) > 2 and idx == (len(df_rank_copy) - 1):
-                        css["lento"] = ""
-            
-                # 🏅 FUNDADOR: (Este no depende del ranking, sino del ID original)
-                if int(u_sel.get('ID', 99)) <= 3: css["fundador"] = ""
-            
-                # 🔥 ON FIRE: (Buscamos si en el ranking el nombre ya trae el fueguito)
-                # Si en tu ranking el nombre sale como "Juan 🔥x3", lo detectamos así:
-                nombre_en_ranking = str(match_rank.iloc[0]['JUGADOR']) if not match_rank.empty else ""
-                if "🔥" in nombre_en_ranking:
-                    css["onfire"] = ""
-                    # Intentamos extraer el x3 si existe
-                    if "x" in nombre_en_ranking:
-                        label_fire = "x" + nombre_en_ranking.split("x")[-1]
-    
-                # --- DISEÑO VISUAL ---
-                foto = u_sel.get('AVATAR_URL')
-                if not foto or pd.isna(foto):
-                    foto = f"https://ui-avatars.com{u_sel['NOMBRE']}&background=random"
-    
-                st.markdown(f"""
-                    <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 10px;">
-                        <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
-                            <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
-                            <div style="font-weight: bold; font-size: 0.8em; margin-top: 5px;">{u_sel['NOMBRE']}</div>
-                            <div style="font-size: 0.65em; color: #007bff;">{u_sel.get('EQUIPO FAVORITO', '')}</div>
-                        </div>
-                        <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 5px;">
-                            <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
-                            <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
-                            <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
-                            <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
-                            <span title="On Fire {label_fire}" style="font-size: 1.7em; {css['onfire']}">🔥</span>
-                            <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
-                        </div>
+            label_fire = f"x{r_max}" if r_max >= 3 else ""
+            if r_max >= 3: css["onfire"] = ""
+
+            # 6. Renderizado HTML (El mismo que veníamos usando)
+            foto = u_sel.get('AVATAR_URL')
+            if not foto or pd.isna(foto):
+                foto = f"https://ui-avatars.com{u_nombre}&background=random"
+
+            st.markdown(f"""
+                <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
+                        <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
+                        <div style="font-weight: bold; font-size: 0.8em; margin-top: 5px;">{u_nombre}</div>
                     </div>
-                    <div style="padding: 0 10px;">
-                        <p style="font-size: 0.8em; color: #666; font-style: italic;">"{u_sel.get('DESCRIPCION', '')}"</p>
+                    <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 5px;">
+                        <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
+                        <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
+                        <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
+                        <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
+                        <span title="On Fire {label_fire}" style="font-size: 1.7em; {css['onfire']}">🔥</span>
+                        <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
                     </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.info("Selecciona un usuario en la tabla de la izquierda para probar.")
+                </div>
+            """, unsafe_allow_html=True)
 #---------------------------------------
         
             st.subheader("👥 Gestión de Usuarios")
