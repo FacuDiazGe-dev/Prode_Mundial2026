@@ -821,13 +821,13 @@ with col_derecha:
             </div>
         """, unsafe_allow_html=True)
             
-            # --- PREDICCIONES DEL USUARIO ---
+        # --- PREDICCIONES DEL USUARIO ---
         st.markdown("---")
         st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
         pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
             
         if pro_user_sel.empty:
-                st.warning("Sin pronósticos.")
+            st.warning("Sin pronósticos.")
         else:
             with st.container(height=400):
                 for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
@@ -848,7 +848,6 @@ with col_derecha:
                             <div style="width: 35%; text-align: left;">{i2} {p_inf['Equipo_2']}</div>
                         </div>
                         """, unsafe_allow_html=True)
-
 
 # ---------- MENU FORO ----------------------------------------------------
 elif menu == "💬 Foro":
