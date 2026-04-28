@@ -806,6 +806,7 @@ elif menu == "👥 Jugadores":
                         <div style="flex: 1; text-align: center; border-right: 1px solid #eee; padding-right: 10px;">
                             <img src="{foto_jugador}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; border: 3px solid #1f3b4d;">
                             <div style="font-weight: bold; font-size: 1em; margin-top:5px;">{user_sel['NOMBRE']}</div>
+                             <p style="margin-top: 10px;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}</p>
                         </div>
                         <div style="flex: 2; text-align: left;">
                             <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
