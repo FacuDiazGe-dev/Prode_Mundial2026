@@ -158,7 +158,7 @@ def registrar_usuario(datos_nuevos):
         return False
 
 # --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) --------------------------------------------------------
-# --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) ---
+
 if 'autenticado' not in st.session_state:
     st.session_state['autenticado'] = False
 if 'mostrar_registro' not in st.session_state:
@@ -748,26 +748,11 @@ elif menu == "👥 Jugadores":
             
 #------------------------  COLUMNA DERECHA / PERFIL INSIGNIAS  y PRONOSTICOS -------------------------------------
 
-    with col_derecha:
+   with col_derecha:
         if 'user_sel' in locals():
-            # --- 1. DATOS BÁSICOS Y AVATAR ---
             u_sel = user_sel
-            foto = u_sel.get('AVATAR_URL')
-            if not foto or pd.isna(foto):
-                foto = f"https://ui-avatars.com{u_sel['NOMBRE']}&background=random"
             
-            st.markdown(f"""
-                <div style="text-align: center;">
-                    <img src="{foto}" style="border-radius: 50%; width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
-                    <h3 style="margin-bottom: 0;">{u_sel['NOMBRE']}</h3>
-                    <p style="color: gray;">@{u_sel['USUARIO']}</p>
-                </div>
-                <hr style="margin: 10px 0;">
-                <p style="font-size: 0.9em;"><b>⚽ Equipo:</b> {u_sel['EQUIPO FAVORITO']}</p>
-                <p style="font-size: 0.9em;"><b>📝 Bio:</b> <i>"{u_sel['DESCRIPCION']}"</i></p>
-            """, unsafe_allow_html=True)
-
-            # --- 2. LÓGICA DE LOGROS (Corregida) ---
+            # --- 1. LÓGICA DE LOGROS (Cálculos previos) ---
             user_sel_name = str(u_sel['NOMBRE']).strip()
             datos_rank_user = df_ranking[df_ranking['JUGADOR'].str.strip() == user_sel_name]
             
@@ -776,25 +761,17 @@ elif menu == "👥 Jugadores":
 
             if not datos_rank_user.empty:
                 row_u = datos_rank_user.iloc[0]
-                
-                # Puntero (El que tiene más puntos en la tabla)
                 if pd.to_numeric(row_u['PUNTOS']) == pd.to_numeric(df_ranking['PUNTOS']).max() and pd.to_numeric(df_ranking['PUNTOS']).max() > 0:
                     css_puntero = ""
-
-                # Master (Exactos >= 5)
                 if int(row_u['EXACTOS']) >= 5:
                     css_master = ""
-
-                # Mentalista (Máximo en generales)
                 max_gen = pd.to_numeric(df_ranking['GENERALES']).max()
                 if int(row_u['GENERALES']) == max_gen and max_gen > 0:
                     css_mentalista = ""
-
-                # Lento (Último lugar con puntos menores al líder)
                 if user_sel_name == df_ranking.iloc[-1]['JUGADOR'] and len(df_ranking) > 2:
                     css_lento = ""
 
-            # On Fire (Racha de 3 exactos)
+            # On Fire
             user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == u_sel['USUARIO']].sort_values('N_PARTIDO')
             racha_act, racha_max = 0, 0
             for _, p in user_pro_sorted.iterrows():
@@ -810,19 +787,35 @@ elif menu == "👥 Jugadores":
                 css_onfire = ""
                 label_fire = f"x{racha_max}"
 
-            # Fundador (ID <= 3)
-            if int(u_sel['ID']) <= 3: css_fundador = ""
-            else: css_fundador = "filter: grayscale(100%); opacity: 0.15;"
+            # Fundador
+            css_fundador = "" if int(u_sel['ID']) <= 3 else "filter: grayscale(100%); opacity: 0.15;"
 
-            # --- 3. DIBUJAR INSIGNIAS ---
+            # --- 2. DISEÑO VISUAL (Avatar Izquierda | Insignias Derecha) ---
+            foto = u_sel.get('AVATAR_URL')
+            if not foto or pd.isna(foto):
+                foto = f"https://ui-avatars.com{u_sel['NOMBRE']}&background=random"
+
             st.markdown(f"""
-                <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; background: #f0f2f6; padding: 10px; border-radius: 10px;">
-                    <span title="Puntero" style="font-size: 1.5em; {css_puntero}">🏆</span>
-                    <span title="Master Exactos" style="font-size: 1.5em; {css_master}">🎯</span>
-                    <span title="Mentalista" style="font-size: 1.5em; {css_mentalista}">🧙‍♂️</span>
-                    <span title="Fundador" style="font-size: 1.5em; {css_fundador}">🏅</span>
-                    <span title="On Fire {label_fire}" style="font-size: 1.5em; {css_onfire}">🔥</span>
-                    <span title="El más lento" style="font-size: 1.5em; {css_lento}">🐌</span>
+                <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <!-- LADO IZQUIERDO: FOTO Y NOMBRE -->
+                    <div style="flex: 0 0 100px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
+                        <img src="{foto}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; border: 2px solid #007bff;">
+                        <div style="font-weight: bold; font-size: 0.9em; margin-top: 5px; line-height: 1.1;">{u_sel['NOMBRE']}</div>
+                        <div style="font-size: 0.7em; color: #007bff; font-weight: bold;">{u_sel['EQUIPO FAVORITO']}</div>
+                    </div>
+                    <!-- LADO DERECHO: INSIGNIAS -->
+                    <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
+                        <span title="Puntero" style="font-size: 1.8em; {css_puntero}">🏆</span>
+                        <span title="Master Exactos" style="font-size: 1.8em; {css_master}">🎯</span>
+                        <span title="Mentalista" style="font-size: 1.8em; {css_mentalista}">🧙‍♂️</span>
+                        <span title="Fundador" style="font-size: 1.8em; {css_fundador}">🏅</span>
+                        <span title="On Fire {label_fire}" style="font-size: 1.8em; {css_onfire}">🔥</span>
+                        <span title="El más lento" style="font-size: 1.8em; {css_lento}">🐌</span>
+                    </div>
+                </div>
+                <!-- DEBAJO: DESCRIPCIÓN -->
+                <div style="margin-top: 10px; padding: 0 10px;">
+                    <p style="font-size: 0.85em; color: #555; font-style: italic;">" {u_sel['DESCRIPCION']} "</p>
                 </div>
             """, unsafe_allow_html=True)
                 
