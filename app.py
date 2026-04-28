@@ -516,19 +516,86 @@ elif menu == "📝 Mis Pronósticos":
         
         esta_bloqueado = not (es_tiempo_valido and modo_edicion)
 
-        with st.form("form_pronosticos_v2"):
             lista_nuevos_pro = []
+        
+        for i, row in df_res_p.sort_values('N_PARTIDO').iterrows():
+            id_p = int(row['N_PARTIDO'])
+            match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
             
-            for i, row in df_res_p.sort_values('N_PARTIDO').iterrows():
-                id_p = int(row['N_PARTIDO'])
-                match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
+            # Valores de la base de datos
+            v1_db = int(match.iloc[0]['P1']) if not match.empty and pd.notna(match.iloc[0]['P1']) else 0
+            v2_db = int(match.iloc[0]['P2']) if not match.empty and pd.notna(match.iloc[0]['P2']) else 0
+            
+            # Sincronizar Session State
+            if f"p1_{id_p}" not in st.session_state: st.session_state[f"p1_{id_p}"] = v1_db
+            if f"p2_{id_p}" not in st.session_state: st.session_state[f"p2_{id_p}"] = v2_db
+
+            # Banderas
+            bandera1 = get_flag_img(row['Equipo_1'])
+            bandera2 = get_flag_img(row['Equipo_2'])
+            
+            # Contenedor Visual
+            st.markdown(f"""
+                <div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:5px; display: flex; align-items: center; justify-content: space-between;'>
+                    <div style='display: flex; align-items: center; gap: 8px; width: 45%;'>
+                        <img src="{bandera1}" width="20">
+                        <span style='font-size: 0.9em; font-weight: bold;'>{row['Equipo_1']}</span>
+                    </div>
+                    <div style='display: flex; align-items: center; gap: 8px; width: 45%; justify-content: flex-end;'>
+                        <span style='font-size: 0.9em; font-weight: bold;'>{row['Equipo_2']}</span>
+                        <img src="{bandera2}" width="20">
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Marcador interactivo [ - ] [ 0 ] [ + ]
+            c_izq, c_vs, c_der = st.columns([1, 0.2, 1])
+            
+            with c_izq:
+                m1, v1, p1 = st.columns([1,1,1])
+                if m1.button("➖", key=f"btn_m1_{id_p}", disabled=esta_bloqueado):
+                    if st.session_state[f"p1_{id_p}"] > 0:
+                        st.session_state[f"p1_{id_p}"] -= 1
+                        st.rerun()
+                v1.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p1_{id_p}']}</h3>", unsafe_allow_html=True)
+                if p1.button("➕", key=f"btn_p1_{id_p}", disabled=esta_bloqueado):
+                    st.session_state[f"p1_{id_p}"] += 1
+                    st.rerun()
+
+            c_vs.markdown("<h3 style='text-align:center;'>:</h3>", unsafe_allow_html=True)
+
+            with c_der:
+                m2, v2, p2 = st.columns([1,1,1])
+                if m2.button("➖", key=f"btn_m2_{id_p}", disabled=esta_bloqueado):
+                    if st.session_state[f"p2_{id_p}"] > 0:
+                        st.session_state[f"p2_{id_p}"] -= 1
+                        st.rerun()
+                v2.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p2_{id_p}']}</h3>", unsafe_allow_html=True)
+                if p2.button("➕", key=f"btn_p2_{id_p}", disabled=esta_bloqueado):
+                    st.session_state[f"p2_{id_p}"] += 1
+                    st.rerun()
+            
+            st.markdown("---")
+
+        # --- BOTÓN DE GUARDADO FINAL (FUERA DEL FORM) ---
+        if es_tiempo_valido and modo_edicion:
+            if st.button("💾 GUARDAR TODO EL PRODE", use_container_width=True, type="primary"):
+                lista_final = []
+                for i, row in df_res_p.iterrows():
+                    idx = int(row['N_PARTIDO'])
+                    lista_final.append({
+                        "N_PARTIDO": idx, 
+                        "USUARIO": user_actual, 
+                        "P1": st.session_state[f"p1_{idx}"], 
+                        "P2": st.session_state[f"p2_{idx}"]
+                    })
                 
-                v1 = int(match.iloc[0]['P1']) if not match.empty and pd.notna(match.iloc[0]['P1']) else 0
-                v2 = int(match.iloc[0]['P2']) if not match.empty and pd.notna(match.iloc[0]['P2']) else 0
-                
-                # Obtenemos banderas para esta fila
-                bandera1 = get_flag_img(row['Equipo_1'])
-                bandera2 = get_flag_img(row['Equipo_2'])
+                df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
+                df_guardar = pd.concat([df_otros, pd.DataFrame(lista_final)], ignore_index=True)
+                conn.update(worksheet="PRONOSTICOS", data=df_guardar)
+                st.cache_data.clear()
+                st.success("✅ ¡Pronósticos guardados!")
+                st.rerun()
                 
 # CONTENEDOR COMPACTO: Banderas + Nombres
                 # CONTENEDOR COMPACTO: Versión ultra-estable
