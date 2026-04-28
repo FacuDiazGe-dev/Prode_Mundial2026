@@ -630,49 +630,66 @@ elif menu == "👥 Jugadores":
         st.subheader("👥 Jugadores Inscritos")
         df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
         
-        if not df_usuarios.empty:
-            nombres_jugadores = df_usuarios['NOMBRE'].tolist()
-            nombre_sel = st.selectbox("Selecciona un jugador:", nombres_jugadores)
-            # Buscamos la fila del usuario seleccionado
-            user_sel_row = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel]
-            if not user_sel_row.empty:
-                user_sel = user_sel_row.iloc[0]
-            
-                st.markdown("---")
-                st.subheader(f"📈 Evolución de {nombre_sel}")
-                
-                df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
-                partidos_jugados = df_res.dropna(subset=['R1']).sort_values('N_PARTIDO')
-                
-                if partidos_jugados.empty:
-                    st.info("La evolución aparecerá con el primer resultado oficial.")
-                else:
-                    evolucion_data = []
-                    suma_user, suma_liga = 0, 0
-                    total_jugadores = len(df_usuarios)
+ 1. Recorremos los partidos (FUERA DEL FORM)
+for i, row in df_res_p.sort_values('N_PARTIDO').iterrows():
+    id_p = int(row['N_PARTIDO'])
+    match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
+    
+    # Valores iniciales
+    v1_ini = int(match.iloc[0]['P1']) if not match.empty else 0
+    v2_ini = int(match.iloc[0]['P2']) if not match.empty else 0
+    
+    # Inicializar Session State para que los botones funcionen
+    if f"p1_{id_p}" not in st.session_state: st.session_state[f"p1_{id_p}"] = v1_ini
+    if f"p2_{id_p}" not in st.session_state: st.session_state[f"p2_{id_p}"] = v2_ini
 
-                    for _, res_row in partidos_jugados.iterrows():
-                        id_p = int(res_row['N_PARTIDO'])
-                        u_pr = df_pro_total[(df_pro_total['USUARIO'] == user_sel['USUARIO']) & (df_pro_total['N_PARTIDO'] == id_p)]
-                        if not u_pr.empty:
-                            pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], u_pr.iloc[0]['P1'], u_pr.iloc[0]['P2'])
-                            suma_user += pts
-                        
-                        pts_liga_partido = 0
-                        todos_pro_partido = df_pro_total[df_pro_total['N_PARTIDO'] == id_p]
-                        for _, p_row in todos_pro_partido.iterrows():
-                            p_pts, _, _ = calcular_detalle(res_row['R1'], res_row['R2'], p_row['P1'], p_row['P2'])
-                            pts_liga_partido += p_pts
-                        
-                        suma_liga += (pts_liga_partido / total_jugadores) if total_jugadores > 0 else 0
-                        evolucion_data.append({"Partido": id_p, "Tus Puntos": suma_user, "Promedio Liga": round(suma_liga, 1)})
+    # --- DISEÑO DEL MARCADOR ---
+    # Fila de nombres y banderas (la que ya tenías)
+    st.markdown(f"<div style='background-color:#f8f9fa; padding:5px; border-radius:5px;'><b>{row['Equipo_1']} vs {row['Equipo_2']}</b></div>", unsafe_allow_html=True)
 
-                    df_evo = pd.DataFrame(evolucion_data).sort_values("Partido").set_index("Partido")
-                    st.area_chart(df_evo, color=["#28a745", "#adb5bd"])
+    # Fila de Botones: [ - Num + ]  VS  [ - Num + ]
+    c_izq, c_vs, c_der = st.columns([1, 0.2, 1])
 
-                st.markdown("---")
-                st.write("### 📋 Lista General")
-                st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO']], use_container_width=True, hide_index=True)
+    with c_izq:
+        # Usamos 3 columnas pequeñas para: Menos | Número | Más
+        b1, b2, b3 = st.columns([1,1,1])
+        if b1.button("➖", key=f"m1_{id_p}", disabled=esta_bloqueado):
+            if st.session_state[f"p1_{id_p}"] > 0: st.session_state[f"p1_{id_p}"] -= 1; st.rerun()
+        b2.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p1_{id_p}']}</h3>", unsafe_allow_html=True)
+        if b3.button("➕", key=f"a1_{id_p}", disabled=esta_bloqueado):
+            st.session_state[f"p1_{id_p}"] += 1; st.rerun()
+
+    with c_vs:
+        st.markdown("<h3 style='text-align:center;'>:</h3>", unsafe_allow_html=True)
+
+    with c_der:
+        b4, b5, b6 = st.columns([1,1,1])
+        if b4.button("➖", key=f"m2_{id_p}", disabled=esta_bloqueado):
+            if st.session_state[f"p2_{id_p}"] > 0: st.session_state[f"p2_{id_p}"] -= 1; st.rerun()
+        b5.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p2_{id_p}']}</h3>", unsafe_allow_html=True)
+        if b6.button("➕", key=f"a2_{id_p}", disabled=esta_bloqueado):
+            st.session_state[f"p2_{id_p}"] += 1; st.rerun()
+
+# 2. BOTÓN DE GUARDAR AL FINAL (Este sí puede ser un botón simple)
+if es_tiempo_valido and modo_edicion:
+    if st.button("💾 GUARDAR TODO EL PRODE", use_container_width=True):
+        # Armamos la lista para guardar usando los datos del session_state
+        lista_final = []
+        for i, row in df_res_p.iterrows():
+            id_p = int(row['N_PARTIDO'])
+            lista_final.append({
+                "N_PARTIDO": id_p, 
+                "USUARIO": user_actual, 
+                "P1": st.session_state[f"p1_{id_p}"], 
+                "P2": st.session_state[f"p2_{id_p}"]
+            })
+        
+        # Lógica de guardado en GSheets...
+        df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
+        df_final = pd.concat([df_otros, pd.DataFrame(lista_final)], ignore_index=True)
+        conn.update(worksheet="PRONOSTICOS", data=df_final)
+        st.success("¡Guardado!")
+        st.rerun()
                 
     with col_derecha:
         if 'user_sel' in locals():
