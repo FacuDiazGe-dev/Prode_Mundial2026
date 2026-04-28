@@ -751,59 +751,67 @@ elif menu == "👥 Jugadores":
     with col_derecha:
         if 'user_sel' in locals():
             u_sel = user_sel
+            # --- 1. PREPARACIÓN DE DATOS (IGUAL AL RANKING) ---
+            nombre_buscado = str(u_sel['NOMBRE']).strip()
+            # Buscamos la fila del usuario en el DataFrame de ranking
+            datos_rank_user = df_ranking[df_ranking['JUGADOR'].str.strip() == nombre_buscado]
             
-            # --- 1. LÓGICA DE LOGROS (Cálculos previos) ---
-            user_sel_name = str(u_sel['NOMBRE']).strip()
-            datos_rank_user = df_ranking[df_ranking['JUGADOR'].str.strip() == user_sel_name]
-            
-            css_puntero = css_master = css_mentalista = css_lento = css_onfire = "filter: grayscale(100%); opacity: 0.15;"
+            # Inicializamos filtros de gris
+            css_puntero = css_master = css_mentalista = css_lento = css_onfire = css_fundador = "filter: grayscale(100%); opacity: 0.15;"
             label_fire = ""
 
             if not datos_rank_user.empty:
+                # Obtenemos la fila y su posición (index + 1)
                 row_u = datos_rank_user.iloc[0]
-                if pd.to_numeric(row_u['PUNTOS']) == pd.to_numeric(df_ranking['PUNTOS']).max() and pd.to_numeric(df_ranking['PUNTOS']).max() > 0:
-                    css_puntero = ""
-                if int(row_u['EXACTOS']) >= 5:
-                    css_master = ""
-                max_gen = pd.to_numeric(df_ranking['GENERALES']).max()
-                if int(row_u['GENERALES']) == max_gen and max_gen > 0:
-                    css_mentalista = ""
-                if user_sel_name == df_ranking.iloc[-1]['JUGADOR'] and len(df_ranking) > 2:
-                    css_lento = ""
+                posicion = datos_rank_user.index[0] + 1 
+                
+                # 1. 👑 PUNTERO
+                if posicion == 1: css_puntero = ""
 
-            # On Fire
+                # 2. 🎯 MASTER
+                if row_u['EXACTOS'] >= 5: css_master = ""
+                
+                # 3. 🧙‍♂️ MENTALISTA
+                max_gen = df_ranking['GENERALES'].max()
+                if row_u['GENERALES'] == max_gen and max_gen > 0: css_mentalista = ""
+
+                # 5. 🐌 LENTO
+                if len(df_ranking) > 2 and posicion == len(df_ranking): css_lento = ""
+
+            # 4. 🏅 FUNDADOR (Usando el u_sel directamente)
+            if int(u_sel['ID']) <= 3: css_fundador = ""
+
+            # 6. 🔥 ON FIRE (Copiado de tu función de apoyo)
             user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == u_sel['USUARIO']].sort_values('N_PARTIDO')
-            racha_act, racha_max = 0, 0
+            r_act, r_max = 0, 0
             for _, p in user_pro_sorted.iterrows():
-                p_ref = df_res[df_res['N_PARTIDO'].astype(int) == int(p['N_PARTIDO'])]
-                if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
-                    _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
-                    if exa == 1:
-                        racha_act += 1
-                        racha_max = max(racha_max, racha_act)
-                    else: racha_act = 0
+                # Nota: df_res es tu df de resultados reales
+                partido_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                if not partido_ref.empty:
+                    res_p = partido_ref.iloc[0]
+                    if pd.notna(res_p['R1']):
+                        _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
+                        if exa == 1:
+                            r_act += 1
+                            r_max = max(r_max, r_act)
+                        else: r_act = 0
             
-            if racha_max >= 3:
+            if r_max >= 3:
                 css_onfire = ""
-                label_fire = f"x{racha_max}"
+                label_fire = f"x{r_max}"
 
-            # Fundador
-            css_fundador = "" if int(u_sel['ID']) <= 3 else "filter: grayscale(100%); opacity: 0.15;"
-
-            # --- 2. DISEÑO VISUAL (Avatar Izquierda | Insignias Derecha) ---
+            # --- 2. DISEÑO VISUAL ---
             foto = u_sel.get('AVATAR_URL')
             if not foto or pd.isna(foto):
                 foto = f"https://ui-avatars.com{u_sel['NOMBRE']}&background=random"
 
             st.markdown(f"""
                 <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <!-- LADO IZQUIERDO: FOTO Y NOMBRE -->
                     <div style="flex: 0 0 100px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
                         <img src="{foto}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; border: 2px solid #007bff;">
                         <div style="font-weight: bold; font-size: 0.9em; margin-top: 5px; line-height: 1.1;">{u_sel['NOMBRE']}</div>
                         <div style="font-size: 0.7em; color: #007bff; font-weight: bold;">{u_sel['EQUIPO FAVORITO']}</div>
                     </div>
-                    <!-- LADO DERECHO: INSIGNIAS -->
                     <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
                         <span title="Puntero" style="font-size: 1.8em; {css_puntero}">🏆</span>
                         <span title="Master Exactos" style="font-size: 1.8em; {css_master}">🎯</span>
@@ -813,7 +821,6 @@ elif menu == "👥 Jugadores":
                         <span title="El más lento" style="font-size: 1.8em; {css_lento}">🐌</span>
                     </div>
                 </div>
-                <!-- DEBAJO: DESCRIPCIÓN -->
                 <div style="margin-top: 10px; padding: 0 10px;">
                     <p style="font-size: 0.85em; color: #555; font-style: italic;">" {u_sel['DESCRIPCION']} "</p>
                 </div>
