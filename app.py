@@ -86,7 +86,7 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 def registrar_usuario(datos_nuevos):
     try:
         # 1. Leer la tabla actual (sin usar caché para ver lo real)
-        df_actual = conn.read(worksheet="USUARIOS", ttl=0)
+        df_actual = conn.read(worksheet="USUARIOS", ttl=10)
         
         # 2. Limpiar nombres para comparar (evita duplicados por espacios o mayúsculas)
         nuevo_u_clean = str(datos_nuevos["USUARIO"]).strip().lower()
@@ -149,7 +149,7 @@ if not st.session_state['autenticado']:
             u = st.text_input("Usuario")
             p = st.text_input("Contraseña", type="password")
             if st.form_submit_button("Iniciar Sesión"):
-                df_u = conn.read(worksheet="USUARIOS", ttl=0)
+                df_u = conn.read(worksheet="USUARIOS", ttl=10)
                 # Validación exacta
                 user_match = df_u[(df_u['USUARIO'].astype(str) == str(u)) & (df_u['CONTRASEÑA'].astype(str) == str(p))]
                 
@@ -237,8 +237,8 @@ def calcular_detalle(r1, r2, p1, p2):
 
 # 1. Cargamos los datos más recientes
 df_res_oficial = df_res 
-df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=0)
-df_users_list = conn.read(worksheet="USUARIOS", ttl=0)
+df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=10)
+df_users_list = conn.read(worksheet="USUARIOS", ttl=10)
 
 # Función de apoyo para procesar insignias dentro de la tabla
 def procesar_nombres_ranking(row, df, df_pro, df_res, df_users):
@@ -431,8 +431,8 @@ if menu == "🏠 Inicio":
 
         # --- BLOQUE 2: FORO (Actividad Reciente) ---------------------------------------------------------------------------------------
         st.subheader("💬 Actividad Reciente")
-        df_foro_inicio = conn.read(worksheet="FORO", ttl=0)
-        df_u_ref = conn.read(worksheet="USUARIOS", ttl=0) 
+        df_foro_inicio = conn.read(worksheet="FORO", ttl=10)
+        df_u_ref = conn.read(worksheet="USUARIOS", ttl=10) 
         
         with st.container(height=350):
             if df_foro_inicio.empty:
@@ -501,8 +501,8 @@ elif menu == "📝 Mis Pronósticos":
         # Carga segura con manejo de errores
         try:
             user_actual = st.session_state['user_data']['USUARIO']
-            df_res_p = conn.read(worksheet="RESULTADOS", ttl=0)
-            df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)
+            df_res_p = conn.read(worksheet="RESULTADOS", ttl=10)
+            df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=10)
             df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
         except Exception:
             st.error("⚠️ Conexión saturada. Por favor, refresca la página.")
@@ -647,7 +647,7 @@ elif menu == "📝 Mis Pronósticos":
                                 st.error(f"Error al subir: {res_url}")
 
                     try:
-                        df_u = conn.read(worksheet="USUARIOS", ttl=0)
+                        df_u = conn.read(worksheet="USUARIOS", ttl=10)
                         df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = [n_nom, nueva_url, n_equ, n_bio]
                         conn.update(worksheet="USUARIOS", data=df_u)
                         
@@ -670,7 +670,7 @@ elif menu == "📝 Mis Pronósticos":
 elif menu == "👥 Jugadores":
     with col_principal:
         st.subheader("👥 Jugadores Inscritos")
-        df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
+        df_usuarios = conn.read(worksheet="USUARIOS", ttl=10)
         
         if not df_usuarios.empty:
             # 1. Buscador de jugadores
@@ -810,7 +810,7 @@ elif menu == "👥 Jugadores":
 
 # ---------- MENU FORO ----------------------------------------------------
 elif menu == "💬 Foro":
-    df_foro = conn.read(worksheet="FORO", ttl=0)
+    df_foro = conn.read(worksheet="FORO", ttl=10)
     user_actual = st.session_state['user_data']['USUARIO']
     
     with col_principal:
@@ -877,7 +877,7 @@ elif menu == "⚙️ Panel Control":
     if st.session_state['user_data']['ROL'] == 'admin':
         with col_principal:
             st.subheader("⚙️ Gestión de Resultados y Horarios")
-            df_res_admin = conn.read(worksheet="RESULTADOS", ttl=0)
+            df_res_admin = conn.read(worksheet="RESULTADOS", ttl=10)
             
             with st.form("form_admin_full"):
                 upd = []
@@ -913,8 +913,8 @@ elif menu == "⚙️ Panel Control":
         # COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%)
         with col_derecha:
             st.subheader("👥 Gestión de Usuarios")
-            df_users_adm = conn.read(worksheet="USUARIOS", ttl=0)
-            df_pro_adm = conn.read(worksheet="PRONOSTICOS", ttl=0)
+            df_users_adm = conn.read(worksheet="USUARIOS", ttl=10)
+            df_pro_adm = conn.read(worksheet="PRONOSTICOS", ttl=10)
 
             # Filtramos para no borrar al admin logueado
             usuarios_borrables = df_users_adm[df_users_adm['USUARIO'] != st.session_state['user_data']['USUARIO']]
