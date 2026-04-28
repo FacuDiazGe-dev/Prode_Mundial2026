@@ -84,6 +84,9 @@ MENSAJE_MANTENIMIENTO = "⚠️ Estamos actualizando los servidores para la pró
 # --- CONEXIÓN ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
+#-----carga de insignias de ranking----
+
+
 # --- LECTURA DE CONFIGURACIÓN DE MANTENIMIENTO ---
 try:
     df_config = conn.read(worksheet="CONFIG", ttl=5)
@@ -265,6 +268,13 @@ def load_data():
     return df_res, df_pro
 
 df_res, df_pro = load_data()
+#----------------------------------------------------------
+
+df_res, df_pro = load_data()
+df_usuarios = conn.read(worksheet="USUARIOS", ttl=10)
+
+# Inyectar Ranking Global
+st.session_state['df_ranking_global'] = obtener_ranking_global(df_usuarios, df_pro, df_res)
 
 # --- FUNCIÓN DE CÁLCULO MEJORADA -------------------------------------------
     
@@ -296,7 +306,29 @@ def calcular_detalle(r1, r2, p1, p2):
 df_res_oficial = df_res 
 df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=10)
 df_users_list = conn.read(worksheet="USUARIOS", ttl=10)
+#----------------------------
 
+
+@st.cache_data(ttl=60) # Cache de 1 minuto para pruebas
+def obtener_ranking_global(df_users, df_pro, df_res):
+    ranking_data = []
+    for _, u in df_users.iterrows():
+        u_nick = u['USUARIO']
+        pts_t, exa_t, gen_t = 0, 0, 0
+        pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
+        
+        for _, p in pro_usr.iterrows():
+            res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+            if not res_p.empty and pd.notna(res_p.iloc[0]['R1']):
+                pts, exa, gen = calcular_detalle(res_p.iloc[0]['R1'], res_p.iloc[0]['R2'], p['P1'], p['P2'])
+                pts_t += pts; exa_t += exa; gen_t += gen
+        
+        ranking_data.append({'USUARIO': u_nick, 'JUGADOR': u['NOMBRE'], 'PUNTOS': pts_t, 'EXACTOS': exa_t, 'GENERALES': gen_t})
+    
+    df_rank = pd.DataFrame(ranking_data).sort_values(by='PUNTOS', ascending=False).reset_index(drop=True)
+    return df_rank
+
+#--------------------------------------------------------
 # Función de apoyo para procesar insignias dentro de la tabla
 def procesar_nombres_ranking(row, df, df_pro, df_res, df_users):
     nombre = row['JUGADOR']
@@ -976,101 +1008,75 @@ elif menu == "⚙️ Panel Control":
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
 #---------------------------test
- 
-            # 1. CARGAMOS DATOS NECESARIOS
-            df_users_adm = conn.read(worksheet="USUARIOS", ttl=10)
+            st.subheader("🧪 Test: Conexión con Ranking Global")
             
-            st.subheader("🔍 Selector de Perfil (Test)")
-            nombres_usuarios = df_users_adm['NOMBRE'].unique().tolist()
-            nombre_seleccionado = st.selectbox("Elige un jugador para testear:", nombres_usuarios, index=None)
+            # 1. Recuperamos el Ranking del Session State (la "Fuente Única de Verdad")
+            df_global = st.session_state.get('df_ranking_global')
         
-            # 2. DEFINIMOS EL USUARIO SELECCIONADO
-            if nombre_seleccionado:
-                user_sel = df_users_adm[df_users_adm['NOMBRE'] == nombre_seleccionado].iloc[0]
+            if df_global is None:
+                st.error("⚠️ El Ranking Global no está inicializado en el Session State.")
+                # Opcional: Forzar carga si no existe
+                if st.button("🔄 Inicializar Ranking Global"):
+                    st.session_state['df_ranking_global'] = obtener_ranking_global(df_usuarios, df_pro, df_res)
+                    st.rerun()
             else:
-                user_sel = None
+                # 2. Selector de usuario (usando el DF global para asegurar que existan)
+                nombres_rank = df_global['JUGADOR'].tolist()
+                nombre_test = st.selectbox("Selecciona un jugador del ranking:", nombres_rank, index=None)
         
-            # 3. EL BLOQUE DE TEST (CORREGIDO)
-            if user_sel is not None:
-                u_sel = user_sel
-                u_nick = u_sel['USUARIO']
-                u_nombre = u_sel['NOMBRE']
+                if nombre_test:
+                    # 3. Buscamos los datos DIRECTAMENTE en el DataFrame global
+                    match = df_global[df_global['JUGADOR'] == nombre_test]
+                    
+                    if not match.empty:
+                        idx_real = match.index[0]
+                        datos_vivos = match.iloc[0]
+                        
+                        # Buscamos datos extra (Avatar, Bio) en la tabla de usuarios original
+                        u_info = df_usuarios[df_usuarios['NOMBRE'] == nombre_test].iloc[0]
         
-                # Procesamos Ranking al vuelo
-                ranking_rapido = []
-                todos_los_usuarios = df_users_adm['USUARIO'].unique()
-                
-                for usr in todos_los_usuarios:
-                    pts_total, exa_total, gen_total = 0, 0, 0
-                    pro_usr = df_pro[df_pro['USUARIO'] == usr]
-                    
-                    for _, p in pro_usr.iterrows():
-                        res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                        if not res_p.empty and pd.notna(res_p.iloc[0]['R1']):
-                            pts, exa, gen = calcular_detalle(res_p.iloc[0]['R1'], res_p.iloc[0]['R2'], p['P1'], p['P2'])
-                            pts_total += pts
-                            exa_total += exa
-                            gen_total += gen
-                    
-                    ranking_rapido.append({'USUARIO': usr, 'PUNTOS': pts_total, 'EXACTOS': exa_total, 'GENERALES': gen_total})
-                
-                df_test_rank = pd.DataFrame(ranking_rapido).sort_values(by='PUNTOS', ascending=False).reset_index(drop=True)
-                
-                # --- CORRECCIÓN CRÍTICA AQUÍ ---
-                match_usr = df_test_rank[df_test_rank['USUARIO'] == u_nick]
-                if not match_usr.empty:
-                    datos_usr = match_usr.iloc[0]
-                    posicion_usr = match_usr.index[0]
-                    
-                    css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
-                    
-                    if posicion_usr == 0 and datos_usr['PUNTOS'] > 0: css["puntero"] = ""
-                    if int(datos_usr['EXACTOS']) >= 5: css["master"] = ""
-                    
-                    max_gen = df_test_rank['GENERALES'].max()
-                    if int(datos_usr['GENERALES']) == max_gen and max_gen > 0: css["mentalista"] = ""
-                    
-                    if len(df_test_rank) > 2 and posicion_usr == (len(df_test_rank) - 1): css["lento"] = ""
-                    if int(u_sel.get('ID', 99)) <= 3: css["fundador"] = ""
+                        # --- 4. LÓGICA DE INSIGNIAS (Sin cálculos, solo lectura) ---
+                        css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
+                        
+                        # Puntero: Posición 1 (índice 0)
+                        if idx_real == 0 and datos_vivos['PUNTOS'] > 0: css["puntero"] = ""
+                        
+                        # Master: Exactos >= 5
+                        if int(datos_vivos['EXACTOS']) >= 5: css["master"] = ""
+                        
+                        # Mentalista: Si tiene el máximo de generales
+                        if int(datos_vivos['GENERALES']) == df_global['GENERALES'].max() and df_global['GENERALES'].max() > 0:
+                            css["mentalista"] = ""
+                        
+                        # Lento: Última posición
+                        if len(df_global) > 2 and idx_real == (len(df_global) - 1): css["lento"] = ""
         
-                    # Racha ON FIRE
-                    u_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
-                    r_act, r_max = 0, 0
-                    for _, p in u_pro_sorted.iterrows():
-                        p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                        if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
-                            _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
-                            if exa == 1:
-                                r_act += 1
-                                r_max = max(r_max, r_act)
-                            else: r_act = 0
-                    
-                    label_fire = f"x{r_max}" if r_max >= 3 else ""
-                    if r_max >= 3: css["onfire"] = ""
+                        # Fundador: ID <= 3
+                        if int(u_info['ID']) <= 3: css["fundador"] = ""
         
-                    # Foto y HTML
-                    foto = u_sel.get('AVATAR_URL')
-                    if not foto or pd.isna(foto):
-                        foto = f"https://ui-avatars.com{u_nombre}&background=random"
+                        # --- 5. RENDERIZADO ---
+                        foto = u_info.get('AVATAR_URL')
+                        if not foto or pd.isna(foto):
+                            foto = f"https://ui-avatars.com{nombre_test}&background=random"
         
-                    st.markdown(f"""
-                        <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                            <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
-                                <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
-                                <div style="font-weight: bold; font-size: 0.8em; margin-top: 5px;">{u_nombre}</div>
+                        st.markdown(f"""
+                            <div style="display: flex; align-items: center; background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px solid #007bff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
+                                    <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
+                                    <div style="font-weight: bold; font-size: 0.85em; margin-top: 5px;">{nombre_test}</div>
+                                </div>
+                                <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 8px;">
+                                    <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
+                                    <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
+                                    <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
+                                    <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
+                                    <span title="On Fire" style="font-size: 1.7em; {css['onfire']}">🔥</span>
+                                    <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
+                                </div>
                             </div>
-                            <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 5px;">
-                                <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
-                                <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
-                                <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
-                                <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
-                                <span title="On Fire {label_fire}" style="font-size: 1.7em; {css['onfire']}">🔥</span>
-                                <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
-                            </div>
-                        </div>
-                    """, unsafe_allow_html=True)
-            else:
-                st.info("Selecciona un usuario arriba para ver el test.")
+                        """, unsafe_allow_html=True)
+                        
+                        st.success(f"Datos vinculados: Posición #{idx_real + 1} | Puntos: {datos_vivos['PUNTOS']}")
 #---------------------------------------
         
             st.subheader("👥 Gestión de Usuarios")
