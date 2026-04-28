@@ -746,49 +746,51 @@ elif menu == "👥 Jugadores":
     #             </div>
     #         """, unsafe_allow_html=True)
             
-#------------------------  COLUMNA DERECHA / PERFIL INSIGNIAS  y PRONOSTICOS -------------------------------------
-
     with col_derecha:
         if 'user_sel' in locals():
             u_sel = user_sel
-            # --- 1. PREPARACIÓN DE DATOS (IGUAL AL RANKING) ---
-            nombre_buscado = str(u_sel['NOMBRE']).strip()
-            # Buscamos la fila del usuario en el DataFrame de ranking
-            datos_rank_user = df_ranking[df_ranking['JUGADOR'].str.strip() == nombre_buscado]
             
-            # Inicializamos filtros de gris
+            # --- 1. PREPARACIÓN CON "FORZA BRUTA" ---
+            # Convertimos todo a string, quitamos espacios y pasamos a minúsculas para comparar
+            nombre_a_buscar = str(u_sel['NOMBRE']).strip().lower()
+            
+            # Buscamos en el ranking haciendo lo mismo
+            # df_ranking_copia = df_ranking.copy() # Opcional si quieres debuguear
+            match_index = df_ranking[df_ranking['JUGADOR'].astype(str).str.strip().str.lower() == nombre_a_buscar].index
+            
             css_puntero = css_master = css_mentalista = css_lento = css_onfire = css_fundador = "filter: grayscale(100%); opacity: 0.15;"
             label_fire = ""
 
-            if not datos_rank_user.empty:
-                # Obtenemos la fila y su posición (index + 1)
-                row_u = datos_rank_user.iloc[0]
-                posicion = datos_rank_user.index[0] + 1 
+            if not match_index.empty:
+                idx = match_index[0]
+                row_u = df_ranking.loc[idx]
+                posicion = idx + 1 # Asumiendo que el ranking no está re-indexado
                 
-                # 1. 👑 PUNTERO
-                if posicion == 1: css_puntero = ""
+                # 1. 🏆 PUNTERO (Si es el primer índice del ranking ordenado)
+                if idx == 0: css_puntero = ""
 
                 # 2. 🎯 MASTER
-                if row_u['EXACTOS'] >= 5: css_master = ""
+                if int(row_u['EXACTOS']) >= 5: css_master = ""
                 
                 # 3. 🧙‍♂️ MENTALISTA
-                max_gen = df_ranking['GENERALES'].max()
-                if row_u['GENERALES'] == max_gen and max_gen > 0: css_mentalista = ""
+                max_gen = pd.to_numeric(df_ranking['GENERALES']).max()
+                if int(row_u['GENERALES']) == max_gen and max_gen > 0: css_mentalista = ""
 
                 # 5. 🐌 LENTO
-                if len(df_ranking) > 2 and posicion == len(df_ranking): css_lento = ""
-
-            # 4. 🏅 FUNDADOR (Usando el u_sel directamente)
+                if len(df_ranking) > 2 and idx == (len(df_ranking) - 1): css_lento = ""
+            
+            # --- FUERA DEL IF DE RANKING (Logros independientes) ---
+            # 4. 🏅 FUNDADOR (Basado en ID real de la tabla USUARIOS)
             if int(u_sel['ID']) <= 3: css_fundador = ""
 
-            # 6. 🔥 ON FIRE (Copiado de tu función de apoyo)
-            user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == u_sel['USUARIO']].sort_values('N_PARTIDO')
+            # 6. 🔥 ON FIRE (Basado en historial de pronósticos)
+            u_nick = u_sel['USUARIO']
+            user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == u_nick].sort_values('N_PARTIDO')
             r_act, r_max = 0, 0
             for _, p in user_pro_sorted.iterrows():
-                # Nota: df_res es tu df de resultados reales
-                partido_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                if not partido_ref.empty:
-                    res_p = partido_ref.iloc[0]
+                p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                if not p_ref.empty:
+                    res_p = p_ref.iloc[0]
                     if pd.notna(res_p['R1']):
                         _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
                         if exa == 1:
@@ -800,7 +802,7 @@ elif menu == "👥 Jugadores":
                 css_onfire = ""
                 label_fire = f"x{r_max}"
 
-            # --- 2. DISEÑO VISUAL ---
+            # --- DISEÑO (FOTO IZQUIERDA | MEDALLAS DERECHA) ---
             foto = u_sel.get('AVATAR_URL')
             if not foto or pd.isna(foto):
                 foto = f"https://ui-avatars.com{u_sel['NOMBRE']}&background=random"
@@ -809,8 +811,8 @@ elif menu == "👥 Jugadores":
                 <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                     <div style="flex: 0 0 100px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
                         <img src="{foto}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; border: 2px solid #007bff;">
-                        <div style="font-weight: bold; font-size: 0.9em; margin-top: 5px; line-height: 1.1;">{u_sel['NOMBRE']}</div>
-                        <div style="font-size: 0.7em; color: #007bff; font-weight: bold;">{u_sel['EQUIPO FAVORITO']}</div>
+                        <div style="font-weight: bold; font-size: 0.8em; margin-top: 5px; line-height: 1.1;">{u_sel['NOMBRE']}</div>
+                        <div style="font-size: 0.7em; color: #007bff; font-weight: bold;">{u_sel.get('EQUIPO FAVORITO', '')}</div>
                     </div>
                     <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
                         <span title="Puntero" style="font-size: 1.8em; {css_puntero}">🏆</span>
@@ -822,7 +824,7 @@ elif menu == "👥 Jugadores":
                     </div>
                 </div>
                 <div style="margin-top: 10px; padding: 0 10px;">
-                    <p style="font-size: 0.85em; color: #555; font-style: italic;">" {u_sel['DESCRIPCION']} "</p>
+                    <p style="font-size: 0.85em; color: #555; font-style: italic;">" {u_sel.get('DESCRIPCION', '')} "</p>
                 </div>
             """, unsafe_allow_html=True)
                 
