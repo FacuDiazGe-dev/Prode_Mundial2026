@@ -573,26 +573,6 @@ elif menu == "📝 Mis Pronósticos":
                 st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
                 
-        # --- BOTÓN DE GUARDADO FINAL (FUERA DEL FORM) ---
-        if es_tiempo_valido and modo_edicion:
-            if st.button("💾 GUARDAR TODO EL PRODE", use_container_width=True, type="primary"):
-                lista_final = []
-                for i, row in df_res_p.iterrows():
-                    idx = int(row['N_PARTIDO'])
-                    lista_final.append({
-                        "N_PARTIDO": idx, 
-                        "USUARIO": user_actual, 
-                        "P1": st.session_state[f"p1_{idx}"], 
-                        "P2": st.session_state[f"p2_{idx}"]
-                    })
-                
-                df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
-                df_guardar = pd.concat([df_otros, pd.DataFrame(lista_final)], ignore_index=True)
-                conn.update(worksheet="PRONOSTICOS", data=df_guardar)
-                st.cache_data.clear()
-                st.success("✅ ¡Pronósticos guardados!")
-                st.rerun()
-                
 # CONTENEDOR COMPACTO: Banderas + Nombres
                 # CONTENEDOR COMPACTO: Versión ultra-estable
                 html_card = f"""<div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:2px; display: flex; align-items: center; justify-content: space-between;'><div style='display: flex; align-items: center; gap: 8px; width: 45%;'><img src="{bandera1}" width="22" style="border-radius:2px;"><span style='font-size: 0.9em; font-weight: bold; color: #333;'>{row['Equipo_1']}</span></div><div style='font-size: 0.7em; color: #999; font-weight: bold; width: 10%; text-align: center;'>VS</div><div style='display: flex; align-items: center; gap: 8px; width: 45%; justify-content: flex-end;'><span style='font-size: 0.9em; font-weight: bold; color: #333;'>{row['Equipo_2']}</span><img src="{bandera2}" width="22" style="border-radius:2px;"></div></div>"""
