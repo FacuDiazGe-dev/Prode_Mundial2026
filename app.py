@@ -530,32 +530,37 @@ elif menu == "📝 Mis Pronósticos":
                 bandera1 = get_flag_img(row['Equipo_1'])
                 bandera2 = get_flag_img(row['Equipo_2'])
                 
-                # CONTENEDOR COMPACTO CON BANDERAS
+                                # CONTENEDOR COMPACTO: Banderas + Nombres
                 st.markdown(f"""
                     <div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:2px; display: flex; align-items: center; justify-content: space-between;'>
-                        <div style='display: flex; align-items: center; gap: 8px;'>
-                            <img src="{bandera1}" width="20" style="border-radius:2px;">
-                            <b style='font-size: 0.9em;'>{row['Equipo_1']}</b>
+                        <!-- Equipo 1 -->
+                        <div style='display: flex; align-items: center; gap: 8px; width: 45%;'>
+                            <img src="{bandera1}" width="22" style="border-radius:2px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                            <span style='font-size: 0.9em; font-weight: bold; color: #333;'>{row['Equipo_1']}</span>
                         </div>
-                        <span style='font-size: 0.7em; color: gray; font-weight: bold;'>VS</span>
-                        <div style='display: flex; align-items: center; gap: 8px;'>
-                            <b style='font-size: 0.9em;'>{row['Equipo_2']}</b>
-                            <img src="{bandera2}" width="20" style="border-radius:2px;">
+                        
+                        <div style='font-size: 0.7em; color: #999; font-weight: bold; width: 10%; text-align: center;'>VS</div>
+                        
+                        <!-- Equipo 2 -->
+                        <div style='display: flex; align-items: center; gap: 8px; width: 45%; justify-content: flex-end;'>
+                            <span style='font-size: 0.9em; font-weight: bold; color: #333;'>{row['Equipo_2']}</span>
+                            <img src="{bandera2}" width="22" style="border-radius:2px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Inputs en una sola línea muy compacta
+                # Inputs de goles (debajo de la franja de nombres)
                 c1, c_vs, c2 = st.columns([1, 0.2, 1])
                 with c1:
+                    # Usamos label_visibility="collapsed" para que no repita el nombre arriba del cuadrito
                     p1_val = st.number_input(f"Goles {row['Equipo_1']}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
                 with c_vs:
-                    st.write("<div style='text-align:center; margin-top:5px;'>-</div>", unsafe_allow_html=True)
+                    st.write("<div style='text-align:center; margin-top:5px; font-weight:bold;'>:</div>", unsafe_allow_html=True)
                 with c2:
                     p2_val = st.number_input(f"Goles {row['Equipo_2']}", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
                 
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
-                st.markdown("<div style='margin-bottom:15px;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='margin-bottom:12px;'></div>", unsafe_allow_html=True)
 
             if es_tiempo_valido and modo_edicion:
                 if st.form_submit_button("💾 GUARDAR PRONÓSTICOS", use_container_width=True):
