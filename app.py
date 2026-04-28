@@ -976,10 +976,13 @@ elif menu == "⚙️ Panel Control":
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
 #---------------------------test
-            # --- SELECTOR DE PERFILES PARA PRUEBAS ---
+                        # --- SELECTOR DE PERFILES PARA PRUEBAS ---
             st.subheader("🔍 Selector de Perfil")
             
-            # Obtenemos la lista de nombres de la base de datos de usuarios
+            # 1. Cargamos los datos PRIMERO
+            df_users_adm = conn.read(worksheet="USUARIOS", ttl=10)
+            
+            # 2. Ahora sí podemos sacar la lista de nombres
             nombres_usuarios = df_users_adm['NOMBRE'].unique().tolist()
             
             nombre_seleccionado = st.selectbox(
@@ -989,11 +992,14 @@ elif menu == "⚙️ Panel Control":
                 placeholder="Busca un nombre..."
             )
             
-            # Si el admin selecciona a alguien, actualizamos user_sel
+            # 3. Asignamos los datos del usuario seleccionado a user_sel
             if nombre_seleccionado:
                 user_sel = df_users_adm[df_users_adm['NOMBRE'] == nombre_seleccionado].iloc[0]
             else:
                 user_sel = None
+
+# --- A partir de aquí sigue tu bloque de "Test de Insignias" ---
+
             st.subheader("🧪 Test de Insignias")
             if 'user_sel' in locals() and user_sel is not None:
                 u_sel = user_sel
