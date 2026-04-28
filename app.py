@@ -516,13 +516,14 @@ elif menu == "📝 Mis Pronósticos":
         
         esta_bloqueado = not (es_tiempo_valido and modo_edicion)
 
-            lista_nuevos_pro = []
+        # --- CARGA DE DATOS (Asegúrate de que este bloque esté alineado con el try anterior) ---
+        lista_nuevos_pro = []
         
         for i, row in df_res_p.sort_values('N_PARTIDO').iterrows():
             id_p = int(row['N_PARTIDO'])
             match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
             
-            # Valores de la base de datos
+            # Valores iniciales
             v1_db = int(match.iloc[0]['P1']) if not match.empty and pd.notna(match.iloc[0]['P1']) else 0
             v2_db = int(match.iloc[0]['P2']) if not match.empty and pd.notna(match.iloc[0]['P2']) else 0
             
@@ -530,11 +531,10 @@ elif menu == "📝 Mis Pronósticos":
             if f"p1_{id_p}" not in st.session_state: st.session_state[f"p1_{id_p}"] = v1_db
             if f"p2_{id_p}" not in st.session_state: st.session_state[f"p2_{id_p}"] = v2_db
 
-            # Banderas
+            # Banderas y Nombres
             bandera1 = get_flag_img(row['Equipo_1'])
             bandera2 = get_flag_img(row['Equipo_2'])
             
-            # Contenedor Visual
             st.markdown(f"""
                 <div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:5px; display: flex; align-items: center; justify-content: space-between;'>
                     <div style='display: flex; align-items: center; gap: 8px; width: 45%;'>
@@ -548,30 +548,30 @@ elif menu == "📝 Mis Pronósticos":
                 </div>
             """, unsafe_allow_html=True)
             
-            # Marcador interactivo [ - ] [ 0 ] [ + ]
+            # Marcador [ - ] [ + ]
             c_izq, c_vs, c_der = st.columns([1, 0.2, 1])
             
             with c_izq:
-                m1, v1, p1 = st.columns([1,1,1])
-                if m1.button("➖", key=f"btn_m1_{id_p}", disabled=esta_bloqueado):
+                m1, v1, p1 = st.columns([1, 1, 1])
+                if m1.button("➖", key=f"m1_{id_p}", disabled=esta_bloqueado):
                     if st.session_state[f"p1_{id_p}"] > 0:
                         st.session_state[f"p1_{id_p}"] -= 1
                         st.rerun()
                 v1.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p1_{id_p}']}</h3>", unsafe_allow_html=True)
-                if p1.button("➕", key=f"btn_p1_{id_p}", disabled=esta_bloqueado):
+                if p1.button("➕", key=f"p1_{id_p}", disabled=esta_bloqueado):
                     st.session_state[f"p1_{id_p}"] += 1
                     st.rerun()
 
             c_vs.markdown("<h3 style='text-align:center;'>:</h3>", unsafe_allow_html=True)
 
             with c_der:
-                m2, v2, p2 = st.columns([1,1,1])
-                if m2.button("➖", key=f"btn_m2_{id_p}", disabled=esta_bloqueado):
+                m2, v2, p2 = st.columns([1, 1, 1])
+                if m2.button("➖", key=f"m2_{id_p}", disabled=esta_bloqueado):
                     if st.session_state[f"p2_{id_p}"] > 0:
                         st.session_state[f"p2_{id_p}"] -= 1
                         st.rerun()
                 v2.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p2_{id_p}']}</h3>", unsafe_allow_html=True)
-                if p2.button("➕", key=f"btn_p2_{id_p}", disabled=esta_bloqueado):
+                if p2.button("➕", key=f"p2_{id_p}", disabled=esta_bloqueado):
                     st.session_state[f"p2_{id_p}"] += 1
                     st.rerun()
             
