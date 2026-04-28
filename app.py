@@ -205,6 +205,7 @@ if not st.session_state['autenticado']:
                         "EDAD": r_e, "EQUIPO FAVORITO": r_f, "DESCRIPCION": r_d
                     }):
                         st.session_state['registro_exitoso'] = True
+                        St.sessuion_state['Mostrar_registro'] = False 
                         st.rerun()
                 else:
                     st.error("Completa Usuario, Contraseña y Nombre.")
