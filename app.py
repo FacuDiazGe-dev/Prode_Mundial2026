@@ -750,81 +750,90 @@ elif menu == "👥 Jugadores":
         if 'user_sel' in locals():
             u_sel = user_sel
             
-            # --- 1. PREPARACIÓN CON "FORZA BRUTA" ---
-            # Convertimos todo a string, quitamos espacios y pasamos a minúsculas para comparar
-            nombre_a_buscar = str(u_sel['NOMBRE']).strip().lower()
+            # --- 1. LIMPIEZA DE DATOS PARA EMPAREJAR ---
+            # Nombre del usuario seleccionado (limpio)
+            nom_sel = str(u_sel['NOMBRE']).strip().lower()
             
-            # Buscamos en el ranking haciendo lo mismo
-            # df_ranking_copia = df_ranking.copy() # Opcional si quieres debuguear
-            match_index = df_ranking[df_ranking['JUGADOR'].astype(str).str.strip().str.lower() == nombre_a_buscar].index
+            # Buscamos la fila en el ranking (limpiando el ranking también)
+            df_rank_tmp = df_ranking.copy()
+            df_rank_tmp['JUGADOR_CLEAN'] = df_rank_tmp['JUGADOR'].astype(str).str.strip().str.lower()
             
-            css_puntero = css_master = css_mentalista = css_lento = css_onfire = css_fundador = "filter: grayscale(100%); opacity: 0.15;"
+            user_en_ranking = df_rank_tmp[df_rank_tmp['JUGADOR_CLEAN'] == nom_sel]
+            
+            # Inicializamos todo en gris (CSS)
+            css = {
+                "puntero": "filter: grayscale(100%); opacity: 0.15;",
+                "master": "filter: grayscale(100%); opacity: 0.15;",
+                "mentalista": "filter: grayscale(100%); opacity: 0.15;",
+                "lento": "filter: grayscale(100%); opacity: 0.15;",
+                "onfire": "filter: grayscale(100%); opacity: 0.15;",
+                "fundador": "filter: grayscale(100%); opacity: 0.15;"
+            }
             label_fire = ""
 
-            if not match_index.empty:
-                idx = match_index[0]
-                row_u = df_ranking.loc[idx]
-                posicion = idx + 1 # Asumiendo que el ranking no está re-indexado
+            # --- 2. LÓGICA DE INSIGNIAS ---
+            if not user_en_ranking.empty:
+                idx = user_en_ranking.index[0] # Posición real en el ranking
+                row_r = user_en_ranking.iloc[0]
                 
-                # 1. 👑 PUNTERO (Si es el primer índice del ranking ordenado)
-                if idx == 0: css_puntero = ""
+                # 🏆 PUNTERO: Si es la primera fila del ranking
+                if idx == 0: css["puntero"] = ""
 
-                # 2. 🎯 MASTER
-                if int(row_u['EXACTOS']) >= 5: css_master = ""
+                # 🎯 MASTER: Exactos >= 5
+                if int(row_r.get('EXACTOS', 0)) >= 5: css["master"] = ""
                 
-                # 3. 🧙‍♂️ MENTALISTA
-                max_gen = pd.to_numeric(df_ranking['GENERALES']).max()
-                if int(row_u['GENERALES']) == max_gen and max_gen > 0: css_mentalista = ""
+                # 🧙‍♂️ MENTALISTA: Si coincide con el máximo de generales
+                max_gen = pd.to_numeric(df_ranking['GENERALES'], errors='coerce').max()
+                if int(row_r.get('GENERALES', 0)) == max_gen and max_gen > 0:
+                    css["mentalista"] = ""
 
-                # 5. 🐌 LENTO
-                if len(df_ranking) > 2 and idx == (len(df_ranking) - 1): css_lento = ""
-            
-            # --- FUERA DEL IF DE RANKING (Logros independientes) ---
-            # 4. 🏅 FUNDADOR (Basado en ID real de la tabla USUARIOS)
-            if int(u_sel['ID']) <= 3: css_fundador = ""
+                # 🐌 LENTO: Si es el último del ranking (y hay más de 2)
+                if len(df_ranking) > 2 and idx == (len(df_ranking) - 1):
+                    css["lento"] = ""
 
-            # 6. 🔥 ON FIRE (Basado en historial de pronósticos)
+            # 🏅 FUNDADOR: (Independiente del ranking)
+            if int(u_sel.get('ID', 99)) <= 3: 
+                css["fundador"] = ""
+
+            # 🔥 ON FIRE: (Cálculo de racha)
             u_nick = u_sel['USUARIO']
-            user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == u_nick].sort_values('N_PARTIDO')
+            u_pro = df_pro_total[df_pro_total['USUARIO'] == u_nick].sort_values('N_PARTIDO')
             r_act, r_max = 0, 0
-            for _, p in user_pro_sorted.iterrows():
+            for _, p in u_pro.iterrows():
                 p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                if not p_ref.empty:
-                    res_p = p_ref.iloc[0]
-                    if pd.notna(res_p['R1']):
-                        _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
-                        if exa == 1:
-                            r_act += 1
-                            r_max = max(r_max, r_act)
-                        else: r_act = 0
+                if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
+                    _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
+                    if exa == 1:
+                        r_act += 1
+                        r_max = max(r_max, r_act)
+                    else: r_act = 0
             
             if r_max >= 3:
-                css_onfire = ""
-                label_fire = f"x{r_max}"
+                css["onfire"] = ""; label_fire = f"x{r_max}"
 
-            # --- DISEÑO (FOTO IZQUIERDA | MEDALLAS DERECHA) ---
+            # --- 3. DISEÑO VISUAL ---
             foto = u_sel.get('AVATAR_URL')
             if not foto or pd.isna(foto):
                 foto = f"https://ui-avatars.com{u_sel['NOMBRE']}&background=random"
 
             st.markdown(f"""
-                <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <div style="flex: 0 0 100px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
-                        <img src="{foto}" style="border-radius: 50%; width: 80px; height: 80px; object-fit: cover; border: 2px solid #007bff;">
-                        <div style="font-weight: bold; font-size: 0.8em; margin-top: 5px; line-height: 1.1;">{u_sel['NOMBRE']}</div>
-                        <div style="font-size: 0.7em; color: #007bff; font-weight: bold;">{u_sel.get('EQUIPO FAVORITO', '')}</div>
+                <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 10px;">
+                    <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
+                        <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
+                        <div style="font-weight: bold; font-size: 0.8em; margin-top: 5px;">{u_sel['NOMBRE']}</div>
+                        <div style="font-size: 0.65em; color: #007bff;">{u_sel.get('EQUIPO FAVORITO', '')}</div>
                     </div>
-                    <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
-                        <span title="Puntero" style="font-size: 1.8em; {css_puntero}">👑</span>
-                        <span title="Master Exactos" style="font-size: 1.8em; {css_master}">🎯</span>
-                        <span title="Mentalista" style="font-size: 1.8em; {css_mentalista}">🧙‍♂️</span>
-                        <span title="Fundador" style="font-size: 1.8em; {css_fundador}">🏅</span>
-                        <span title="On Fire {label_fire}" style="font-size: 1.8em; {css_onfire}">🔥</span>
-                        <span title="El más lento" style="font-size: 1.8em; {css_lento}">🐌</span>
+                    <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 5px;">
+                        <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
+                        <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
+                        <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
+                        <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
+                        <span title="On Fire {label_fire}" style="font-size: 1.7em; {css['onfire']}">🔥</span>
+                        <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
                     </div>
                 </div>
-                <div style="margin-top: 10px; padding: 0 10px;">
-                    <p style="font-size: 0.85em; color: #555; font-style: italic;">" {u_sel.get('DESCRIPCION', '')} "</p>
+                <div style="padding: 0 10px;">
+                    <p style="font-size: 0.8em; color: #666; font-style: italic;">"{u_sel.get('DESCRIPCION', '')}"</p>
                 </div>
             """, unsafe_allow_html=True)
                 
