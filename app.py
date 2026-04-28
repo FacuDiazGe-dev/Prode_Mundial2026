@@ -803,113 +803,83 @@ elif menu == "👥 Jugadores":
     #             </div>
     #         """, unsafe_allow_html=True)
             
-    with col_derecha:
-        if 'user_sel' in locals():
-            u_sel = user_sel
+with col_derecha:
+    if 'user_sel' in locals() and user_sel is not None:
+        # 1. Recuperamos la "Fuente Única de Verdad"
+        df_global = st.session_state.get('df_ranking_global')
+        
+        if df_global is not None:
+            # 2. Buscamos al usuario seleccionado en el ranking global
+            # Usamos USUARIO (el nick) para que la búsqueda sea 100% precisa
+            u_nick = user_sel['USUARIO']
+            match = df_global[df_global['USUARIO'] == u_nick]
             
-            # --- 1. LIMPIEZA DE DATOS PARA EMPAREJAR ---
-            # Nombre del usuario seleccionado (limpio)
-            nom_sel = str(u_sel['NOMBRE']).strip().lower()
-            
-            # Buscamos la fila en el ranking (limpiando el ranking también)
-            df_rank_tmp = df_ranking.copy()
-            df_rank_tmp['JUGADOR_CLEAN'] = df_rank_tmp['JUGADOR'].astype(str).str.strip().str.lower()
-            
-            user_en_ranking = df_rank_tmp[df_rank_tmp['JUGADOR_CLEAN'] == nom_sel]
-            
-            # Inicializamos todo en gris (CSS)
-            css = {
-                "puntero": "filter: grayscale(100%); opacity: 0.15;",
-                "master": "filter: grayscale(100%); opacity: 0.15;",
-                "mentalista": "filter: grayscale(100%); opacity: 0.15;",
-                "lento": "filter: grayscale(100%); opacity: 0.15;",
-                "onfire": "filter: grayscale(100%); opacity: 0.15;",
-                "fundador": "filter: grayscale(100%); opacity: 0.15;"
-            }
-            label_fire = ""
-
-            # --- 2. LÓGICA DE INSIGNIAS ---
-            if not user_en_ranking.empty:
-                idx = user_en_ranking.index[0] # Posición real en el ranking
-                row_r = user_en_ranking.iloc[0]
+            if not match.empty:
+                idx_real = match.index[0]
+                datos_vivos = match.iloc[0]
                 
-                # 🏆 PUNTERO: Si es la primera fila del ranking
-                if idx == 0: css["puntero"] = ""
+                # --- 3. LÓGICA DE INSIGNIAS (Lectura directa) ---
+                css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
+                label_fire = ""
 
-                # 🎯 MASTER: Exactos >= 5
-                if int(row_r.get('EXACTOS', 0)) >= 5: css["master"] = ""
+                # Puntero (Índice 0)
+                if idx_real == 0 and datos_vivos['PUNTOS'] > 0: css["puntero"] = ""
                 
-                # 🧙‍♂️ MENTALISTA: Si coincide con el máximo de generales
-                max_gen = pd.to_numeric(df_ranking['GENERALES'], errors='coerce').max()
-                if int(row_r.get('GENERALES', 0)) == max_gen and max_gen > 0:
+                # Master (Exactos >= 5)
+                if int(datos_vivos['EXACTOS']) >= 5: css["master"] = ""
+                
+                # Mentalista (Máximo de generales)
+                if int(datos_vivos['GENERALES']) == df_global['GENERALES'].max() and df_global['GENERALES'].max() > 0:
                     css["mentalista"] = ""
-
-                # 🐌 LENTO: Si es el último del ranking (y hay más de 2)
-                if len(df_ranking) > 2 and idx == (len(df_ranking) - 1):
-                    css["lento"] = ""
-
-            # 🏅 FUNDADOR: (Independiente del ranking)
-            if int(u_sel.get('ID', 99)) <= 3: 
-                css["fundador"] = ""
-
-            # 🔥 ON FIRE: (Cálculo de racha)
-            u_nick = u_sel['USUARIO']
-            u_pro = df_pro_total[df_pro_total['USUARIO'] == u_nick].sort_values('N_PARTIDO')
-            r_act, r_max = 0, 0
-            for _, p in u_pro.iterrows():
-                p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
-                    _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
-                    if exa == 1:
-                        r_act += 1
-                        r_max = max(r_max, r_act)
-                    else: r_act = 0
-            
-            if r_max >= 3:
-                css["onfire"] = ""; label_fire = f"x{r_max}"
-
-            # --- 3. DISEÑO VISUAL ---
-            foto = u_sel.get('AVATAR_URL')
-            if not foto or pd.isna(foto):
-                foto = f"https://ui-avatars.com{u_sel['NOMBRE']}&background=random"
-
-            st.markdown(f"""
-                <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 10px;">
-                    <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
-                        <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
-                        <div style="font-weight: bold; font-size: 0.8em; margin-top: 5px;">{u_sel['NOMBRE']}</div>
-                        <div style="font-size: 0.65em; color: #007bff;">{u_sel.get('EQUIPO FAVORITO', '')}</div>
-                    </div>
-                    <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 5px;">
-                        <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
-                        <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
-                        <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
-                        <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
-                        <span title="On Fire {label_fire}" style="font-size: 1.7em; {css['onfire']}">🔥</span>
-                        <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
-                    </div>
-                </div>
-                <div style="padding: 0 10px;">
-                    <p style="font-size: 0.8em; color: #666; font-style: italic;">"{u_sel.get('DESCRIPCION', '')}"</p>
-                </div>
-            """, unsafe_allow_html=True)
                 
-            # --- 4. PREDICCIONES DEL USUARIO ---
-            st.markdown("---")
-            st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
-            pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
+                # Lento (Última posición)
+                if len(df_global) > 2 and idx_real == (len(df_global) - 1): css["lento"] = ""
                 
-            if pro_user_sel.empty:
-                st.warning("Sin pronósticos.")
-            else:
-                with st.container(height=400):
-                    for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
-                        p_match = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                        if not p_match.empty:
-                            p_inf = p_match.iloc[0]
-                            f1, f2 = get_flag_img(p_inf['Equipo_1']), get_flag_img(p_inf['Equipo_2'])
-                            i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
-                            i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
+                # Fundador (ID de usuario <= 3)
+                if int(user_sel['ID']) <= 3: css["fundador"] = ""
+
+                # 🔥 ON FIRE (Racha: esta la tomamos del cálculo dinámico para mayor precisión)
+                # O puedes usar la lógica simplificada de racha que ya tenías
+                u_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
+                r_act, r_max = 0, 0
+                for _, p in u_pro_sorted.iterrows():
+                    p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                    if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
+                        _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
+                        if exa == 1:
+                            r_act += 1
+                            r_max = max(r_max, r_act)
+                        else: r_act = 0
+                if r_max >= 3:
+                    css["onfire"] = ""; label_fire = f"x{r_max}"
+
+                # --- 4. RENDERIZADO VISUAL ---
+                foto = user_sel.get('AVATAR_URL')
+                if not foto or pd.isna(foto):
+                    foto = f"https://ui-avatars.com{user_sel['NOMBRE']}&background=random"
+
+                st.markdown(f"""
+                    <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
+                            <img src="{foto}" style="border-radius: 50%; width: 75px; height: 75px; object-fit: cover; border: 2px solid #007bff;">
+                            <div style="font-weight: bold; font-size: 0.85em; margin-top: 5px; line-height: 1.1;">{user_sel['NOMBRE']}</div>
+                            <div style="font-size: 0.7em; color: #007bff; font-weight: bold;">{user_sel.get('EQUIPO FAVORITO', '')}</div>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 8px;">
+                            <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
+                            <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
+                            <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
+                            <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
+                            <span title="On Fire {label_fire}" style="font-size: 1.7em; {css['onfire']}">🔥</span>
+                            <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
+                        </div>
+                    </div>
+                    <div style="padding: 10px 5px;">
+                        <p style="font-size: 0.85em; color: #666; font-style: italic;">
+                            "{user_sel.get('DESCRIPCION', 'Sin descripción.')}"
+                        </p>
+                    </div>
+                """, unsafe_allow_html=True)
                             
                             st.markdown(f"""
                             <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.8em;">
@@ -1033,75 +1003,75 @@ elif menu == "⚙️ Panel Control":
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
 #---------------------------test
-            st.subheader("🧪 Test: Conexión con Ranking Global")
+            # st.subheader("🧪 Test: Conexión con Ranking Global")
             
-            # 1. Recuperamos el Ranking del Session State (la "Fuente Única de Verdad")
-            df_global = st.session_state.get('df_ranking_global')
+            # # 1. Recuperamos el Ranking del Session State (la "Fuente Única de Verdad")
+            # df_global = st.session_state.get('df_ranking_global')
         
-            if df_global is None:
-                st.error("⚠️ El Ranking Global no está inicializado en el Session State.")
-                # Opcional: Forzar carga si no existe
-                if st.button("🔄 Inicializar Ranking Global"):
-                    st.session_state['df_ranking_global'] = obtener_ranking_global(df_usuarios, df_pro, df_res)
-                    st.rerun()
-            else:
-                # 2. Selector de usuario (usando el DF global para asegurar que existan)
-                nombres_rank = df_global['JUGADOR'].tolist()
-                nombre_test = st.selectbox("Selecciona un jugador del ranking:", nombres_rank, index=None)
+            # if df_global is None:
+            #     st.error("⚠️ El Ranking Global no está inicializado en el Session State.")
+            #     # Opcional: Forzar carga si no existe
+            #     if st.button("🔄 Inicializar Ranking Global"):
+            #         st.session_state['df_ranking_global'] = obtener_ranking_global(df_usuarios, df_pro, df_res)
+            #         st.rerun()
+            # else:
+            #     # 2. Selector de usuario (usando el DF global para asegurar que existan)
+            #     nombres_rank = df_global['JUGADOR'].tolist()
+            #     nombre_test = st.selectbox("Selecciona un jugador del ranking:", nombres_rank, index=None)
         
-                if nombre_test:
-                    # 3. Buscamos los datos DIRECTAMENTE en el DataFrame global
-                    match = df_global[df_global['JUGADOR'] == nombre_test]
+            #     if nombre_test:
+            #         # 3. Buscamos los datos DIRECTAMENTE en el DataFrame global
+            #         match = df_global[df_global['JUGADOR'] == nombre_test]
                     
-                    if not match.empty:
-                        idx_real = match.index[0]
-                        datos_vivos = match.iloc[0]
+            #         if not match.empty:
+            #             idx_real = match.index[0]
+            #             datos_vivos = match.iloc[0]
                         
-                        # Buscamos datos extra (Avatar, Bio) en la tabla de usuarios original
-                        u_info = df_usuarios[df_usuarios['NOMBRE'] == nombre_test].iloc[0]
+            #             # Buscamos datos extra (Avatar, Bio) en la tabla de usuarios original
+            #             u_info = df_usuarios[df_usuarios['NOMBRE'] == nombre_test].iloc[0]
         
-                        # --- 4. LÓGICA DE INSIGNIAS (Sin cálculos, solo lectura) ---
-                        css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
+            #             # --- 4. LÓGICA DE INSIGNIAS (Sin cálculos, solo lectura) ---
+            #             css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
                         
-                        # Puntero: Posición 1 (índice 0)
-                        if idx_real == 0 and datos_vivos['PUNTOS'] > 0: css["puntero"] = ""
+            #             # Puntero: Posición 1 (índice 0)
+            #             if idx_real == 0 and datos_vivos['PUNTOS'] > 0: css["puntero"] = ""
                         
-                        # Master: Exactos >= 5
-                        if int(datos_vivos['EXACTOS']) >= 5: css["master"] = ""
+            #             # Master: Exactos >= 5
+            #             if int(datos_vivos['EXACTOS']) >= 5: css["master"] = ""
                         
-                        # Mentalista: Si tiene el máximo de generales
-                        if int(datos_vivos['GENERALES']) == df_global['GENERALES'].max() and df_global['GENERALES'].max() > 0:
-                            css["mentalista"] = ""
+            #             # Mentalista: Si tiene el máximo de generales
+            #             if int(datos_vivos['GENERALES']) == df_global['GENERALES'].max() and df_global['GENERALES'].max() > 0:
+            #                 css["mentalista"] = ""
                         
-                        # Lento: Última posición
-                        if len(df_global) > 2 and idx_real == (len(df_global) - 1): css["lento"] = ""
+            #             # Lento: Última posición
+            #             if len(df_global) > 2 and idx_real == (len(df_global) - 1): css["lento"] = ""
         
-                        # Fundador: ID <= 3
-                        if int(u_info['ID']) <= 3: css["fundador"] = ""
+            #             # Fundador: ID <= 3
+            #             if int(u_info['ID']) <= 3: css["fundador"] = ""
         
-                        # --- 5. RENDERIZADO ---
-                        foto = u_info.get('AVATAR_URL')
-                        if not foto or pd.isna(foto):
-                            foto = f"https://ui-avatars.com{nombre_test}&background=random"
+            #             # --- 5. RENDERIZADO ---
+            #             foto = u_info.get('AVATAR_URL')
+            #             if not foto or pd.isna(foto):
+            #                 foto = f"https://ui-avatars.com{nombre_test}&background=random"
         
-                        st.markdown(f"""
-                            <div style="display: flex; align-items: center; background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px solid #007bff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
-                                    <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
-                                    <div style="font-weight: bold; font-size: 0.85em; margin-top: 5px;">{nombre_test}</div>
-                                </div>
-                                <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 8px;">
-                                    <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
-                                    <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
-                                    <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
-                                    <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
-                                    <span title="On Fire" style="font-size: 1.7em; {css['onfire']}">🔥</span>
-                                    <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
-                                </div>
-                            </div>
-                        """, unsafe_allow_html=True)
+            #             st.markdown(f"""
+            #                 <div style="display: flex; align-items: center; background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px solid #007bff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            #                     <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
+            #                         <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
+            #                         <div style="font-weight: bold; font-size: 0.85em; margin-top: 5px;">{nombre_test}</div>
+            #                     </div>
+            #                     <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 8px;">
+            #                         <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
+            #                         <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
+            #                         <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
+            #                         <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
+            #                         <span title="On Fire" style="font-size: 1.7em; {css['onfire']}">🔥</span>
+            #                         <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
+            #                     </div>
+            #                 </div>
+            #             """, unsafe_allow_html=True)
                         
-                        st.success(f"Datos vinculados: Posición #{idx_real + 1} | Puntos: {datos_vivos['PUNTOS']}")
+            #             st.success(f"Datos vinculados: Posición #{idx_real + 1} | Puntos: {datos_vivos['PUNTOS']}")
 #---------------------------------------
         
             st.subheader("👥 Gestión de Usuarios")
