@@ -949,7 +949,7 @@ elif menu == "⚙️ Panel Control":
                     st.success("✅ ¡Base de datos actualizada!")
                     st.rerun()
 
-        # COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%)
+        # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
             st.subheader("👥 Gestión de Usuarios")
             df_users_adm = conn.read(worksheet="USUARIOS", ttl=10)
@@ -970,7 +970,7 @@ elif menu == "⚙️ Panel Control":
 
                 if user_a_eliminar:
                     st.warning(f"⚠️ Estás por borrar a **{user_a_eliminar}**.")
-                    confirmado = st.checkbox("Confirmo que deseo borrar este usuario y sus pronósticos", key="conf_borrar")
+                    confirmado = st.checkbox("Confirmo borrar usuario y sus pronósticos", key="conf_borrar")
                     
                     if st.button("❌ BORRAR PERMANENTEMENTE", type="primary", use_container_width=True, disabled=not confirmado):
                         df_users_final = df_users_adm[df_users_adm['USUARIO'] != user_a_eliminar]
@@ -982,27 +982,29 @@ elif menu == "⚙️ Panel Control":
                         st.cache_data.clear()
                         st.success(f"✅ {user_a_eliminar} eliminado.")
                         st.rerun()
-    else:
-        st.error("No tienes permisos para acceder a esta sección.")
 
-                        st.markdown("---")
-    st.subheader("🚧 Control de Mantenimiento")
-    
-    col_m1, col_m2 = st.columns([2, 1])
-    
-    with col_m1:
-        if estado_mantenimiento == "ON":
-            st.error("LA WEB ESTÁ BLOQUEADA PARA USUARIOS")
-            if st.button("✅ DESACTIVAR MANTENIMIENTO (ABRIR WEB)", use_container_width=True):
-                df_up_m = pd.DataFrame({"MANTENIMIENTO": ["OFF"]})
-                conn.update(worksheet="CONFIG", data=df_up_m)
-                st.cache_data.clear()
-                st.rerun()
-        else:
-            st.success("LA WEB ESTÁ FUNCIONANDO NORMALMENTE")
-            if st.button("🚫 ACTIVAR MANTENIMIENTO (CERRAR WEB)", use_container_width=True):
-                df_up_m = pd.DataFrame({"MANTENIMIENTO": ["ON"]})
-                conn.update(worksheet="CONFIG", data=df_up_m)
-                st.cache_data.clear()
-                st.rerun()
-        pass
+        # --- SECCIÓN DE MANTENIMIENTO (Alineada con el inicio del Panel de Control) ---
+        st.markdown("---")
+        st.subheader("🚧 Control de Mantenimiento")
+        
+        col_m1, col_m2 = st.columns([2, 1])
+        
+        with col_m1:
+            if estado_mantenimiento == "ON":
+                st.error("LA WEB ESTÁ BLOQUEADA PARA USUARIOS")
+                if st.button("✅ DESACTIVAR MANTENIMIENTO (ABRIR WEB)", use_container_width=True):
+                    df_up_m = pd.DataFrame({"MANTENIMIENTO": ["OFF"]})
+                    conn.update(worksheet="CONFIG", data=df_up_m)
+                    st.cache_data.clear()
+                    st.rerun()
+            else:
+                st.success("LA WEB ESTÁ FUNCIONANDO NORMALMENTE")
+                if st.button("🚫 ACTIVAR MANTENIMIENTO (CERRAR WEB)", use_container_width=True):
+                    df_up_m = pd.DataFrame({"MANTENIMIENTO": ["ON"]})
+                    conn.update(worksheet="CONFIG", data=df_up_m)
+                    st.cache_data.clear()
+                    st.rerun()
+    else:
+        # Este else pertenece al chequeo de ROL == 'admin' inicial
+        st.error("No tienes permisos para acceder a esta sección.")
+                    pass
