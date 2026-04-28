@@ -386,7 +386,7 @@ if menu == "🏠 Inicio":
             # Si aún no creaste la columna en Excel, mostramos todo para no dar error
             df_mostrar = df_res.iloc[::-1]
 
-        with st.container(height=450):
+        with st.container(height=430):
             if df_mostrar.empty:
                 st.info("Próximamente se publicarán los partidos de la jornada.")
             else:
