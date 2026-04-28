@@ -976,7 +976,6 @@ elif menu == "⚙️ Panel Control":
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
 #---------------------------test
-    with col_derecha:
         if 'user_sel' in locals() and user_sel is not None:
             # 1. Preparar datos de usuarios para el cálculo
             u_sel = user_sel
