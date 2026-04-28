@@ -750,66 +750,73 @@ elif menu == "👥 Jugadores":
 
     with col_derecha:
         if 'user_sel' in locals():
-            # --- 1. PREPARACIÓN DE DATOS ---
-            user_sel_name = str(user_sel['NOMBRE']).strip()
+            # --- 1. DATOS BÁSICOS Y AVATAR ---
+            u_sel = user_sel
+            foto = u_sel.get('AVATAR_URL')
+            if not foto or pd.isna(foto):
+                foto = f"https://ui-avatars.com{u_sel['NOMBRE']}&background=random"
+            
+            st.markdown(f"""
+                <div style="text-align: center;">
+                    <img src="{foto}" style="border-radius: 50%; width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
+                    <h3 style="margin-bottom: 0;">{u_sel['NOMBRE']}</h3>
+                    <p style="color: gray;">@{u_sel['USUARIO']}</p>
+                </div>
+                <hr style="margin: 10px 0;">
+                <p style="font-size: 0.9em;"><b>⚽ Equipo:</b> {u_sel['EQUIPO FAVORITO']}</p>
+                <p style="font-size: 0.9em;"><b>📝 Bio:</b> <i>"{u_sel['DESCRIPCION']}"</i></p>
+            """, unsafe_allow_html=True)
+
+            # --- 2. LÓGICA DE LOGROS (Corregida) ---
+            user_sel_name = str(u_sel['NOMBRE']).strip()
             datos_rank_user = df_ranking[df_ranking['JUGADOR'].str.strip() == user_sel_name]
             
-            # Inicializamos variables (dentro del if)
             css_puntero = css_master = css_mentalista = css_lento = css_onfire = "filter: grayscale(100%); opacity: 0.15;"
             label_fire = ""
-    
-            # --- 2. LÓGICA DE MEDALLAS ---
+
             if not datos_rank_user.empty:
                 row_u = datos_rank_user.iloc[0]
                 
-                # Puntero
-                max_puntos = pd.to_numeric(df_ranking['PUNTOS']).max()
-                if pd.to_numeric(row_u['PUNTOS']) == max_puntos and max_puntos > 0:
+                # Puntero (El que tiene más puntos en la tabla)
+                if pd.to_numeric(row_u['PUNTOS']) == pd.to_numeric(df_ranking['PUNTOS']).max() and pd.to_numeric(df_ranking['PUNTOS']).max() > 0:
                     css_puntero = ""
-    
-                # Master
+
+                # Master (Exactos >= 5)
                 if int(row_u['EXACTOS']) >= 5:
                     css_master = ""
-    
-                # Mentalista
+
+                # Mentalista (Máximo en generales)
                 max_gen = pd.to_numeric(df_ranking['GENERALES']).max()
                 if int(row_u['GENERALES']) == max_gen and max_gen > 0:
                     css_mentalista = ""
-    
-                # Lento
+
+                # Lento (Último lugar con puntos menores al líder)
                 if user_sel_name == df_ranking.iloc[-1]['JUGADOR'] and len(df_ranking) > 2:
                     css_lento = ""
-    
-                # On Fire
-                user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
-                racha_act, racha_max = 0, 0
-                for _, p in user_pro_sorted.iterrows():
-                    partido_ref = df_res[df_res['N_PARTIDO'].astype(int) == int(p['N_PARTIDO'])]
-                    if not partido_ref.empty:
-                        res_p = partido_ref.iloc[0]
-                        if pd.notna(res_p['R1']):
-                            _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
-                            if exa == 1:
-                                racha_act += 1
-                                racha_max = max(racha_max, racha_act)
-                            else: racha_act = 0
-                
-                if racha_max >= 3:
-                    css_onfire = ""
-                    label_fire = f"x{racha_max}"
-    
-            # 4. Fundador (Depende de user_sel['ID'])
-            try:
-                if int(user_sel['ID']) <= 3:
-                    css_fundador = ""
-                else:
-                    css_fundador = "filter: grayscale(100%); opacity: 0.15;"
-            except:
-                css_fundador = "filter: grayscale(100%); opacity: 0.15;"
-    
-            # --- 3. RENDERIZADO DE MEDALLAS ---
+
+            # On Fire (Racha de 3 exactos)
+            user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == u_sel['USUARIO']].sort_values('N_PARTIDO')
+            racha_act, racha_max = 0, 0
+            for _, p in user_pro_sorted.iterrows():
+                p_ref = df_res[df_res['N_PARTIDO'].astype(int) == int(p['N_PARTIDO'])]
+                if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
+                    _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
+                    if exa == 1:
+                        racha_act += 1
+                        racha_max = max(racha_max, racha_act)
+                    else: racha_act = 0
+            
+            if racha_max >= 3:
+                css_onfire = ""
+                label_fire = f"x{racha_max}"
+
+            # Fundador (ID <= 3)
+            if int(u_sel['ID']) <= 3: css_fundador = ""
+            else: css_fundador = "filter: grayscale(100%); opacity: 0.15;"
+
+            # --- 3. DIBUJAR INSIGNIAS ---
             st.markdown(f"""
-                <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; background: #f0f2f6; padding: 10px; border-radius: 10px;">
                     <span title="Puntero" style="font-size: 1.5em; {css_puntero}">🏆</span>
                     <span title="Master Exactos" style="font-size: 1.5em; {css_master}">🎯</span>
                     <span title="Mentalista" style="font-size: 1.5em; {css_mentalista}">🧙‍♂️</span>
