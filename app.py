@@ -624,93 +624,43 @@ elif menu == "📝 Mis Pronósticos":
                     st.rerun()
 
 # ---------- MENU JUGADORES ----------------------------------------------------
-# --- NO DEBE HABER NINGÚN ESPACIO ANTES DE ESTE ELIF ---
 elif menu == "👥 Jugadores":
     with col_principal:
         st.subheader("👥 Jugadores Inscritos")
         df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
         
-        # --- CARGA DE PARTIDOS (FUERA DE UN FORMULARIO) ---
-        lista_nuevos_pro = []
-        
-        for i, row in df_res_p.sort_values('N_PARTIDO').iterrows():
-            id_p = int(row['N_PARTIDO'])
-            match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
+        if not df_usuarios.empty:
+            # 1. Buscador de jugadores
+            nombres_jugadores = df_usuarios['NOMBRE'].tolist()
+            nombre_sel = st.selectbox("Seleccioná un familiar para ver su perfil:", nombres_jugadores)
             
-            # Valores iniciales (si no hay nada, es 0)
-            v1_db = int(match.iloc[0]['P1']) if not match.empty and pd.notna(match.iloc[0]['P1']) else 0
-            v2_db = int(match.iloc[0]['P2']) if not match.empty and pd.notna(match.iloc[0]['P2']) else 0
+            # Obtenemos la fila del usuario seleccionado
+            user_sel = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel].iloc[0]
             
-            # Inicializamos el estado para los botones (solo la primera vez)
-            if f"p1_{id_p}" not in st.session_state: st.session_state[f"p1_{id_p}"] = v1_db
-            if f"p2_{id_p}" not in st.session_state: st.session_state[f"p2_{id_p}"] = v2_db
+            # --- ESPACIO PARA GRÁFICO O INFO EXTRA ---
+            st.markdown("---")
+            st.write("### 📋 Lista General de la Familia")
+            # Mostramos una tabla prolija con los datos públicos
+            st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO', 'DESCRIPCION']], 
+                         use_container_width=True, hide_index=True)
 
-            # Cabecera con Banderas y Nombres (Compacta)
-            bandera1 = get_flag_img(row['Equipo_1'])
-            bandera2 = get_flag_img(row['Equipo_2'])
+    with col_derecha:
+        if 'user_sel' in locals():
+            # Traemos la foto del usuario seleccionado (GCS o genérica)
+            foto_j = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) else "https://w3schools.com"
+            
+            # Mostramos la tarjeta del jugador
             st.markdown(f"""
-                <div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:5px; display: flex; align-items: center; justify-content: space-between;'>
-                    <div style='display: flex; align-items: center; gap: 8px; width: 45%;'>
-                        <img src="{bandera1}" width="20">
-                        <span style='font-size: 0.9em; font-weight: bold;'>{row['Equipo_1']}</span>
-                    </div>
-                    <div style='display: flex; align-items: center; gap: 8px; width: 45%; justify-content: flex-end;'>
-                        <span style='font-size: 0.9em; font-weight: bold;'>{row['Equipo_2']}</span>
-                        <img src="{bandera2}" width="20">
-                    </div>
+                <div style="text-align: center; background-color: #f8f9fa; padding: 20px; border-radius: 15px; border: 1px solid #ddd;">
+                    <img src="{foto_j}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #28a745;">
+                    <h3 style="margin-bottom: 0;">{user_sel['NOMBRE']}</h3>
+                    <p style="color: gray; font-size: 0.9em;">@{user_sel['USUARIO']}</p>
+                    <p style="margin-top: 10px;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}</p>
+                    <p style="font-size: 0.85em; color: #555;"><i>"{user_sel['DESCRIPCION']}"</i></p>
                 </div>
             """, unsafe_allow_html=True)
             
-            # FILA DE MARCADOR: [ - NUM + ]  :  [ - NUM + ]
-            c_izq, c_vs, c_der = st.columns([1, 0.2, 1])
-            
-            with c_izq:
-                col_m1, col_v1, col_p1 = st.columns([1, 1, 1])
-                if col_m1.button("➖", key=f"m1_{id_p}", disabled=esta_bloqueado):
-                    if st.session_state[f"p1_{id_p}"] > 0:
-                        st.session_state[f"p1_{id_p}"] -= 1
-                        st.rerun()
-                col_v1.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p1_{id_p}']}</h3>", unsafe_allow_html=True)
-                if col_p1.button("➕", key=f"p1_{id_p}", disabled=esta_bloqueado):
-                    st.session_state[f"p1_{id_p}"] += 1
-                    st.rerun()
-
-            c_vs.markdown("<h3 style='text-align:center;'>:</h3>", unsafe_allow_html=True)
-
-            with c_der:
-                col_m2, col_v2, col_p2 = st.columns([1, 1, 1])
-                if col_m2.button("➖", key=f"m2_{id_p}", disabled=esta_bloqueado):
-                    if st.session_state[f"p2_{id_p}"] > 0:
-                        st.session_state[f"p2_{id_p}"] -= 1
-                        st.rerun()
-                col_v2.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p2_{id_p}']}</h3>", unsafe_allow_html=True)
-                if col_p2.button("➕", key=f"p2_{id_p}", disabled=esta_bloqueado):
-                    st.session_state[f"p2_{id_p}"] += 1
-                    st.rerun()
-            
-            st.markdown("---")
-
-        # --- BOTÓN DE GUARDADO FINAL (FUERA DE UN FORM) ---
-        if es_tiempo_valido and modo_edicion:
-            if st.button("💾 GUARDAR TODO EL PRODE", use_container_width=True, type="primary"):
-                # Recopilamos todo lo que está en el session_state
-                lista_final = []
-                for i, row in df_res_p.iterrows():
-                    id_p = int(row['N_PARTIDO'])
-                    lista_final.append({
-                        "N_PARTIDO": id_p, 
-                        "USUARIO": user_actual, 
-                        "P1": st.session_state[f"p1_{id_p}"], 
-                        "P2": st.session_state[f"p2_{id_p}"]
-                    })
-                
-                df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
-                df_guardar = pd.concat([df_otros, pd.DataFrame(lista_final)], ignore_index=True)
-                conn.update(worksheet="PRONOSTICOS", data=df_guardar)
-                st.cache_data.clear()
-                st.success("✅ ¡Cambios guardados en el Excel!")
-                st.balloons()
-                st.rerun()
+            # AQUÍ ES DONDE VAN LAS INSIGNIAS (Medallas) QUE YA TENÍAMOS
 
                 
     with col_derecha:
