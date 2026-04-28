@@ -730,21 +730,21 @@ elif menu == "👥 Jugadores":
             st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO', 'DESCRIPCION']], 
                          use_container_width=True, hide_index=True)
 
-    with col_derecha:
-        if 'user_sel' in locals():
-            # Traemos la foto del usuario seleccionado (GCS o genérica)
-            foto_j = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) else "https://w3schools.com"
+    # with col_derecha:
+    #     if 'user_sel' in locals():
+    #         # Traemos la foto del usuario seleccionado (GCS o genérica)
+    #         foto_j = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) else "https://w3schools.com"
             
-            # Mostramos la tarjeta del jugador
-            st.markdown(f"""
-                <div style="text-align: center; background-color: #f8f9fa; padding: 20px; border-radius: 15px; border: 1px solid #ddd;">
-                    <img src="{foto_j}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #28a745;">
-                    <h3 style="margin-bottom: 0;">{user_sel['NOMBRE']}</h3>
-                    <p style="color: gray; font-size: 0.9em;">@{user_sel['USUARIO']}</p>
-                    <p style="margin-top: 10px;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}</p>
-                    <p style="font-size: 0.85em; color: #555;"><i>"{user_sel['DESCRIPCION']}"</i></p>
-                </div>
-            """, unsafe_allow_html=True)
+    #         # Mostramos la tarjeta del jugador
+    #         st.markdown(f"""
+    #             <div style="text-align: center; background-color: #f8f9fa; padding: 20px; border-radius: 15px; border: 1px solid #ddd;">
+    #                 <img src="{foto_j}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #28a745;">
+    #                 <h3 style="margin-bottom: 0;">{user_sel['NOMBRE']}</h3>
+    #                 <p style="color: gray; font-size: 0.9em;">@{user_sel['USUARIO']}</p>
+    #                 <p style="margin-top: 10px;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}</p>
+    #                 <p style="font-size: 0.85em; color: #555;"><i>"{user_sel['DESCRIPCION']}"</i></p>
+    #             </div>
+    #         """, unsafe_allow_html=True)
             
     with col_derecha:
         if 'user_sel' in locals():
@@ -766,7 +766,7 @@ elif menu == "👥 Jugadores":
                 row_u = df_ranking.loc[idx]
                 posicion = idx + 1 # Asumiendo que el ranking no está re-indexado
                 
-                # 1. 🏆 PUNTERO (Si es el primer índice del ranking ordenado)
+                # 1. 👑 PUNTERO (Si es el primer índice del ranking ordenado)
                 if idx == 0: css_puntero = ""
 
                 # 2. 🎯 MASTER
@@ -815,7 +815,7 @@ elif menu == "👥 Jugadores":
                         <div style="font-size: 0.7em; color: #007bff; font-weight: bold;">{u_sel.get('EQUIPO FAVORITO', '')}</div>
                     </div>
                     <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;">
-                        <span title="Puntero" style="font-size: 1.8em; {css_puntero}">🏆</span>
+                        <span title="Puntero" style="font-size: 1.8em; {css_puntero}">👑</span>
                         <span title="Master Exactos" style="font-size: 1.8em; {css_master}">🎯</span>
                         <span title="Mentalista" style="font-size: 1.8em; {css_mentalista}">🧙‍♂️</span>
                         <span title="Fundador" style="font-size: 1.8em; {css_fundador}">🏅</span>
