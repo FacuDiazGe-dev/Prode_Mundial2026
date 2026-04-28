@@ -985,7 +985,7 @@ elif menu == "⚙️ Panel Control":
     else:
         st.error("No tienes permisos para acceder a esta sección.")
 
-            st.markdown("---")
+                        st.markdown("---")
     st.subheader("🚧 Control de Mantenimiento")
     
     col_m1, col_m2 = st.columns([2, 1])
