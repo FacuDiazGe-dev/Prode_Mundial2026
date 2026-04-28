@@ -822,13 +822,13 @@ with col_derecha:
         """, unsafe_allow_html=True)
             
             # --- PREDICCIONES DEL USUARIO ---
-            st.markdown("---")
-            st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
-            pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
+        st.markdown("---")
+        st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
+        pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
             
-            if pro_user_sel.empty:
+        if pro_user_sel.empty:
                 st.warning("Sin pronósticos.")
-            else:
+        else:
                 with st.container(height=400):
                     for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
                         p_match = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
