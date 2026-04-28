@@ -767,10 +767,13 @@ elif menu == "👥 Jugadores":
 
                 # 3. 🧙‍♂️ MENTALISTA
                 max_gen = df_ranking['GENERALES'].max()
-                es_mentalista = int(datos_rank_user.iloc[0]['GENERALES']) == max_gen and max_gen > 0
+                generales_series = pd.to_numeric(df_ranking['GENERALES'], errors='coerce').fillna(0)
+                max_gen = generales_series.max()
+                # Obtenemos el valor del usuario actual también como número
+                valor_user_gen = pd.to_numeric(datos_rank_user.iloc[0]['GENERALES'], errors='coerce')     
+                # Verificamos si es igual al máximo y mayor a cero
+                es_mentalista = (valor_user_gen == max_gen) and (max_gen > 0)
                 css_mentalista = "" if es_mentalista else "filter: grayscale(100%); opacity: 0.15;"
-            else:
-                css_puntero = css_master = css_mentalista = "filter: grayscale(100%); opacity: 0.15;"
 
             # 4. 🏅 FUNDADOR
             es_fundador = int(user_sel['ID']) <= 3
@@ -785,7 +788,8 @@ elif menu == "👥 Jugadores":
             racha_act, racha_max = 0, 0
             for _, p in user_pro_sorted.iterrows():
                 # Corregido acceso a iloc[0]
-                partido_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                id_p_actual = int(p['N_PARTIDO'])
+                partido_ref = df_res[df_res['N_PARTIDO'].astype(int) == id_p_actual]
                 if not partido_ref.empty:
                     res_p = partido_ref.iloc[0]
                     if pd.notna(res_p['R1']):
