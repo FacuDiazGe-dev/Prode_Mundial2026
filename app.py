@@ -748,7 +748,7 @@ elif menu == "👥 Jugadores":
             
 #------------------------  COLUMNA DERECHA / PERFIL INSIGNIAS  y PRONOSTICOS -------------------------------------
 
-   with col_derecha:
+    with col_derecha:
         if 'user_sel' in locals():
             u_sel = user_sel
             
