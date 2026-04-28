@@ -158,27 +158,29 @@ def registrar_usuario(datos_nuevos):
         return False
 
 # --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) --------------------------------------------------------
+# --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) ---
 if 'autenticado' not in st.session_state:
     st.session_state['autenticado'] = False
+if 'mostrar_registro' not in st.session_state:
+    st.session_state['mostrar_registro'] = False
 if 'registro_exitoso' not in st.session_state:
     st.session_state['registro_exitoso'] = False
 
 if not st.session_state['autenticado']:
     st.title("🏆 Prode Mundial 2026")
     
-    # Manejo de pestañas
-    tab_login, tab_reg = st.tabs(["🔐 Entrar", "📝 Registrarse"])
-    
-    with tab_login:
+    # REEMPLAZO DE TABS POR LÓGICA DE ESTADO
+    if not st.session_state['mostrar_registro']:
+        # --- SECCIÓN DE LOGIN ---
         if st.session_state['registro_exitoso']:
-            st.success("¡Registro completado! Ya puedes ingresar.")
+            st.success("✅ ¡Registro completado! Ya puedes ingresar.")
             
         with st.form("login_form"):
+            st.subheader("🔐 Iniciar Sesión")
             u = st.text_input("Usuario")
             p = st.text_input("Contraseña", type="password")
-            if st.form_submit_button("Iniciar Sesión"):
+            if st.form_submit_button("Entrar"):
                 df_u = conn.read(worksheet="USUARIOS", ttl=10)
-                # Validación exacta
                 user_match = df_u[(df_u['USUARIO'].astype(str) == str(u)) & (df_u['CONTRASEÑA'].astype(str) == str(p))]
                 
                 if not user_match.empty:
@@ -188,29 +190,42 @@ if not st.session_state['autenticado']:
                     st.rerun()
                 else:
                     st.error("Usuario o contraseña incorrectos")
+        
+        # Botón para ir a registro (fuera del form)
+        if st.button("🆕 ¿No tienes cuenta? Regístrate aquí"):
+            st.session_state['mostrar_registro'] = True
+            st.session_state['registro_exitoso'] = False
+            st.rerun()
 
-    with tab_reg:
+    else:
+        # --- SECCIÓN DE REGISTRO ---
+        st.subheader("📝 Crear nueva cuenta")
         with st.form("reg_form", clear_on_submit=True):
             r_u = st.text_input("Nick de Usuario")
             r_p = st.text_input("Contraseña", type="password")
             r_n = st.text_input("Nombre Completo")
             r_e = st.number_input("Edad", 1, 100, 25)
-            r_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "Canadá", "EEUU", "Brasil", "España", "Otro"])
+            r_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "España", "Brasil", "EEUU", "Otro"])
             r_d = st.text_area("Breve descripción")
             
             if st.form_submit_button("Crear mi cuenta"):
                 if r_u and r_p and r_n:
+                    # Usamos tu función registrar_usuario
                     if registrar_usuario({
                         "USUARIO": r_u, "CONTRASEÑA": r_p, "NOMBRE": r_n,
                         "EDAD": r_e, "EQUIPO FAVORITO": r_f, "DESCRIPCION": r_d
                     }):
-                        # --- CORRECCIÓN AQUÍ ---
+                        # TRUCO FINAL: Cambiamos los estados para que al recargar muestre el Login
                         st.session_state['registro_exitoso'] = True
-                        # Eliminamos la línea con error de escritura y dejamos que el rerun
-                        # mande al usuario a la pestaña 0 (Login) por defecto.
+                        st.session_state['mostrar_registro'] = False 
                         st.rerun()
                 else:
                     st.error("Completa Usuario, Contraseña y Nombre.")
+        
+        if st.button("⬅️ Volver al Login"):
+            st.session_state['mostrar_registro'] = False
+            st.rerun()
+
     st.stop()
 #---------------------- SI Mantenimiento esta activo ---------------------------
 if MANTENIMIENTO_ACTIVO and st.session_state['user_data']['ROL'] != 'admin':
