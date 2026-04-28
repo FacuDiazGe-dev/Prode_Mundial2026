@@ -748,107 +748,107 @@ elif menu == "👥 Jugadores":
             
 #------------------------  COLUMNA DERECHA / PERFIL INSIGNIAS  y PRONOSTICOS -------------------------------------
 
-with col_derecha:
-    if 'user_sel' in locals():
-        # --- 1. PREPARACIÓN DE DATOS ---
-        user_sel_name = str(user_sel['NOMBRE']).strip()
-        datos_rank_user = df_ranking[df_ranking['JUGADOR'].str.strip() == user_sel_name]
-        
-        # Inicializamos variables (dentro del if)
-        css_puntero = css_master = css_mentalista = css_lento = css_onfire = "filter: grayscale(100%); opacity: 0.15;"
-        label_fire = ""
-
-        # --- 2. LÓGICA DE MEDALLAS ---
-        if not datos_rank_user.empty:
-            row_u = datos_rank_user.iloc[0]
+    with col_derecha:
+        if 'user_sel' in locals():
+            # --- 1. PREPARACIÓN DE DATOS ---
+            user_sel_name = str(user_sel['NOMBRE']).strip()
+            datos_rank_user = df_ranking[df_ranking['JUGADOR'].str.strip() == user_sel_name]
             
-            # Puntero
-            max_puntos = pd.to_numeric(df_ranking['PUNTOS']).max()
-            if pd.to_numeric(row_u['PUNTOS']) == max_puntos and max_puntos > 0:
-                css_puntero = ""
-
-            # Master
-            if int(row_u['EXACTOS']) >= 5:
-                css_master = ""
-
-            # Mentalista
-            max_gen = pd.to_numeric(df_ranking['GENERALES']).max()
-            if int(row_u['GENERALES']) == max_gen and max_gen > 0:
-                css_mentalista = ""
-
-            # Lento
-            if user_sel_name == df_ranking.iloc[-1]['JUGADOR'] and len(df_ranking) > 2:
-                css_lento = ""
-
-            # On Fire
-            user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
-            racha_act, racha_max = 0, 0
-            for _, p in user_pro_sorted.iterrows():
-                partido_ref = df_res[df_res['N_PARTIDO'].astype(int) == int(p['N_PARTIDO'])]
-                if not partido_ref.empty:
-                    res_p = partido_ref.iloc[0]
-                    if pd.notna(res_p['R1']):
-                        _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
-                        if exa == 1:
-                            racha_act += 1
-                            racha_max = max(racha_max, racha_act)
-                        else: racha_act = 0
-            
-            if racha_max >= 3:
-                css_onfire = ""
-                label_fire = f"x{racha_max}"
-
-        # 4. Fundador (Depende de user_sel['ID'])
-        try:
-            if int(user_sel['ID']) <= 3:
-                css_fundador = ""
-            else:
+            # Inicializamos variables (dentro del if)
+            css_puntero = css_master = css_mentalista = css_lento = css_onfire = "filter: grayscale(100%); opacity: 0.15;"
+            label_fire = ""
+    
+            # --- 2. LÓGICA DE MEDALLAS ---
+            if not datos_rank_user.empty:
+                row_u = datos_rank_user.iloc[0]
+                
+                # Puntero
+                max_puntos = pd.to_numeric(df_ranking['PUNTOS']).max()
+                if pd.to_numeric(row_u['PUNTOS']) == max_puntos and max_puntos > 0:
+                    css_puntero = ""
+    
+                # Master
+                if int(row_u['EXACTOS']) >= 5:
+                    css_master = ""
+    
+                # Mentalista
+                max_gen = pd.to_numeric(df_ranking['GENERALES']).max()
+                if int(row_u['GENERALES']) == max_gen and max_gen > 0:
+                    css_mentalista = ""
+    
+                # Lento
+                if user_sel_name == df_ranking.iloc[-1]['JUGADOR'] and len(df_ranking) > 2:
+                    css_lento = ""
+    
+                # On Fire
+                user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
+                racha_act, racha_max = 0, 0
+                for _, p in user_pro_sorted.iterrows():
+                    partido_ref = df_res[df_res['N_PARTIDO'].astype(int) == int(p['N_PARTIDO'])]
+                    if not partido_ref.empty:
+                        res_p = partido_ref.iloc[0]
+                        if pd.notna(res_p['R1']):
+                            _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
+                            if exa == 1:
+                                racha_act += 1
+                                racha_max = max(racha_max, racha_act)
+                            else: racha_act = 0
+                
+                if racha_max >= 3:
+                    css_onfire = ""
+                    label_fire = f"x{racha_max}"
+    
+            # 4. Fundador (Depende de user_sel['ID'])
+            try:
+                if int(user_sel['ID']) <= 3:
+                    css_fundador = ""
+                else:
+                    css_fundador = "filter: grayscale(100%); opacity: 0.15;"
+            except:
                 css_fundador = "filter: grayscale(100%); opacity: 0.15;"
-        except:
-            css_fundador = "filter: grayscale(100%); opacity: 0.15;"
-
-        # --- 3. RENDERIZADO DE MEDALLAS ---
-        st.markdown(f"""
-            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                <span title="Puntero" style="font-size: 1.5em; {css_puntero}">🏆</span>
-                <span title="Master Exactos" style="font-size: 1.5em; {css_master}">🎯</span>
-                <span title="Mentalista" style="font-size: 1.5em; {css_mentalista}">🧙‍♂️</span>
-                <span title="Fundador" style="font-size: 1.5em; {css_fundador}">🏅</span>
-                <span title="On Fire {label_fire}" style="font-size: 1.5em; {css_onfire}">🔥</span>
-                <span title="El más lento" style="font-size: 1.5em; {css_lento}">🐌</span>
-            </div>
-        """, unsafe_allow_html=True)
-            
-        # --- 4. PREDICCIONES DEL USUARIO ---
-        st.markdown("---")
-        st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
-        pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
-            
-        if pro_user_sel.empty:
-            st.warning("Sin pronósticos.")
-        else:
-            with st.container(height=400):
-                for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
-                    p_match = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                    if not p_match.empty:
-                        p_inf = p_match.iloc[0]
-                        f1, f2 = get_flag_img(p_inf['Equipo_1']), get_flag_img(p_inf['Equipo_2'])
-                        i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
-                        i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
-                        
-                        st.markdown(f"""
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.8em;">
-                            <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
-                            <div style="width: 35%; text-align: right;">{p_inf['Equipo_1']} {i1}</div>
-                            <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
-                                {int(p['P1'])} - {int(p['P2'])}
+    
+            # --- 3. RENDERIZADO DE MEDALLAS ---
+            st.markdown(f"""
+                <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                    <span title="Puntero" style="font-size: 1.5em; {css_puntero}">🏆</span>
+                    <span title="Master Exactos" style="font-size: 1.5em; {css_master}">🎯</span>
+                    <span title="Mentalista" style="font-size: 1.5em; {css_mentalista}">🧙‍♂️</span>
+                    <span title="Fundador" style="font-size: 1.5em; {css_fundador}">🏅</span>
+                    <span title="On Fire {label_fire}" style="font-size: 1.5em; {css_onfire}">🔥</span>
+                    <span title="El más lento" style="font-size: 1.5em; {css_lento}">🐌</span>
+                </div>
+            """, unsafe_allow_html=True)
+                
+            # --- 4. PREDICCIONES DEL USUARIO ---
+            st.markdown("---")
+            st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
+            pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
+                
+            if pro_user_sel.empty:
+                st.warning("Sin pronósticos.")
+            else:
+                with st.container(height=400):
+                    for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
+                        p_match = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                        if not p_match.empty:
+                            p_inf = p_match.iloc[0]
+                            f1, f2 = get_flag_img(p_inf['Equipo_1']), get_flag_img(p_inf['Equipo_2'])
+                            i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
+                            i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
+                            
+                            st.markdown(f"""
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.8em;">
+                                <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
+                                <div style="width: 35%; text-align: right;">{p_inf['Equipo_1']} {i1}</div>
+                                <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
+                                    {int(p['P1'])} - {int(p['P2'])}
+                                </div>
+                                <div style="width: 35%; text-align: left;">{i2} {p_inf['Equipo_2']}</div>
                             </div>
-                            <div style="width: 35%; text-align: left;">{i2} {p_inf['Equipo_2']}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-    else:
-        # Esto aparece si no hay nadie seleccionado
-        st.info("Selecciona un jugador del ranking para ver sus logros.")
+                            """, unsafe_allow_html=True)
+        else:
+            # Esto aparece si no hay nadie seleccionado
+            st.info("Selecciona un jugador del ranking para ver sus logros.")
 
         
 # ---------- MENU FORO ----------------------------------------------------
