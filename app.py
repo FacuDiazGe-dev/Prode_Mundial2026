@@ -249,22 +249,50 @@ if st.sidebar.button("Cerrar Sesión"):
     st.rerun()
     
 # --- CARGA DE DATOS DE TABLAS GSHEET ---------------------------------------------------------------------------------------------
+def calcular_detalle(r1, r2, p1, p2):
+    if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
+        return 0, 0, 0 
+    puntos, exactos, generales = 0, 0, 0
+    r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
+    tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
+    tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
+    if tendencia_real == tendencia_pron:
+        generales = 1
+        puntos = 1
+        if r1 == p1 and r2 == p2:
+            exactos = 1
+            puntos = 3
+    return puntos, exactos, generales
+
+@st.cache_data(ttl=60)
+def obtener_ranking_global(df_users, df_pro, df_res):
+    ranking_data = []
+    for _, u in df_users.iterrows():
+        u_nick = u['USUARIO']
+        pts_t, exa_t, gen_t = 0, 0, 0
+        pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
+        for _, p in pro_usr.iterrows():
+            res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+            if not res_p.empty and pd.notna(res_p.iloc[0]['R1']):
+                pts, exa, gen = calcular_detalle(res_p.iloc[0]['R1'], res_p.iloc[0]['R2'], p['P1'], p['P2'])
+                pts_t += pts; exa_t += exa; gen_t += gen
+        ranking_data.append({'USUARIO': u_nick, 'JUGADOR': u['NOMBRE'], 'PUNTOS': pts_t, 'EXACTOS': exa_t, 'GENERALES': gen_t})
+    df_rank = pd.DataFrame(ranking_data).sort_values(by='PUNTOS', ascending=False).reset_index(drop=True)
+    return df_rank
+
+
+
 # ----LINK de Tablas
 SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
 URL_RES = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 URL_PRO = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=394071446"
 
-@st.cache_data(ttl=60) # Actualiza cada 1 minuto para pruebas
+@st.cache_data(ttl=60)
 def load_data():
-    # Forzamos la lectura de los resultados y pronósticos
     df_res = pd.read_csv(URL_RES)
     df_pro = pd.read_csv(URL_PRO)
-    
-    # LIMPIEZA CRÍTICA: Convertir columnas de goles a números, errores se vuelven NaN
-    cols_res = ['R1', 'R2']
-    for col in cols_res:
+    for col in ['R1', 'R2']:
         df_res[col] = pd.to_numeric(df_res[col], errors='coerce')
-        
     return df_res, df_pro
 
 df_res, df_pro = load_data()
