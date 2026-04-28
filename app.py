@@ -76,11 +76,39 @@ def upload_profile_picture(archivo, file_name):
     except Exception as e:
         return f"Error: {e}"
 
-#---------------------------------------------------------------------------------------------
+#---------------------------MANTENIMIENTO -  True (Activado)  False (Desactivo)------------------------------------------------------------------
+MANTENIMIENTO_ACTIVO = False 
+MENSAJE_MANTENIMIENTO = "⚠️ Estamos actualizando los servidores para la próxima fecha. ¡Volvemos en unos minutos!"
 
 # ----LOGIN---
 # --- CONEXIÓN ---
 conn = st.connection("gsheets", type=GSheetsConnection)
+
+# --- LECTURA DE CONFIGURACIÓN DE MANTENIMIENTO ---
+try:
+    df_config = conn.read(worksheet="CONFIG", ttl=5)
+    # Leemos la celda A2 (primera fila de la columna MANTENIMIENTO)
+    estado_mantenimiento = str(df_config["MANTENIMIENTO"].iloc[0]).strip().upper()
+except Exception:
+    # Si la hoja no existe o falla, por defecto la web queda abierta
+    estado_mantenimiento = "OFF"
+
+# --- FILTRO DE ACCESO (PROTECCIÓN) ---
+# Este bloque se activa solo si ya hay alguien logueado (para saber si es admin)
+if 'user_data' in st.session_state and st.session_state.get('autenticado'):
+    if estado_mantenimiento == "ON" and st.session_state['user_data'].get('ROL') != 'admin':
+        st.title("🏆 Prode Mundial 2026")
+        st.markdown(f"""
+            <div style="background-color: #fff3cd; padding: 20px; border-radius: 10px; border-left: 5px solid #ffc107;">
+                <h2 style="color: #856404; margin: 0;">⚠️ Estamos en mantenimiento</h2>
+                <p style="color: #856404; margin-top: 10px;">Estamos realizando ajustes técnicos para mejorar la estabilidad. ¡Volvemos en unos minutos!</p>
+            </div>
+        """, unsafe_allow_html=True)
+        st.info("Solo el Administrador tiene acceso en este momento.")
+        if st.button("🔄 Reintentar acceso"):
+            st.rerun()
+        st.stop()## FRENO
+
 
 # --- FUNCIÓN DE REGISTRO BLINDADA -------------------------------------------------------------------------------------
 def registrar_usuario(datos_nuevos):
@@ -181,6 +209,17 @@ if not st.session_state['autenticado']:
                 else:
                     st.error("Completa Usuario, Contraseña y Nombre.")
     st.stop()
+#---------------------- SI Mantenimiento esta activo ---------------------------
+if MANTENIMIENTO_ACTIVO and st.session_state['user_data']['ROL'] != 'admin':
+    st.warning(MENSAJE_MANTENIMIENTO)
+    st.info("Solo el Administrador tiene acceso en este momento.")
+    
+    # Detenemos la ejecución para que no vean nada más
+    if st.button("🔄 Reintentar"):
+        st.rerun()
+    st.stop() 
+
+
 
 # --- SIDEBAR DE BIENVENIDA ---
 st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
@@ -945,4 +984,25 @@ elif menu == "⚙️ Panel Control":
                         st.rerun()
     else:
         st.error("No tienes permisos para acceder a esta sección.")
+
+            st.markdown("---")
+    st.subheader("🚧 Control de Mantenimiento")
+    
+    col_m1, col_m2 = st.columns([2, 1])
+    
+    with col_m1:
+        if estado_mantenimiento == "ON":
+            st.error("LA WEB ESTÁ BLOQUEADA PARA USUARIOS")
+            if st.button("✅ DESACTIVAR MANTENIMIENTO (ABRIR WEB)", use_container_width=True):
+                df_up_m = pd.DataFrame({"MANTENIMIENTO": ["OFF"]})
+                conn.update(worksheet="CONFIG", data=df_up_m)
+                st.cache_data.clear()
+                st.rerun()
+        else:
+            st.success("LA WEB ESTÁ FUNCIONANDO NORMALMENTE")
+            if st.button("🚫 ACTIVAR MANTENIMIENTO (CERRAR WEB)", use_container_width=True):
+                df_up_m = pd.DataFrame({"MANTENIMIENTO": ["ON"]})
+                conn.update(worksheet="CONFIG", data=df_up_m)
+                st.cache_data.clear()
+                st.rerun()
         pass
