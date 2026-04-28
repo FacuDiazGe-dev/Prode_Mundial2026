@@ -829,25 +829,25 @@ with col_derecha:
         if pro_user_sel.empty:
                 st.warning("Sin pronósticos.")
         else:
-                with st.container(height=400):
-                    for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
-                        p_match = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                        if not p_match.empty:
-                            p_inf = p_match.iloc[0]
-                            f1, f2 = get_flag_img(p_inf['Equipo_1']), get_flag_img(p_inf['Equipo_2'])
-                            i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
-                            i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
-                            
-                            st.markdown(f"""
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.8em;">
-                                <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
-                                <div style="width: 35%; text-align: right;">{p_inf['Equipo_1']} {i1}</div>
-                                <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
-                                    {int(p['P1'])} - {int(p['P2'])}
-                                </div>
-                                <div style="width: 35%; text-align: left;">{i2} {p_inf['Equipo_2']}</div>
+            with st.container(height=400):
+                for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
+                    p_match = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                    if not p_match.empty:
+                        p_inf = p_match.iloc[0]
+                        f1, f2 = get_flag_img(p_inf['Equipo_1']), get_flag_img(p_inf['Equipo_2'])
+                        i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
+                        i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
+                        
+                        st.markdown(f"""
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.8em;">
+                            <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
+                            <div style="width: 35%; text-align: right;">{p_inf['Equipo_1']} {i1}</div>
+                            <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
+                                {int(p['P1'])} - {int(p['P2'])}
                             </div>
-                            """, unsafe_allow_html=True)
+                            <div style="width: 35%; text-align: left;">{i2} {p_inf['Equipo_2']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
 
 # ---------- MENU FORO ----------------------------------------------------
