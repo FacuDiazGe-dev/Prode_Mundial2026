@@ -976,90 +976,90 @@ elif menu == "⚙️ Panel Control":
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
 #---------------------------test
-        if 'user_sel' in locals() and user_sel is not None:
-            # 1. Preparar datos de usuarios para el cálculo
-            u_sel = user_sel
-            u_nick = u_sel['USUARIO']
-            u_nombre = u_sel['NOMBRE']
-
-            # 2. Generar Ranking "al vuelo" para insignias de posición (Puntero/Lento)
-            # Procesamos puntos para TODOS los usuarios para poder comparar
-            ranking_rapido = []
-            todos_los_usuarios = df_users_adm['USUARIO'].unique()
-            
-            for usr in todos_los_usuarios:
-                pts_total, exa_total, gen_total = 0, 0, 0
-                pro_usr = df_pro[df_pro['USUARIO'] == usr]
+            if 'user_sel' in locals() and user_sel is not None:
+                # 1. Preparar datos de usuarios para el cálculo
+                u_sel = user_sel
+                u_nick = u_sel['USUARIO']
+                u_nombre = u_sel['NOMBRE']
+    
+                # 2. Generar Ranking "al vuelo" para insignias de posición (Puntero/Lento)
+                # Procesamos puntos para TODOS los usuarios para poder comparar
+                ranking_rapido = []
+                todos_los_usuarios = df_users_adm['USUARIO'].unique()
                 
-                for _, p in pro_usr.iterrows():
-                    res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                    if not res_p.empty and pd.notna(res_p.iloc[0]['R1']):
-                        pts, exa, gen = calcular_detalle(res_p.iloc[0]['R1'], res_p.iloc[0]['R2'], p['P1'], p['P2'])
-                        pts_total += pts
-                        exa_total += exa
-                        gen_total += gen
+                for usr in todos_los_usuarios:
+                    pts_total, exa_total, gen_total = 0, 0, 0
+                    pro_usr = df_pro[df_pro['USUARIO'] == usr]
+                    
+                    for _, p in pro_usr.iterrows():
+                        res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                        if not res_p.empty and pd.notna(res_p.iloc[0]['R1']):
+                            pts, exa, gen = calcular_detalle(res_p.iloc[0]['R1'], res_p.iloc[0]['R2'], p['P1'], p['P2'])
+                            pts_total += pts
+                            exa_total += exa
+                            gen_total += gen
+                    
+                    ranking_rapido.append({
+                        'USUARIO': usr, 
+                        'PUNTOS': pts_total, 
+                        'EXACTOS': exa_total, 
+                        'GENERALES': gen_total
+                    })
                 
-                ranking_rapido.append({
-                    'USUARIO': usr, 
-                    'PUNTOS': pts_total, 
-                    'EXACTOS': exa_total, 
-                    'GENERALES': gen_total
-                })
-            
-            df_test_rank = pd.DataFrame(ranking_rapido).sort_values(by='PUNTOS', ascending=False).reset_index(drop=True)
-            
-            # 3. Extraer datos específicos del usuario seleccionado
-            datos_usr = df_test_rank[df_test_rank['USUARIO'] == u_nick].iloc[0]
-            posicion_usr = df_test_rank[df_test_rank['USUARIO'] == u_nick].index[0]
-            
-            # 4. Lógica de insignias (Basada en el cálculo fresco)
-            css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
-            
-            if posicion_usr == 0 and datos_usr['PUNTOS'] > 0: css["puntero"] = ""
-            if datos_usr['EXACTOS'] >= 5: css["master"] = ""
-            
-            max_gen = df_test_rank['GENERALES'].max()
-            if datos_usr['GENERALES'] == max_gen and max_gen > 0: css["mentalista"] = ""
-            
-            if len(df_test_rank) > 2 and posicion_usr == (len(df_test_rank) - 1): css["lento"] = ""
-            if int(u_sel.get('ID', 99)) <= 3: css["fundador"] = ""
-
-            # 5. Racha ON FIRE
-            u_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
-            r_act, r_max = 0, 0
-            for _, p in u_pro_sorted.iterrows():
-                p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
-                    _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
-                    if exa == 1:
-                        r_act += 1
-                        r_max = max(r_max, r_act)
-                    else: r_act = 0
-            
-            label_fire = f"x{r_max}" if r_max >= 3 else ""
-            if r_max >= 3: css["onfire"] = ""
-
-            # 6. Renderizado HTML (El mismo que veníamos usando)
-            foto = u_sel.get('AVATAR_URL')
-            if not foto or pd.isna(foto):
-                foto = f"https://ui-avatars.com{u_nombre}&background=random"
-
-            st.markdown(f"""
-                <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
-                        <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
-                        <div style="font-weight: bold; font-size: 0.8em; margin-top: 5px;">{u_nombre}</div>
+                df_test_rank = pd.DataFrame(ranking_rapido).sort_values(by='PUNTOS', ascending=False).reset_index(drop=True)
+                
+                # 3. Extraer datos específicos del usuario seleccionado
+                datos_usr = df_test_rank[df_test_rank['USUARIO'] == u_nick].iloc[0]
+                posicion_usr = df_test_rank[df_test_rank['USUARIO'] == u_nick].index[0]
+                
+                # 4. Lógica de insignias (Basada en el cálculo fresco)
+                css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
+                
+                if posicion_usr == 0 and datos_usr['PUNTOS'] > 0: css["puntero"] = ""
+                if datos_usr['EXACTOS'] >= 5: css["master"] = ""
+                
+                max_gen = df_test_rank['GENERALES'].max()
+                if datos_usr['GENERALES'] == max_gen and max_gen > 0: css["mentalista"] = ""
+                
+                if len(df_test_rank) > 2 and posicion_usr == (len(df_test_rank) - 1): css["lento"] = ""
+                if int(u_sel.get('ID', 99)) <= 3: css["fundador"] = ""
+    
+                # 5. Racha ON FIRE
+                u_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
+                r_act, r_max = 0, 0
+                for _, p in u_pro_sorted.iterrows():
+                    p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+                    if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
+                        _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
+                        if exa == 1:
+                            r_act += 1
+                            r_max = max(r_max, r_act)
+                        else: r_act = 0
+                
+                label_fire = f"x{r_max}" if r_max >= 3 else ""
+                if r_max >= 3: css["onfire"] = ""
+    
+                # 6. Renderizado HTML (El mismo que veníamos usando)
+                foto = u_sel.get('AVATAR_URL')
+                if not foto or pd.isna(foto):
+                    foto = f"https://ui-avatars.com{u_nombre}&background=random"
+    
+                st.markdown(f"""
+                    <div style="display: flex; align-items: center; background: white; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
+                            <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
+                            <div style="font-weight: bold; font-size: 0.8em; margin-top: 5px;">{u_nombre}</div>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 5px;">
+                            <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
+                            <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
+                            <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
+                            <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
+                            <span title="On Fire {label_fire}" style="font-size: 1.7em; {css['onfire']}">🔥</span>
+                            <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
+                        </div>
                     </div>
-                    <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 5px;">
-                        <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
-                        <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
-                        <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
-                        <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
-                        <span title="On Fire {label_fire}" style="font-size: 1.7em; {css['onfire']}">🔥</span>
-                        <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 #---------------------------------------
         
             st.subheader("👥 Gestión de Usuarios")
