@@ -1007,4 +1007,4 @@ elif menu == "⚙️ Panel Control":
     else:
         # Este else pertenece al chequeo de ROL == 'admin' inicial
         st.error("No tienes permisos para acceder a esta sección.")
-                    pass
+                 
