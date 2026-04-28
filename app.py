@@ -204,8 +204,10 @@ if not st.session_state['autenticado']:
                         "USUARIO": r_u, "CONTRASEÑA": r_p, "NOMBRE": r_n,
                         "EDAD": r_e, "EQUIPO FAVORITO": r_f, "DESCRIPCION": r_d
                     }):
+                        # --- CORRECCIÓN AQUÍ ---
                         st.session_state['registro_exitoso'] = True
-                        St.sessuion_state['Mostrar_registro'] = False 
+                        # Eliminamos la línea con error de escritura y dejamos que el rerun
+                        # mande al usuario a la pestaña 0 (Login) por defecto.
                         st.rerun()
                 else:
                     st.error("Completa Usuario, Contraseña y Nombre.")
