@@ -759,46 +759,46 @@ with col_derecha:
         css_puntero = css_master = css_mentalista = css_lento = css_onfire = "filter: grayscale(100%); opacity: 0.15;"
         label_fire = ""
 
-        if not datos_rank_user.empty:
-            row_u = datos_rank_user.iloc[0]
-            
-            # 1. 🏆 PUNTERO (Por puntos, no por emoji)
-            max_puntos = pd.to_numeric(df_ranking['PUNTOS']).max()
-            if pd.to_numeric(row_u['PUNTOS']) == max_puntos and max_puntos > 0:
-                css_puntero = ""
+    if not datos_rank_user.empty:
+        row_u = datos_rank_user.iloc[0]
+        
+        # 1. 🏆 PUNTERO (Por puntos, no por emoji)
+        max_puntos = pd.to_numeric(df_ranking['PUNTOS']).max()
+        if pd.to_numeric(row_u['PUNTOS']) == max_puntos and max_puntos > 0:
+            css_puntero = ""
 
-            # 2. 🎯 MASTER (5 o más exactos)
-            if int(row_u['EXACTOS']) >= 5:
-                css_master = ""
+        # 2. 🎯 MASTER (5 o más exactos)
+        if int(row_u['EXACTOS']) >= 5:
+            css_master = ""
 
-            # 3. 🧙‍♂️ MENTALISTA (Máximo en Generales)
-            max_gen = pd.to_numeric(df_ranking['GENERALES']).max()
-            if int(row_u['GENERALES']) == max_gen and max_gen > 0:
-                css_mentalista = ""
+        # 3. 🧙‍♂️ MENTALISTA (Máximo en Generales)
+        max_gen = pd.to_numeric(df_ranking['GENERALES']).max()
+        if int(row_u['GENERALES']) == max_gen and max_gen > 0:
+            css_mentalista = ""
 
-            # 5. 🐌 EL MÁS LENTO (Último lugar real)
-            if user_sel_name == df_ranking.iloc[-1]['JUGADOR'] and len(df_ranking) > 2:
-                css_lento = ""
+        # 5. 🐌 EL MÁS LENTO (Último lugar real)
+        if user_sel_name == df_ranking.iloc[-1]['JUGADOR'] and len(df_ranking) > 2:
+            css_lento = ""
 
-            # 6. 🔥 ON FIRE (Racha de exactos)
-            user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
-            racha_act, racha_max = 0, 0
-            for _, p in user_pro_sorted.iterrows():
-                # Forzamos ID a int para evitar fallos de comparación
-                partido_ref = df_res[df_res['N_PARTIDO'].astype(int) == int(p['N_PARTIDO'])]
-                if not partido_ref.empty:
-                    res_p = partido_ref.iloc[0]
-                    if pd.notna(res_p['R1']):
-                        # Asumiendo que calcular_detalle devuelve (puntos, exacto, general)
-                        _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
-                        if exa == 1:
-                            racha_act += 1
-                            racha_max = max(racha_max, racha_act)
-                        else: racha_act = 0
-            
-            if racha_max >= 3:
-                css_onfire = ""
-                label_fire = f"x{racha_max}"
+        # 6. 🔥 ON FIRE (Racha de exactos)
+        user_pro_sorted = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
+        racha_act, racha_max = 0, 0
+        for _, p in user_pro_sorted.iterrows():
+            # Forzamos ID a int para evitar fallos de comparación
+            partido_ref = df_res[df_res['N_PARTIDO'].astype(int) == int(p['N_PARTIDO'])]
+            if not partido_ref.empty:
+                res_p = partido_ref.iloc[0]
+                if pd.notna(res_p['R1']):
+                    # Asumiendo que calcular_detalle devuelve (puntos, exacto, general)
+                    _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
+                    if exa == 1:
+                        racha_act += 1
+                        racha_max = max(racha_max, racha_act)
+                    else: racha_act = 0
+        
+        if racha_max >= 3:
+            css_onfire = ""
+            label_fire = f"x{racha_max}"
 
         # 4. 🏅 FUNDADOR (Fuera del IF de ranking porque depende del ID de usuario)
         try:
