@@ -268,9 +268,6 @@ def load_data():
     return df_res, df_pro
 
 df_res, df_pro = load_data()
-#----------------------------------------------------------
-
-df_res, df_pro = load_data()
 df_usuarios = conn.read(worksheet="USUARIOS", ttl=10)
 
 # Inyectar Ranking Global
