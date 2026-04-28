@@ -612,20 +612,6 @@ elif menu == "📝 Mis Pronósticos":
                 st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
                 
-# CONTENEDOR COMPACTO: Banderas + Nombres
-                # CONTENEDOR COMPACTO: Versión ultra-estable
-                html_card = f"""<div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:2px; display: flex; align-items: center; justify-content: space-between;'><div style='display: flex; align-items: center; gap: 8px; width: 45%;'><img src="{bandera1}" width="22" style="border-radius:2px;"><span style='font-size: 0.9em; font-weight: bold; color: #333;'>{row['Equipo_1']}</span></div><div style='font-size: 0.7em; color: #999; font-weight: bold; width: 10%; text-align: center;'>VS</div><div style='display: flex; align-items: center; gap: 8px; width: 45%; justify-content: flex-end;'><span style='font-size: 0.9em; font-weight: bold; color: #333;'>{row['Equipo_2']}</span><img src="{bandera2}" width="22" style="border-radius:2px;"></div></div>"""
-                
-                st.markdown(html_card, unsafe_allow_html=True)
-                
-                # Inputs de goles
-                c1, c_vs, c2 = st.columns([1, 0.2, 1])
-                with c1:
-                    p1_val = st.number_input(f"G1_{id_p}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
-                with c_vs:
-                    st.write("<div style='text-align:center; margin-top:5px; font-weight:bold;'>:</div>", unsafe_allow_html=True)
-                with c2:
-                    p2_val = st.number_input(f"G2_{id_p}", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
 
     # --- COLUMNA DERECHA: PERFIL EDITABLE ---
     with col_derecha:
