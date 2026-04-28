@@ -976,6 +976,24 @@ elif menu == "⚙️ Panel Control":
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
 #---------------------------test
+            # --- SELECTOR DE PERFILES PARA PRUEBAS ---
+            st.subheader("🔍 Selector de Perfil")
+            
+            # Obtenemos la lista de nombres de la base de datos de usuarios
+            nombres_usuarios = df_users_adm['NOMBRE'].unique().tolist()
+            
+            nombre_seleccionado = st.selectbox(
+                "Selecciona un jugador para ver su tarjeta de perfil y testear insignias:",
+                options=nombres_usuarios,
+                index=None,
+                placeholder="Busca un nombre..."
+            )
+            
+            # Si el admin selecciona a alguien, actualizamos user_sel
+            if nombre_seleccionado:
+                user_sel = df_users_adm[df_users_adm['NOMBRE'] == nombre_seleccionado].iloc[0]
+            else:
+                user_sel = None
             st.subheader("🧪 Test de Insignias")
             if 'user_sel' in locals() and user_sel is not None:
                 u_sel = user_sel
