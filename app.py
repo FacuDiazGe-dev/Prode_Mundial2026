@@ -1001,58 +1001,49 @@ elif menu == "⚙️ Panel Control":
 # --- A partir de aquí sigue tu bloque de "Test de Insignias" ---
 
             st.subheader("🧪 Test de Insignias")
+# --- LÓGICA DE INSIGNIAS: MODO SEGURO (Toma datos directos del Ranking) ---
             if 'user_sel' in locals() and user_sel is not None:
                 u_sel = user_sel
                 nom_sel = str(u_sel['NOMBRE']).strip().lower()
                 
-                # Buscamos la fila en el ranking reseteando el índice para que 0 sea el puntero real
-                df_rank_tmp = df_ranking.copy().reset_index(drop=True)
-                df_rank_tmp['JUGADOR_CLEAN'] = df_rank_tmp['JUGADOR'].astype(str).str.strip().str.lower()
-                
-                user_en_ranking = df_rank_tmp[df_rank_tmp['JUGADOR_CLEAN'] == nom_sel]
+                # 1. Buscamos al usuario en el df_ranking que ya está calculado
+                # Importante: df_ranking debe existir y estar ordenado como en la tabla
+                df_rank_copy = df_ranking.copy().reset_index(drop=True)
+                match_rank = df_rank_copy[df_rank_copy['JUGADOR'].astype(str).str.strip().str.lower() == nom_sel]
                 
                 css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
                 label_fire = ""
-    
-                if not user_en_ranking.empty:
-                    # Obtenemos el índice numérico real (0, 1, 2...)
-                    idx = user_en_ranking.index[0] 
-                    row_r = user_en_ranking.iloc[0]
+            
+                if not match_rank.empty:
+                    idx = match_rank.index[0] # Su posición real (0 es el primero)
+                    row_r = match_rank.iloc[0]
                     
-                    # 1. 🏆 PUNTERO: Si es la posición 0
+                    # 🏆 PUNTERO: Si es el índice 0 del ranking
                     if idx == 0: css["puntero"] = ""
-    
-                    # 2. 🎯 MASTER: Exactos >= 5
-                    if int(row_r.get('EXACTOS', 0)) >= 5: css["master"] = ""
+            
+                    # 🎯 MASTER: Exactos >= 5
+                    if row_r.get('EXACTOS', 0) >= 5: css["master"] = ""
                     
-                    # 3. 🧙‍♂️ MENTALISTA: Máximo de generales
-                    max_gen = pd.to_numeric(df_ranking['GENERALES'], errors='coerce').max()
-                    if int(row_r.get('GENERALES', 0)) == max_gen and max_gen > 0:
+                    # 🧙‍♂️ MENTALISTA: Si sus generales son iguales al máximo global
+                    max_gen_global = df_rank_copy['GENERALES'].max()
+                    if row_r.get('GENERALES', 0) == max_gen_global and max_gen_global > 0:
                         css["mentalista"] = ""
-    
-                    # 4. 🐌 LENTO: Si es el último del ranking
-                    if len(df_rank_tmp) > 2 and idx == (len(df_rank_tmp) - 1):
+            
+                    # 🐌 LENTO: Si es el último de la lista
+                    if len(df_rank_copy) > 2 and idx == (len(df_rank_copy) - 1):
                         css["lento"] = ""
-                
-                # 5. 🏅 FUNDADOR (Independiente del ranking)
+            
+                # 🏅 FUNDADOR: (Este no depende del ranking, sino del ID original)
                 if int(u_sel.get('ID', 99)) <= 3: css["fundador"] = ""
-    
-                # 6. 🔥 ON FIRE (Cálculo de racha)
-                u_nick = u_sel['USUARIO']
-                u_pro = df_pro_total[df_pro_total['USUARIO'] == u_nick].sort_values('N_PARTIDO')
-                r_act, r_max = 0, 0
-                for _, p in u_pro.iterrows():
-                    p_ref = df_res[df_res['N_PARTIDO'].astype(int) == int(p['N_PARTIDO'])]
-                    if not p_ref.empty:
-                        res_p = p_ref.iloc[0]
-                        if pd.notna(res_p['R1']):
-                            _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
-                            if exa == 1:
-                                r_act += 1
-                                r_max = max(r_max, r_act)
-                            else: r_act = 0
-                if r_max >= 3:
-                    css["onfire"] = ""; label_fire = f"x{r_max}"
+            
+                # 🔥 ON FIRE: (Buscamos si en el ranking el nombre ya trae el fueguito)
+                # Si en tu ranking el nombre sale como "Juan 🔥x3", lo detectamos así:
+                nombre_en_ranking = str(match_rank.iloc[0]['JUGADOR']) if not match_rank.empty else ""
+                if "🔥" in nombre_en_ranking:
+                    css["onfire"] = ""
+                    # Intentamos extraer el x3 si existe
+                    if "x" in nombre_en_ranking:
+                        label_fire = "x" + nombre_en_ranking.split("x")[-1]
     
                 # --- DISEÑO VISUAL ---
                 foto = u_sel.get('AVATAR_URL')
