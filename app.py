@@ -976,71 +976,61 @@ elif menu == "⚙️ Panel Control":
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
 #---------------------------test
-            if 'user_sel' in locals():
+            st.subheader("🧪 Test de Insignias")
+            if 'user_sel' in locals() and user_sel is not None:
                 u_sel = user_sel
-                
-                # --- 1. LIMPIEZA DE DATOS PARA EMPAREJAR ---
-                # Nombre del usuario seleccionado (limpio)
                 nom_sel = str(u_sel['NOMBRE']).strip().lower()
                 
-                # Buscamos la fila en el ranking (limpiando el ranking también)
-                df_rank_tmp = df_ranking.copy()
+                # Buscamos la fila en el ranking reseteando el índice para que 0 sea el puntero real
+                df_rank_tmp = df_ranking.copy().reset_index(drop=True)
                 df_rank_tmp['JUGADOR_CLEAN'] = df_rank_tmp['JUGADOR'].astype(str).str.strip().str.lower()
                 
                 user_en_ranking = df_rank_tmp[df_rank_tmp['JUGADOR_CLEAN'] == nom_sel]
                 
-                # Inicializamos todo en gris (CSS)
-                css = {
-                    "puntero": "filter: grayscale(100%); opacity: 0.15;",
-                    "master": "filter: grayscale(100%); opacity: 0.15;",
-                    "mentalista": "filter: grayscale(100%); opacity: 0.15;",
-                    "lento": "filter: grayscale(100%); opacity: 0.15;",
-                    "onfire": "filter: grayscale(100%); opacity: 0.15;",
-                    "fundador": "filter: grayscale(100%); opacity: 0.15;"
-                }
+                css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
                 label_fire = ""
     
-                # --- 2. LÓGICA DE INSIGNIAS ---
                 if not user_en_ranking.empty:
-                    idx = user_en_ranking.index[0] # Posición real en el ranking
+                    # Obtenemos el índice numérico real (0, 1, 2...)
+                    idx = user_en_ranking.index[0] 
                     row_r = user_en_ranking.iloc[0]
                     
-                    # 🏆 PUNTERO: Si es la primera fila del ranking
+                    # 1. 🏆 PUNTERO: Si es la posición 0
                     if idx == 0: css["puntero"] = ""
     
-                    # 🎯 MASTER: Exactos >= 5
+                    # 2. 🎯 MASTER: Exactos >= 5
                     if int(row_r.get('EXACTOS', 0)) >= 5: css["master"] = ""
                     
-                    # 🧙‍♂️ MENTALISTA: Si coincide con el máximo de generales
+                    # 3. 🧙‍♂️ MENTALISTA: Máximo de generales
                     max_gen = pd.to_numeric(df_ranking['GENERALES'], errors='coerce').max()
                     if int(row_r.get('GENERALES', 0)) == max_gen and max_gen > 0:
                         css["mentalista"] = ""
     
-                    # 🐌 LENTO: Si es el último del ranking (y hay más de 2)
-                    if len(df_ranking) > 2 and idx == (len(df_ranking) - 1):
+                    # 4. 🐌 LENTO: Si es el último del ranking
+                    if len(df_rank_tmp) > 2 and idx == (len(df_rank_tmp) - 1):
                         css["lento"] = ""
+                
+                # 5. 🏅 FUNDADOR (Independiente del ranking)
+                if int(u_sel.get('ID', 99)) <= 3: css["fundador"] = ""
     
-                # 🏅 FUNDADOR: (Independiente del ranking)
-                if int(u_sel.get('ID', 99)) <= 3: 
-                    css["fundador"] = ""
-    
-                # 🔥 ON FIRE: (Cálculo de racha)
+                # 6. 🔥 ON FIRE (Cálculo de racha)
                 u_nick = u_sel['USUARIO']
                 u_pro = df_pro_total[df_pro_total['USUARIO'] == u_nick].sort_values('N_PARTIDO')
                 r_act, r_max = 0, 0
                 for _, p in u_pro.iterrows():
-                    p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                    if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
-                        _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
-                        if exa == 1:
-                            r_act += 1
-                            r_max = max(r_max, r_act)
-                        else: r_act = 0
-                
+                    p_ref = df_res[df_res['N_PARTIDO'].astype(int) == int(p['N_PARTIDO'])]
+                    if not p_ref.empty:
+                        res_p = p_ref.iloc[0]
+                        if pd.notna(res_p['R1']):
+                            _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
+                            if exa == 1:
+                                r_act += 1
+                                r_max = max(r_max, r_act)
+                            else: r_act = 0
                 if r_max >= 3:
                     css["onfire"] = ""; label_fire = f"x{r_max}"
     
-                # --- 3. DISEÑO VISUAL ---
+                # --- DISEÑO VISUAL ---
                 foto = u_sel.get('AVATAR_URL')
                 if not foto or pd.isna(foto):
                     foto = f"https://ui-avatars.com{u_sel['NOMBRE']}&background=random"
@@ -1065,6 +1055,8 @@ elif menu == "⚙️ Panel Control":
                         <p style="font-size: 0.8em; color: #666; font-style: italic;">"{u_sel.get('DESCRIPCION', '')}"</p>
                     </div>
                 """, unsafe_allow_html=True)
+            else:
+                st.info("Selecciona un usuario en la tabla de la izquierda para probar.")
 #---------------------------------------
         
             st.subheader("👥 Gestión de Usuarios")
