@@ -530,10 +530,9 @@ elif menu == "📝 Mis Pronósticos":
                 bandera1 = get_flag_img(row['Equipo_1'])
                 bandera2 = get_flag_img(row['Equipo_2'])
                 
-                                # CONTENEDOR COMPACTO: Banderas + Nombres
+# CONTENEDOR COMPACTO: Banderas + Nombres
                 st.markdown(f"""
                     <div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:2px; display: flex; align-items: center; justify-content: space-between;'>
-                        <!-- Equipo 1 -->
                         <div style='display: flex; align-items: center; gap: 8px; width: 45%;'>
                             <img src="{bandera1}" width="22" style="border-radius:2px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                             <span style='font-size: 0.9em; font-weight: bold; color: #333;'>{row['Equipo_1']}</span>
@@ -541,7 +540,6 @@ elif menu == "📝 Mis Pronósticos":
                         
                         <div style='font-size: 0.7em; color: #999; font-weight: bold; width: 10%; text-align: center;'>VS</div>
                         
-                        <!-- Equipo 2 -->
                         <div style='display: flex; align-items: center; gap: 8px; width: 45%; justify-content: flex-end;'>
                             <span style='font-size: 0.9em; font-weight: bold; color: #333;'>{row['Equipo_2']}</span>
                             <img src="{bandera2}" width="22" style="border-radius:2px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
@@ -549,10 +547,9 @@ elif menu == "📝 Mis Pronósticos":
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Inputs de goles (debajo de la franja de nombres)
+                # Inputs de goles
                 c1, c_vs, c2 = st.columns([1, 0.2, 1])
                 with c1:
-                    # Usamos label_visibility="collapsed" para que no repita el nombre arriba del cuadrito
                     p1_val = st.number_input(f"Goles {row['Equipo_1']}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
                 with c_vs:
                     st.write("<div style='text-align:center; margin-top:5px; font-weight:bold;'>:</div>", unsafe_allow_html=True)
