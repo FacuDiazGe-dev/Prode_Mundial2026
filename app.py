@@ -548,34 +548,37 @@ elif menu == "📝 Mis Pronósticos":
                 </div>
             """, unsafe_allow_html=True)
             
-            # Marcador [ - ] [ + ]
+            # FILA DE MARCADOR: [ - NUM + ]  :  [ - NUM + ]
             c_izq, c_vs, c_der = st.columns([1, 0.2, 1])
             
             with c_izq:
+                # Cambiamos las keys de los botones para que no choquen con la variable
                 m1, v1, p1 = st.columns([1, 1, 1])
-                if m1.button("➖", key=f"m1_{id_p}", disabled=esta_bloqueado):
+                if m1.button("➖", key=f"btn_m1_{id_p}", disabled=esta_bloqueado):
                     if st.session_state[f"p1_{id_p}"] > 0:
                         st.session_state[f"p1_{id_p}"] -= 1
                         st.rerun()
+                
                 v1.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p1_{id_p}']}</h3>", unsafe_allow_html=True)
-                if p1.button("➕", key=f"p1_{id_p}", disabled=esta_bloqueado):
+                
+                if p1.button("➕", key=f"btn_p1_{id_p}", disabled=esta_bloqueado):
                     st.session_state[f"p1_{id_p}"] += 1
                     st.rerun()
 
-            c_vs.markdown("<h3 style='text-align:center;'>:</h3>", unsafe_allow_html=True)
+            c_vs.markdown("<h3 style='text-align:center; margin-top:5px;'>:</h3>", unsafe_allow_html=True)
 
             with c_der:
                 m2, v2, p2 = st.columns([1, 1, 1])
-                if m2.button("➖", key=f"m2_{id_p}", disabled=esta_bloqueado):
+                if m2.button("➖", key=f"btn_m2_{id_p}", disabled=esta_bloqueado):
                     if st.session_state[f"p2_{id_p}"] > 0:
                         st.session_state[f"p2_{id_p}"] -= 1
                         st.rerun()
+                
                 v2.markdown(f"<h3 style='text-align:center; margin:0;'>{st.session_state[f'p2_{id_p}']}</h3>", unsafe_allow_html=True)
-                if p2.button("➕", key=f"p2_{id_p}", disabled=esta_bloqueado):
+                
+                if p2.button("➕", key=f"btn_p2_{id_p}", disabled=esta_bloqueado):
                     st.session_state[f"p2_{id_p}"] += 1
                     st.rerun()
-            
-            st.markdown("---")
 
         # --- BOTÓN DE GUARDADO FINAL (FUERA DEL FORM) ---
         if es_tiempo_valido and modo_edicion:
