@@ -880,17 +880,17 @@ with col_derecha:
                         </p>
                     </div>
                 """, unsafe_allow_html=True)
-                            
-                            st.markdown(f"""
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.8em;">
-                                <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
-                                <div style="width: 35%; text-align: right;">{p_inf['Equipo_1']} {i1}</div>
-                                <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
-                                    {int(p['P1'])} - {int(p['P2'])}
-                                </div>
-                                <div style="width: 35%; text-align: left;">{i2} {p_inf['Equipo_2']}</div>
-                            </div>
-                            """, unsafe_allow_html=True)
+                           
+                st.markdown(f"""
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.8em;">
+                    <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
+                    <div style="width: 35%; text-align: right;">{p_inf['Equipo_1']} {i1}</div>
+                    <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
+                        {int(p['P1'])} - {int(p['P2'])}
+                    </div>
+                    <div style="width: 35%; text-align: left;">{i2} {p_inf['Equipo_2']}</div>
+                </div>
+                """, unsafe_allow_html=True)
         else:
             # Esto aparece si no hay nadie seleccionado
             st.info("Selecciona un jugador del ranking para ver sus logros.")
