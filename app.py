@@ -594,6 +594,42 @@ if menu == "🏠 Inicio":
             st.error("No se pudo cargar el ranking. Reintentando...")
             st.cache_data.clear()
 
+        # --- PODIO VISUAL (Top 3) ---
+        st.markdown("---")
+        st.subheader("🏆 Podio Actual")
+        
+        # Tomamos los 3 primeros del ranking calculado
+        top_3 = df_ranking.head(3)
+        
+        if not top_3.empty:
+            # Creamos 3 columnas para las fotos
+            c1, c2, c3 = st.columns(3)
+            puestos = [c1, c2, c3]
+            medallas = ["🥇", "🥈", "🥉"]
+            
+            # Necesitamos cruzar con la tabla de usuarios para obtener las fotos
+            df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
+            
+            for i, (index, row) in enumerate(top_3.iterrows()):
+                # Buscamos la foto del jugador en la tabla de usuarios
+                user_info = df_usuarios[df_usuarios['USUARIO'] == row['JUGADOR']]
+                
+                if not user_info.empty and pd.notna(user_info.iloc[0]['AVATAR_URL']) and user_info.iloc[0]['AVATAR_URL'] != "":
+                    url_foto = user_info.iloc[0]['AVATAR_URL']
+                else:
+                    url_foto = "https://flaticon.com" # Genérica
+                
+                with puestos[i]:
+                    st.markdown(f"""
+                        <div style="text-align: center;">
+                            <p style="font-size: 1.5em; margin-bottom: 0;">{medallas[i]}</p>
+                            <img src="{url_foto}" style="border-radius: 50%; width: 60px; height: 60px; object-fit: cover; border: 2px solid #FFD700;">
+                            <p style="font-size: 0.8em; font-weight: bold; margin-top: 5px;">{row['JUGADOR']}</p>
+                            <p style="font-size: 0.9em; color: #007bff;">{row['PUNTOS']} pts</p>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+#---------------estadisticas viejas--------------------
         st.markdown("---")
         st.subheader("📈 Estadísticas")
         if not df_ranking.empty:
