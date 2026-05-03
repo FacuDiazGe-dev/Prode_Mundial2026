@@ -574,110 +574,110 @@ if menu == "🏠 Inicio":
                         </div>
                     """, unsafe_allow_html=True)
 #---------------------------------MENU INICIO / RANKING ------------------------------------------------------
-        with col_derecha:
-            st.subheader("📊 Ranking")
-            try:
-            # Forzamos lectura fresca
-                df_ranking_view = df_ranking.copy()
-                st.dataframe(
-                    df_ranking_view, 
-                    use_container_width=True, 
-                    hide_index=True,
-                    column_config={
-                        "Nº": st.column_config.TextColumn("Nº", width="small"),
-                        "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
-                        "EXACTOS": st.column_config.NumberColumn("🎯"),
-                        "GENERALES": st.column_config.NumberColumn("✅")
-                    }
-                )
-            except Exception as e:
-                st.error("No se pudo cargar el ranking. Reintentando...")
-                st.cache_data.clear()
-    
-            # --- PODIO VISUAL (Top 3) ---
-            st.markdown("---")
-            st.subheader("🏆 Podio Actual")
-            
-            # Tomamos los 3 primeros del ranking calculado
-            top_3 = df_ranking.head(3)
-            
-            if not top_3.empty:
-                # Creamos 3 columnas para las fotos
-                c1, c2, c3 = st.columns(3)
-                puestos = [c1, c2, c3]
-                medallas = ["🥇", "🥈", "🥉"]
-                
-                # Necesitamos cruzar con la tabla de usuarios para obtener las fotos
-                df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
-                
-                for i, (index, row) in enumerate(top_3.iterrows()):
-                    # Buscamos la foto del jugador en la tabla de usuarios
-                    user_info = df_usuarios[df_usuarios['USUARIO'] == row['JUGADOR']]
-                    
-                    if not user_info.empty and pd.notna(user_info.iloc[0]['AVATAR_URL']) and user_info.iloc[0]['AVATAR_URL'] != "":
-                        url_foto = user_info.iloc[0]['AVATAR_URL']
-                    else:
-                        url_foto = "https://flaticon.com" # Genérica
-                    
-                    with puestos[i]:
-                        st.markdown(f"""
-                            <div style="text-align: center;">
-                                <p style="font-size: 1.5em; margin-bottom: 0;">{medallas[i]}</p>
-                                <img src="{url_foto}" style="border-radius: 50%; width: 60px; height: 60px; object-fit: cover; border: 2px solid #FFD700;">
-                                <p style="font-size: 0.8em; font-weight: bold; margin-top: 5px;">{row['JUGADOR']}</p>
-                                <p style="font-size: 0.9em; color: #007bff;">{row['PUNTOS']} pts</p>
-                            </div>
-                        """, unsafe_allow_html=True)
-    
-    # --- GRÁFICO DE EVOLUCIÓN (Puntos por Partido) ---
-    st.markdown("---")
-    st.subheader("📈 Evolución del Torneo")
-    
-    # 1. Definir los DataFrames correctos (Asegúrate que estos nombres existan en tu app)
-    # Usualmente los cargamos así:
-    df_res_oficial = conn.read(worksheet="RESULTADOS", ttl=0)
-    df_pro_global = conn.read(worksheet="PRONOSTICOS", ttl=0) # <--- AQUÍ LA DEFINIMOS
-    
-    evolucion_data = []
-    partidos_con_resultado = df_res_oficial[pd.notna(df_res_oficial['R1'])].sort_values('N_PARTIDO')
-    
-    if not partidos_con_resultado.empty:
-        # Usamos df_ranking para sacar la lista de usuarios
-        usuarios_lista = df_ranking["JUGADOR"].unique()
-        
-        for user in usuarios_lista:
-            puntos_acumulados = 0
-            # Filtramos los pronósticos de este usuario específico
-            df_pro_user = df_pro_global[df_pro_global['USUARIO'] == user]
-            
-            for _, partido in partidos_con_resultado.iterrows():
-                id_p = partido['N_PARTIDO']
-                pro = df_pro_user[df_pro_user['N_PARTIDO'] == id_p]
-                
-                pts = 0
-                if not pro.empty:
-                    # Acceso correcto a los valores para evitar TypeError
-                    r1, r2 = partido['R1'], partido['R2']
-                    p1, p2 = pro.iloc[0]['P1'], pro.iloc[0]['P2']
-                    
-                    t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
-                    t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
-                    
-                    if t_real == t_pron:
-                        pts = 3 if (r1 == p1 and r2 == p2) else 1
-                
-                puntos_acumulados += pts
-                evolucion_data.append({
-                    "Partido": f"P{id_p}", 
-                    "Jugador": user, 
-                    "Puntos": puntos_acumulados
-                })
+    with col_derecha:
+        st.subheader("📊 Ranking")
+        try:
+        # Forzamos lectura fresca
+            df_ranking_view = df_ranking.copy()
+            st.dataframe(
+                df_ranking_view, 
+                use_container_width=True, 
+                hide_index=True,
+                column_config={
+                    "Nº": st.column_config.TextColumn("Nº", width="small"),
+                    "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
+                    "EXACTOS": st.column_config.NumberColumn("🎯"),
+                    "GENERALES": st.column_config.NumberColumn("✅")
+                }
+            )
+        except Exception as e:
+            st.error("No se pudo cargar el ranking. Reintentando...")
+            st.cache_data.clear()
 
-        # 2. Transformar para el gráfico (Pivot)
-        if evolucion_data:
-            df_ev = pd.DataFrame(evolucion_data)
-            df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
-            st.line_chart(df_ev_pivot, use_container_width=True)
+        # --- PODIO VISUAL (Top 3) ---
+        st.markdown("---")
+        st.subheader("🏆 Podio Actual")
+        
+        # Tomamos los 3 primeros del ranking calculado
+        top_3 = df_ranking.head(3)
+        
+        if not top_3.empty:
+            # Creamos 3 columnas para las fotos
+            c1, c2, c3 = st.columns(3)
+            puestos = [c1, c2, c3]
+            medallas = ["🥇", "🥈", "🥉"]
+            
+            # Necesitamos cruzar con la tabla de usuarios para obtener las fotos
+            df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
+            
+            for i, (index, row) in enumerate(top_3.iterrows()):
+                # Buscamos la foto del jugador en la tabla de usuarios
+                user_info = df_usuarios[df_usuarios['USUARIO'] == row['JUGADOR']]
+                
+                if not user_info.empty and pd.notna(user_info.iloc[0]['AVATAR_URL']) and user_info.iloc[0]['AVATAR_URL'] != "":
+                    url_foto = user_info.iloc[0]['AVATAR_URL']
+                else:
+                    url_foto = "https://flaticon.com" # Genérica
+                
+                with puestos[i]:
+                    st.markdown(f"""
+                        <div style="text-align: center;">
+                            <p style="font-size: 1.5em; margin-bottom: 0;">{medallas[i]}</p>
+                            <img src="{url_foto}" style="border-radius: 50%; width: 60px; height: 60px; object-fit: cover; border: 2px solid #FFD700;">
+                            <p style="font-size: 0.8em; font-weight: bold; margin-top: 5px;">{row['JUGADOR']}</p>
+                            <p style="font-size: 0.9em; color: #007bff;">{row['PUNTOS']} pts</p>
+                        </div>
+                    """, unsafe_allow_html=True)
+    
+        # --- GRÁFICO DE EVOLUCIÓN (Puntos por Partido) ---
+        st.markdown("---")
+        st.subheader("📈 Evolución del Torneo")
+        
+        # 1. Definir los DataFrames correctos (Asegúrate que estos nombres existan en tu app)
+        # Usualmente los cargamos así:
+        df_res_oficial = conn.read(worksheet="RESULTADOS", ttl=0)
+        df_pro_global = conn.read(worksheet="PRONOSTICOS", ttl=0) # <--- AQUÍ LA DEFINIMOS
+        
+        evolucion_data = []
+        partidos_con_resultado = df_res_oficial[pd.notna(df_res_oficial['R1'])].sort_values('N_PARTIDO')
+        
+        if not partidos_con_resultado.empty:
+            # Usamos df_ranking para sacar la lista de usuarios
+            usuarios_lista = df_ranking["JUGADOR"].unique()
+            
+            for user in usuarios_lista:
+                puntos_acumulados = 0
+                # Filtramos los pronósticos de este usuario específico
+                df_pro_user = df_pro_global[df_pro_global['USUARIO'] == user]
+                
+                for _, partido in partidos_con_resultado.iterrows():
+                    id_p = partido['N_PARTIDO']
+                    pro = df_pro_user[df_pro_user['N_PARTIDO'] == id_p]
+                    
+                    pts = 0
+                    if not pro.empty:
+                        # Acceso correcto a los valores para evitar TypeError
+                        r1, r2 = partido['R1'], partido['R2']
+                        p1, p2 = pro.iloc[0]['P1'], pro.iloc[0]['P2']
+                        
+                        t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
+                        t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
+                        
+                        if t_real == t_pron:
+                            pts = 3 if (r1 == p1 and r2 == p2) else 1
+                    
+                    puntos_acumulados += pts
+                    evolucion_data.append({
+                        "Partido": f"P{id_p}", 
+                        "Jugador": user, 
+                        "Puntos": puntos_acumulados
+                    })
+    
+            # 2. Transformar para el gráfico (Pivot)
+            if evolucion_data:
+                df_ev = pd.DataFrame(evolucion_data)
+                df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
+                st.line_chart(df_ev_pivot, use_container_width=True)
                 
                 
             #----SABIAS QUE ? CURIOSIDADE----------------
