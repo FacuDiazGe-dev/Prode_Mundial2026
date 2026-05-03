@@ -590,7 +590,7 @@ if menu == "🏠 Inicio":
             }
         )
 
-        # --- PODIO VISUAL (Top 3) REFORMULADO ---
+        # --- PODIO VISUAL (Top 3) CON LIMPIEZA DE INSIGNIAS ---
         st.markdown("---")
         st.subheader("🏆 Podio Actual")
         top_3 = df_ranking.head(3)
@@ -600,19 +600,19 @@ if menu == "🏠 Inicio":
             puestos = [c1, c2, c3]
             medallas = ["🥇", "🥈", "🥉"]
             
-            # Leemos la pestaña de usuarios
             df_u_podio = conn.read(worksheet="USUARIOS", ttl=0)
             
             for i, (idx, row) in enumerate(top_3.iterrows()):
-                # 1. Limpiamos el nombre del ranking
-                user_ranking = str(row['JUGADOR']).strip().lower()
+                # 1. LIMPIEZA: Quitamos la corona 👑 y cualquier emoji del nombre
+                # Esto extrae solo el texto (el nombre de usuario real)
+                nombre_con_insignia = str(row['JUGADOR'])
+                nombre_limpio = nombre_con_insignia.replace("👑", "").strip()
+                # Si tienes otros emojis, puedes agregar más .replace()
                 
-                # 2. Buscamos en la pestaña USUARIOS (columna USUARIO)
-                # Normalizamos ambos para que coincidan sí o sí
-                match_user = df_u_podio[df_u_podio['USUARIO'].astype(str).str.strip().str.lower() == user_ranking]
+                # 2. Búsqueda normalizada
+                match_user = df_u_podio[df_u_podio['USUARIO'].astype(str).str.strip() == nombre_limpio]
                 
-                # 3. Extraemos la URL de la columna AVATAR_URL
-                url_foto = "https://flaticon.com" # Imagen por defecto
+                url_foto = "https://flaticon.com" # Default
                 
                 if not match_user.empty:
                     foto_sheet = match_user.iloc[0]['AVATAR_URL']
@@ -624,7 +624,7 @@ if menu == "🏠 Inicio":
                         <div style="text-align: center;">
                             <p style="font-size: 1.3em; margin:0;">{medallas[i]}</p>
                             <img src="{url_foto}" style="border-radius: 50%; width: 65px; height: 65px; object-fit: cover; border: 2px solid #FFD700; background-color: #f0f0f0;">
-                            <p style="font-size: 0.8em; font-weight: bold; margin-top: 5px; line-height: 1;">{row['JUGADOR']}</p>
+                            <p style="font-size: 0.8em; font-weight: bold; margin-top: 5px; line-height: 1;">{nombre_limpio}</p>
                             <p style="font-size: 0.8em; color: #28a745; margin:0;">{int(row['PUNTOS'])} pts</p>
                         </div>
                     """, unsafe_allow_html=True)
