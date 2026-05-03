@@ -618,25 +618,45 @@ if menu == "🏠 Inicio":
                     with cols_p[i]:
                         # Aplicamos el margen superior para dar efecto de altura
                         st.markdown(f"""
-                            <div style="text-align: center; margin-top: {alturas[i]}; transition: transform 0.3s;">
-                                <p style="font-size: 2em; margin:0; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));">{medallas[i]}</p>
-                                <div style="display: flex; justify-content: center; position: relative;">
+                            <div style="text-align: center; margin-top: {alturas[i]};">
+                                <p style="font-size: 2em; margin:0;">{medallas[i]}</p>
+                                <div style="display: flex; justify-content: center;">
                                     <img src="{url_f}" style="
                                         border-radius: 50%; 
                                         width: {tamanos[i]}px; 
                                         height: {tamanos[i]}px; 
                                         object-fit: cover; 
                                         border: 4px solid {colores[i]};
-                                        box-shadow: 0px 10px 20px rgba(0,0,0,0.4);
-                                        background-color: #fff;
+                                        box-shadow: 0px 8px 15px rgba(0,0,0,0.3);
+                                        background-color: white;
                                     ">
                                 </div>
-                                <p style="font-size: 0.9em; font-weight: bold; margin-top: 10px; color: white; text-shadow: 1px 1px 2px black;">
-                                    {row['JUGADOR']}
-                                </p>
-                                <p style="font-size: 1.1em; color: {colores[i]}; font-weight: bold; margin:0;">
-                                    {int(row['PUNTOS'])} pts
-                                </p>
+                                
+                                <!-- CAJA DE TEXTO CON CONTRASTE MEJORADO -->
+                                <div style="
+                                    background-color: rgba(255, 255, 255, 0.85); 
+                                    border-radius: 8px; 
+                                    padding: 5px; 
+                                    margin-top: 10px; 
+                                    border: 1px solid {colores[i]};
+                                ">
+                                    <p style="
+                                        font-size: 0.85em; 
+                                        font-weight: bold; 
+                                        margin: 0; 
+                                        color: #1e1e1e; /* Gris muy oscuro casi negro */
+                                    ">
+                                        {row['JUGADOR']}
+                                    </p>
+                                    <p style="
+                                        font-size: 1em; 
+                                        color: #004d40; /* Verde oscuro para los puntos */
+                                        font-weight: bold; 
+                                        margin: 0;
+                                    ">
+                                        {int(row['PUNTOS'])} pts
+                                    </p>
+                                </div>
                             </div>
                         """, unsafe_allow_html=True)
             else:
