@@ -638,8 +638,19 @@ if menu == "🏠 Inicio":
         df_res_oficial = conn.read(worksheet="RESULTADOS", ttl=0)
         df_pro_global = conn.read(worksheet="PRONOSTICOS", ttl=0) # <--- AQUÍ LA DEFINIMOS
         
-        evolucion_data = []
-        partidos_con_resultado = df_res_oficial[pd.notna(df_res_oficial['R1'])].sort_values('N_PARTIDO')
+        if evolucion_data:
+            df_ev = pd.DataFrame(evolucion_data)
+            
+            # Pivotamos para que cada jugador sea una serie/línea
+            df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
+            
+            # Usamos st.line_chart pero asegurándonos de que los datos sean numéricos limpios
+            st.line_chart(
+                df_ev_pivot,
+                x_label="Partidos",
+                y_label="Puntos Acumulados",
+                use_container_width=True
+            )
         
         if not partidos_con_resultado.empty:
             # Usamos df_ranking para sacar la lista de usuarios
