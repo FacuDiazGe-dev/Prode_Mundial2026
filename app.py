@@ -629,54 +629,54 @@ if menu == "🏠 Inicio":
                             </div>
                         """, unsafe_allow_html=True)
     
-    # --- GRÁFICO DE EVOLUCIÓN (Puntos por Partido) ---
-    st.markdown("---")
-    st.subheader("📈 Evolución del Torneo")
-    
-    # 1. Preparar datos de evolución
-    evolucion_data = []
-    partidos_con_resultado = df_res_oficial[pd.notna(df_res_oficial['R1'])].sort_values('N_PARTIDO')
-    
-    if not partidos_con_resultado.empty:
-        usuarios_lista = df_ranking["JUGADOR"].unique()
+            # --- GRÁFICO DE EVOLUCIÓN (Puntos por Partido) ---
+            st.markdown("---")
+            st.subheader("📈 Evolución del Torneo")
+            
+            # 1. Preparar datos de evolución
+            evolucion_data = []
+            partidos_con_resultado = df_res_oficial[pd.notna(df_res_oficial['R1'])].sort_values('N_PARTIDO')
+            
+            if not partidos_con_resultado.empty:
+                usuarios_lista = df_ranking["JUGADOR"].unique()
+                
+                for user in usuarios_lista:
+                    puntos_acumulados = 0
+                    df_pro_user = df_pro_global[df_pro_global['USUARIO'] == user]
+                    
+                    for _, partido in partidos_con_resultado.iterrows():
+                        id_p = partido['N_PARTIDO']
+                        # Buscar pronóstico del usuario para este partido
+                        pro = df_pro_user[df_pro_user['N_PARTIDO'] == id_p]
+                        
+                        pts = 0
+                        if not pro.empty:
+                            # Usamos tu lógica de cálculo de puntos
+                            r1, r2 = partido['R1'], partido['R2']
+                            p1, p2 = pro.iloc[0]['P1'], pro.iloc[0]['P2']
+                            
+                            t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
+                            t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
+                            
+                            if t_real == t_pron:
+                                pts = 3 if (r1 == p1 and r2 == p2) else 1
+                        
+                        puntos_acumulados += pts
+                        evolucion_data.append({
+                            "Partido": f"P{id_p}", 
+                            "Jugador": user, 
+                            "Puntos": puntos_acumulados
+                        })
         
-        for user in usuarios_lista:
-            puntos_acumulados = 0
-            df_pro_user = df_pro_global[df_pro_global['USUARIO'] == user]
-            
-            for _, partido in partidos_con_resultado.iterrows():
-                id_p = partido['N_PARTIDO']
-                # Buscar pronóstico del usuario para este partido
-                pro = df_pro_user[df_pro_user['N_PARTIDO'] == id_p]
-                
-                pts = 0
-                if not pro.empty:
-                    # Usamos tu lógica de cálculo de puntos
-                    r1, r2 = partido['R1'], partido['R2']
-                    p1, p2 = pro.iloc[0]['P1'], pro.iloc[0]['P2']
+                # 2. Transformar para el gráfico (Pivot)
+                if evolucion_data:
+                    df_ev = pd.DataFrame(evolucion_data)
+                    df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
                     
-                    t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
-                    t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
-                    
-                    if t_real == t_pron:
-                        pts = 3 if (r1 == p1 and r2 == p2) else 1
-                
-                puntos_acumulados += pts
-                evolucion_data.append({
-                    "Partido": f"P{id_p}", 
-                    "Jugador": user, 
-                    "Puntos": puntos_acumulados
-                })
-
-        # 2. Transformar para el gráfico (Pivot)
-        if evolucion_data:
-            df_ev = pd.DataFrame(evolucion_data)
-            df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
-            
-            # Dibujar gráfico de líneas
-            st.line_chart(df_ev_pivot, use_container_width=True)
-    else:
-        st.info("La evolución se mostrará cuando haya resultados oficiales cargados.")
+                    # Dibujar gráfico de líneas
+                    st.line_chart(df_ev_pivot, use_container_width=True)
+            else:
+                st.info("La evolución se mostrará cuando haya resultados oficiales cargados.")
                 
                 
             #----SABIAS QUE ? CURIOSIDADE----------------
