@@ -632,7 +632,7 @@ if menu == "🏠 Inicio":
                                     ">
                                 </div>
                                 
-                                <!-- CAJA DE TEXTO CON CONTRASTE MEJORADO -->
+                                
                                 <div style="
                                     background-color: rgba(255, 255, 255, 0.85); 
                                     border-radius: 8px; 
