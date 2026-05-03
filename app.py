@@ -612,43 +612,78 @@ if menu == "🏠 Inicio":
                         </div>
                     """, unsafe_allow_html=True)
 
-        # --- GRÁFICO DE EVOLUCIÓN (ORDENAMIENTO CORRECTO) ---
-        st.markdown("---")
-        st.subheader("📈 Evolución de Puntos")
+# --- GRÁFICO DE EVOLUCIÓN DE PUNTOS (VERSIÓN CORREGIDA) ---
+st.markdown("---")
+st.subheader("📈 Evolución de Puntos")
+
+# 1. Limpieza de datos: Asegurar que los IDs y resultados sean numéricos
+# Esto evita que "10" (texto) se compare mal con 10 (número)
+df_res['N_PARTIDO'] = pd.to_numeric(df_res['N_PARTIDO'], errors='coerce')
+df_pro_all['N_PARTIDO'] = pd.to_numeric(df_pro_all['N_PARTIDO'], errors='coerce')
+
+# Convertir goles a numérico (importante para el cálculo de puntos)
+for col in ['R1', 'R2']:
+    df_res[col] = pd.to_numeric(df_res[col], errors='coerce')
+for col in ['P1', 'P2']:
+    df_pro_all[col] = pd.to_numeric(df_pro_all[col], errors='coerce')
+
+# 2. Filtrar solo partidos que ya tienen resultado cargado (R1 no es nulo)
+partidos_jugados = df_res[df_res['R1'].notna()].sort_values('N_PARTIDO')
+
+if not partidos_jugados.empty:
+    evol_list = []
+    # Obtenemos la lista única de jugadores
+    usuarios_lista = df_pro_all["USUARIO"].unique()
+    
+    for user in usuarios_lista:
+        pts_acc = 0
+        # Filtramos predicciones del usuario actual
+        user_pro = df_pro_all[df_pro_all['USUARIO'] == user]
         
-        partidos_jugados = df_res[pd.notna(df_res['R1'])].sort_values('N_PARTIDO')
-        
-        if not partidos_jugados.empty:
-            evol_list = []
-            for user in df_ranking["JUGADOR"].unique():
-                pts_acc = 0
-                user_pro = df_pro_all[df_pro_all['USUARIO'] == user]
-                for _, part in partidos_jugados.iterrows():
-                    id_p = int(part['N_PARTIDO'])
-                    u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
-                    if not u_p.empty:
-                        r1, r2, p1, p2 = int(part['R1']), int(part['R2']), int(u_p.iloc[0]['P1']), int(u_p.iloc[0]['P2'])
-                        t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
-                        t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
-                        if t_real == t_pron:
-                            pts_acc += 3 if (r1 == p1 and r2 == p2) else 1
-                    
-                    evol_list.append({
-                        "Orden": id_p,
-                        "Partido": f"P{id_p}", 
-                        "Jugador": user, 
-                        "Puntos": pts_acc
-                    })
+        for _, part in partidos_jugados.iterrows():
+            id_p = int(part['N_PARTIDO'])
             
-            if evol_list:
-                df_ev = pd.DataFrame(evol_list)
-                df_ev['Orden'] = pd.to_numeric(df_ev['Orden'])
-                df_ev = df_ev.sort_values(by="Orden")
-                df_ev_pivot = df_ev.pivot(index="Orden", columns="Jugador", values="Puntos")
-                df_ev_pivot.index = [f"P{int(i)}" for i in df_ev_pivot.index]
-                st.line_chart(df_ev_pivot, x_label="Partidos", y_label="Puntos Acumulados")
-        else:
-            st.info("La evolución aparecerá al cargar resultados oficiales.")
+            # Buscar el pronóstico del usuario para este partido
+            u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
+            
+            if not u_p.empty:
+                r1, r2 = part['R1'], part['R2']
+                p1, p2 = u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
+                
+                # Lógica de cálculo (Tendencia y Resultado Exacto)
+                t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
+                t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
+                
+                if t_real == t_pron:
+                    if r1 == p1 and r2 == p2:
+                        pts_acc += 3 # Acierto exacto
+                    else:
+                        pts_acc += 1 # Acierto tendencia
+            
+            # Guardamos datos con el ID numérico para el ordenamiento
+            evol_list.append({
+                "N": id_p,              # Usamos este para ordenar matemáticamente
+                "Jugador": user, 
+                "Puntos": pts_acc
+            })
+    
+    if evol_list:
+        df_ev = pd.DataFrame(evol_list)
+        
+        # --- SOLUCIÓN AL ORDENAMIENTO ALFABÉTICO (P2 vs P10) ---
+        # Primero pivotamos usando el número puro (N) para que Pandas ordene 1, 2, 3... 10
+        df_ev_pivot = df_ev.pivot(index="N", columns="Jugador", values="Puntos")
+        
+        # Ahora que está ordenado numéricamente, cambiamos los nombres de las filas a "P1", "P2"...
+        # Al hacerlo después del pivot, se mantiene el orden correcto en el gráfico
+        df_ev_pivot.index = [f"Part {int(i)}" for i in df_ev_pivot.index]
+        
+        # 3. Dibujar el gráfico
+        st.line_chart(df_ev_pivot)
+        
+        st.caption("Nota: El puntaje es acumulado a medida que avanzan los partidos.")
+else:
+    st.info("💡 Los puntos acumulados aparecerán aquí cuando se carguen resultados en Google Sheets.")
 
         # --- CURIOSIDADES ---
         st.markdown("---")
