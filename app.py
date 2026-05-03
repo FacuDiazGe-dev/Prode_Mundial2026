@@ -628,6 +628,29 @@ if menu == "🏠 Inicio":
                             <p style="font-size: 0.9em; color: #007bff;">{row['PUNTOS']} pts</p>
                         </div>
                     """, unsafe_allow_html=True)
+
+        # --- GRÁFICO DE BARRAS (Comparativa de Puntos) ---
+        st.markdown("---")
+        st.subheader("📊 Comparativa de Puntos")
+        
+        if not df_ranking.empty:
+            # Creamos un gráfico de barras simple con Streamlit
+            # Usamos el JUGADOR como base y PUNTOS como valor
+            st.bar_chart(
+                data=df_ranking, 
+                x="JUGADOR", 
+                y="PUNTOS", 
+                color="#007bff", # Un azul deportivo
+                use_container_width=True
+            )
+            
+            # --- CURIOSIDAD DINÁMICA ---
+            max_exactos = df_ranking["EXACTOS"].max()
+            if max_exactos > 0:
+                top_puntero = df_ranking[df_ranking["EXACTOS"] == max_exactos]["JUGADOR"].iloc[0]
+                st.write(f"🎯 **Dato curioso:** {top_puntero} es el rey de los resultados exactos con {max_exactos}.")
+
+
                     
 #---------------estadisticas viejas--------------------
         st.markdown("---")
