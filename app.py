@@ -573,175 +573,94 @@ if menu == "🏠 Inicio":
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
-#---------------------------------MENU INICIO / RANKING ------------------------------------------------------
+    # --- COLUMNA DERECHA: RANKING Y ESTADÍSTICAS (30%) ---
     with col_derecha:
         st.subheader("📊 Ranking")
-        try:
-        # Forzamos lectura fresca
-            df_ranking_view = df_ranking.copy()
-            st.dataframe(
-                df_ranking_view, 
-                use_container_width=True, 
-                hide_index=True,
-                column_config={
-                    "Nº": st.column_config.TextColumn("Nº", width="small"),
-                    "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
-                    "EXACTOS": st.column_config.NumberColumn("🎯"),
-                    "GENERALES": st.column_config.NumberColumn("✅")
-                }
-            )
-        except Exception as e:
-            st.error("No se pudo cargar el ranking. Reintentando...")
-            st.cache_data.clear()
+        st.dataframe(
+            df_ranking,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Nº": st.column_config.TextColumn("Nº", width="small"),
+                "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
+                "EXACTOS": st.column_config.NumberColumn("🎯"),
+                "GENERALES": st.column_config.NumberColumn("✅")
+            }
+        )
 
-        # --- PODIO VISUAL (Top 3) ---
+        # --- PODIO VISUAL ---
         st.markdown("---")
         st.subheader("🏆 Podio Actual")
-        
-        # Tomamos los 3 primeros del ranking calculado
         top_3 = df_ranking.head(3)
-        
         if not top_3.empty:
-            # Creamos 3 columnas para las fotos
             c1, c2, c3 = st.columns(3)
             puestos = [c1, c2, c3]
             medallas = ["🥇", "🥈", "🥉"]
-            
-            # Necesitamos cruzar con la tabla de usuarios para obtener las fotos
             df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
             
-            for i, (index, row) in enumerate(top_3.iterrows()):
-                # Buscamos la foto del jugador en la tabla de usuarios
+            for i, (idx, row) in enumerate(top_3.iterrows()):
                 user_info = df_usuarios[df_usuarios['USUARIO'] == row['JUGADOR']]
-                
-                if not user_info.empty and pd.notna(user_info.iloc[0]['AVATAR_URL']) and user_info.iloc[0]['AVATAR_URL'] != "":
-                    url_foto = user_info.iloc[0]['AVATAR_URL']
-                else:
-                    url_foto = "https://flaticon.com" # Genérica
-                
+                url_f = user_info.iloc[0]['AVATAR_URL'] if not user_info.empty and pd.notna(user_info.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
                 with puestos[i]:
                     st.markdown(f"""
                         <div style="text-align: center;">
-                            <p style="font-size: 1.5em; margin-bottom: 0;">{medallas[i]}</p>
-                            <img src="{url_foto}" style="border-radius: 50%; width: 60px; height: 60px; object-fit: cover; border: 2px solid #FFD700;">
-                            <p style="font-size: 0.8em; font-weight: bold; margin-top: 5px;">{row['JUGADOR']}</p>
-                            <p style="font-size: 0.9em; color: #007bff;">{row['PUNTOS']} pts</p>
+                            <p style="font-size: 1.2em; margin:0;">{medallas[i]}</p>
+                            <img src="{url_f}" style="border-radius: 50%; width: 50px; height: 50px; object-fit: cover; border: 2px solid #FFD700;">
+                            <p style="font-size: 0.7em; font-weight: bold; margin:0;">{row['JUGADOR']}</p>
                         </div>
                     """, unsafe_allow_html=True)
-    
-        # --- GRÁFICO DE EVOLUCIÓN (Puntos por Partido) ---
+
+        # --- GRÁFICO DE EVOLUCIÓN TEMPORAL ---
         st.markdown("---")
-        st.subheader("📈 Evolución del Torneo")
+        st.subheader("📈 Evolución de Puntos")
         
-        # 1. Definir los DataFrames correctos (Asegúrate que estos nombres existan en tu app)
-        # Usualmente los cargamos así:
-        df_res_oficial = conn.read(worksheet="RESULTADOS", ttl=0)
-        df_pro_global = conn.read(worksheet="PRONOSTICOS", ttl=0) # <--- AQUÍ LA DEFINIMOS
-        
-        if evolucion_data:
-            df_ev = pd.DataFrame(evolucion_data)
-            
-            # Pivotamos para que cada jugador sea una serie/línea
-            df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
-            
-            # Usamos st.line_chart pero asegurándonos de que los datos sean numéricos limpios
-            st.line_chart(
-                df_ev_pivot,
-                x_label="Partidos",
-                y_label="Puntos Acumulados",
-                use_container_width=True
-            )
-        
-        if not partidos_con_resultado.empty:
-            # Usamos df_ranking para sacar la lista de usuarios
-            usuarios_lista = df_ranking["JUGADOR"].unique()
-            
-            for user in usuarios_lista:
-                puntos_acumulados = 0
-                # Filtramos los pronósticos de este usuario específico
-                df_pro_user = df_pro_global[df_pro_global['USUARIO'] == user]
-                
-                for _, partido in partidos_con_resultado.iterrows():
-                    id_p = partido['N_PARTIDO']
-                    pro = df_pro_user[df_pro_user['N_PARTIDO'] == id_p]
-                    
-                    pts = 0
-                    if not pro.empty:
-                        # Acceso correcto a los valores para evitar TypeError
-                        r1, r2 = partido['R1'], partido['R2']
-                        p1, p2 = pro.iloc[0]['P1'], pro.iloc[0]['P2']
-                        
+        partidos_jugados = df_res[pd.notna(df_res['R1'])].sort_values('N_PARTIDO')
+        if not partidos_jugados.empty:
+            evol_list = []
+            for user in df_ranking["JUGADOR"].unique():
+                pts_acc = 0
+                user_pro = df_pro_all[df_pro_all['USUARIO'] == user]
+                for _, part in partidos_jugados.iterrows():
+                    id_p = part['N_PARTIDO']
+                    u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
+                    if not u_p.empty:
+                        # Cálculo de puntos rápido
+                        r1, r2, p1, p2 = part['R1'], part['R2'], u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
                         t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
                         t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
-                        
-                        if t_real == t_pron:
-                            pts = 3 if (r1 == p1 and r2 == p2) else 1
-                    
-                    puntos_acumulados += pts
-                    evolucion_data.append({
-                        "Partido": f"P{id_p}", 
-                        "Jugador": user, 
-                        "Puntos": puntos_acumulados
-                    })
-    
-            # 2. Transformar para el gráfico (Pivot)
-            if evolucion_data:
-                df_ev = pd.DataFrame(evolucion_data)
-                df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
-                st.line_chart(df_ev_pivot, use_container_width=True)
-                
-                
-            #----SABIAS QUE ? CURIOSIDADE----------------
+                        pts_acc += 3 if (t_real == t_pron and r1 == p1 and r2 == p2) else (1 if t_real == t_pron else 0)
+                    evol_list.append({"Partido": f"P{id_p}", "Jugador": user, "Puntos": pts_acc})
             
-            st.markdown("---")
-            st.subheader("💡 ¿Sabías que...?")
-            
-            # --- Cálculo del Partido más Fácil / Mayor Sorpresa ---
-            # Definimos "Fácil" como el partido donde más usuarios sumaron puntos
-            # Definimos "Sorpresa" como el partido donde menos usuarios sumaron puntos
-            
-            aciertos_por_partido = []
-            df_res_oficial = conn.read(worksheet="RESULTADOS", ttl=0)
-            df_pro_global = conn.read(worksheet="PRONOSTICOS", ttl=0)
-    
-            # Solo analizamos partidos que ya tengan resultado oficial
-            partidos_jugados = df_res_oficial[pd.notna(df_res_oficial['R1'])]
-    
+            df_ev = pd.DataFrame(evol_list).pivot(index="Partido", columns="Jugador", values="Puntos")
+            st.line_chart(df_ev, x_label="Partidos", y_label="Puntos Totales")
+        else:
+            st.info("La evolución aparecerá al cargar resultados oficiales.")
+
+        # --- CURIOSIDADES ---
+        st.markdown("---")
+        st.subheader("💡 ¿Sabías que...?")
+        if not partidos_jugados.empty:
+            aciertos_list = []
             for _, p in partidos_jugados.iterrows():
                 id_p = p['N_PARTIDO']
-                pros = df_pro_global[df_pro_global['N_PARTIDO'] == id_p]
-                aciertos = 0
-                for _, pr in pros.iterrows():
-                    # Lógica simplificada: sumó puntos si acertó tendencia
-                    t_real = 1 if p['R1'] > p['R2'] else (2 if p['R2'] > p['R1'] else 0)
-                    t_pron = 1 if pr['P1'] > pr['P2'] else (2 if pr['P2'] > pr['P1'] else 0)
-                    if t_real == t_pron: aciertos += 1
-                aciertos_por_partido.append({"PARTIDO": f"{p['Equipo_1']} vs {p['Equipo_2']}", "ACIERTOS": aciertos})
-    
-            if aciertos_por_partido:
-                df_hits = pd.DataFrame(aciertos_por_partido)
-                facil = df_hits.loc[df_hits['ACIERTOS'].idxmax()]
-                sorpresa = df_hits.loc[df_hits['ACIERTOS'].idxmin()]
-    
-                st.write(f"✅ **Partido más fácil:** En el encuentro **{facil['PARTIDO']}**, el grupo estuvo muy fino.")
-                st.write(f"😱 **Mayor sorpresa:** Casi nadie vio venir el resultado de **{sorpresa['PARTIDO']}**.")
+                total_ac = 0
+                pros_p = df_pro_all[df_pro_all['N_PARTIDO'] == id_p]
+                t_real = 1 if p['R1'] > p['R2'] else (2 if p['R2'] > p['R1'] else 0)
+                for _, pr in pros_p.iterrows():
+                    if (1 if pr['P1'] > pr['P2'] else (2 if pr['P2'] > pr['P1'] else 0)) == t_real:
+                        total_ac += 1
+                aciertos_list.append({"Partido": f"{p['Equipo_1']} vs {p['Equipo_2']}", "Cant": total_ac})
             
-            # --- El más Goleador ---
-            # Buscamos quién pronosticó más goles en total (el más optimista)
-            goleadores = df_pro_global.groupby("USUARIO")[["P1", "P2"]].sum()
-            goleadores["TOTAL"] = goleadores["P1"] + goleadores["P2"]
-            if not goleadores.empty:
-                top_gol = goleadores["TOTAL"].idxmax()
-                st.write(f"🔥 **El más optimista:** **{top_gol}** es quien más goles ha vaticinado en todo el torneo.")
-                            
-#---------------estadisticas viejas--------------------
-            st.markdown("---")
-            st.subheader("📈 Estadísticas")
-            if not df_ranking.empty:
-                t_ex = df_ranking["EXACTOS"].sum()
-                t_gr = df_ranking["GENERALES"].sum()
-                st.metric("Total Exactos", int(t_ex))
-                st.metric("Total Generales", int(t_gr))
+            df_h = pd.DataFrame(aciertos_list)
+            st.write(f"✅ **Más fácil:** {df_h.loc[df_h['Cant'].idxmax()]['Partido']}")
+            st.write(f"😱 **Sorpresa:** {df_h.loc[df_h['Cant'].idxmin()]['Partido']}")
+
+        # --- ESTADÍSTICAS GLOBALES ---
+        st.markdown("---")
+        st.subheader("📊 Global")
+        c1, c2 = st.columns(2)
+        c1.metric("🎯 Exactos", int(df_ranking["EXACTOS"].sum()))
+        c2.metric("✅ Grales", int(df_ranking["GENERALES"].sum()))
 
 #---------- MENU MIS PRONOSTICOS (FORMATO ESTABLE) ----------------------------------
 
