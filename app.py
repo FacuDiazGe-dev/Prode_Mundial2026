@@ -615,33 +615,33 @@ if menu == "🏠 Inicio":
                         if pd.notna(foto) and str(foto).strip() != "":
                             url_f = str(foto).strip()
                     
-            with cols_p[i]:
-                # Definimos el HTML en una variable para que sea más limpio
-                html_podio = f"""
-                <div style="text-align: center; margin-top: {alturas[i]};">
-                    <p style="font-size: 2em; margin:0;">{medallas[i]}</p>
-                    <div style="display: flex; justify-content: center;">
-                        <img src="{url_f}" style="
-                            border-radius: 50%; 
-                            width: {tamanos[i]}px; 
-                            height: {tamanos[i]}px; 
-                            object-fit: cover; 
-                            border: 4px solid {colores[i]};
-                            box-shadow: 0px 8px 15px rgba(0,0,0,0.3);
-                            background-color: white;">
-                    </div>
-                    <div style="background-color: rgba(255, 255, 255, 0.85); border-radius: 8px; padding: 5px; margin-top: 10px; border: 1px solid {colores[i]};">
-                        <p style="font-size: 0.85em; font-weight: bold; margin: 0; color: #1e1e1e;">
-                            {row['JUGADOR']}
-                        </p>
-                        <p style="font-size: 1em; color: #004d40; font-weight: bold; margin: 0;">
-                            {int(row['PUNTOS'])} pts
-                        </p>
-                    </div>
-                </div>
-                """
-                # Ejecutamos el renderizado
-                st.markdown(html_podio, unsafe_allow_html=True)
+                    with cols_p[i]:
+                        # Definimos el HTML en una variable para que sea más limpio
+                        html_podio = f"""
+                        <div style="text-align: center; margin-top: {alturas[i]};">
+                            <p style="font-size: 2em; margin:0;">{medallas[i]}</p>
+                            <div style="display: flex; justify-content: center;">
+                                <img src="{url_f}" style="
+                                    border-radius: 50%; 
+                                    width: {tamanos[i]}px; 
+                                    height: {tamanos[i]}px; 
+                                    object-fit: cover; 
+                                    border: 4px solid {colores[i]};
+                                    box-shadow: 0px 8px 15px rgba(0,0,0,0.3);
+                                    background-color: white;">
+                            </div>
+                            <div style="background-color: rgba(255, 255, 255, 0.85); border-radius: 8px; padding: 5px; margin-top: 10px; border: 1px solid {colores[i]};">
+                                <p style="font-size: 0.85em; font-weight: bold; margin: 0; color: #1e1e1e;">
+                                    {row['JUGADOR']}
+                                </p>
+                                <p style="font-size: 1em; color: #004d40; font-weight: bold; margin: 0;">
+                                    {int(row['PUNTOS'])} pts
+                                </p>
+                            </div>
+                        </div>
+                        """
+                        # Ejecutamos el renderizado
+                        st.markdown(html_podio, unsafe_allow_html=True)
             else:
                 st.info("Necesitamos al menos 3 jugadores para armar el podio real.")
 
