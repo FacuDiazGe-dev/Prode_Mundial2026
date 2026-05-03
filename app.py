@@ -590,7 +590,7 @@ if menu == "🏠 Inicio":
             }
         )
 
-        # --- PODIO VISUAL (Top 3) CORREGIDO ---
+        # --- PODIO VISUAL (Top 3) REFORMULADO ---
         st.markdown("---")
         st.subheader("🏆 Podio Actual")
         top_3 = df_ranking.head(3)
@@ -600,31 +600,32 @@ if menu == "🏠 Inicio":
             puestos = [c1, c2, c3]
             medallas = ["🥇", "🥈", "🥉"]
             
-            # Cargamos usuarios una sola vez para el podio
-            df_usuarios_podio = conn.read(worksheet="USUARIOS", ttl=0)
+            # Leemos la pestaña de usuarios
+            df_u_podio = conn.read(worksheet="USUARIOS", ttl=0)
             
             for i, (idx, row) in enumerate(top_3.iterrows()):
-                # Limpiamos el nombre para asegurar el cruce
-                nombre_jugador = str(row['JUGADOR']).strip()
+                # 1. Limpiamos el nombre del ranking
+                user_ranking = str(row['JUGADOR']).strip().lower()
                 
-                # Buscamos la info del usuario
-                user_info = df_usuarios_podio[df_usuarios_podio['USUARIO'].astype(str).str.strip() == nombre_jugador]
+                # 2. Buscamos en la pestaña USUARIOS (columna USUARIO)
+                # Normalizamos ambos para que coincidan sí o sí
+                match_user = df_u_podio[df_u_podio['USUARIO'].astype(str).str.strip().str.lower() == user_ranking]
                 
-                # Verificamos si existe y tiene foto
-                url_f = "https://flaticon.com" # Default
+                # 3. Extraemos la URL de la columna AVATAR_URL
+                url_foto = "https://flaticon.com" # Imagen por defecto
                 
-                if not user_info.empty:
-                    # Usamos .values[0] para extraer el dato real de la celda
-                    posible_foto = user_info['AVATAR_URL'].values[0]
-                    if pd.notna(posible_foto) and str(posible_foto).strip() != "":
-                        url_f = posible_foto
+                if not match_user.empty:
+                    foto_sheet = match_user.iloc[0]['AVATAR_URL']
+                    if pd.notna(foto_sheet) and str(foto_sheet).strip() != "":
+                        url_foto = str(foto_sheet).strip()
                 
                 with puestos[i]:
                     st.markdown(f"""
                         <div style="text-align: center;">
-                            <p style="font-size: 1.2em; margin:0;">{medallas[i]}</p>
-                            <img src="{url_f}" style="border-radius: 50%; width: 60px; height: 60px; object-fit: cover; border: 2px solid #FFD700; background-color: #eee;">
-                            <p style="font-size: 0.75em; font-weight: bold; margin-top: 5px; color: #333;">{nombre_jugador}</p>
+                            <p style="font-size: 1.3em; margin:0;">{medallas[i]}</p>
+                            <img src="{url_foto}" style="border-radius: 50%; width: 65px; height: 65px; object-fit: cover; border: 2px solid #FFD700; background-color: #f0f0f0;">
+                            <p style="font-size: 0.8em; font-weight: bold; margin-top: 5px; line-height: 1;">{row['JUGADOR']}</p>
+                            <p style="font-size: 0.8em; color: #28a745; margin:0;">{int(row['PUNTOS'])} pts</p>
                         </div>
                     """, unsafe_allow_html=True)
 
@@ -683,7 +684,6 @@ if menu == "🏠 Inicio":
                 # Usamos use_container_width para que se vea bien en móviles
                 st.line_chart(df_ev_pivot)
                 
-                st.info("💡 El eje X muestra el número de partido (1, 2, 3... 10) en orden cronológico.")
         else:
             st.info("💡 La evolución aparecerá cuando haya resultados en la tabla.")
 
