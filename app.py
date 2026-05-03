@@ -612,49 +612,24 @@ if menu == "🏠 Inicio":
                         </div>
                     """, unsafe_allow_html=True)
 
-        # --- GRÁFICO DE EVOLUCIÓN CORREGIDO ---
+        # --- GRÁFICO DE EVOLUCIÓN (ORDENAMIENTO CORRECTO) ---
         st.markdown("---")
         st.subheader("📈 Evolución de Puntos")
-
-        # 1. Función de Limpieza (Debe estar definida o usarse aquí)
-        def clean_val(df):
-            temp_df = df.copy()
-            for col in ['N_PARTIDO', 'R1', 'R2', 'P1', 'P2']:
-                if col in temp_df.columns:
-                    # Coerce transforma errores a NaN, fillna(0) los quita
-                    temp_df[col] = pd.to_numeric(temp_df[col], errors='coerce').fillna(0).astype(int)
-            return temp_df
-
-        # Limpiamos copias locales para no alterar los DataFrames globales
-        df_res_clean = clean_val(df_res)
-        df_pro_clean = clean_val(df_pro_all)
-
-        # 2. Filtrar solo partidos con resultados (R1 o R2 distintos de 0 o vacíos)
-        # Nota: Ajustamos para que detecte celdas que no sean 0 si ya se jugaron
-        partidos_jugados = df_res_clean[
-            (df_res['R1'].notna()) & (df_res['R1'] != "")
-        ].sort_values('N_PARTIDO')
-
+        
+        partidos_jugados = df_res[pd.notna(df_res['R1'])].sort_values('N_PARTIDO')
+        
         if not partidos_jugados.empty:
             evol_list = []
-            usuarios_lista = df_pro_clean["USUARIO"].unique()
-            
-            for user in usuarios_lista:
+            for user in df_ranking["JUGADOR"].unique():
                 pts_acc = 0
-                user_pro = df_pro_clean[df_pro_clean['USUARIO'] == user]
-                
+                user_pro = df_pro_all[df_pro_all['USUARIO'] == user]
                 for _, part in partidos_jugados.iterrows():
-                    id_p = part['N_PARTIDO']
+                    id_p = int(part['N_PARTIDO'])
                     u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
-                    
                     if not u_p.empty:
-                        r1, r2 = part['R1'], part['R2']
-                        p1, p2 = u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
-                        
-                        # Lógica de Puntos
+                        r1, r2, p1, p2 = int(part['R1']), int(part['R2']), int(u_p.iloc[0]['P1']), int(u_p.iloc[0]['P2'])
                         t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
                         t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
-                        
                         if t_real == t_pron:
                             pts_acc += 3 if (r1 == p1 and r2 == p2) else 1
                     
@@ -664,21 +639,16 @@ if menu == "🏠 Inicio":
                         "Jugador": user, 
                         "Puntos": pts_acc
                     })
-
+            
             if evol_list:
                 df_ev = pd.DataFrame(evol_list)
-                # Ordenamos y pivotamos
-                df_ev = df_ev.sort_values(by=["Orden", "Jugador"])
-                df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
-                
-                # Reindexar para mantener el orden P1, P2, P3... y no P1, P10, P2
-                orden_partidos = [f"P{i}" for i in sorted(df_ev["Orden"].unique())]
-                df_ev_pivot = df_ev_pivot.reindex(orden_partidos)
-
-                # Renderizado final
-                st.line_chart(df_ev_pivot, x_label="Partidos", y_label="Puntos Totales")
+                df_ev['Orden'] = pd.to_numeric(df_ev['Orden'])
+                df_ev = df_ev.sort_values(by="Orden")
+                df_ev_pivot = df_ev.pivot(index="Orden", columns="Jugador", values="Puntos")
+                df_ev_pivot.index = [f"P{int(i)}" for i in df_ev_pivot.index]
+                st.line_chart(df_ev_pivot, x_label="Partidos", y_label="Puntos Acumulados")
         else:
-            st.info("💡 La evolución se mostrará cuando el Admin cargue el primer resultado oficial.")
+            st.info("La evolución aparecerá al cargar resultados oficiales.")
 
         # --- CURIOSIDADES ---
         st.markdown("---")
