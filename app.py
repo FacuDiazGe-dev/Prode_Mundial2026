@@ -491,6 +491,8 @@ if menu == "🏠 Inicio":
     with col_principal:
         st.subheader("⚽ Cronograma y Resultados")
         
+        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)        
+        
         # 1. Limpieza y Filtro de Visibilidad
         # Aseguramos que la columna VIZ exista y sea booleana
         if 'VIZ' in df_res.columns:
