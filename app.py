@@ -583,38 +583,64 @@ if menu == "🏠 Inicio":
             }
         )
 
-        # --- PODIO VISUAL USANDO ID ---
-        with col_derecha:
-            st.subheader("🏆 Podio Actual")
-            top_3 = df_ranking.head(3) # df_ranking tiene la columna ID_PARA_FOTO
+# --- PODIO VISUAL ESTILO REAL (2º - 1º - 3º) ---
+with col_derecha:
+    st.markdown("---")
+    st.subheader("🏆 Podio del Torneo")
+    
+    # Tomamos los 3 primeros y los reordenamos para el podio: [2, 1, 3]
+    top_3 = df_ranking.head(3).copy()
+    
+    if len(top_3) >= 3:
+        # Reordenamos el DataFrame para que el 1º quede en el medio visualmente
+        # Índice 1 (Plata), Índice 0 (Oro), Índice 2 (Bronce)
+        podio_orden = [top_3.iloc[1], top_3.iloc[0], top_3.iloc[2]]
+        medallas = ["🥈", "🥇", "🥉"]
+        tamanos = [100, 130, 90]  # Tamaños de foto: El 1º es el más grande
+        alturas = ["40px", "0px", "60px"] # Margen superior para escalonar
+        colores = ["#C0C0C0", "#FFD700", "#CD7F32"]
+        
+        # Columnas para el podio
+        cols_p = st.columns([1, 1.2, 1]) # La del centro es un poco más ancha
+        
+        df_u_info = conn.read(worksheet="USUARIOS", ttl=0)
+        
+        for i, row in enumerate(podio_orden):
+            target_id = row['ID_PARA_FOTO']
+            user_match = df_u_info[df_u_info['ID'] == target_id]
             
-            if not top_3.empty:
-                cols_p = st.columns(3)
-                medallas = ["🥇", "🥈", "🥉"]
-                colores = ["#FFD700", "#C0C0C0", "#CD7F32"]
-                
-                # Leemos usuarios para las fotos
-                df_u_info = conn.read(worksheet="USUARIOS", ttl=0)
-                
-                for i, (idx, row) in enumerate(top_3.iterrows()):
-                    # BUSQUEDA POR ID (Infalible)
-                    target_id = row['ID_PARA_FOTO']
-                    user_match = df_u_info[df_u_info['ID'] == target_id]
-                    
-                    url_f = "https://flaticon.com"
-                    if not user_match.empty:
-                        foto = user_match.iloc[0]['AVATAR_URL']
-                        if pd.notna(foto) and str(foto).strip() != "":
-                            url_f = str(foto).strip()
-                    
-                    with cols_p[i]:
-                        st.markdown(f"""
-                            <div style="text-align: center;">
-                                <p style="font-size: 1.2em; margin:0;">{medallas[i]}</p>
-                                <img src="{url_f}" style="border-radius: 50%; width: 60px; height: 60px; object-fit: cover; border: 3px solid {colores[i]};">
-                                <p style="font-size: 0.7em; font-weight: bold; margin-top:5px;">{row['JUGADOR']}</p>
-                            </div>
-                        """, unsafe_allow_html=True)
+            url_f = "https://flaticon.com"
+            if not user_match.empty:
+                foto = user_match.iloc[0]['AVATAR_URL']
+                if pd.notna(foto) and str(foto).strip() != "":
+                    url_f = str(foto).strip()
+            
+            with cols_p[i]:
+                # Aplicamos el margen superior para dar efecto de altura
+                st.markdown(f"""
+                    <div style="text-align: center; margin-top: {alturas[i]}; transition: transform 0.3s;">
+                        <p style="font-size: 2em; margin:0; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.5));">{medallas[i]}</p>
+                        <div style="display: flex; justify-content: center; position: relative;">
+                            <img src="{url_f}" style="
+                                border-radius: 50%; 
+                                width: {tamanos[i]}px; 
+                                height: {tamanos[i]}px; 
+                                object-fit: cover; 
+                                border: 4px solid {colores[i]};
+                                box-shadow: 0px 10px 20px rgba(0,0,0,0.4);
+                                background-color: #fff;
+                            ">
+                        </div>
+                        <p style="font-size: 0.9em; font-weight: bold; margin-top: 10px; color: white; text-shadow: 1px 1px 2px black;">
+                            {row['JUGADOR']}
+                        </p>
+                        <p style="font-size: 1.1em; color: {colores[i]}; font-weight: bold; margin:0;">
+                            {int(row['PUNTOS'])} pts
+                        </p>
+                    </div>
+                """, unsafe_allow_html=True)
+    else:
+        st.info("Necesitamos al menos 3 jugadores para armar el podio real.")
 
         # --- GRÁFICO DE EVOLUCIÓN DE PUNTOS (SOLUCIÓN DEFINITIVA AL ORDEN) ---
         st.markdown("---")
