@@ -612,60 +612,73 @@ if menu == "🏠 Inicio":
                         </div>
                     """, unsafe_allow_html=True)
 
-        # --- GRÁFICO DE EVOLUCIÓN CORREGIDO (CONVERTIDO A NÚMERO) ---
+        # --- GRÁFICO DE EVOLUCIÓN CORREGIDO ---
         st.markdown("---")
         st.subheader("📈 Evolución de Puntos")
-        
-        # Aseguramos que las columnas clave sean numéricas para que el cruce no falle
-        df_res['N_PARTIDO'] = pd.to_numeric(df_res['N_PARTIDO'], errors='coerce')
-        df_pro_all['N_PARTIDO'] = pd.to_numeric(df_pro_all['N_PARTIDO'], errors='coerce')
-        
-        # Filtramos solo partidos con resultado oficial (R1 no vacío)
-        partidos_jugados = df_res[df_res['R1'].notna()].sort_values('N_PARTIDO')
-        
+
+        # 1. Función de Limpieza (Debe estar definida o usarse aquí)
+        def clean_val(df):
+            temp_df = df.copy()
+            for col in ['N_PARTIDO', 'R1', 'R2', 'P1', 'P2']:
+                if col in temp_df.columns:
+                    # Coerce transforma errores a NaN, fillna(0) los quita
+                    temp_df[col] = pd.to_numeric(temp_df[col], errors='coerce').fillna(0).astype(int)
+            return temp_df
+
+        # Limpiamos copias locales para no alterar los DataFrames globales
+        df_res_clean = clean_val(df_res)
+        df_pro_clean = clean_val(df_pro_all)
+
+        # 2. Filtrar solo partidos con resultados (R1 o R2 distintos de 0 o vacíos)
+        # Nota: Ajustamos para que detecte celdas que no sean 0 si ya se jugaron
+        partidos_jugados = df_res_clean[
+            (df_res['R1'].notna()) & (df_res['R1'] != "")
+        ].sort_values('N_PARTIDO')
+
         if not partidos_jugados.empty:
             evol_list = []
-            usuarios_lista = df_ranking["JUGADOR"].unique()
+            usuarios_lista = df_pro_clean["USUARIO"].unique()
             
             for user in usuarios_lista:
                 pts_acc = 0
-                # Filtramos los pronósticos del usuario actual
-                user_pro = df_pro_all[df_pro_all['USUARIO'] == user]
+                user_pro = df_pro_clean[df_pro_clean['USUARIO'] == user]
                 
                 for _, part in partidos_jugados.iterrows():
-                    id_p = int(part['N_PARTIDO'])
-                    # Buscamos el pronóstico para este ID de partido específico
+                    id_p = part['N_PARTIDO']
                     u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
                     
                     if not u_p.empty:
-                        # Extraemos goles y aseguramos que sean enteros
-                        r1, r2 = int(part['R1']), int(part['R2'])
-                        p1, p2 = int(u_p.iloc[0]['P1']), int(u_p.iloc[0]['P2'])
+                        r1, r2 = part['R1'], part['R2']
+                        p1, p2 = u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
                         
-                        # Cálculo de tendencia
+                        # Lógica de Puntos
                         t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
                         t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
                         
-                        # Sumamos puntos al acumulado
                         if t_real == t_pron:
                             pts_acc += 3 if (r1 == p1 and r2 == p2) else 1
                     
-                    # Guardamos el punto en la línea de tiempo
                     evol_list.append({
+                        "Orden": id_p,
                         "Partido": f"P{id_p}", 
                         "Jugador": user, 
                         "Puntos": pts_acc
                     })
-            
+
             if evol_list:
                 df_ev = pd.DataFrame(evol_list)
-                # Creamos la tabla pivote: Filas = Partidos, Columnas = Jugadores
+                # Ordenamos y pivotamos
+                df_ev = df_ev.sort_values(by=["Orden", "Jugador"])
                 df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
                 
-                # Dibujamos el gráfico con ejes forzados
-                st.line_chart(df_ev_pivot, x_label="Partidos Jugados", y_label="Puntaje Total")
+                # Reindexar para mantener el orden P1, P2, P3... y no P1, P10, P2
+                orden_partidos = [f"P{i}" for i in sorted(df_ev["Orden"].unique())]
+                df_ev_pivot = df_ev_pivot.reindex(orden_partidos)
+
+                # Renderizado final
+                st.line_chart(df_ev_pivot, x_label="Partidos", y_label="Puntos Totales")
         else:
-            st.info("💡 La evolución se mostrará cuando cargues el primer resultado oficial en la tabla RESULTADOS.")
+            st.info("💡 La evolución se mostrará cuando el Admin cargue el primer resultado oficial.")
 
         # --- CURIOSIDADES ---
         st.markdown("---")
