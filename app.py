@@ -425,7 +425,7 @@ if not df_ranking.empty:
 # 4. Formateo final de la tabla
 df_ranking.index = df_ranking.index + 1
 df_ranking.insert(0, "Nº", df_ranking.index.astype(str))
-df_ranking = df_ranking[["Nº", "JUGADOR", "PUNTOS", "EXACTOS", "GENERALES"]]
+
 
 
 # --- VISUALIZACIÓN ---
