@@ -590,41 +590,64 @@ if menu == "🏠 Inicio":
             }
         )
 
-        # --- PODIO VISUAL (Top 3) BUSCANDO POR EL CAMPO 'NOMBRE' ---
+        # --- PODIO VISUAL (Top 3) REVISADO Y ADAPTADO ---
         st.markdown("---")
         st.subheader("🏆 Podio Actual")
-        top_3 = df_ranking.head(3)
+        
+        # 1. Preparación de datos
+        # Tomamos el top 3. Importante: df_ranking ya debe estar calculado.
+        top_3 = df_ranking.head(3).copy()
+        df_u_podio = conn.read(worksheet="USUARIOS", ttl=0)
+        
+        # Normalización de la base de usuarios para evitar errores de coincidencia
+        # Quitamos espacios y pasamos a minúsculas
+        df_u_podio['NOMBRE_CLEAN'] = df_u_podio['NOMBRE'].astype(str).str.strip().str.lower()
         
         if not top_3.empty:
-            c1, c2, c3 = st.columns(3)
-            puestos = [c1, c2, c3]
+            cols = st.columns(3)
             medallas = ["🥇", "🥈", "🥉"]
-            
-            # Leemos la pestaña de usuarios
-            df_u_podio = conn.read(worksheet="USUARIOS", ttl=0)
+            colores = ["#FFD700", "#C0C0C0", "#CD7F32"] # Oro, Plata, Bronce
             
             for i, (idx, row) in enumerate(top_3.iterrows()):
-                # 1. LIMPIEZA: Quitamos la corona 👑 del campo NOMBRE que viene del ranking
-                nombre_ranking = str(row['JUGADOR']).replace("👑", "").strip()
+                # 2. LIMPIEZA DEL NOMBRE DEL RANKING
+                # Eliminamos la corona y cualquier espacio accidental
+                nombre_ranking_raw = str(row['JUGADOR']).replace("👑", "").strip()
+                nombre_busqueda = nombre_ranking_raw.lower()
                 
-                # 2. BÚSQUEDA: Ahora comparamos contra la columna 'NOMBRE' del GSheet
-                match_user = df_u_podio[df_u_podio['NOMBRE'].astype(str).str.strip() == nombre_ranking]
+                # 3. BÚSQUEDA DEL USUARIO
+                match_user = df_u_podio[df_u_podio['NOMBRE_CLEAN'] == nombre_busqueda]
                 
-                url_foto = "https://flaticon.com" # Default
+                # URL por defecto (Avatar de la imagen que enviaste)
+                url_foto = "https://flaticon.com" 
                 
                 if not match_user.empty:
-                    # Extraemos la foto de la fila encontrada
                     foto_sheet = match_user.iloc[0]['AVATAR_URL']
-                    if pd.notna(foto_sheet) and str(foto_sheet).strip() != "":
+                    # Validación estricta de la URL
+                    if pd.notna(foto_sheet) and str(foto_sheet).strip().lower() not in ["", "nan", "none"]:
                         url_foto = str(foto_sheet).strip()
                 
-                with puestos[i]:
+                # 4. RENDERIZADO VISUAL
+                with cols[i]:
                     st.markdown(f"""
-                        <div style="text-align: center;">
-                            <p style="font-size: 1.3em; margin:0;">{medallas[i]}</p>
-                            <img src="{url_foto}" style="border-radius: 50%; width: 65px; height: 65px; object-fit: cover; border: 2px solid #FFD700; background-color: #f0f0f0;">
-                            <p style="font-size: 0.8em; font-weight: bold; margin-top: 5px; line-height: 1;">{nombre_ranking}</p>
-                            <p style="font-size: 0.8em; color: #28a745; margin:0;">{int(row['PUNTOS'])} pts</p>
+                        <div style="text-align: center; background-color: rgba(128,128,128,0.1); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
+                            <p style="font-size: 1.8em; margin:0;">{medallas[i]}</p>
+                            <div style="display: flex; justify-content: center; margin: 10px 0;">
+                                <img src="{url_foto}" style="
+                                    border-radius: 50%; 
+                                    width: 85px; 
+                                    height: 85px; 
+                                    object-fit: cover; 
+                                    border: 4px solid {colores[i]}; 
+                                    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+                                    background-color: #f0f2f6;
+                                ">
+                            </div>
+                            <p style="font-size: 1em; font-weight: bold; margin: 0; color: #f9f9f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {nombre_ranking_raw}
+                            </p>
+                            <p style="font-size: 1.1em; color: #28a745; font-weight: bold; margin-top: 5px;">
+                                {int(row['PUNTOS'])} <span style="font-size: 0.7em; color: gray;">PTS</span>
+                            </p>
                         </div>
                     """, unsafe_allow_html=True)
 
