@@ -612,12 +612,16 @@ if menu == "🏠 Inicio":
                         </div>
                     """, unsafe_allow_html=True)
 
-        # --- GRÁFICO DE EVOLUCIÓN TEMPORAL (Puntos Acumulados) ---
+        # --- GRÁFICO DE EVOLUCIÓN CORREGIDO (CONVERTIDO A NÚMERO) ---
         st.markdown("---")
         st.subheader("📈 Evolución de Puntos")
         
-        # Filtramos solo partidos que ya tienen un resultado oficial cargado
-        partidos_jugados = df_res[pd.notna(df_res['R1'])].sort_values('N_PARTIDO')
+        # Aseguramos que las columnas clave sean numéricas para que el cruce no falle
+        df_res['N_PARTIDO'] = pd.to_numeric(df_res['N_PARTIDO'], errors='coerce')
+        df_pro_all['N_PARTIDO'] = pd.to_numeric(df_pro_all['N_PARTIDO'], errors='coerce')
+        
+        # Filtramos solo partidos con resultado oficial (R1 no vacío)
+        partidos_jugados = df_res[df_res['R1'].notna()].sort_values('N_PARTIDO')
         
         if not partidos_jugados.empty:
             evol_list = []
@@ -625,46 +629,43 @@ if menu == "🏠 Inicio":
             
             for user in usuarios_lista:
                 pts_acc = 0
-                # Buscamos los pronósticos globales de este usuario
+                # Filtramos los pronósticos del usuario actual
                 user_pro = df_pro_all[df_pro_all['USUARIO'] == user]
                 
                 for _, part in partidos_jugados.iterrows():
-                    id_p = part['N_PARTIDO']
+                    id_p = int(part['N_PARTIDO'])
+                    # Buscamos el pronóstico para este ID de partido específico
                     u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
                     
                     if not u_p.empty:
-                        # Extraemos valores para el cálculo
-                        r1, r2 = part['R1'], part['R2']
-                        p1, p2 = u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
+                        # Extraemos goles y aseguramos que sean enteros
+                        r1, r2 = int(part['R1']), int(part['R2'])
+                        p1, p2 = int(u_p.iloc[0]['P1']), int(u_p.iloc[0]['P2'])
                         
-                        # Lógica de puntos (Tendencia + Bonus por Exacto)
+                        # Cálculo de tendencia
                         t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
                         t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
                         
+                        # Sumamos puntos al acumulado
                         if t_real == t_pron:
-                            # 3 pts si es exacto (1 de tendencia + 2 bonus), sino 1 pt
                             pts_acc += 3 if (r1 == p1 and r2 == p2) else 1
                     
-                    # Guardamos la foto del momento para este partido
+                    # Guardamos el punto en la línea de tiempo
                     evol_list.append({
                         "Partido": f"P{id_p}", 
                         "Jugador": user, 
-                        "Puntos": int(pts_acc) # Forzamos entero para el eje Y
+                        "Puntos": pts_acc
                     })
             
-            # Transformamos los datos para que Streamlit cree una línea por jugador
-            df_ev = pd.DataFrame(evol_list)
-            df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
-            
-            # Usamos st.line_chart con etiquetas explícitas para forzar la escala
-            st.line_chart(
-                df_ev_pivot, 
-                x_label="Jornadas (Partidos)", 
-                y_label="Puntos Totales", 
-                use_container_width=True
-            )
+            if evol_list:
+                df_ev = pd.DataFrame(evol_list)
+                # Creamos la tabla pivote: Filas = Partidos, Columnas = Jugadores
+                df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
+                
+                # Dibujamos el gráfico con ejes forzados
+                st.line_chart(df_ev_pivot, x_label="Partidos Jugados", y_label="Puntaje Total")
         else:
-            st.info("La evolución se mostrará cuando se carguen resultados oficiales.")
+            st.info("💡 La evolución se mostrará cuando cargues el primer resultado oficial en la tabla RESULTADOS.")
 
         # --- CURIOSIDADES ---
         st.markdown("---")
