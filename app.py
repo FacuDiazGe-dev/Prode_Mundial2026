@@ -629,14 +629,14 @@ if menu == "🏠 Inicio":
                             </div>
                         """, unsafe_allow_html=True)
     
-            # --- GRÁFICO DE BARRAS (Comparativa de Puntos) ---
+            # --- GRÁFICO DE LINEAS (DISPERSION DE PUNTOS) ---
             st.markdown("---")
             st.subheader("📈 Evolución de Puntos")
             if not df_ranking.empty:
                 # Ordenamos por puntos para que la línea tenga sentido visual
                 df_line = df_ranking.sort_values(by="PUNTOS", ascending=True)
                 st.line_chart(df_line, x="JUGADOR", y="PUNTOS", color="#28a745")
-                )
+                
                 
             #----SABIAS QUE ? CURIOSIDADE----------------
             
