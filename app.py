@@ -590,25 +590,41 @@ if menu == "🏠 Inicio":
             }
         )
 
-        # --- PODIO VISUAL ---
+        # --- PODIO VISUAL (Top 3) CORREGIDO ---
         st.markdown("---")
         st.subheader("🏆 Podio Actual")
         top_3 = df_ranking.head(3)
+        
         if not top_3.empty:
             c1, c2, c3 = st.columns(3)
             puestos = [c1, c2, c3]
             medallas = ["🥇", "🥈", "🥉"]
-            df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
+            
+            # Cargamos usuarios una sola vez para el podio
+            df_usuarios_podio = conn.read(worksheet="USUARIOS", ttl=0)
             
             for i, (idx, row) in enumerate(top_3.iterrows()):
-                user_info = df_usuarios[df_usuarios['USUARIO'] == row['JUGADOR']]
-                url_f = user_info.iloc[0]['AVATAR_URL'] if not user_info.empty and pd.notna(user_info.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
+                # Limpiamos el nombre para asegurar el cruce
+                nombre_jugador = str(row['JUGADOR']).strip()
+                
+                # Buscamos la info del usuario
+                user_info = df_usuarios_podio[df_usuarios_podio['USUARIO'].astype(str).str.strip() == nombre_jugador]
+                
+                # Verificamos si existe y tiene foto
+                url_f = "https://flaticon.com" # Default
+                
+                if not user_info.empty:
+                    # Usamos .values[0] para extraer el dato real de la celda
+                    posible_foto = user_info['AVATAR_URL'].values[0]
+                    if pd.notna(posible_foto) and str(posible_foto).strip() != "":
+                        url_f = posible_foto
+                
                 with puestos[i]:
                     st.markdown(f"""
                         <div style="text-align: center;">
                             <p style="font-size: 1.2em; margin:0;">{medallas[i]}</p>
-                            <img src="{url_f}" style="border-radius: 50%; width: 50px; height: 50px; object-fit: cover; border: 2px solid #FFD700;">
-                            <p style="font-size: 0.7em; font-weight: bold; margin:0;">{row['JUGADOR']}</p>
+                            <img src="{url_f}" style="border-radius: 50%; width: 60px; height: 60px; object-fit: cover; border: 2px solid #FFD700; background-color: #eee;">
+                            <p style="font-size: 0.75em; font-weight: bold; margin-top: 5px; color: #333;">{nombre_jugador}</p>
                         </div>
                     """, unsafe_allow_html=True)
 
