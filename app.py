@@ -612,31 +612,59 @@ if menu == "🏠 Inicio":
                         </div>
                     """, unsafe_allow_html=True)
 
-        # --- GRÁFICO DE EVOLUCIÓN TEMPORAL ---
+        # --- GRÁFICO DE EVOLUCIÓN TEMPORAL (Puntos Acumulados) ---
         st.markdown("---")
         st.subheader("📈 Evolución de Puntos")
         
+        # Filtramos solo partidos que ya tienen un resultado oficial cargado
         partidos_jugados = df_res[pd.notna(df_res['R1'])].sort_values('N_PARTIDO')
+        
         if not partidos_jugados.empty:
             evol_list = []
-            for user in df_ranking["JUGADOR"].unique():
+            usuarios_lista = df_ranking["JUGADOR"].unique()
+            
+            for user in usuarios_lista:
                 pts_acc = 0
+                # Buscamos los pronósticos globales de este usuario
                 user_pro = df_pro_all[df_pro_all['USUARIO'] == user]
+                
                 for _, part in partidos_jugados.iterrows():
                     id_p = part['N_PARTIDO']
                     u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
+                    
                     if not u_p.empty:
-                        # Cálculo de puntos rápido
-                        r1, r2, p1, p2 = part['R1'], part['R2'], u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
+                        # Extraemos valores para el cálculo
+                        r1, r2 = part['R1'], part['R2']
+                        p1, p2 = u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
+                        
+                        # Lógica de puntos (Tendencia + Bonus por Exacto)
                         t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
                         t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
-                        pts_acc += 3 if (t_real == t_pron and r1 == p1 and r2 == p2) else (1 if t_real == t_pron else 0)
-                    evol_list.append({"Partido": f"P{id_p}", "Jugador": user, "Puntos": pts_acc})
+                        
+                        if t_real == t_pron:
+                            # 3 pts si es exacto (1 de tendencia + 2 bonus), sino 1 pt
+                            pts_acc += 3 if (r1 == p1 and r2 == p2) else 1
+                    
+                    # Guardamos la foto del momento para este partido
+                    evol_list.append({
+                        "Partido": f"P{id_p}", 
+                        "Jugador": user, 
+                        "Puntos": int(pts_acc) # Forzamos entero para el eje Y
+                    })
             
-            df_ev = pd.DataFrame(evol_list).pivot(index="Partido", columns="Jugador", values="Puntos")
-            st.line_chart(df_ev, x_label="Partidos", y_label="Puntos Totales")
+            # Transformamos los datos para que Streamlit cree una línea por jugador
+            df_ev = pd.DataFrame(evol_list)
+            df_ev_pivot = df_ev.pivot(index="Partido", columns="Jugador", values="Puntos")
+            
+            # Usamos st.line_chart con etiquetas explícitas para forzar la escala
+            st.line_chart(
+                df_ev_pivot, 
+                x_label="Jornadas (Partidos)", 
+                y_label="Puntos Totales", 
+                use_container_width=True
+            )
         else:
-            st.info("La evolución aparecerá al cargar resultados oficiales.")
+            st.info("La evolución se mostrará cuando se carguen resultados oficiales.")
 
         # --- CURIOSIDADES ---
         st.markdown("---")
