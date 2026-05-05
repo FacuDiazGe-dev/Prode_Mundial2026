@@ -980,7 +980,7 @@ elif menu == "👥 Jugadores":
         st.subheader("👤 Perfil Seleccionado")
         
         if user_sel is not None:
-            # Buscamos su rendimiento en el ranking (que calculamos al inicio de la app)
+            # Buscamos su rendimiento en el ranking
             match_rank = df_ranking[df_ranking['JUGADOR'].str.contains(user_sel['NOMBRE'], na=False)]
             
             if not match_rank.empty:
@@ -1003,38 +1003,41 @@ elif menu == "👥 Jugadores":
                 for _, p in u_pro_sorted.iterrows():
                     p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
                     if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
-                        _, exa, _ = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
+                        pts, exa, gen = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
                         if exa == 1:
                             r_act += 1
                             r_max = max(r_max, r_act)
                         else: r_act = 0
                 if r_max >= 3: css["onfire"] = ""
                 
-#-------------  RENDERIZADO DE PERFIL ------------------------
-
+                # --- RENDERIZADO DE PERFIL ---
+                # Foto por defecto si no hay URL
                 foto_perfil = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
                 
+                # Variable de HTML con f-string
                 html_perfil = f"""
-                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; color: #333;">
-                        <img src="{foto_perfil}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
-                        <h4 style="margin:0;">{user_sel['NOMBRE']}</h4>
-                        <div style="color: #007bff; font-weight: bold; margin-bottom: 15px;">{user_sel['EQUIPO FAVORITO']}</div>
-                        
-                        <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; background: #f8f9fa; padding: 10px; border-radius: 10px;">
-                            <span title="Puntero" style="font-size: 1.5em; {css['puntero']}">🏆</span>
-                            <span title="Master Exactos" style="font-size: 1.5em; {css['master']}">🎯</span>
-                            <span title="Mentalista" style="font-size: 1.5em; {css['mentalista']}">🧙‍♂️</span>
-                            <span title="Fundador" style="font-size: 1.5em; {css['fundador']}">🏅</span>
-                            <span title="On Fire" style="font-size: 1.5em; {css['onfire']}">🔥</span>
-                            <span title="El más lento" style="font-size: 1.5em; {css['lento']}">🐌</span>
-                        </div>
-                        <div style="margin-top: 15px; text-align: left; font-size: 0.85em; line-height: 1.3;">
-                            <b>Bio:</b> <i>"{user_sel['DESCRIPCION']}"</i>
-                        </div>
+                <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; color: #333;">
+                    <img src="{foto_perfil}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
+                    <h4 style="margin:0;">{user_sel['NOMBRE']}</h4>
+                    <div style="color: #007bff; font-weight: bold; margin-bottom: 15px;">{user_sel['EQUIPO FAVORITO']}</div>
+                    
+                    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; background: #f8f9fa; padding: 10px; border-radius: 10px;">
+                        <span title="Puntero" style="font-size: 1.5em; {css['puntero']}">🏆</span>
+                        <span title="Master Exactos" style="font-size: 1.5em; {css['master']}">🎯</span>
+                        <span title="Mentalista" style="font-size: 1.5em; {css['mentalista']}">🧙‍♂️</span>
+                        <span title="Fundador" style="font-size: 1.5em; {css['fundador']}">🏅</span>
+                        <span title="On Fire" style="font-size: 1.5em; {css['onfire']}">🔥</span>
+                        <span title="El más lento" style="font-size: 1.5em; {css['lento']}">🐌</span>
                     </div>
+                    <div style="margin-top: 15px; text-align: left; font-size: 0.85em; line-height: 1.3;">
+                        <b style="color:#333;">Bio:</b> <i style="color:#555;">"{user_sel['DESCRIPCION']}"</i>
+                    </div>
+                </div>
                 """
-                # --- 2. RENDERIZAMOS TODO EL BLOQUE DE UNA SOLA VEZ ---
+                # IMPORTANTE: st.markdown debe estar indentado al mismo nivel que html_perfil
                 st.markdown(html_perfil, unsafe_allow_html=True)
+            else:
+                st.warning("El jugador no tiene puntos suficientes para mostrar rendimiento.")
 
             # --- PREDICCIONES DEL USUARIO ---
             st.markdown("---")
