@@ -1048,7 +1048,7 @@ elif menu == "👥 Jugadores":
             # --- PREDICCIONES DEL USUARIO ---
             st.markdown("---")
             st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
-            pro_user_sel = df_pro_total[df_pro_total['USUARIO'] == user_sel['USUARIO']]
+            pro_user_sel = df_pro[df_pro['USUARIO'] == user_sel['USUARIO']]
             
             if pro_user_sel.empty:
                 st.warning("Sin pronósticos.")
