@@ -1009,10 +1009,11 @@ elif menu == "👥 Jugadores":
                             r_max = max(r_max, r_act)
                         else: r_act = 0
                 if r_max >= 3: css["onfire"] = ""
+                
+#-------------  RENDERIZADO DE PERFIL ------------------------
 
-                # --- RENDERIZADO DEL PERFIL ---
                 foto_perfil = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
-
+                
                 st.markdown(f"""
                     <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; color: #333;">
                         <img src="{foto_perfil}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
@@ -1032,8 +1033,6 @@ elif menu == "👥 Jugadores":
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
-            else:
-                st.warning("Este usuario aún no aparece en el ranking.")
 
             # --- PREDICCIONES DEL USUARIO ---
             st.markdown("---")
