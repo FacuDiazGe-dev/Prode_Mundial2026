@@ -249,109 +249,109 @@ if st.sidebar.button("Cerrar Sesión"):
     st.rerun()
     
 # --- CARGA DE DATOS DE TABLAS GSHEET ---------------------------------------------------------------------------------------------
+# =============================================================================
+# 1. FUNCIÓN DE CÁLCULO DE PUNTOS
+# =============================================================================
 def calcular_detalle(r1, r2, p1, p2):
+    """
+    Calcula puntos según: +1 por tendencia, +2 adicional por exacto (Total 3).
+    """
     if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
         return 0, 0, 0 
+    
     puntos, exactos, generales = 0, 0, 0
     r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
+    
     tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
     tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
+    
+    # Si acertó la tendencia (Ganador o Empate)
     if tendencia_real == tendencia_pron:
         generales = 1
-        puntos = 1
+        puntos = 1 
+        # Si además acertó el marcador exacto
         if r1 == p1 and r2 == p2:
             exactos = 1
-            puntos = 3
+            puntos = 3 
     return puntos, exactos, generales
 
+# =============================================================================
+# 2. CARGA DE DATOS (FRESH)
+# =============================================================================
+@st.cache_data(ttl=60)
+def load_data_v2():
+    # Leemos las tres pestañas necesarias
+    df_res = conn.read(worksheet="RESULTADOS", ttl=0)
+    df_pro = conn.read(worksheet="PRONOSTICOS", ttl=0)
+    df_users = conn.read(worksheet="USUARIOS", ttl=0)
+    
+    # Limpieza de tipos de datos para cálculos
+    df_res['R1'] = pd.to_numeric(df_res['R1'], errors='coerce')
+    df_res['R2'] = pd.to_numeric(df_res['R2'], errors='coerce')
+    df_pro['P1'] = pd.to_numeric(df_pro['P1'], errors='coerce')
+    df_pro['P2'] = pd.to_numeric(df_pro['P2'], errors='coerce')
+    
+    return df_res, df_pro, df_users
+
+# Ejecutamos la carga
+df_res, df_pro, df_usuarios = load_data_v2()
+
+# =============================================================================
+# 3. LÓGICA DE PROCESAMIENTO DE RANKING E INSIGNIAS
+# =============================================================================
 @st.cache_data(ttl=60)
 def obtener_ranking_global(df_users, df_pro, df_res):
     ranking_data = []
+    
     for _, u in df_users.iterrows():
         u_nick = u['USUARIO']
+        u_nombre = u['NOMBRE']
         pts_t, exa_t, gen_t = 0, 0, 0
-        pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
-        for _, p in pro_usr.iterrows():
-            res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-            if not res_p.empty and pd.notna(res_p.iloc[0]['R1']):
-                pts, exa, gen = calcular_detalle(res_p.iloc[0]['R1'], res_p.iloc[0]['R2'], p['P1'], p['P2'])
-                pts_t += pts; exa_t += exa; gen_t += gen
-        ranking_data.append({'USUARIO': u_nick, 'JUGADOR': u['NOMBRE'], 'PUNTOS': pts_t, 'EXACTOS': exa_t, 'GENERALES': gen_t})
-    df_rank = pd.DataFrame(ranking_data).sort_values(by='PUNTOS', ascending=False).reset_index(drop=True)
-    return df_rank
-
-
-
-# ----LINK de Tablas
-SHEET_ID = "16GQN19xyzi_9jRKsaryNMhB80meX9RsJhyHlAU3Ek4c"
-URL_RES = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
-URL_PRO = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=394071446"
-
-@st.cache_data(ttl=60)
-def load_data():
-    df_res = pd.read_csv(URL_RES)
-    df_pro = pd.read_csv(URL_PRO)
-    for col in ['R1', 'R2']:
-        df_res[col] = pd.to_numeric(df_res[col], errors='coerce')
-    return df_res, df_pro
-
-df_res, df_pro = load_data()
-df_usuarios = conn.read(worksheet="USUARIOS", ttl=10)
-
-# Inyectar Ranking Global
-st.session_state['df_ranking_global'] = obtener_ranking_global(df_usuarios, df_pro, df_res)
-
-# --- FUNCIÓN DE CÁLCULO MEJORADA -------------------------------------------
-    
-def calcular_detalle(r1, r2, p1, p2):
-    if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
-        return 0, 0, 0 
-    
-    puntos, exactos, generales = 0, 0, 0
-    r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
-    
-    tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
-    tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
-    
-    # 1. Si acertó la tendencia, SIEMPRE es un acierto general
-    if tendencia_real == tendencia_pron:
-        generales = 1
-        puntos = 1 # Punto base por tendencia
         
-        # 2. Si además los goles son idénticos, sumamos el bono de exacto
-        if r1 == p1 and r2 == p2:
-            exactos = 1
-            puntos = 3 # Cambia a 3 (o += 2 si prefieres verlo como bono)
+        # Filtramos pronósticos del usuario actual
+        pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
+        
+        for _, p in pro_usr.iterrows():
+            # Buscamos el resultado oficial del partido correspondiente
+            res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
             
-    return puntos, exactos, generales
-    
-# --- LÓGICA DE RANKING ACTUALIZADA (VERTICAL) -------------------------------------
-
-# 1. Cargamos los datos más recientes
-df_res_oficial = df_res 
-df_pro_total = conn.read(worksheet="PRONOSTICOS", ttl=10)
-df_users_list = conn.read(worksheet="USUARIOS", ttl=10)
-#----------------------------
-
-
-@st.cache_data(ttl=60) # Cache de 1 minuto para pruebas
-def obtener_ranking_global(df_users, df_pro, df_res):
-    ranking_data = []
-    for _, u in df_users.iterrows():
-        u_nick = u['USUARIO']
-        pts_t, exa_t, gen_t = 0, 0, 0
-        pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
-        
-        for _, p in pro_usr.iterrows():
-            res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
+            # Solo procesamos si el partido ya tiene resultado oficial (R1 no es nulo)
             if not res_p.empty and pd.notna(res_p.iloc[0]['R1']):
-                pts, exa, gen = calcular_detalle(res_p.iloc[0]['R1'], res_p.iloc[0]['R2'], p['P1'], p['P2'])
-                pts_t += pts; exa_t += exa; gen_t += gen
-        
-        ranking_data.append({'USUARIO': u_nick, 'JUGADOR': u['NOMBRE'], 'PUNTOS': pts_t, 'EXACTOS': exa_t, 'GENERALES': gen_t})
+                pts, exa, gen = calcular_detalle(
+                    res_p.iloc[0]['R1'], 
+                    res_p.iloc[0]['R2'], 
+                    p['P1'], 
+                    p['P2']
+                )
+                pts_t += pts
+                exa_t += exa
+                gen_t += gen
+                
+        ranking_data.append({
+            'JUGADOR': u_nombre, 
+            'PUNTOS': pts_t, 
+            'EXACTOS': exa_t, 
+            'GENERALES': gen_t
+        })
     
-    df_rank = pd.DataFrame(ranking_data).sort_values(by='PUNTOS', ascending=False).reset_index(drop=True)
+    # Creamos DataFrame y ordenamos (1º Puntos, 2º Exactos para desempate)
+    df_rank = pd.DataFrame(ranking_data).sort_values(
+        by=['PUNTOS', 'EXACTOS'], 
+        ascending=False
+    ).reset_index(drop=True)
+    
+    # Función interna para procesar la insignia (Nº o Corona)
+    def asignar_insignia(index):
+        posicion = index + 1
+        return "👑" if posicion == 1 else str(posicion)
+
+    # Aplicamos la insignia y formateamos el índice
+    df_rank.insert(0, 'Nº', [asignar_insignia(i) for i in df_rank.index])
+    
     return df_rank
+
+# Generamos el DataFrame final que usará la visualización
+df_ranking = obtener_ranking_global(df_usuarios, df_pro, df_res)
 
 #--------------------------------------------------------
 # Función de apoyo para procesar insignias dentro de la tabla
