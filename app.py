@@ -1013,29 +1013,23 @@ elif menu == "👥 Jugadores":
                 # --- RENDERIZADO DE PERFIL ---
                 foto_perfil = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://via.placeholder.com/100"
                 
-                # Definimos el HTML asegurándonos de que no haya llaves CSS sueltas
-                # Nota: En estilos inline "style='...'" no hace falta doblar llaves {{ }} 
-                # a menos que uses un bloque <style> dentro del f-string.
-                html_perfil = f"""
-                <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; color: #333;">
-                    <img src="{foto_perfil}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
-                    <h4 style="margin:0;">{user_sel['NOMBRE']}</h4>
-                    <div style="color: #007bff; font-weight: bold; margin-bottom: 15px;">{user_sel['EQUIPO FAVORITO']}</div>
-                    
-                    <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; background: #f8f9fa; padding: 10px; border-radius: 10px;">
-                        <span title="Puntero" style="font-size: 1.5em; {css['puntero']}">🏆</span>
-                        <span title="Master Exactos" style="font-size: 1.5em; {css['master']}">🎯</span>
-                        <span title="Mentalista" style="font-size: 1.5em; {css['mentalista']}">🧙‍♂️</span>
-                        <span title="Fundador" style="font-size: 1.5em; {css['fundador']}">🏅</span>
-                        <span title="On Fire" style="font-size: 1.5em; {css['onfire']}">🔥</span>
-                        <span title="El más lento" style="font-size: 1.5em; {css['lento']}">🐌</span>
-                    </div>
-                    <div style="margin-top: 15px; text-align: left; font-size: 0.85em; line-height: 1.3;">
-                        <b style="color:#333;">Bio:</b> <i style="color:#555;">"{user_sel['DESCRIPCION']}"</i>
-                    </div>
-                </div>
-                """
-                # Ejecutamos el renderizado inmediatamente después de la asignación
+# --- RENDERIZADO DE PERFIL ---
+                html_perfil = f"""<div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; color: #333;">
+<img src="{foto_perfil}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
+<h4 style="margin:0;">{user_sel['NOMBRE']}</h4>
+<div style="color: #007bff; font-weight: bold; margin-bottom: 15px;">{user_sel['EQUIPO FAVORITO']}</div>
+<div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; background: #f8f9fa; padding: 10px; border-radius: 10px;">
+    <span title="Puntero" style="font-size: 1.5em; {css['puntero']}">🏆</span>
+    <span title="Master Exactos" style="font-size: 1.5em; {css['master']}">🎯</span>
+    <span title="Mentalista" style="font-size: 1.5em; {css['mentalista']}">🧙‍♂️</span>
+    <span title="Fundador" style="font-size: 1.5em; {css['fundador']}">🏅</span>
+    <span title="On Fire" style="font-size: 1.5em; {css['onfire']}">🔥</span>
+    <span title="El más lento" style="font-size: 1.5em; {css['lento']}">🐌</span>
+</div>
+<div style="margin-top: 15px; text-align: left; font-size: 0.85em; line-height: 1.3;">
+    <b style="color:#333;">Bio:</b> <i style="color:#555;">"{user_sel['DESCRIPCION']}"</i>
+</div>
+</div>"""
                 st.markdown(html_perfil, unsafe_allow_html=True)
 
             else:
