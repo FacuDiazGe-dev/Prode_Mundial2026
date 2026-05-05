@@ -273,6 +273,7 @@ st.markdown(f"""
     .banner-superior {{
         background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
                           url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg");
+        background-position: center 20%; 
         background-size: cover;
         background-position: center;
         padding: 100px;
