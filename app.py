@@ -932,24 +932,33 @@ elif menu == "📝 Mis Pronósticos":
 
 # ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Jugadores":
+    # --- COLUMNA CENTRAL ---
     with col_principal:
-        st.subheader("👥 Jugadores Inscritos")
-        df_usuarios = conn.read(worksheet="USUARIOS", ttl=10)
+        st.subheader("👥 Comunidad de Jugadores")
         
-        if not df_usuarios.empty:
-            # 1. Buscador de jugadores
-            nombres_jugadores = df_usuarios['NOMBRE'].tolist()
-            nombre_sel = st.selectbox("Seleccioná un familiar para ver su perfil:", nombres_jugadores)
-            
-            # Obtenemos la fila del usuario seleccionado
-            user_sel = df_usuarios[df_usuarios['NOMBRE'] == nombre_sel].iloc[0]
-            
-            # --- ESPACIO PARA GRÁFICO O INFO EXTRA ---
-            st.markdown("---")
-            st.write("### 📋 Lista General de la Familia")
-            # Mostramos una tabla prolija con los datos públicos
-            st.dataframe(df_usuarios[['NOMBRE', 'EQUIPO FAVORITO', 'DESCRIPCION']], 
-                         use_container_width=True, hide_index=True)
+        # 1. Creamos el selector de nombres
+        nombres_usuarios = df_usuarios['NOMBRE'].tolist()
+        nombre_elegido = st.selectbox("Selecciona un jugador para ver su perfil:", nombres_usuarios)
+        
+        # 2. Definimos user_sel buscando en el dataframe de usuarios
+        user_sel_query = df_usuarios[df_usuarios['NOMBRE'] == nombre_elegido]
+        
+        if not user_sel_query.empty:
+            user_sel = user_sel_query.iloc[0] # Aquí es donde se define para que lo vea la col_derecha
+        else:
+            user_sel = None
+
+        st.markdown("---")
+        st.write("### Lista de Participantes")
+        # Tarjetas simples de referencia
+        for _, u in df_usuarios.iterrows():
+            foto_mini = u['AVATAR_URL'] if pd.notna(u['AVATAR_URL']) and u['AVATAR_URL'] != "" else "https://flaticon.com"
+            st.markdown(f"""
+                <div style="background: rgba(255,255,255,0.8); padding: 8px; border-radius: 10px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; border: 1px solid #ddd;">
+                    <img src="{foto_mini}" width="35" height="35" style="border-radius: 50%; object-fit: cover;">
+                    <span style="color:#333;"><b>{u['NOMBRE']}</b> — <small>{u['EQUIPO FAVORITO']}</small></span>
+                </div>
+            """, unsafe_allow_html=True)
 
     # with col_derecha:
     #     if 'user_sel' in locals():
@@ -968,39 +977,28 @@ elif menu == "👥 Jugadores":
     #         """, unsafe_allow_html=True)
             
     with col_derecha:
-        st.subheader("👤 Detalle del Jugador")
+        st.subheader("👤 Perfil Seleccionado")
+        
         if user_sel is not None:
-            # 1. Usamos el df_ranking que ya calculamos en el Inicio
-            u_nick = user_sel['USUARIO']
-            match = df_ranking[df_ranking['JUGADOR'] == user_sel['NOMBRE']]
+            # Buscamos su rendimiento en el ranking (que calculamos al inicio de la app)
+            match_rank = df_ranking[df_ranking['JUGADOR'].str.contains(user_sel['NOMBRE'], na=False)]
             
-            if not match.empty:
-                # Obtenemos posición real (Nº ya tiene la corona o el número como string)
-                datos_vivos = match.iloc[0]
-                idx_real = match.index[0] # 0 es el primero
+            if not match_rank.empty:
+                datos_vivos = match_rank.iloc[0]
+                idx_real = match_rank.index[0]
                 
-                # --- 2. LÓGICA DE INSIGNIAS ---
+                # --- LÓGICA DE INSIGNIAS ---
                 css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
-                label_fire = ""
-
-                # Puntero (Si el Nº es la corona)
+                
                 if "👑" in str(datos_vivos['Nº']): css["puntero"] = ""
-                
-                # Master (Exactos >= 5)
                 if int(datos_vivos['EXACTOS']) >= 5: css["master"] = ""
-                
-                # Mentalista (Máximo de generales en el ranking actual)
                 if int(datos_vivos['GENERALES']) == df_ranking['GENERALES'].max() and df_ranking['GENERALES'].max() > 0:
                     css["mentalista"] = ""
-                
-                # Lento (Última posición)
                 if len(df_ranking) > 2 and idx_real == (len(df_ranking) - 1): css["lento"] = ""
-                
-                # Fundador (ID <= 3)
                 if int(user_sel['ID']) <= 3: css["fundador"] = ""
 
-                # 🔥 ON FIRE (Racha)
-                u_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
+                # Racha (On Fire)
+                u_pro_sorted = df_pro[df_pro['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
                 r_act, r_max = 0, 0
                 for _, p in u_pro_sorted.iterrows():
                     p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
@@ -1010,32 +1008,32 @@ elif menu == "👥 Jugadores":
                             r_act += 1
                             r_max = max(r_max, r_act)
                         else: r_act = 0
-                if r_max >= 3:
-                    css["onfire"] = ""; label_fire = f"x{r_max}"
+                if r_max >= 3: css["onfire"] = ""
 
-                # --- 3. RENDERIZADO ---
-                foto = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
+                # --- RENDERIZADO DEL PERFIL ---
+                foto_perfil = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
 
                 st.markdown(f"""
-                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
-                        <img src="{foto}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
-                        <h4 style="margin:0; color:#333;">{user_sel['NOMBRE']}</h4>
-                        <div style="color: #007bff; font-weight: bold; font-size: 0.9em; margin-bottom: 15px;">{user_sel['EQUIPO FAVORITO']}</div>
+                    <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; color: #333;">
+                        <img src="{foto_perfil}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
+                        <h4 style="margin:0;">{user_sel['NOMBRE']}</h4>
+                        <div style="color: #007bff; font-weight: bold; margin-bottom: 15px;">{user_sel['EQUIPO FAVORITO']}</div>
                         
                         <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; background: #f8f9fa; padding: 10px; border-radius: 10px;">
                             <span title="Puntero" style="font-size: 1.5em; {css['puntero']}">🏆</span>
                             <span title="Master Exactos" style="font-size: 1.5em; {css['master']}">🎯</span>
                             <span title="Mentalista" style="font-size: 1.5em; {css['mentalista']}">🧙‍♂️</span>
                             <span title="Fundador" style="font-size: 1.5em; {css['fundador']}">🏅</span>
-                            <span title="On Fire {label_fire}" style="font-size: 1.5em; {css['onfire']}">🔥</span>
+                            <span title="On Fire" style="font-size: 1.5em; {css['onfire']}">🔥</span>
                             <span title="El más lento" style="font-size: 1.5em; {css['lento']}">🐌</span>
                         </div>
-                        
-                        <div style="margin-top: 15px; text-align: left; font-size: 0.9em; color: #555;">
+                        <div style="margin-top: 15px; text-align: left; font-size: 0.85em; line-height: 1.3;">
                             <b>Bio:</b> <i>"{user_sel['DESCRIPCION']}"</i>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
+            else:
+                st.warning("Este usuario aún no aparece en el ranking.")
 
             # --- PREDICCIONES DEL USUARIO ---
             st.markdown("---")
