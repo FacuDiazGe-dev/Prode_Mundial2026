@@ -275,7 +275,7 @@ st.markdown(f"""
                           url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg");
         background-size: cover;
         background-position: center;
-        padding: 50px;
+        padding: 100px;
         border-radius: 15px;
         text-align: center;
         color: white;
@@ -285,7 +285,7 @@ st.markdown(f"""
     </style>
     
     <div class="banner-superior">
-        <h1 style="font-size: 2.8em; text-shadow: 3px 3px 6px black; margin: 0;">🏆 PRODE MUNDIAL 2026</h1>
+        <h1 style="font-size: 2.8em; text-shadow: 3px 3px 6px black; margin: 0;">🏆 PRODE MUNDIAL 2026 - Fase de Grupos</h1>
         <p style="font-size: 1.2em; text-shadow: 2px 2px 4px black; margin: 0;">¡La gloria está en tus predicciones!</p>
     </div>
 """, unsafe_allow_html=True)
