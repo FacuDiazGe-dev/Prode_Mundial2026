@@ -283,7 +283,7 @@ def load_data_v2():
     # Leemos las tres pestañas necesarias
     df_res = conn.read(worksheet="RESULTADOS", ttl=0)
     df_pro = conn.read(worksheet="PRONOSTICOS", ttl=0)
-    df_users = conn.read(worksheet="USUARIOS", ttl=0)
+    df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
     
     # Limpieza de tipos de datos para cálculos
     df_res['R1'] = pd.to_numeric(df_res['R1'], errors='coerce')
@@ -291,7 +291,7 @@ def load_data_v2():
     df_pro['P1'] = pd.to_numeric(df_pro['P1'], errors='coerce')
     df_pro['P2'] = pd.to_numeric(df_pro['P2'], errors='coerce')
     
-    return df_res, df_pro, df_users
+    return df_res, df_pro, df_usuarios
 
 # Ejecutamos la carga
 df_res, df_pro, df_usuarios = load_data_v2()
@@ -300,10 +300,10 @@ df_res, df_pro, df_usuarios = load_data_v2()
 # 3. LÓGICA DE PROCESAMIENTO DE RANKING E INSIGNIAS
 # =============================================================================
 @st.cache_data(ttl=60)
-def obtener_ranking_global(df_users, df_pro, df_res):
+def obtener_ranking_global(df_usuario, df_pro, df_res):
     ranking_data = []
     
-    for _, u in df_users.iterrows():
+    for _, u in df_usuarios.iterrows():
         u_nick = u['USUARIO']
         u_nombre = u['NOMBRE']
         pts_t, exa_t, gen_t = 0, 0, 0
@@ -355,13 +355,13 @@ df_ranking = obtener_ranking_global(df_usuarios, df_pro, df_res)
 
 #--------------------------------------------------------
 # Función de apoyo para procesar insignias dentro de la tabla
-def procesar_nombres_ranking(row, df, df_pro, df_res, df_users):
+def procesar_nombres_ranking(row, df, df_pro, df_res, df_usuarios):
     nombre = row['JUGADOR']
     posicion = row.name + 1 
     insignias = ""
     
     # Buscamos datos extra del usuario (ID y Nick) para racha y fundador
-    u_info = df_users[df_users['NOMBRE'] == nombre].iloc[0]
+    u_info = df_usuarios[df_usuarios['NOMBRE'] == nombre].iloc[0]
     u_nick = u_info['USUARIO']
     u_id = int(u_info['ID'])
 
@@ -393,7 +393,7 @@ def procesar_nombres_ranking(row, df, df_pro, df_res, df_users):
 # 2. Procesamos el Ranking por cada usuario registrado
 ranking_data = []
 
-for _, u_row in df_users_list.iterrows():
+for _, u_row in df_usuarios.iterrows():
     u_nick = u_row['USUARIO']
     u_nombre = u_row['NOMBRE']
     u_id = u_row['ID'] # <--- Tomamos el ID real del Sheet
@@ -418,7 +418,7 @@ df_ranking = pd.DataFrame(ranking_data).sort_values(by=["PUNTOS", "EXACTOS"], as
 
 if not df_ranking.empty:
     df_ranking['JUGADOR'] = df_ranking.apply(
-        lambda row: procesar_nombres_ranking(row, df_ranking, df_pro_total, df_res_oficial, df_users_list), 
+        lambda row: procesar_nombres_ranking(row, df_ranking, df_pro_total, df_res_oficial, df_usuarios_list), 
         axis=1
     )
 
