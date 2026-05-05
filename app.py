@@ -297,86 +297,30 @@ def load_data_v2():
 df_res, df_pro, df_usuarios = load_data_v2()
 
 # =============================================================================
-# 3. LÓGICA DE PROCESAMIENTO DE RANKING E INSIGNIAS
+# 1. FUNCIÓN DE APOYO PARA PROCESAR INSIGNIAS
 # =============================================================================
-@st.cache_data(ttl=60)
-def obtener_ranking_global(df_usuario, df_pro, df_res):
-    ranking_data = []
-    
-    # Iteramos sobre la tabla 'df_usuarios' que cargaste
-    for _, u in df_usuarios.iterrows():
-        u_nick = u['USUARIO']
-        u_nombre = u['NOMBRE']
-        pts_t, exa_t, gen_t = 0, 0, 0
-        
-        # Filtramos en 'df_pro' los pronósticos de este usuario
-        pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
-        
-        for _, p in pro_usr.iterrows():
-            # Buscamos el partido correspondiente en 'df_res'
-            res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-            
-            # Verificamos si existe el partido y si tiene resultado oficial cargado
-            if not res_p.empty:
-                r1_oficial = res_p.iloc[0]['R1']
-                r2_oficial = res_p.iloc[0]['R2']
-                
-                if pd.notna(r1_oficial) and pd.notna(r2_oficial):
-                    # Calculamos puntos usando tu función calcular_detalle
-                    pts, exa, gen = calcular_detalle(
-                        r1_oficial, 
-                        r2_oficial, 
-                        p['P1'], 
-                        p['P2']
-                    )
-                    pts_t += pts
-                    exa_t += exa
-                    gen_t += gen
-                    
-        ranking_data.append({
-            'JUGADOR': u_nombre, 
-            'PUNTOS': pts_t, 
-            'EXACTOS': exa_t, 
-            'GENERALES': gen_t
-        })
-    
-    # Creamos el DataFrame final y ordenamos por Puntos y Exactos
-    df_ranking = pd.DataFrame(ranking_data).sort_values(
-        by=['PUNTOS', 'EXACTOS'], 
-        ascending=False
-    ).reset_index(drop=True)
-    
-    # Agregamos la columna de posición con la corona al líder
-    df_ranking.index = df_ranking.index + 1
-    df_ranking.insert(0, 'Nº', df_ranking.index.map(lambda x: "👑" if x == 1 else str(x)))
-
-    # Aplicamos la insignia y formateamos el índice
-    df_rank.insert(0, 'Nº', [asignar_insignia(i) for i in df_rank.index])
-    
-    return df_rank
-
-# Generamos el DataFrame final que usará la visualización
-df_ranking = obtener_ranking_global(df_usuarios, df_pro, df_res)
-
-#--------------------------------------------------------
-# Función de apoyo para procesar insignias dentro de la tabla
-def procesar_nombres_ranking(row, df, df_pro, df_res, df_usuarios):
+def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
     nombre = row['JUGADOR']
+    # La posición real es el índice actual + 1
     posicion = row.name + 1 
     insignias = ""
     
-    # Buscamos datos extra del usuario (ID y Nick) para racha y fundador
-    u_info = df_usuarios[df_usuarios['NOMBRE'] == nombre].iloc[0]
-    u_nick = u_info['USUARIO']
-    u_id = int(u_info['ID'])
+    # Buscamos datos extra del usuario
+    try:
+        u_info = df_usuarios[df_usuarios['NOMBRE'] == nombre].iloc[0]
+        u_nick = u_info['USUARIO']
+        u_id = int(u_info['ID'])
+    except:
+        return nombre
 
+    # Reglas de Insignias
     if posicion == 1: insignias += " 👑" # Puntero
     if row['EXACTOS'] >= 5: insignias += " 🎯" # Master
     
-    max_gen = df['GENERALES'].max()
+    max_gen = df_rank_base['GENERALES'].max()
     if row['GENERALES'] == max_gen and max_gen > 0: insignias += " 🧙‍♂️" # Mentalista
     if u_id <= 3: insignias += " 🏅" # Fundador
-    if len(df) > 2 and posicion == len(df): insignias += " 🐌" # Lento
+    if len(df_rank_base) > 2 and posicion == len(df_rank_base): insignias += " 🐌" # Lento
         
     # Lógica ON FIRE (Racha de 3 o más exactos)
     user_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
@@ -395,41 +339,64 @@ def procesar_nombres_ranking(row, df, df_pro, df_res, df_usuarios):
 
     return f"{nombre}{insignias}"
 
-# 2. Procesamos el Ranking por cada usuario registrado
-ranking_data = []
-
-for _, u_row in df_usuarios.iterrows():
-    u_nick = u_row['USUARIO']
-    u_nombre = u_row['NOMBRE']
-    u_id = u_row['ID'] # <--- Tomamos el ID real del Sheet
+# =============================================================================
+# 2. FUNCIÓN PRINCIPAL DE RANKING
+# =============================================================================
+@st.cache_data(ttl=60)
+def obtener_ranking_global(df_users_list, df_pro_total, df_res_oficial):
+    ranking_data = []
     
-    total_pts, total_exa, total_gen = 0, 0, 0
-    pronos_usuario = df_pro_total[df_pro_total['USUARIO'] == u_nick]
-    
-    for _, res_row in df_res_oficial.iterrows():
-        # ... (Tu lógica de puntos se mantiene igual) ...
-        pass
+    for _, u in df_users_list.iterrows():
+        u_nick = u['USUARIO']
+        u_nombre = u['NOMBRE']
+        pts_t, exa_t, gen_t = 0, 0, 0
+        
+        pro_usr = df_pro_total[df_pro_total['USUARIO'] == u_nick]
+        
+        for _, p in pro_usr.iterrows():
+            res_p = df_res_oficial[df_res_oficial['N_PARTIDO'] == p['N_PARTIDO']]
             
-    ranking_data.append({
-        "ID_PARA_FOTO": u_id, # <--- CAMPO CLAVE E INVISIBLE
-        "JUGADOR": u_nombre,
-        "PUNTOS": total_pts,
-        "EXACTOS": total_exa,
-        "GENERALES": total_gen
-    })
+            if not res_p.empty:
+                r1_oficial = res_p.iloc[0]['R1']
+                r2_oficial = res_p.iloc[0]['R2']
+                
+                if pd.notna(r1_oficial) and pd.notna(r2_oficial):
+                    pts, exa, gen = calcular_detalle(r1_oficial, r2_oficial, p['P1'], p['P2'])
+                    pts_t += pts
+                    exa_t += exa
+                    gen_t += gen
+                    
+        ranking_data.append({
+            'JUGADOR': u_nombre, 
+            'PUNTOS': pts_t, 
+            'EXACTOS': exa_t, 
+            'GENERALES': gen_t
+        })
+    
+    # Crear DataFrame base y ordenar
+    df_rank = pd.DataFrame(ranking_data).sort_values(
+        by=['PUNTOS', 'EXACTOS'], 
+        ascending=False
+    ).reset_index(drop=True)
+    
+    # Aplicar insignias a los nombres
+    if not df_rank.empty:
+        df_rank['JUGADOR'] = df_rank.apply(
+            lambda row: procesar_nombres_ranking(row, df_rank, df_pro_total, df_res_oficial, df_users_list), 
+            axis=1
+        )
+    
+    # Crear columna de posición Nº
+    df_rank.index = df_rank.index + 1
+    df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
+    
+    return df_rank
 
-# 3. Creamos el DataFrame, ordenamos y aplicamos insignias
-df_ranking = pd.DataFrame(ranking_data).sort_values(by=["PUNTOS", "EXACTOS"], ascending=False).reset_index(drop=True)
-
-if not df_ranking.empty:
-    df_ranking['JUGADOR'] = df_ranking.apply(
-        lambda row: procesar_nombres_ranking(row, df_ranking, df_pro_total, df_res_oficial, df_usuarios_list), 
-        axis=1
-    )
-
-# 4. Formateo final de la tabla
-df_ranking.index = df_ranking.index + 1
-df_ranking.insert(0, "Nº", df_ranking.index.astype(str))
+# =============================================================================
+# 3. EJECUCIÓN
+# =============================================================================
+# Asegúrate de que df_usuarios, df_pro y df_res estén cargados antes
+df_ranking = obtener_ranking_global(df_usuarios, df_pro, df_res)
 
 
 
