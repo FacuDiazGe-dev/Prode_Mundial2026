@@ -663,17 +663,30 @@ if menu == "🏠 Inicio":
             
             if evol_list:
                 df_ev = pd.DataFrame(evol_list)
+                df_ev_pivot = df_ev.pivot(index="N_Partido", columns="Jugador", values="Puntos").sort_index()
                 
-                # 3. PIVOTAR: El índice será el NÚMERO del partido
-                # Al ser números, st.line_chart los ordenará 1, 2, 3 ... 10 automáticamente
-                df_ev_pivot = df_ev.pivot(index="N_Partido", columns="Jugador", values="Puntos")
-                
-                # 4. ORDENAR el índice por si acaso
-                df_ev_pivot = df_ev_pivot.sort_index()
-        
-                # 5. GRAFICAR
-                # Usamos use_container_width para que se vea bien en móviles
-                st.line_chart(df_ev_pivot)
+                # --- CONFIGURACIÓN DE GRÁFICO ESTÁTICO Y OPTIMIZADO ---
+                import plotly.express as px
+
+                fig = px.line(
+                    df_ev_pivot, 
+                    labels={"N_Partido": "Nº de Partido", "value": "Puntos Acumulados", "variable": "Jugador"},
+                    markers=True # Agrega puntos en cada partido para mejor lectura
+                )
+
+                # BLOQUEO DE ESCALA Y SCROLL
+                fig.update_layout(
+                    xaxis=dict(fixedrange=True, tickmode='linear', dtick=1), # Bloquea zoom X y fuerza números 1,2,3...
+                    yaxis=dict(fixedrange=True), # Bloquea zoom Y
+                    dragmode=False, # Impide arrastrar el gráfico
+                    hovermode="x unified", # Muestra todos los puntos al pasar el mouse por la línea de tiempo
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), # Leyenda horizontal arriba
+                    margin=dict(l=20, r=20, t=30, b=20), # Ajusta márgenes para aprovechar espacio
+                    height=400 # Altura fija para que no varíe al cargar
+                )
+
+                # Renderizar con la barra de herramientas oculta
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
                 
         else:
             st.info("💡 La evolución aparecerá cuando haya resultados en la tabla.")
