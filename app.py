@@ -303,30 +303,36 @@ df_res, df_pro, df_usuarios = load_data_v2()
 def obtener_ranking_global(df_usuario, df_pro, df_res):
     ranking_data = []
     
+    # Iteramos sobre la tabla 'df_usuarios' que cargaste
     for _, u in df_usuarios.iterrows():
         u_nick = u['USUARIO']
         u_nombre = u['NOMBRE']
         pts_t, exa_t, gen_t = 0, 0, 0
         
-        # Filtramos pronósticos del usuario actual
+        # Filtramos en 'df_pro' los pronósticos de este usuario
         pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
         
         for _, p in pro_usr.iterrows():
-            # Buscamos el resultado oficial del partido correspondiente
+            # Buscamos el partido correspondiente en 'df_res'
             res_p = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
             
-            # Solo procesamos si el partido ya tiene resultado oficial (R1 no es nulo)
-            if not res_p.empty and pd.notna(res_p.iloc[0]['R1']):
-                pts, exa, gen = calcular_detalle(
-                    res_p.iloc[0]['R1'], 
-                    res_p.iloc[0]['R2'], 
-                    p['P1'], 
-                    p['P2']
-                )
-                pts_t += pts
-                exa_t += exa
-                gen_t += gen
+            # Verificamos si existe el partido y si tiene resultado oficial cargado
+            if not res_p.empty:
+                r1_oficial = res_p.iloc[0]['R1']
+                r2_oficial = res_p.iloc[0]['R2']
                 
+                if pd.notna(r1_oficial) and pd.notna(r2_oficial):
+                    # Calculamos puntos usando tu función calcular_detalle
+                    pts, exa, gen = calcular_detalle(
+                        r1_oficial, 
+                        r2_oficial, 
+                        p['P1'], 
+                        p['P2']
+                    )
+                    pts_t += pts
+                    exa_t += exa
+                    gen_t += gen
+                    
         ranking_data.append({
             'JUGADOR': u_nombre, 
             'PUNTOS': pts_t, 
@@ -334,16 +340,15 @@ def obtener_ranking_global(df_usuario, df_pro, df_res):
             'GENERALES': gen_t
         })
     
-    # Creamos DataFrame y ordenamos (1º Puntos, 2º Exactos para desempate)
-    df_rank = pd.DataFrame(ranking_data).sort_values(
+    # Creamos el DataFrame final y ordenamos por Puntos y Exactos
+    df_ranking = pd.DataFrame(ranking_data).sort_values(
         by=['PUNTOS', 'EXACTOS'], 
         ascending=False
     ).reset_index(drop=True)
     
-    # Función interna para procesar la insignia (Nº o Corona)
-    def asignar_insignia(index):
-        posicion = index + 1
-        return "👑" if posicion == 1 else str(posicion)
+    # Agregamos la columna de posición con la corona al líder
+    df_ranking.index = df_ranking.index + 1
+    df_ranking.insert(0, 'Nº', df_ranking.index.map(lambda x: "👑" if x == 1 else str(x)))
 
     # Aplicamos la insignia y formateamos el índice
     df_rank.insert(0, 'Nº', [asignar_insignia(i) for i in df_rank.index])
