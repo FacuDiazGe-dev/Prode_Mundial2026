@@ -254,7 +254,7 @@ st.markdown(f"""
 
     /* 2. Banner Vertical en el Sidebar y contraste de letras */
     [data-testid="stSidebar"] {{
-        background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20VERTICAL_V2.jpg");
+        background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20VERTICAL_V3.jpg");
         background-size: cover;
         background-position: center;
     }}
