@@ -240,7 +240,50 @@ if MANTENIMIENTO_ACTIVO and st.session_state['user_data']['ROL'] != 'admin':
         st.rerun()
     st.stop() 
 
+# --- APLICACIÓN DE DISEÑO VISUAL (BANNERS Y FONDOS) ---
+st.markdown(f"""
+    <style>
+    /* 1. Imagen de fondo base del sitio */
+    .stApp {{
+        background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/FONDO%20BASE.jpg");
+        background-attachment: fixed;
+        background-size: cover;
+    }}
 
+    /* 2. Imagen del Sidebar (Banner Vertical) */
+    [data-testid="stSidebar"] {{
+        background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20VERTICAL_V2.jpg");
+        background-size: cover;
+        background-position: center;
+    }}
+
+    /* 3. Ajuste de visibilidad de textos en el Sidebar */
+    [data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label {{
+        color: white !important;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px black;
+    }}
+
+    /* 4. Contenedor para el Banner Superior Horizontal */
+    .banner-superior {{
+        background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), 
+                          url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg");
+        background-size: cover;
+        background-position: center;
+        padding: 60px;
+        border-radius: 15px;
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.3);
+    }}
+    </style>
+    
+    <div class="banner-superior">
+        <h1 style="font-size: 3em; text-shadow: 2px 2px 4px black;">🏆 PRODE MUNDIAL 2026</h1>
+        <p style="font-size: 1.2em; text-shadow: 1px 1px 2px black;">¡La gloria está en tus predicciones!</p>
+    </div>
+""", unsafe_allow_html=True)
 
 # --- SIDEBAR DE BIENVENIDA ---
 st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
