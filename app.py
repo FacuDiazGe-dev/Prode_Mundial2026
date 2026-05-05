@@ -349,6 +349,7 @@ def obtener_ranking_global(df_users_list, df_pro_total, df_res_oficial):
     for _, u in df_users_list.iterrows():
         u_nick = u['USUARIO']
         u_nombre = u['NOMBRE']
+        u_id = u['ID']
         pts_t, exa_t, gen_t = 0, 0, 0
         
         pro_usr = df_pro_total[df_pro_total['USUARIO'] == u_nick]
@@ -367,6 +368,7 @@ def obtener_ranking_global(df_users_list, df_pro_total, df_res_oficial):
                     gen_t += gen
                     
         ranking_data.append({
+            'ID_PARA_FOTO': u_id,
             'JUGADOR': u_nombre, 
             'PUNTOS': pts_t, 
             'EXACTOS': exa_t, 
@@ -385,7 +387,7 @@ def obtener_ranking_global(df_users_list, df_pro_total, df_res_oficial):
             lambda row: procesar_nombres_ranking(row, df_rank, df_pro_total, df_res_oficial, df_users_list), 
             axis=1
         )
-    
+        
     # Crear columna de posición Nº
     df_rank.index = df_rank.index + 1
     df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
@@ -548,6 +550,7 @@ if menu == "🏠 Inicio":
             use_container_width=True,
             hide_index=True,
             column_config={
+                "ID_PARA_FOTO": None,
                 "Nº": st.column_config.TextColumn("Nº", width="small"),
                 "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
                 "EXACTOS": st.column_config.NumberColumn("🎯"),
