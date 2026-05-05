@@ -240,50 +240,56 @@ if MANTENIMIENTO_ACTIVO and st.session_state['user_data']['ROL'] != 'admin':
         st.rerun()
     st.stop() 
 
-# --- APLICACIÓN DE DISEÑO VISUAL (BANNERS Y FONDOS) ---
+# =============================================================================
+# --- DISEÑO VISUAL (FONDOS, BANNERS Y CONTRASTE) ---
+# =============================================================================
 st.markdown(f"""
     <style>
-    /* 1. Imagen de fondo base del sitio */
+    /* 1. Fondo base del sitio */
     .stApp {{
         background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/FONDO%20BASE.jpg");
         background-attachment: fixed;
         background-size: cover;
     }}
 
-    /* 2. Imagen del Sidebar (Banner Vertical) */
+    /* 2. Banner Vertical en el Sidebar y contraste de letras */
     [data-testid="stSidebar"] {{
         background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20VERTICAL_V2.jpg");
         background-size: cover;
         background-position: center;
     }}
 
-    /* 3. Ajuste de visibilidad de textos en el Sidebar */
-    [data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label {{
-        color: white !important;
-        font-weight: bold;
-        text-shadow: 1px 1px 2px black;
+    /* Estilo de letras en Sidebar para fondo oscuro */
+    [data-testid="stSidebar"] .stMarkdown, 
+    [data-testid="stSidebar"] label, 
+    [data-testid="stSidebar"] .stRadio p,
+    [data-testid="stSidebar"] h3 {{
+        color: #FFFFFF !important;
+        font-weight: 800 !important;
+        text-shadow: 2px 2px 8px #000000, 0px 0px 10px #000000 !important;
     }}
 
-    /* 4. Contenedor para el Banner Superior Horizontal */
+    /* 3. Banner Superior Horizontal */
     .banner-superior {{
-        background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), 
+        background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
                           url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg");
         background-size: cover;
         background-position: center;
-        padding: 60px;
+        padding: 50px;
         border-radius: 15px;
         text-align: center;
         color: white;
-        margin-bottom: 30px;
-        box-shadow: 0px 4px 15px rgba(0,0,0,0.3);
+        margin-bottom: 25px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
     }}
     </style>
     
     <div class="banner-superior">
-        <h1 style="font-size: 3em; text-shadow: 2px 2px 4px black;">🏆 PRODE MUNDIAL 2026</h1>
-        <p style="font-size: 1.2em; text-shadow: 1px 1px 2px black;">¡La gloria está en tus predicciones!</p>
+        <h1 style="font-size: 2.8em; text-shadow: 3px 3px 6px black; margin: 0;">🏆 PRODE MUNDIAL 2026</h1>
+        <p style="font-size: 1.2em; text-shadow: 2px 2px 4px black; margin: 0;">¡La gloria está en tus predicciones!</p>
     </div>
 """, unsafe_allow_html=True)
+
 
 # --- SIDEBAR DE BIENVENIDA ---
 st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
