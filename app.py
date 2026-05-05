@@ -1014,7 +1014,7 @@ elif menu == "👥 Jugadores":
 
                 foto_perfil = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://flaticon.com"
                 
-                st.markdown(f"""
+                html_perfil = f"""
                     <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; color: #333;">
                         <img src="{foto_perfil}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
                         <h4 style="margin:0;">{user_sel['NOMBRE']}</h4>
@@ -1032,7 +1032,9 @@ elif menu == "👥 Jugadores":
                             <b>Bio:</b> <i>"{user_sel['DESCRIPCION']}"</i>
                         </div>
                     </div>
-                """, unsafe_allow_html=True)
+                """
+                # --- 2. RENDERIZAMOS TODO EL BLOQUE DE UNA SOLA VEZ ---
+                st.markdown(html_perfil, unsafe_allow_html=True)
 
             # --- PREDICCIONES DEL USUARIO ---
             st.markdown("---")
