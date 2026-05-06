@@ -302,10 +302,7 @@ st.markdown(f"""
 
 # --- SIDEBAR DE BIENVENIDA ---
 st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
-if st.sidebar.button("Cerrar Sesión"):
-    st.session_state['autenticado'] = False
-    st.rerun()
-    
+
 # --- CARGA DE DATOS DE TABLAS GSHEET ---------------------------------------------------------------------------------------------
 # =============================================================================
 # 1. FUNCIÓN DE CÁLCULO DE PUNTOS
@@ -336,23 +333,33 @@ def calcular_detalle(r1, r2, p1, p2):
 # =============================================================================
 # 2. CARGA DE DATOS (FRESH)
 # =============================================================================
-@st.cache_data(ttl=60)
-def load_data_v2():
-    # Leemos las tres pestañas necesarias
-    df_res = conn.read(worksheet="RESULTADOS", ttl=10)
-    df_pro = conn.read(worksheet="PRONOSTICOS", ttl=10)
-    df_usuarios = conn.read(worksheet="USUARIOS", ttl=10)
+# --- CARGA DE DATOS OPTIMIZADA ---
+
+@st.cache_data(ttl=300) # Los resultados y usuarios se guardan por 5 minutos
+def load_static_data():
+    # Solo leemos lo que casi no cambia
+    df_res = conn.read(worksheet="RESULTADOS")
+    df_users = conn.read(worksheet="USUARIOS")
     
-    # Limpieza de tipos de datos para cálculos
+    # Limpieza de datos una sola vez
     df_res['R1'] = pd.to_numeric(df_res['R1'], errors='coerce')
     df_res['R2'] = pd.to_numeric(df_res['R2'], errors='coerce')
+    return df_res, df_users
+
+@st.cache_data(ttl=60) # Los pronósticos se refrescan cada 1 minuto
+def load_dynamic_data():
+    df_pro = conn.read(worksheet="PRONOSTICOS")
     df_pro['P1'] = pd.to_numeric(df_pro['P1'], errors='coerce')
     df_pro['P2'] = pd.to_numeric(df_pro['P2'], errors='coerce')
-    
-    return df_res, df_pro, df_usuarios
+    return df_pro
 
-# Ejecutamos la carga
-df_res, df_pro, df_usuarios = load_data_v2()
+# Ejecución inteligente
+try:
+    df_res, df_usuarios = load_static_data()
+    df_pro = load_dynamic_data()
+except Exception as e:
+    st.warning("⚠️ La conexión con Google es lenta. Mostrando datos guardados...")
+    # Aquí podrías cargar datos por defecto si fallara la primera vez
 
 # =============================================================================
 # 1. FUNCIÓN DE APOYO PARA PROCESAR INSIGNIAS
@@ -400,7 +407,7 @@ def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
 # =============================================================================
 # 2. FUNCIÓN PRINCIPAL DE RANKING
 # =============================================================================
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=300)
 def obtener_ranking_global(df_users_list, df_pro_total, df_res_oficial):
     ranking_data = []
     
@@ -516,7 +523,7 @@ if menu == "🏠 Inicio":
     with col_principal:
         st.subheader("⚽ Cronograma y Resultados")
         
-        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=10)        
+        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=20)        
         
         # 1. Limpieza y Filtro de Visibilidad
         # Aseguramos que la columna VIZ exista y sea booleana
