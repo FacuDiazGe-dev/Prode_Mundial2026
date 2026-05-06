@@ -636,20 +636,6 @@ if menu == "🏠 Inicio":
 
     # --- COLUMNA DERECHA: RANKING Y ESTADÍSTICAS (30%) ---
     with col_derecha:
-        st.subheader("📊 Ranking")
-        st.dataframe(
-            df_ranking,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "ID_PARA_FOTO": None,
-                "Nº": st.column_config.TextColumn("Nº", width="small"),
-                "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
-                "EXACTOS": st.column_config.NumberColumn("🎯"),
-                "GENERALES": st.column_config.NumberColumn("✅")
-            }
-        )
-
         # --- PODIO VISUAL ESTILO REAL (2º - 1º - 3º) ---
         with col_derecha:
             st.markdown("---")
@@ -663,8 +649,8 @@ if menu == "🏠 Inicio":
                 # Índice 1 (Plata), Índice 0 (Oro), Índice 2 (Bronce)
                 podio_orden = [top_3.iloc[1], top_3.iloc[0], top_3.iloc[2]]
                 medallas = ["🥈", "🥇", "🥉"]
-                tamanos = [100, 130, 90]  # Tamaños de foto: El 1º es el más grande
-                alturas = ["40px", "0px", "60px"] # Margen superior para escalonar
+                tamanos = [70, 100, 50]  # Tamaños de foto: El 1º es el más grande
+                alturas = ["30px", "0px", "50px"] # Margen superior para escalonar
                 colores = ["#C0C0C0", "#FFD700", "#CD7F32"]
                 
                 # Columnas para el podio
@@ -711,6 +697,22 @@ if menu == "🏠 Inicio":
                         st.markdown(html_podio, unsafe_allow_html=True)
             else:
                 st.info("Necesitamos al menos 3 jugadores para armar el podio real.")
+                
+#-----------RANKING ------------------------------------------------
+    
+        st.subheader("📊 Ranking")
+        st.dataframe(
+            df_ranking,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "ID_PARA_FOTO": None,
+                "Nº": st.column_config.TextColumn("Nº", width="small"),
+                "PUNTOS": st.column_config.NumberColumn("PUNTOS"),
+                "EXACTOS": st.column_config.NumberColumn("🎯"),
+                "GENERALES": st.column_config.NumberColumn("✅")
+            }
+        )
 
         # --- GRÁFICO DE EVOLUCIÓN DE PUNTOS (SOLUCIÓN DEFINITIVA AL ORDEN) ---
         st.markdown("---")
