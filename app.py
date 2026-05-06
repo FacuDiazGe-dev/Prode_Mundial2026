@@ -284,7 +284,7 @@ st.markdown(f"""
                           url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg");
         background-size: cover;
         background-position: center 15%;
-        padding: 100px;
+        padding: 45px;
         border-radius: 15px;
         text-align: center;
         color: white;
