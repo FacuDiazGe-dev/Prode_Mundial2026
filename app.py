@@ -1112,17 +1112,20 @@ elif menu == "👥 Jugadores":
 # ---------- MENU FORO ----------------------------------------------------
 
 elif menu == "💬 Foro":
-    df_foro = conn.read(worksheet="FORO", ttl=10)
+    # 1. Carga de datos necesarios
+    df_foro = conn.read(worksheet="FORO", ttl=0)
+    df_u_ref = df_usuarios # Usamos el df cargado al inicio
     user_actual = st.session_state['user_data']['USUARIO']
     
+    # 2. COLUMNA PRINCIPAL (60% - Muro)
     with col_principal:
         st.subheader("💬 Muro de la Comunidad")
         
-        # Caja para publicar
-        with st.expander("✍️ Publicar un comentario", expanded=False):
+        # Caja para publicar mejorada
+        with st.expander("✍️ Escribir algo en el muro", expanded=False):
             with st.form("nuevo_post_full", clear_on_submit=True):
-                texto = st.text_area("¿Qué quieres decir?", max_chars=250)
-                if st.form_submit_button("🚀 Publicar", use_container_width=True):
+                texto = st.text_area("¿Qué tienes en mente?", max_chars=250, placeholder="Escribe tu mensaje aquí...")
+                if st.form_submit_button("🚀 Publicar Mensaje", use_container_width=True):
                     if texto.strip():
                         nuevo_msg = {
                             "FECHA": (datetime.now() - timedelta(hours=3)).strftime("%d/%m %H:%M"),
@@ -1138,40 +1141,63 @@ elif menu == "💬 Foro":
 
         st.markdown("---")
 
-        # Listado de mensajes estilo Chat
         if df_foro.empty:
-            st.info("No hay mensajes aún.")
+            st.info("El muro está vacío. ¡Sé el primero en escribir!")
         else:
-            for index, m in df_foro.iloc[::-1].iterrows():
-                es_mio = m['USUARIO'] == user_actual
-                align = "flex-end" if es_mio else "flex-start"
-                bg_color = "#dcf8c6" if es_mio else "#ffffff"
+            # Mostramos mensajes (Invertidos: nuevos arriba)
+            for idx, m in df_foro.iloc[::-1].iterrows():
+                # Buscamos la foto del usuario que escribió
+                u_match = df_u_ref[df_u_ref['USUARIO'] == m['USUARIO']]
+                foto_msg = u_match.iloc[0]['AVATAR_URL'] if not u_match.empty and pd.notna(u_match.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
                 
-                # Burbuja de mensaje
+                es_mio = m['USUARIO'] == user_actual
+                aln = "flex-end" if es_mio else "flex-start"
+                bg = "#dcf8c6" if es_mio else "#ffffff" # Verde WhatsApp vs Blanco
+                
+                # Burbuja con Foto y Fecha
                 st.markdown(f"""
-                    <div style="display: flex; flex-direction: column; align-items: {align}; margin-bottom: 15px; width: 100%;">
-                        <div style="max-width: 85%; background-color: {bg_color}; padding: 15px; border-radius: 18px; border: 1px solid #ddd; box-shadow: 1px 1px 3px rgba(0,0,0,0.1);">
-                            <div style="font-size: 0.9em; color: #555; font-weight: bold; margin-bottom: 5px;">
-                                {m['NOMBRE']} <span style="font-weight: normal; color: #999;">• {m['FECHA']}</span>
-                            </div>
-                            <div style="font-size: 1.1em; color: #222; line-height: 1.5; font-weight: 450;">
-                                {m['MENSAJE']}
+                    <div style="display: flex; flex-direction: column; align-items: {aln}; margin-bottom: 20px; width: 100%;">
+                        <div style="display: flex; align-items: flex-end; gap: 10px; flex-direction: {'row-reverse' if es_mio else 'row'};">
+                            <img src="{foto_msg}" style="border-radius: 50%; width: 40px; height: 40px; object-fit: cover; border: 2px solid #007bff; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+                            <div style="max-width: 80%; background-color: {bg}; padding: 12px 16px; border-radius: 18px; border: 1px solid #ddd; box-shadow: 2px 2px 8px rgba(0,0,0,0.05);">
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 15px; margin-bottom: 4px;">
+                                    <span style="font-size: 0.85em; color: #007bff; font-weight: bold;">{m['NOMBRE']}</span>
+                                    <span style="font-size: 0.7em; color: #999;">{m['FECHA']}</span>
+                                </div>
+                                <div style="font-size: 1.05em; color: #333; line-height: 1.4;">{m['MENSAJE']}</div>
                             </div>
                         </div>
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Botón de eliminar (Solo para Admin o dueño del mensaje)
-                # Lo ponemos alineado con la burbuja
-                col_del_1, col_del_2 = st.columns([0.8, 0.2]) if es_mio else st.columns([0.2, 0.8])
-                
-                with (col_del_2 if es_mio else col_del_1):
-                    if st.session_state['user_data']['ROL'] == 'admin' or es_mio:
-                        if st.button("🗑️", key=f"del_full_{index}", help="Eliminar"):
-                            df_final = df_foro.drop(index)
-                            conn.update(worksheet="FORO", data=df_final)
+                # Opción de eliminar (Admin o Dueño)
+                if st.session_state['user_data']['ROL'] == 'admin' or es_mio:
+                    c_del1, c_del2 = st.columns([0.85, 0.15]) if es_mio else st.columns([0.15, 0.85])
+                    with (c_del2 if es_mio else c_del1):
+                        if st.button("🗑️", key=f"del_{idx}", help="Eliminar mensaje"):
+                            df_f = df_foro.drop(idx)
+                            conn.update(worksheet="FORO", data=df_f)
                             st.cache_data.clear()
                             st.rerun()
+
+    # 3. COLUMNA DERECHA (30% - Info Comunidad)
+    with col_derecha:
+        st.subheader("📢 Comunidad")
+        
+        # Mini-Ranking de participaciones
+        if not df_foro.empty:
+            st.write("**Más activos en el muro:**")
+            top_comentaristas = df_foro['NOMBRE'].value_counts().head(3)
+            for nombre, cant in top_comentaristas.items():
+                st.write(f"💬 {nombre}: {cant} mensajes")
+        
+        st.markdown("---")
+        st.info("""
+        **Reglas del Foro:**
+        1. Respetar a los rivales.
+        2. Prohibido editar pronósticos por aquí (usa la pestaña correspondiente).
+        3. ¡A disfrutar el mundial! ⚽
+        """)
 
 # ---------- MENU ADMIN ----------------------------------------------------
 
