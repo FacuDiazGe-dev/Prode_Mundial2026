@@ -182,12 +182,21 @@ if not st.session_state['autenticado']:
             st.subheader("🔐 Iniciar Sesión")
             u = st.text_input("Usuario")
             p = st.text_input("Contraseña", type="password")
+            
             if st.form_submit_button("Entrar"):
+                # Leemos la base de usuarios
                 df_u = conn.read(worksheet="USUARIOS", ttl=10)
-                user_match = df_u[(df_u['USUARIO'].astype(str) == str(u)) & (df_u['CONTRASEÑA'].astype(str) == str(p))]
+                
+                # --- NORMALIZACIÓN PARA IGNORAR MAYÚSCULAS/MINÚSCULAS ---
+                # Comparamos usuario en minúsculas. La contraseña se mantiene exacta por seguridad.
+                user_match = df_u[
+                    (df_u['USUARIO'].astype(str).str.lower() == u.lower().strip()) & 
+                    (df_u['CONTRASEÑA'].astype(str) == str(p))
+                ]
                 
                 if not user_match.empty:
                     st.session_state['autenticado'] = True
+                    # Guardamos los datos de la primera coincidencia encontrada
                     st.session_state['user_data'] = user_match.iloc[0].to_dict()
                     st.session_state['registro_exitoso'] = False
                     st.rerun()
