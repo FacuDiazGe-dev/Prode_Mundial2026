@@ -76,6 +76,9 @@ def upload_profile_picture(archivo, file_name):
     except Exception as e:
         return f"Error: {e}"
 
+#-----------AVATAR GENERICO-----------------
+AVATAR_GENERICO = "https://storage.googleapis.com/foto-prode2026/perfiles/images.png"
+
 #---------------------------MANTENIMIENTO -  True (Activado)  False (Desactivo)------------------------------------------------------------------
 MANTENIMIENTO_ACTIVO = False 
 MENSAJE_MANTENIMIENTO = "⚠️ Estamos actualizando los servidores para la próxima fecha. ¡Volvemos en unos minutos!"
@@ -593,7 +596,7 @@ if menu == "🏠 Inicio":
                 # Mostramos los últimos 15 mensajes
                 for idx, m in df_foro_inicio.tail(15).iloc[::-1].iterrows():
                     u_match = df_u_ref[df_u_ref['USUARIO'] == m['USUARIO']]
-                    foto_url = u_match.iloc[0]['AVATAR_URL'] if not u_match.empty and pd.notna(u_match.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
+                    foto_url = u_match.iloc[0]['AVATAR_URL'] if not u_match.empty and pd.notna(u_match.iloc[0]['AVATAR_URL']) else AVATAR_GENERICO
                     
                     es_m = m['USUARIO'] == user_actual
                     aln = "flex-end" if es_m else "flex-start"
@@ -662,7 +665,7 @@ if menu == "🏠 Inicio":
                     target_id = row['ID_PARA_FOTO']
                     user_match = df_u_info[df_u_info['ID'] == target_id]
                     
-                    url_f = "https://flaticon.com"
+                    url_f = AVATAR_GENERICO
                     if not user_match.empty:
                         foto = user_match.iloc[0]['AVATAR_URL']
                         if pd.notna(foto) and str(foto).strip() != "":
@@ -998,7 +1001,7 @@ elif menu == "👥 Jugadores":
         st.write("### Lista de Participantes")
         # Tarjetas simples de referencia
         for _, u in df_usuarios.iterrows():
-            foto_mini = u['AVATAR_URL'] if pd.notna(u['AVATAR_URL']) and u['AVATAR_URL'] != "" else "https://flaticon.com"
+            foto_mini = u['AVATAR_URL'] if pd.notna(u['AVATAR_URL']) and u['AVATAR_URL'] != "" else AVATAR_GENERICO
             st.markdown(f"""
                 <div style="background: rgba(255,255,255,0.8); padding: 8px; border-radius: 10px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; border: 1px solid #ddd;">
                     <img src="{foto_mini}" width="35" height="35" style="border-radius: 50%; object-fit: cover;">
@@ -1139,7 +1142,7 @@ elif menu == "💬 Foro":
 
         for idx, m in df_foro.iloc[::-1].iterrows():
             u_match = df_u_ref[df_u_ref['USUARIO'] == m['USUARIO']]
-            foto_msg = u_match.iloc[0]['AVATAR_URL'] if not u_match.empty and pd.notna(u_match.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
+            foto_msg = u_match.iloc[0]['AVATAR_URL'] if not u_match.empty and pd.notna(u_match.iloc[0]['AVATAR_URL']) else AVATAR_GENERICO
             es_mio = m['USUARIO'] == user_actual
             aln = "flex-end" if es_mio else "flex-start"
             bg = "#dcf8c6" if es_mio else "#ffffff"
