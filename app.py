@@ -839,7 +839,6 @@ elif menu == "📝 Mis Pronósticos":
         with st.form("form_pronosticos_v3"):
             lista_nuevos_pro = []
             
-            # Ordenar df_res localmente
             for i, row in df_res.sort_values('N_PARTIDO').iterrows():
                 id_p = int(row['N_PARTIDO'])
                 match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
@@ -847,11 +846,9 @@ elif menu == "📝 Mis Pronósticos":
                 v1 = int(match.iloc[0]['P1']) if not match.empty and pd.notna(match.iloc[0]['P1']) else 0
                 v2 = int(match.iloc[0]['P2']) if not match.empty and pd.notna(match.iloc[0]['P2']) else 0
                 
-                # Banderas (ya optimizadas en tu función)
                 bandera1 = get_flag_img(row['Equipo_1'])
                 bandera2 = get_flag_img(row['Equipo_2'])
                             
-                # Cabecera Compacta
                 st.markdown(f"""
                     <div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:2px; display: flex; align-items: center; justify-content: space-between;'>
                         <div style='display: flex; align-items: center; gap: 8px; width: 45%;'>
@@ -866,7 +863,6 @@ elif menu == "📝 Mis Pronósticos":
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Inputs de número (El formato que no falla)
                 c1, c_vs, c2 = st.columns([1, 0.2, 1])
                 with c1:
                     p1_val = st.number_input(f"G1_{id_p}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
@@ -877,21 +873,24 @@ elif menu == "📝 Mis Pronósticos":
                 
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
 
+            # EL BOTÓN DEBE IR AQUÍ (Indentado igual que el 'for')
             if es_tiempo_valido and modo_edicion:
                 if st.form_submit_button("💾 GUARDAR TODO EL PRODE", use_container_width=True):
-                    # AQUÍ SÍ LLAMAMOS A LA API PARA GUARDAR (Solo al hacer clic)
                     try:
-                        # Leemos la última versión para no pisar a otros
                         df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=0)
                         df_otros = df_pro_full[df_pro_full['USUARIO'] != user_actual]
                         df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
                         
                         conn.update(worksheet="PRONOSTICOS", data=df_final)
-                        st.cache_data.clear() # Limpiamos caché global para que todos vean cambios
+                        st.cache_data.clear()
                         st.success("✅ ¡Pronósticos guardados!")
+                        st.balloons()
                         st.rerun()
                     except:
-                        st.error("Error al guardar. Intenta de nuevo.")               
+                        st.error("Error al guardar. Intenta de nuevo.")
+            else:
+                # Botón informativo deshabilitado para cerrar el form
+                st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
     # --- COLUMNA DERECHA: PERFIL EDITABLE ---
     with col_derecha:
