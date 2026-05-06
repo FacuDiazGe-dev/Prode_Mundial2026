@@ -1168,7 +1168,7 @@ elif menu == "💬 Foro":
                     r1, r2, r3 = st.columns([1, 1, 1], gap="small")
             else:
                 # Si es de otro, agregamos una columna de 'sangría' (c_offset) para saltar la foto
-                c_offset, c_botones, c_vacia = st.columns([0.1, 0.45, 0.4], gap="small")
+                c_offset, c_botones, c_vacia = st.columns([0.1, 0.40, 0.5], gap="small")
                 # El c_offset queda vacío para que los botones empiecen después de la foto
                 with c_botones:
                     r1, r2, r3, _ = st.columns([1, 1, 1, 3], gap="small")
