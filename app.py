@@ -1158,37 +1158,32 @@ elif menu == "💬 Foro":
                 </div>
             """, unsafe_allow_html=True)
             
-            # --- FILA DE REACCIONES (CORREGIDA) ---
+            # --- FILA DE REACCIONES (ULTRA COMPACTA) ---
             l_count = int(m['LIKES']) if pd.notna(m.get('LIKES')) else 0
             d_count = int(m['DISLIKES']) if pd.notna(m.get('DISLIKES')) else 0
 
-            if es_mio:
-                # Mensaje propio: Empujamos a la derecha. 
-                # [Espacio Grande, Botones Juntos, Espacio para tu foto]
-                _, c_reac, _ = st.columns([0.55, 0.35, 0.1], gap="small")
-                with c_reac:
-                    r1, r2, r3 = st.columns([1, 1, 1], gap="small")
-            else:
-                # Mensaje ajeno: Saltamos la foto del otro.
-                # [Espacio Foto, Botones Juntos, Espacio Grande]
-                _, c_reac, _ = st.columns([0.12, 0.35, 0.53], gap="small")
-                with c_reac:
-                    r1, r2, r3 = st.columns([1, 1, 1], gap="small")
+            # Definimos la alineación de la fila de botones
+            distribucion = [0.12, 0.88] if not es_mio else [0.55, 0.45]
+            col_espacio, col_botones = st.columns(distribucion)
 
-            # Ahora los botones se asignan a las columnas r1, r2, r3 que ya fueron creadas arriba
-            with r1:
-                if st.button(f"👍{l_count}", key=f"lk_{idx}"):
-                    df_foro.at[idx, 'LIKES'] = l_count + 1
-                    conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
-            with r2:
-                if st.button(f"👎{d_count}", key=f"ds_{idx}"):
-                    df_foro.at[idx, 'DISLIKES'] = d_count + 1
-                    conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
-            with r3:
-                if st.session_state['user_data']['ROL'] == 'admin' or es_mio:
-                    if st.button("🗑️", key=f"del_{idx}"):
-                        df_f = df_foro.drop(idx)
-                        conn.update(worksheet="FORO", data=df_f); st.cache_data.clear(); st.rerun()
+            with col_botones:
+                # Usamos una sola fila de columnas muy angostas para comprimirlos
+                # Cada columna ocupa solo el 10% del espacio disponible para "pegarse"
+                r1, r2, r3, _ = st.columns([0.1, 0.1, 0.1, 0.7], gap="small")
+                
+                with r1:
+                    if st.button(f"👍{l_count}", key=f"lk_{idx}"):
+                        df_foro.at[idx, 'LIKES'] = l_count + 1
+                        conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
+                with r2:
+                    if st.button(f"👎{d_count}", key=f"ds_{idx}"):
+                        df_foro.at[idx, 'DISLIKES'] = d_count + 1
+                        conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
+                with r3:
+                    if st.session_state['user_data']['ROL'] == 'admin' or es_mio:
+                        if st.button("🗑️", key=f"del_{idx}"):
+                            df_f = df_foro.drop(idx)
+                            conn.update(worksheet="FORO", data=df_f); st.cache_data.clear(); st.rerun()
 
     # 3. COLUMNA DERECHA DIVIDIDA
     with col_derecha:
