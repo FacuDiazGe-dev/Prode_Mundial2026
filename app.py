@@ -1158,37 +1158,37 @@ elif menu == "💬 Foro":
                 </div>
             """, unsafe_allow_html=True)
             
-            # --- FILA DE REACCIONES (CON DESPLAZAMIENTO) ---
-            # Ajustamos las columnas para dejar espacio a la foto (aprox 0.15 de ancho)
+            # --- FILA DE REACCIONES (CORREGIDA) ---
+            l_count = int(m['LIKES']) if pd.notna(m.get('LIKES')) else 0
+            d_count = int(m['DISLIKES']) if pd.notna(m.get('DISLIKES')) else 0
+
             if es_mio:
-                # Si es mío, empujamos todo a la derecha
-                c_vacia, c_botones = st.columns([0.65, 0.35], gap="small")
-                with c_botones:
-                    # Aquí no hace falta sangría porque la foto está al final
+                # Mensaje propio: Empujamos a la derecha. 
+                # [Espacio Grande, Botones Juntos, Espacio para tu foto]
+                _, c_reac, _ = st.columns([0.55, 0.35, 0.1], gap="small")
+                with c_reac:
                     r1, r2, r3 = st.columns([1, 1, 1], gap="small")
             else:
-                # Si es de otro, agregamos una columna de 'sangría' (c_offset) para saltar la foto
-                c_offset, c_botones, c_vacia = st.columns([0.05, 0.3, 0.55], gap="small")
-                # El c_offset queda vacío para que los botones empiecen después de la foto
-                with c_botones:
-                    r1, r2, r3, _ = st.columns([1, 1, 1, 4], gap="small")
-                
-                l_count = int(m['LIKES']) if pd.notna(m.get('LIKES')) else 0
-                d_count = int(m['DISLIKES']) if pd.notna(m.get('DISLIKES')) else 0
+                # Mensaje ajeno: Saltamos la foto del otro.
+                # [Espacio Foto, Botones Juntos, Espacio Grande]
+                _, c_reac, _ = st.columns([0.12, 0.35, 0.53], gap="small")
+                with c_reac:
+                    r1, r2, r3 = st.columns([1, 1, 1], gap="small")
 
-                with r1:
-                    if st.button(f"👍{l_count}", key=f"lk_{idx}"):
-                        df_foro.at[idx, 'LIKES'] = l_count + 1
-                        conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
-                with r2:
-                    if st.button(f"👎{d_count}", key=f"ds_{idx}"):
-                        df_foro.at[idx, 'DISLIKES'] = d_count + 1
-                        conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
-                with r3:
-                    if st.session_state['user_data']['ROL'] == 'admin' or es_mio:
-                        if st.button("🗑️", key=f"del_{idx}"):
-                            df_f = df_foro.drop(idx)
-                            conn.update(worksheet="FORO", data=df_f); st.cache_data.clear(); st.rerun()
+            # Ahora los botones se asignan a las columnas r1, r2, r3 que ya fueron creadas arriba
+            with r1:
+                if st.button(f"👍{l_count}", key=f"lk_{idx}"):
+                    df_foro.at[idx, 'LIKES'] = l_count + 1
+                    conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
+            with r2:
+                if st.button(f"👎{d_count}", key=f"ds_{idx}"):
+                    df_foro.at[idx, 'DISLIKES'] = d_count + 1
+                    conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
+            with r3:
+                if st.session_state['user_data']['ROL'] == 'admin' or es_mio:
+                    if st.button("🗑️", key=f"del_{idx}"):
+                        df_f = df_foro.drop(idx)
+                        conn.update(worksheet="FORO", data=df_f); st.cache_data.clear(); st.rerun()
 
     # 3. COLUMNA DERECHA DIVIDIDA
     with col_derecha:
