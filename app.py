@@ -1109,7 +1109,7 @@ elif menu == "👥 Jugadores":
 
 
         
- ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
+# ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
 
 elif menu == "💬 Foro":
     df_foro = conn.read(worksheet="FORO", ttl=0)
