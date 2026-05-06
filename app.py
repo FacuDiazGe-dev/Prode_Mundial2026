@@ -1163,12 +1163,12 @@ elif menu == "💬 Foro":
             # Si es de otro (Izquierda), los botones se pegan a la izquierda
             
             espaciado_lateral = [0.6, 0.4] if es_mio else [0.4, 0.6]
-            c_vacia, c_botones = st.columns(espaciado_lateral)
+            c_vacia, c_botones = st.columns(espaciado_lateral, gap="small")
             
             with (c_botones if es_mio else c_vacia):
                 # Usamos columnas muy pequeñas y juntas para los botones
                 # reac1=Like, reac2=Dislike, reac3=Basurero
-                r1, r2, r3 = st.columns([1, 1, 1])
+                r1, r2, r3 = st.columns([1, 1, 1,3], gap="small")
                 
                 l_count = int(m['LIKES']) if pd.notna(m.get('LIKES')) else 0
                 d_count = int(m['DISLIKES']) if pd.notna(m.get('DISLIKES')) else 0
