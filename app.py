@@ -1158,17 +1158,15 @@ elif menu == "💬 Foro":
                 </div>
             """, unsafe_allow_html=True)
             
-            # --- FILA DE REACCIONES (Alineación Espejo) ---
-            # Si el mensaje es mío (Derecha), los botones se pegan a la derecha
-            # Si es de otro (Izquierda), los botones se pegan a la izquierda
-            
+            # --- FILA DE REACCIONES (PEGADAS A LA BURBUJA) ---
+            # Usamos gap="small" para reducir el aire entre columnas
             espaciado_lateral = [0.6, 0.4] if es_mio else [0.4, 0.6]
             c_vacia, c_botones = st.columns(espaciado_lateral, gap="small")
             
             with (c_botones if es_mio else c_vacia):
-                # Usamos columnas muy pequeñas y juntas para los botones
-                # reac1=Like, reac2=Dislike, reac3=Basurero
-                r1, r2, r3 = st.columns([1, 1, 1,3], gap="small")
+                # Definimos anchos fijos pequeños [1, 1, 1] y gap="small"
+                # Esto obliga a los botones a estar uno al lado del otro casi sin espacio
+                r1, r2, r3, _ = st.columns([1, 1, 1, 3], gap="small")
                 
                 l_count = int(m['LIKES']) if pd.notna(m.get('LIKES')) else 0
                 d_count = int(m['DISLIKES']) if pd.notna(m.get('DISLIKES')) else 0
@@ -1176,22 +1174,16 @@ elif menu == "💬 Foro":
                 with r1:
                     if st.button(f"👍{l_count}", key=f"lk_{idx}"):
                         df_foro.at[idx, 'LIKES'] = l_count + 1
-                        conn.update(worksheet="FORO", data=df_foro)
-                        st.cache_data.clear()
-                        st.rerun()
+                        conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
                 with r2:
                     if st.button(f"👎{d_count}", key=f"ds_{idx}"):
                         df_foro.at[idx, 'DISLIKES'] = d_count + 1
-                        conn.update(worksheet="FORO", data=df_foro)
-                        st.cache_data.clear()
-                        st.rerun()
+                        conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
                 with r3:
                     if st.session_state['user_data']['ROL'] == 'admin' or es_mio:
                         if st.button("🗑️", key=f"del_{idx}"):
                             df_f = df_foro.drop(idx)
-                            conn.update(worksheet="FORO", data=df_f)
-                            st.cache_data.clear()
-                            st.rerun()
+                            conn.update(worksheet="FORO", data=df_f); st.cache_data.clear(); st.rerun()
 
     # 3. COLUMNA DERECHA DIVIDIDA
     with col_derecha:
