@@ -1180,24 +1180,36 @@ elif menu == "💬 Foro":
                             st.cache_data.clear()
                             st.rerun()
 
-    # 3. COLUMNA DERECHA (30% - Info Comunidad)
     with col_derecha:
         st.subheader("📢 Comunidad")
         
-        # Mini-Ranking de participaciones
+        # Mini-Ranking de participaciones (Mantenemos lo que ya tenías)
         if not df_foro.empty:
-            st.write("**Más activos en el muro:**")
+            st.write("**Top Agitadores del Muro:**")
             top_comentaristas = df_foro['NOMBRE'].value_counts().head(3)
             for nombre, cant in top_comentaristas.items():
                 st.write(f"💬 {nombre}: {cant} mensajes")
         
         st.markdown("---")
-        st.info("""
-        **Reglas del Foro:**
-        1. Respetar a los rivales.
-        2. Prohibido editar pronósticos por aquí (usa la pestaña correspondiente).
-        3. ¡A disfrutar el mundial! ⚽
-        """)
+        
+        # --- EL DECÁLOGO DEL PRODE 2026 ---
+        st.markdown("""
+        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px; border: 1px border: 1px solid rgba(255,255,255,0.2);">
+            <h4 style="text-align: center; color: #FFD700; margin-top: 0;">📜 El Decálogo del Prode</h4>
+            <ol style="font-size: 0.85em; color: white; padding-left: 20px; line-height: 1.5;">
+                <li><b>Respetar al rival:</b> La cargada es parte del juego, la falta de respeto no.</li>
+                <li><b>Ley del VAR:</b> ¡Prohibido llorar por el VAR!, a Pelase.</li>
+                <li><b>Fair Play:</b> No pidas que te editen un resultado después del 8/6.</li>
+                <li><b>El Puntero:</b> Al que va primero en el ranking se le respeta... o se le envidia.</li>
+                <li><b>Grito de Gol:</b> Se permite escribir "¡GOOOOL!" en mayúsculas.</li>
+                <li><b>La Cábala:</b> No se revelan las cábalas personales en el muro.</li>
+                <li><b>Oliver Atom:</b> Recuerda que: "El partido no se termina hasta que se termina" y que "El balon esta vivo!" - .</li>
+                <li><b>Sabiduría:</b> Si no sabes de fútbol, finge que sí; los puntos no mienten.</li>
+                <li><b>Puntualidad:</b> No dejes para mañana el pronóstico que puedes cargar hoy.</li>
+                <li><b>La Gloria:</b> ¡Disfrutar el mundial!. ⚽</li>
+            </ol>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ---------- MENU ADMIN ----------------------------------------------------
 
