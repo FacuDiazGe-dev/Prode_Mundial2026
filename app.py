@@ -283,8 +283,8 @@ st.markdown(f"""
         background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
                           url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg");
         background-size: cover;
-        background-position: center 15%;
-        padding: 45px;
+        background-position: center 10%;
+        padding: 50px;
         border-radius: 15px;
         text-align: center;
         color: white;
