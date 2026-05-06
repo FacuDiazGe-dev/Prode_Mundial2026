@@ -876,6 +876,7 @@ elif menu == "📝 Mis Pronósticos":
             # EL BOTÓN DEBE IR AQUÍ (Indentado igual que el 'for')
             if es_tiempo_valido and modo_edicion:
                 if st.form_submit_button("💾 GUARDAR TODO EL PRODE", use_container_width=True):
+                    # 1. Intentamos la operación técnica
                     try:
                         df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=0)
                         df_otros = df_pro_full[df_pro_full['USUARIO'] != user_actual]
@@ -883,14 +884,17 @@ elif menu == "📝 Mis Pronósticos":
                         
                         conn.update(worksheet="PRONOSTICOS", data=df_final)
                         st.cache_data.clear()
-                        st.success("✅ ¡Pronósticos guardados!")
+                        # Si llegamos aquí, los datos ya están en Google
+                        exito = True 
+                    except Exception as e:
+                        st.error(f"Error de conexión: {e}")
+                        exito = False
+                    
+                    # 2. Si fue exitoso, mostramos globos y reiniciamos FUERA del try
+                    if exito:
+                        st.success("✅ ¡Pronósticos guardados correctamente!")
                         st.balloons()
                         st.rerun()
-                    except:
-                        st.error("Error al guardar. Intenta de nuevo.")
-            else:
-                # Botón informativo deshabilitado para cerrar el form
-                st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
 
     # --- COLUMNA DERECHA: PERFIL EDITABLE ---
     with col_derecha:
