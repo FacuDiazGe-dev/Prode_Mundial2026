@@ -1158,30 +1158,40 @@ elif menu == "💬 Foro":
                 </div>
             """, unsafe_allow_html=True)
             
-            # --- FILA DE REACCIONES (ULTRA COMPACTA) ---
+            # --- FILA DE REACCIONES (CON BLOQUEO DE AUTO-REACCIÓN) ---
             l_count = int(m['LIKES']) if pd.notna(m.get('LIKES')) else 0
             d_count = int(m['DISLIKES']) if pd.notna(m.get('DISLIKES')) else 0
 
-            # Definimos la alineación de la fila de botones
-            distribucion = [0.12, 0.88] if not es_mio else [0.55, 0.45]
+            # Definimos la distribución de columnas
+            distribucion = [0.10, 0.90] if not es_mio else [0.55, 0.45]
             col_espacio, col_botones = st.columns(distribucion)
 
             with col_botones:
-                # Usamos una sola fila de columnas muy angostas para comprimirlos
-                # Cada columna ocupa solo el 10% del espacio disponible para "pegarse"
-                r1, r2, r3, _ = st.columns([0.1, 0.1, 0.1, 0.7], gap="small")
+                # Si el mensaje es de OTRO, mostramos Likes, Dislikes y (si es admin) Borrar
+                if not es_mio:
+                    r1, r2, r3, _ = st.columns([0.1, 0.1, 0.1, 0.7], gap="small")
+                    
+                    with r1:
+                        if st.button(f"👍{l_count}", key=f"lk_{idx}"):
+                            df_foro.at[idx, 'LIKES'] = l_count + 1
+                            conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
+                    with r2:
+                        if st.button(f"👎{d_count}", key=f"ds_{idx}"):
+                            df_foro.at[idx, 'DISLIKES'] = d_count + 1
+                            conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
+                    with r3:
+                        # Un Admin puede borrar mensajes de otros
+                        if st.session_state['user_data']['ROL'] == 'admin':
+                            if st.button("🗑️", key=f"del_{idx}"):
+                                df_f = df_foro.drop(idx)
+                                conn.update(worksheet="FORO", data=df_f); st.cache_data.clear(); st.rerun()
                 
-                with r1:
-                    if st.button(f"👍{l_count}", key=f"lk_{idx}"):
-                        df_foro.at[idx, 'LIKES'] = l_count + 1
-                        conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
-                with r2:
-                    if st.button(f"👎{d_count}", key=f"ds_{idx}"):
-                        df_foro.at[idx, 'DISLIKES'] = d_count + 1
-                        conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
-                with r3:
-                    if st.session_state['user_data']['ROL'] == 'admin' or es_mio:
-                        if st.button("🗑️", key=f"del_{idx}"):
+                # Si el mensaje es MÍO, solo mostramos el botón de borrar
+                else:
+                    # Empujamos el botón de borrar hacia la derecha de la burbuja
+                    _, r_del = st.columns([0.85, 0.15])
+                    with r_del:
+                        if st.button("🗑️", key=f"del_{idx}", help="Eliminar mi mensaje"):
                             df_f = df_foro.drop(idx)
                             conn.update(worksheet="FORO", data=df_f); st.cache_data.clear(); st.rerun()
 
