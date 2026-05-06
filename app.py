@@ -815,44 +815,42 @@ elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Mis Predicciones")
         
-        ahora_arg = datetime.now() - timedelta(hours=3)        
+        # 1. USAR DATOS YA CARGADOS (Sin llamar a la API de nuevo)
+        # Estas variables ya las definimos arriba de todo en la App
+        user_actual = st.session_state['user_data']['USUARIO']
+        
+        # Filtramos localmente (esto es instantáneo y no consume API)
+        df_user_pro = df_pro[df_pro['USUARIO'] == user_actual]
+
+        # --- Lógica de tiempo (se mantiene igual) ---
+        ahora_arg = datetime.utcnow() - timedelta(hours=3)
         fecha_limite = datetime(2026, 6, 8, 23, 59, 59)
         es_tiempo_valido = ahora_arg < fecha_limite
-        
-        # Carga segura con manejo de errores
-        try:
-            user_actual = st.session_state['user_data']['USUARIO']
-            df_res_p = conn.read(worksheet="RESULTADOS", ttl=10)
-            df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=10)
-            df_user_pro = df_pro_all[df_pro_all['USUARIO'] == user_actual]
-        except Exception:
-            st.error("⚠️ Conexión saturada. Por favor, refresca la página.")
-            st.stop()
 
         if es_tiempo_valido:
             st.success(f"⏳ Tienes tiempo hasta el 08/06.")
-            modo_edicion = st.toggle("🔓 Editar resultados", help="Activa para modificar")
+            modo_edicion = st.toggle("🔓 Editar resultados")
         else:
             st.error("🔒 Plazo finalizado.")
             modo_edicion = False
         
         esta_bloqueado = not (es_tiempo_valido and modo_edicion)
 
-        # VOLVEMOS AL FORMULARIO PARA ESTABILIDAD
         with st.form("form_pronosticos_v3"):
             lista_nuevos_pro = []
             
-            for i, row in df_res_p.sort_values('N_PARTIDO').iterrows():
+            # Ordenar df_res localmente
+            for i, row in df_res.sort_values('N_PARTIDO').iterrows():
                 id_p = int(row['N_PARTIDO'])
                 match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
                 
                 v1 = int(match.iloc[0]['P1']) if not match.empty and pd.notna(match.iloc[0]['P1']) else 0
                 v2 = int(match.iloc[0]['P2']) if not match.empty and pd.notna(match.iloc[0]['P2']) else 0
                 
-                # Banderas
+                # Banderas (ya optimizadas en tu función)
                 bandera1 = get_flag_img(row['Equipo_1'])
                 bandera2 = get_flag_img(row['Equipo_2'])
-                
+                            
                 # Cabecera Compacta
                 st.markdown(f"""
                     <div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:2px; display: flex; align-items: center; justify-content: space-between;'>
@@ -878,22 +876,22 @@ elif menu == "📝 Mis Pronósticos":
                     p2_val = st.number_input(f"G2_{id_p}", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
                 
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
-                st.markdown("<div style='margin-bottom:10px;'></div>", unsafe_allow_html=True)
 
-            # Botón de envío del formulario
             if es_tiempo_valido and modo_edicion:
                 if st.form_submit_button("💾 GUARDAR TODO EL PRODE", use_container_width=True):
-                    df_otros = df_pro_all[df_pro_all['USUARIO'] != user_actual]
-                    df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
-                    conn.update(worksheet="PRONOSTICOS", data=df_final)
-                    st.cache_data.clear()
-                    st.success("✅ ¡Pronósticos guardados!")
-                    st.balloons()
-                    st.rerun()
-            else:
-                st.form_submit_button("🔒 Edición Bloqueada", disabled=True, use_container_width=True)
-
-                
+                    # AQUÍ SÍ LLAMAMOS A LA API PARA GUARDAR (Solo al hacer clic)
+                    try:
+                        # Leemos la última versión para no pisar a otros
+                        df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=0)
+                        df_otros = df_pro_full[df_pro_full['USUARIO'] != user_actual]
+                        df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
+                        
+                        conn.update(worksheet="PRONOSTICOS", data=df_final)
+                        st.cache_data.clear() # Limpiamos caché global para que todos vean cambios
+                        st.success("✅ ¡Pronósticos guardados!")
+                        st.rerun()
+                    except:
+                        st.error("Error al guardar. Intenta de nuevo.")               
 
     # --- COLUMNA DERECHA: PERFIL EDITABLE ---
     with col_derecha:
