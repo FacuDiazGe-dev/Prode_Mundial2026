@@ -1171,7 +1171,7 @@ elif menu == "💬 Foro":
                 c_offset, c_botones, c_vacia = st.columns([0.15, 0.45, 0.4], gap="small")
                 # El c_offset queda vacío para que los botones empiecen después de la foto
                 with c_botones:
-                    r1, r2, r3 = st.columns([1, 1, 1], gap="small")
+                    r1, r2, r3, _ = st.columns([1, 1, 1, 3], gap="small")
                 
                 l_count = int(m['LIKES']) if pd.notna(m.get('LIKES')) else 0
                 d_count = int(m['DISLIKES']) if pd.notna(m.get('DISLIKES')) else 0
