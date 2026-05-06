@@ -1192,21 +1192,21 @@ elif menu == "💬 Foro":
         
         st.markdown("---")
         
-        # --- EL DECÁLOGO DEL PRODE 2026 ---
+        # --- EL DECÁLOGO DEL PRODE 2026 (ESPACIADO OPTIMIZADO) ---
         st.markdown("""
-        <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px; border: 1px border: 1px solid rgba(255,255,255,0.2);">
-            <h4 style="text-align: center; color: #FFD700; margin-top: 0;">📜 El Decálogo del Prode</h4>
-            <ol style="font-size: 0.85em; color: white; padding-left: 20px; line-height: 1.5;">
-                <li><b>Respetar al rival:</b> La cargada es parte del juego, la falta de respeto no.</li>
-                <li><b>Ley del VAR:</b> ¡Prohibido llorar por el VAR!, a Pelase.</li>
-                <li><b>Fair Play:</b> No pidas que te editen un resultado después del 8/6.</li>
-                <li><b>El Puntero:</b> Al que va primero en el ranking se le respeta... o se le envidia.</li>
-                <li><b>Grito de Gol:</b> Se permite escribir "¡GOOOOL!" en mayúsculas.</li>
-                <li><b>La Cábala:</b> No se revelan las cábalas personales en el muro.</li>
-                <li><b>Oliver Atom:</b> Recuerda que: "El partido no se termina hasta que se termina" y que "El balon esta vivo!" - .</li>
-                <li><b>Sabiduría:</b> Si no sabes de fútbol, finge que sí; los puntos no mienten.</li>
-                <li><b>Puntualidad:</b> No dejes para mañana el pronóstico que puedes cargar hoy.</li>
-                <li><b>La Gloria:</b> ¡Disfrutar el mundial!. ⚽</li>
+        <div style="background: #0E1117; padding: 25px; border-radius: 15px; border: 2px solid #FFD700; box-shadow: 5px 5px 20px rgba(0,0,0,0.4);">
+            <h4 style="text-align: center; color: #FFD700; margin-top: 0; margin-bottom: 20px; font-family: sans-serif; text-shadow: 1px 1px 2px black; font-size: 1.4em;">📜 El Decálogo del Prode</h4>
+            <ol style="font-size: 0.95em; color: #F0F2F6; padding-left: 25px; font-family: sans-serif;">
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">Respetar al rival:</b> La cargada es parte del juego, la falta de respeto no.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">Ley del VAR:</b> ¡Prohibido llorar por el VAR!, a pelarse.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">Fair Play:</b> No pidas que te editen un resultado después del 8/6.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">El Puntero:</b> Al que va primero en el ranking se le respeta... o se le envidia.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">Grito de Gol:</b> Se permite escribir "¡GOOOOL!" en mayúsculas.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">La Cábala:</b> No se revelan las cábalas personales en el muro.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">Oliver Atom:</b> Recuerda que: "El partido no se termina hasta que se termina" y que "¡El balón está vivo!".</li>
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">Sabiduría:</b> Si no sabes de fútbol, finge que sí; los puntos no mienten.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">Puntualidad:</b> No dejes para mañana el pronóstico que puedes cargar hoy.</li>
+                <li style="margin-bottom: 12px; line-height: 1.8;"><b style="color: #FFD700;">La Gloria:</b> ¡Disfrutar el mundial! ⚽</li>
             </ol>
         </div>
         """, unsafe_allow_html=True)
