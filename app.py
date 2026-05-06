@@ -570,40 +570,40 @@ if menu == "🏠 Inicio":
                         </div>
                     </div>""", unsafe_allow_html=True)
 
-    # --- BLOQUE 2: FORO (Actividad Reciente en el Inicio) ---------------------------------------------------------------------------------------
-    with col_derecha:
-        st.subheader("💬 Actividad Reciente")
-        
-        # 1. CARGA DE DATOS
-        df_foro_inicio = conn.read(worksheet="FORO", ttl=0) # ttl=0 para ver mensajes al instante
-        df_u_ref = df_usuarios # Usamos el df que ya cargaste al inicio de la app
-        user_actual = st.session_state['user_data']['USUARIO']
-        
-        # 2. CONTENEDOR DE MENSAJES (Scrollable)
-        with st.container(height=350):
-            if df_foro_inicio.empty:
-                st.info("No hay mensajes aún.")
-            else:
-                # Mostramos los últimos 15 mensajes
-                for idx, m in df_foro_inicio.tail(15).iloc[::-1].iterrows():
-                    u_match = df_u_ref[df_u_ref['USUARIO'] == m['USUARIO']]
-                    foto_url = u_match.iloc[0]['AVATAR_URL'] if not u_match.empty and pd.notna(u_match.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
-                    
-                    es_m = m['USUARIO'] == user_actual
-                    aln = "flex-end" if es_m else "flex-start"
-                    bg = "#dcf8c6" if es_m else "#ffffff"
-                    
-                    st.markdown(f"""
-                        <div style="display: flex; flex-direction: column; align-items: {aln}; margin-bottom: 10px; width: 100%;">
-                            <div style="display: flex; align-items: center; gap: 8px; flex-direction: {'row-reverse' if es_m else 'row'};">
-                                <img src="{foto_url}" style="border-radius: 50%; width: 30px; height: 30px; object-fit: cover; border: 1px solid #ddd;">
-                                <div style="max-width: 85%; background-color: {bg}; padding: 8px 12px; border-radius: 15px; border: 1px solid #ddd; box-shadow: 1px 1px 2px rgba(0,0,0,0.05);">
-                                    <div style="font-size: 0.75em; color: #555; font-weight: bold;">{m['NOMBRE']}</div>
-                                    <div style="font-size: 0.95em; color: #333; line-height: 1.2;">{m['MENSAJE']}</div>
-                                </div>
+# --- BLOQUE 2: FORO (Actividad Reciente en el Inicio) ---------------------------------------------------------------------------------------
+with col_derecha:
+    st.subheader("💬 Actividad Reciente")
+    
+    # 1. CARGA DE DATOS
+    df_foro_inicio = conn.read(worksheet="FORO", ttl=0) # ttl=0 para ver mensajes al instante
+    df_u_ref = df_usuarios # Usamos el df que ya cargaste al inicio de la app
+    user_actual = st.session_state['user_data']['USUARIO']
+    
+    # 2. CONTENEDOR DE MENSAJES (Scrollable)
+    with st.container(height=350):
+        if df_foro_inicio.empty:
+            st.info("No hay mensajes aún.")
+        else:
+            # Mostramos los últimos 15 mensajes
+            for idx, m in df_foro_inicio.tail(15).iloc[::-1].iterrows():
+                u_match = df_u_ref[df_u_ref['USUARIO'] == m['USUARIO']]
+                foto_url = u_match.iloc[0]['AVATAR_URL'] if not u_match.empty and pd.notna(u_match.iloc[0]['AVATAR_URL']) else "https://flaticon.com"
+                
+                es_m = m['USUARIO'] == user_actual
+                aln = "flex-end" if es_m else "flex-start"
+                bg = "#dcf8c6" if es_m else "#ffffff"
+                
+                st.markdown(f"""
+                    <div style="display: flex; flex-direction: column; align-items: {aln}; margin-bottom: 10px; width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-direction: {'row-reverse' if es_m else 'row'};">
+                            <img src="{foto_url}" style="border-radius: 50%; width: 30px; height: 30px; object-fit: cover; border: 1px solid #ddd;">
+                            <div style="max-width: 85%; background-color: {bg}; padding: 8px 12px; border-radius: 15px; border: 1px solid #ddd; box-shadow: 1px 1px 2px rgba(0,0,0,0.05);">
+                                <div style="font-size: 0.75em; color: #555; font-weight: bold;">{m['NOMBRE']}</div>
+                                <div style="font-size: 0.95em; color: #333; line-height: 1.2;">{m['MENSAJE']}</div>
                             </div>
                         </div>
-                    """, unsafe_allow_html=True)
+                    </div>
+                """, unsafe_allow_html=True)
 
     # 3. CAJA DE COMENTARIO RÁPIDO (Debajo del contenedor)
     with st.form("quick_chat", clear_on_submit=True):
