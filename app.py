@@ -339,9 +339,9 @@ def calcular_detalle(r1, r2, p1, p2):
 @st.cache_data(ttl=60)
 def load_data_v2():
     # Leemos las tres pestañas necesarias
-    df_res = conn.read(worksheet="RESULTADOS", ttl=0)
-    df_pro = conn.read(worksheet="PRONOSTICOS", ttl=0)
-    df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
+    df_res = conn.read(worksheet="RESULTADOS", ttl=10)
+    df_pro = conn.read(worksheet="PRONOSTICOS", ttl=10)
+    df_usuarios = conn.read(worksheet="USUARIOS", ttl=10)
     
     # Limpieza de tipos de datos para cálculos
     df_res['R1'] = pd.to_numeric(df_res['R1'], errors='coerce')
@@ -516,7 +516,7 @@ if menu == "🏠 Inicio":
     with col_principal:
         st.subheader("⚽ Cronograma y Resultados")
         
-        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=0)        
+        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=10)        
         
         # 1. Limpieza y Filtro de Visibilidad
         # Aseguramos que la columna VIZ exista y sea booleana
@@ -574,7 +574,7 @@ if menu == "🏠 Inicio":
         st.subheader("💬 Actividad Reciente")
         
         # 1. CARGA DE DATOS
-        df_foro_inicio = conn.read(worksheet="FORO", ttl=0) # ttl=0 para ver mensajes al instante
+        df_foro_inicio = conn.read(worksheet="FORO", ttl=10) # ttl=10 para ver mensajes al instante
         df_u_ref = df_usuarios # Usamos el df que ya cargaste al inicio de la app
         user_actual = st.session_state['user_data']['USUARIO']
         
@@ -663,7 +663,7 @@ if menu == "🏠 Inicio":
                 # Columnas para el podio
                 cols_p = st.columns([1, 1.2, 1]) # La del centro es un poco más ancha
                 
-                df_u_info = conn.read(worksheet="USUARIOS", ttl=0)
+                df_u_info = conn.read(worksheet="USUARIOS", ttl=10)
                 
                 for i, row in enumerate(podio_orden):
                     target_id = row['ID_PARA_FOTO']
