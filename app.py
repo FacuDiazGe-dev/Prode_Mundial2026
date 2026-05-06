@@ -1158,15 +1158,20 @@ elif menu == "💬 Foro":
                 </div>
             """, unsafe_allow_html=True)
             
-            # --- FILA DE REACCIONES (PEGADAS A LA BURBUJA) ---
-            # Usamos gap="small" para reducir el aire entre columnas
-            espaciado_lateral = [0.6, 0.4] if es_mio else [0.4, 0.6]
-            c_vacia, c_botones = st.columns(espaciado_lateral, gap="small")
-            
-            with (c_botones if es_mio else c_vacia):
-                # Definimos anchos fijos pequeños [1, 1, 1] y gap="small"
-                # Esto obliga a los botones a estar uno al lado del otro casi sin espacio
-                r1, r2, r3, _ = st.columns([1, 1, 1, 3], gap="small")
+            # --- FILA DE REACCIONES (CON DESPLAZAMIENTO) ---
+            # Ajustamos las columnas para dejar espacio a la foto (aprox 0.15 de ancho)
+            if es_mio:
+                # Si es mío, empujamos todo a la derecha
+                c_vacia, c_botones = st.columns([0.65, 0.35], gap="small")
+                with c_botones:
+                    # Aquí no hace falta sangría porque la foto está al final
+                    r1, r2, r3 = st.columns([1, 1, 1], gap="small")
+            else:
+                # Si es de otro, agregamos una columna de 'sangría' (c_offset) para saltar la foto
+                c_offset, c_botones, c_vacia = st.columns([0.15, 0.45, 0.4], gap="small")
+                # El c_offset queda vacío para que los botones empiecen después de la foto
+                with c_botones:
+                    r1, r2, r3 = st.columns([1, 1, 1], gap="small")
                 
                 l_count = int(m['LIKES']) if pd.notna(m.get('LIKES')) else 0
                 d_count = int(m['DISLIKES']) if pd.notna(m.get('DISLIKES')) else 0
