@@ -1331,39 +1331,39 @@ elif menu == "⚙️ Panel Control":
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
         
-        st.subheader("🕵️ Auditoría de Cargas")
-        
-        # 1. Contamos cuántos partidos cargó cada usuario
-        # Contamos filas por usuario en la tabla de pronósticos
-        conteo_pro = df_pro['USUARIO'].value_counts().reset_index()
-        conteo_pro.columns = ['USUARIO', 'COMPLETADOS']
-        
-        # 2. Cruzamos con la lista de usuarios para ver quiénes tienen 0
-        df_auditoria = pd.merge(df_usuarios[['USUARIO', 'NOMBRE']], conteo_pro, on='USUARIO', how='left').fillna(0)
-        
-        # 3. Función para poner el emoji de estado
-        def estado_carga(cant):
-            if cant >= 24: return "✅ Listo"
-            if cant > 0: return f"⚠️ Incompleto ({int(cant)})"
-            return "❌ No empezó"
-
-        df_auditoria['ESTADO'] = df_auditoria['COMPLETADOS'].apply(estado_carga)
-        
-        # 4. Mostramos la tabla compacta
-        st.dataframe(
-            df_auditoria[['NOMBRE', 'ESTADO']],
-            use_container_width=True,
-            hide_index=True
-        )
-        
-        if st.button("📢 Escrachar colgados en el Foro"):
-            faltantes = df_auditoria[df_auditoria['COMPLETADOS'] < 24]['NOMBRE'].tolist()
-            if faltantes:
-                msg_escrache = f"🚨 ATENCIÓN: Faltan completar pronósticos: {', '.join(faltantes)}. ¡El 8/6 se cierra!"
-                # Aquí podrías automatizar el envío al foro si quisieras
-                st.warning("Copia esto al foro: " + msg_escrache)
-            else:
-                st.success("¡Todos los jugadores están al día! 👏")
+            st.subheader("🕵️ Auditoría de Cargas")
+            
+            # 1. Contamos cuántos partidos cargó cada usuario
+            # Contamos filas por usuario en la tabla de pronósticos
+            conteo_pro = df_pro['USUARIO'].value_counts().reset_index()
+            conteo_pro.columns = ['USUARIO', 'COMPLETADOS']
+            
+            # 2. Cruzamos con la lista de usuarios para ver quiénes tienen 0
+            df_auditoria = pd.merge(df_usuarios[['USUARIO', 'NOMBRE']], conteo_pro, on='USUARIO', how='left').fillna(0)
+            
+            # 3. Función para poner el emoji de estado
+            def estado_carga(cant):
+                if cant >= 24: return "✅ Listo"
+                if cant > 0: return f"⚠️ Incompleto ({int(cant)})"
+                return "❌ No empezó"
+    
+            df_auditoria['ESTADO'] = df_auditoria['COMPLETADOS'].apply(estado_carga)
+            
+            # 4. Mostramos la tabla compacta
+            st.dataframe(
+                df_auditoria[['NOMBRE', 'ESTADO']],
+                use_container_width=True,
+                hide_index=True
+            )
+            
+            if st.button("📢 Escrachar colgados en el Foro"):
+                faltantes = df_auditoria[df_auditoria['COMPLETADOS'] < 24]['NOMBRE'].tolist()
+                if faltantes:
+                    msg_escrache = f"🚨 ATENCIÓN: Faltan completar pronósticos: {', '.join(faltantes)}. ¡El 8/6 se cierra!"
+                    # Aquí podrías automatizar el envío al foro si quisieras
+                    st.warning("Copia esto al foro: " + msg_escrache)
+                else:
+                    st.success("¡Todos los jugadores están al día! 👏")
 
         
             st.subheader("👥 Gestión de Usuarios")
