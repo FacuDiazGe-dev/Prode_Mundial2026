@@ -82,9 +82,9 @@ def upload_profile_picture(archivo, file_name):
         return f"Error: {e}"
 
 #--------------FECHA DE FIN DE REGISTRO---------------------        
-        fecha_limite_reg = datetime(2026, 6, 7, 23, 59, 59)
-        ahora_arg = datetime.now() - timedelta(hours=3)
-        registro_permitido_fecha = ahora_arg < fecha_limite_reg
+ahora_arg = datetime.now() - timedelta(hours=3)
+fecha_limite_reg = datetime(2026, 6, 7, 23, 59, 59)
+registro_permitido_fecha = ahora_arg < fecha_limite_reg
 
 #-----------AVATAR GENERICO-----------------
 AVATAR_GENERICO = "https://storage.googleapis.com/foto-prode2026/perfiles/images.png"
