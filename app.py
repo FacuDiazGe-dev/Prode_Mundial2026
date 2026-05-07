@@ -1360,17 +1360,17 @@ elif menu == "⚙️ Panel Control":
         with col_derecha:
         #----------CIERRE DE INSCRIPCIONES------------------
             
-        st.markdown("---")
-        st.subheader("🚫 Control de Inscripciones")
+            st.markdown("---")
+            st.subheader("🚫 Control de Inscripciones")
+            
+            if registro_permitido_fecha:
+                st.success("✅ Inscripciones abiertas por fecha (Cierra el 07/06)")
+            else:
+                st.error("⛔ Inscripciones cerradas por fecha.")
         
-        if registro_permitido_fecha:
-            st.success("✅ Inscripciones abiertas por fecha (Cierra el 07/06)")
-        else:
-            st.error("⛔ Inscripciones cerradas por fecha.")
-    
-        # Botón informativo (o funcional si tienes la tabla CONFIG)
-        if st.button("🔴 CERRAR REGISTRO MANUALMENTE", use_container_width=True):
-            st.info("Para cerrar manualmente antes de fecha, cambia el valor en la pestaña CONFIG de tu Excel.")
+            # Botón informativo (o funcional si tienes la tabla CONFIG)
+            if st.button("🔴 CERRAR REGISTRO MANUALMENTE", use_container_width=True):
+                st.info("Para cerrar manualmente antes de fecha, cambia el valor en la pestaña CONFIG de tu Excel.")
 
            #----------CONTROL DE CARGAS------------------      
             st.subheader("🕵️ Auditoría de Cargas")
