@@ -1330,7 +1330,100 @@ elif menu == "⚙️ Panel Control":
 
         # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
         with col_derecha:
-#---------------------------test
+        
+        st.subheader("🕵️ Auditoría de Cargas")
+        
+        # 1. Contamos cuántos partidos cargó cada usuario
+        # Contamos filas por usuario en la tabla de pronósticos
+        conteo_pro = df_pro['USUARIO'].value_counts().reset_index()
+        conteo_pro.columns = ['USUARIO', 'COMPLETADOS']
+        
+        # 2. Cruzamos con la lista de usuarios para ver quiénes tienen 0
+        df_auditoria = pd.merge(df_usuarios[['USUARIO', 'NOMBRE']], conteo_pro, on='USUARIO', how='left').fillna(0)
+        
+        # 3. Función para poner el emoji de estado
+        def estado_carga(cant):
+            if cant >= 24: return "✅ Listo"
+            if cant > 0: return f"⚠️ Incompleto ({int(cant)})"
+            return "❌ No empezó"
+
+        df_auditoria['ESTADO'] = df_auditoria['COMPLETADOS'].apply(estado_carga)
+        
+        # 4. Mostramos la tabla compacta
+        st.dataframe(
+            df_auditoria[['NOMBRE', 'ESTADO']],
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        if st.button("📢 Escrachar colgados en el Foro"):
+            faltantes = df_auditoria[df_auditoria['COMPLETADOS'] < 24]['NOMBRE'].tolist()
+            if faltantes:
+                msg_escrache = f"🚨 ATENCIÓN: Faltan completar pronósticos: {', '.join(faltantes)}. ¡El 8/6 se cierra!"
+                # Aquí podrías automatizar el envío al foro si quisieras
+                st.warning("Copia esto al foro: " + msg_escrache)
+            else:
+                st.success("¡Todos los jugadores están al día! 👏")
+
+        
+            st.subheader("👥 Gestión de Usuarios")
+            df_users_adm = conn.read(worksheet="USUARIOS", ttl=10)
+            df_pro_adm = conn.read(worksheet="PRONOSTICOS", ttl=10)
+
+            # Filtramos para no borrar al admin logueado
+            usuarios_borrables = df_users_adm[df_users_adm['USUARIO'] != st.session_state['user_data']['USUARIO']]
+            
+            if usuarios_borrables.empty:
+                st.info("No hay otros usuarios para gestionar.")
+            else:
+                user_a_eliminar = st.selectbox(
+                    "Selecciona un jugador para eliminar:", 
+                    usuarios_borrables['USUARIO'].tolist(),
+                    index=None,
+                    placeholder="Elegir usuario..."
+                )
+
+                if user_a_eliminar:
+                    st.warning(f"⚠️ Estás por borrar a **{user_a_eliminar}**.")
+                    confirmado = st.checkbox("Confirmo borrar usuario y sus pronósticos", key="conf_borrar")
+                    
+                    if st.button("❌ BORRAR PERMANENTEMENTE", type="primary", use_container_width=True, disabled=not confirmado):
+                        df_users_final = df_users_adm[df_users_adm['USUARIO'] != user_a_eliminar]
+                        df_pro_final = df_pro_adm[df_pro_adm['USUARIO'] != user_a_eliminar]
+                        
+                        conn.update(worksheet="USUARIOS", data=df_users_final)
+                        conn.update(worksheet="PRONOSTICOS", data=df_pro_final)
+                        
+                        st.cache_data.clear()
+                        st.success(f"✅ {user_a_eliminar} eliminado.")
+                        st.rerun()
+
+            # --- SECCIÓN DE MANTENIMIENTO (Alineada con el inicio del Panel de Control) ---
+            st.markdown("---")
+            st.subheader("🚧 Control de Mantenimiento")
+            
+            col_m1, col_m2 = st.columns([2, 1])
+            
+            with col_m1:
+                if estado_mantenimiento == "ON":
+                    st.error("LA WEB ESTÁ BLOQUEADA PARA USUARIOS")
+                    if st.button("✅ DESACTIVAR MANTENIMIENTO (ABRIR WEB)", use_container_width=True):
+                        df_up_m = pd.DataFrame({"MANTENIMIENTO": ["OFF"]})
+                        conn.update(worksheet="CONFIG", data=df_up_m)
+                        st.cache_data.clear()
+                        st.rerun()
+                else:
+                    st.success("LA WEB ESTÁ FUNCIONANDO NORMALMENTE")
+                    if st.button("🚫 ACTIVAR MANTENIMIENTO (CERRAR WEB)", use_container_width=True):
+                        df_up_m = pd.DataFrame({"MANTENIMIENTO": ["ON"]})
+                        conn.update(worksheet="CONFIG", data=df_up_m)
+                        st.cache_data.clear()
+                        st.rerun()
+        else:
+            # Este else pertenece al chequeo de ROL == 'admin' inicial
+            st.error("No tienes permisos para acceder a esta sección.")
+
+                 #---------------------------test
             # st.subheader("🧪 Test: Conexión con Ranking Global")
             
             # # 1. Recuperamos el Ranking del Session State (la "Fuente Única de Verdad")
@@ -1401,61 +1494,3 @@ elif menu == "⚙️ Panel Control":
                         
             #             st.success(f"Datos vinculados: Posición #{idx_real + 1} | Puntos: {datos_vivos['PUNTOS']}")
 #---------------------------------------
-        
-            st.subheader("👥 Gestión de Usuarios")
-            df_users_adm = conn.read(worksheet="USUARIOS", ttl=10)
-            df_pro_adm = conn.read(worksheet="PRONOSTICOS", ttl=10)
-
-            # Filtramos para no borrar al admin logueado
-            usuarios_borrables = df_users_adm[df_users_adm['USUARIO'] != st.session_state['user_data']['USUARIO']]
-            
-            if usuarios_borrables.empty:
-                st.info("No hay otros usuarios para gestionar.")
-            else:
-                user_a_eliminar = st.selectbox(
-                    "Selecciona un jugador para eliminar:", 
-                    usuarios_borrables['USUARIO'].tolist(),
-                    index=None,
-                    placeholder="Elegir usuario..."
-                )
-
-                if user_a_eliminar:
-                    st.warning(f"⚠️ Estás por borrar a **{user_a_eliminar}**.")
-                    confirmado = st.checkbox("Confirmo borrar usuario y sus pronósticos", key="conf_borrar")
-                    
-                    if st.button("❌ BORRAR PERMANENTEMENTE", type="primary", use_container_width=True, disabled=not confirmado):
-                        df_users_final = df_users_adm[df_users_adm['USUARIO'] != user_a_eliminar]
-                        df_pro_final = df_pro_adm[df_pro_adm['USUARIO'] != user_a_eliminar]
-                        
-                        conn.update(worksheet="USUARIOS", data=df_users_final)
-                        conn.update(worksheet="PRONOSTICOS", data=df_pro_final)
-                        
-                        st.cache_data.clear()
-                        st.success(f"✅ {user_a_eliminar} eliminado.")
-                        st.rerun()
-
-        # --- SECCIÓN DE MANTENIMIENTO (Alineada con el inicio del Panel de Control) ---
-        st.markdown("---")
-        st.subheader("🚧 Control de Mantenimiento")
-        
-        col_m1, col_m2 = st.columns([2, 1])
-        
-        with col_m1:
-            if estado_mantenimiento == "ON":
-                st.error("LA WEB ESTÁ BLOQUEADA PARA USUARIOS")
-                if st.button("✅ DESACTIVAR MANTENIMIENTO (ABRIR WEB)", use_container_width=True):
-                    df_up_m = pd.DataFrame({"MANTENIMIENTO": ["OFF"]})
-                    conn.update(worksheet="CONFIG", data=df_up_m)
-                    st.cache_data.clear()
-                    st.rerun()
-            else:
-                st.success("LA WEB ESTÁ FUNCIONANDO NORMALMENTE")
-                if st.button("🚫 ACTIVAR MANTENIMIENTO (CERRAR WEB)", use_container_width=True):
-                    df_up_m = pd.DataFrame({"MANTENIMIENTO": ["ON"]})
-                    conn.update(worksheet="CONFIG", data=df_up_m)
-                    st.cache_data.clear()
-                    st.rerun()
-    else:
-        # Este else pertenece al chequeo de ROL == 'admin' inicial
-        st.error("No tienes permisos para acceder a esta sección.")
-                 
