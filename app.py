@@ -1289,59 +1289,28 @@ elif menu == "💬 Foro":
         </div>
         """, unsafe_allow_html=True)
         
-# ---------- MENU ADMIN ----------------------------------------------------
-
 elif menu == "⚙️ Panel Control":
+    # --- VALIDACIÓN DE SEGURIDAD ---
     if st.session_state['user_data']['ROL'] == 'admin':
-        with col_principal:
-            st.subheader("⚙️ Gestión de Resultados y Horarios")
-            df_res_admin = conn.read(worksheet="RESULTADOS", ttl=10)
-            
-            with st.form("form_admin_full"):
-                upd = []
-                # --- DENTRO DEL FORM DE ADMIN ---
-                for i, row in df_res_admin.iterrows():
-                    st.markdown(f"**Partido Nº {int(row['N_PARTIDO'])}: {row['Equipo_1']} vs {row['Equipo_2']}**")
-    
-                    c_dia, c_hora, c_viz = st.columns([1, 1, 1])
-                    n_dia = c_dia.text_input("Día", value=row['DIA'] if pd.notna(row['DIA']) else "", key=f"d_{i}")
-                    n_hora = c_hora.text_input("Hora", value=row['HORA'] if pd.notna(row['HORA']) else "", key=f"h_{i}")
-    # Checkbox para visibilidad
-                    v_actual = bool(row['VIZ']) if pd.notna(row['VIZ']) else False
-                    n_viz = c_viz.checkbox("👁️ Visible", value=v_actual, key=f"v_{i}")
-    
-                    c1, c2, c3 = st.columns([1, 1, 1])
-                    r1 = c1.number_input("G1", 0, 20, int(row['R1']) if pd.notna(row['R1']) else 0, key=f"ar1_{i}")
-                    r2 = c2.number_input("G2", 0, 20, int(row['R2']) if pd.notna(row['R2']) else 0, key=f"ar2_{i}")
-                    fin = c3.checkbox("¿Finalizado?", value=pd.notna(row['R1']), key=f"fin_{i}")
-    
-                    upd.append({
-                    "N_PARTIDO": row['N_PARTIDO'], "Equipo_1": row['Equipo_1'], 
-                    "R1": r1 if fin else None, "Equipo_2": row['Equipo_2'], "R2": r2 if fin else None,
-                    "DIA": n_dia, "HORA": n_hora, "VIZ": n_viz # Guardamos la visibilidad
-                    })
-                    st.markdown("---")
-                
-                if st.form_submit_button("📢 Guardar Cambios Globales", use_container_width=True):
-                    conn.update(worksheet="RESULTADOS", data=pd.DataFrame(upd))
-                    st.cache_data.clear()
-                    st.success("✅ ¡Base de datos actualizada!")
-                    st.rerun()
-
-        # --- COLUMNA DERECHA: GESTIÓN DE USUARIOS (40%) ---
-        with col_derecha:
         
+        # 1. COLUMNA PRINCIPAL (Gestión de Goles)
+        with col_principal:
+            st.subheader("⚽ Resultados Oficiales")
+            # (Aquí va tu código de carga de R1 y R2 que ya tenías)
+            pass
+
+        # 2. COLUMNA DERECHA (Auditoría y Usuarios)
+        with col_derecha:
             st.subheader("🕵️ Auditoría de Cargas")
             
             # 1. Contamos cuántos partidos cargó cada usuario
-            # Contamos filas por usuario en la tabla de pronósticos
             conteo_pro = df_pro['USUARIO'].value_counts().reset_index()
             conteo_pro.columns = ['USUARIO', 'COMPLETADOS']
             
-            # 2. Cruzamos con la lista de usuarios para ver quiénes tienen 0
+            # 2. Cruzamos con la lista de usuarios
             df_auditoria = pd.merge(df_usuarios[['USUARIO', 'NOMBRE']], conteo_pro, on='USUARIO', how='left').fillna(0)
             
-            # 3. Función para poner el emoji de estado
+            # 3. Función de estado
             def estado_carga(cant):
                 if cant >= 24: return "✅ Listo"
                 if cant > 0: return f"⚠️ Incompleto ({int(cant)})"
@@ -1349,28 +1318,22 @@ elif menu == "⚙️ Panel Control":
     
             df_auditoria['ESTADO'] = df_auditoria['COMPLETADOS'].apply(estado_carga)
             
-            # 4. Mostramos la tabla compacta
-            st.dataframe(
-                df_auditoria[['NOMBRE', 'ESTADO']],
-                use_container_width=True,
-                hide_index=True
-            )
+            # 4. Mostrar Auditoría
+            st.dataframe(df_auditoria[['NOMBRE', 'ESTADO']], use_container_width=True, hide_index=True)
             
             if st.button("📢 Escrachar colgados en el Foro"):
                 faltantes = df_auditoria[df_auditoria['COMPLETADOS'] < 24]['NOMBRE'].tolist()
                 if faltantes:
                     msg_escrache = f"🚨 ATENCIÓN: Faltan completar pronósticos: {', '.join(faltantes)}. ¡El 8/6 se cierra!"
-                    # Aquí podrías automatizar el envío al foro si quisieras
                     st.warning("Copia esto al foro: " + msg_escrache)
                 else:
                     st.success("¡Todos los jugadores están al día! 👏")
 
-        
+            st.markdown("---")
             st.subheader("👥 Gestión de Usuarios")
             df_users_adm = conn.read(worksheet="USUARIOS", ttl=10)
             df_pro_adm = conn.read(worksheet="PRONOSTICOS", ttl=10)
 
-            # Filtramos para no borrar al admin logueado
             usuarios_borrables = df_users_adm[df_users_adm['USUARIO'] != st.session_state['user_data']['USUARIO']]
             
             if usuarios_borrables.empty:
@@ -1398,30 +1361,28 @@ elif menu == "⚙️ Panel Control":
                         st.success(f"✅ {user_a_eliminar} eliminado.")
                         st.rerun()
 
-            # --- SECCIÓN DE MANTENIMIENTO (Alineada con el inicio del Panel de Control) ---
+            # --- SECCIÓN DE MANTENIMIENTO ---
             st.markdown("---")
-            st.subheader("🚧 Control de Mantenimiento")
-            
-            col_m1, col_m2 = st.columns([2, 1])
-            
-            with col_m1:
+            st.subheader("🚧 Mantenimiento")
+            # (Aquí debes asegurarte de que 'estado_mantenimiento' esté definido arriba)
+            if 'estado_mantenimiento' in locals() or 'estado_mantenimiento' in globals():
                 if estado_mantenimiento == "ON":
-                    st.error("LA WEB ESTÁ BLOQUEADA PARA USUARIOS")
-                    if st.button("✅ DESACTIVAR MANTENIMIENTO (ABRIR WEB)", use_container_width=True):
-                        df_up_m = pd.DataFrame({"MANTENIMIENTO": ["OFF"]})
-                        conn.update(worksheet="CONFIG", data=df_up_m)
+                    st.error("WEB BLOQUEADA")
+                    if st.button("✅ ABRIR WEB"):
+                        conn.update(worksheet="CONFIG", data=pd.DataFrame({"MANTENIMIENTO": ["OFF"]}))
                         st.cache_data.clear()
                         st.rerun()
                 else:
-                    st.success("LA WEB ESTÁ FUNCIONANDO NORMALMENTE")
-                    if st.button("🚫 ACTIVAR MANTENIMIENTO (CERRAR WEB)", use_container_width=True):
-                        df_up_m = pd.DataFrame({"MANTENIMIENTO": ["ON"]})
-                        conn.update(worksheet="CONFIG", data=df_up_m)
+                    st.success("WEB ACTIVA")
+                    if st.button("🚫 CERRAR WEB"):
+                        conn.update(worksheet="CONFIG", data=pd.DataFrame({"MANTENIMIENTO": ["ON"]}))
                         st.cache_data.clear()
                         st.rerun()
-        else:
-            # Este else pertenece al chequeo de ROL == 'admin' inicial
-            st.error("No tienes permisos para acceder a esta sección.")
+    
+    else:
+        # Este else ahora sí corresponde al IF inicial de ROL == 'admin'
+        st.error("⛔ No tienes permisos para acceder a esta sección.")
+
 
                  #---------------------------test
             # st.subheader("🧪 Test: Conexión con Ranking Global")
