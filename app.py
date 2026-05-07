@@ -1360,19 +1360,38 @@ elif menu == "⚙️ Panel Control":
 
         # 2. COLUMNA DERECHA (Auditoría y Usuarios)
         with col_derecha:
-        #----------CIERRE DE INSCRIPCIONES------------------
-            
-            st.markdown("---")
+            # --- DENTRO DEL PANEL DE CONTROL (col_derecha) ---
             st.subheader("🚫 Control de Inscripciones")
             
-            if registro_permitido_fecha:
-                st.success("✅ Inscripciones abiertas por fecha (Cierra el 07/06)")
+            # 1. Leemos el estado manual actual desde la tabla CONFIG
+            # Asumiendo que tu tabla CONFIG tiene una columna 'REGISTRO' con valor 'ON' u 'OFF'
+            df_config = conn.read(worksheet="CONFIG", ttl=0)
+            estado_manual = df_config.iloc[0]['REGISTRO']
+            
+            # 2. Lógica combinada (Fecha + Manual)
+            if registro_permitido_fecha and estado_manual == "ON":
+                st.success("✅ Inscripciones ABIERTAS")
+                
+                if st.button("🔴 CERRAR REGISTRO MANUALMENTE", use_container_width=True):
+                    # Creamos el nuevo DataFrame para actualizar
+                    df_config.at[0, 'REGISTRO'] = "OFF"
+                    conn.update(worksheet="CONFIG", data=df_config)
+                    st.cache_data.clear()
+                    st.success("Registro cerrado con éxito")
+                    st.rerun()
             else:
-                st.error("⛔ Inscripciones cerradas por fecha.")
-        
-            # Botón informativo (o funcional si tienes la tabla CONFIG)
-            if st.button("🔴 CERRAR REGISTRO MANUALMENTE", use_container_width=True):
-                st.info("Para cerrar manualmente antes de fecha, cambia el valor en la pestaña CONFIG de tu Excel.")
+                st.error("⛔ Inscripciones CERRADAS")
+                
+                # Solo mostramos el botón de abrir si aún estamos dentro de la fecha válida
+                if registro_permitido_fecha:
+                    if st.button("🟢 ABRIR REGISTRO MANUALMENTE", use_container_width=True):
+                        df_config.at[0, 'REGISTRO'] = "ON"
+                        conn.update(worksheet="CONFIG", data=df_config)
+                        st.cache_data.clear()
+                        st.success("Registro abierto con éxito")
+                        st.rerun()
+                else:
+                    st.warning("No se puede abrir manualmente: ya pasó la fecha límite (07/06).")
 
            #----------CONTROL DE CARGAS------------------      
             st.subheader("🕵️ Auditoría de Cargas")
