@@ -85,7 +85,7 @@ def upload_profile_picture(archivo, file_name):
 ahora_arg = datetime.now() - timedelta(hours=3)
 fecha_limite_reg = datetime(2026, 6, 7, 23, 59, 59)
 registro_permitido_fecha = ahora_arg < fecha_limite_reg
-df_config = conn.read(worksheet="CONFIG", ttl=0)
+
 
 
 #-----------AVATAR GENERICO-----------------
@@ -185,10 +185,15 @@ if 'registro_exitoso' not in st.session_state:
     st.session_state['registro_exitoso'] = False
 
 if not st.session_state['autenticado']:
-    st.title("🏆 Prode Mundial 2026")
-    
-    # REEMPLAZO DE TABS POR LÓGICA DE ESTADO
+    # 1. LEER CONFIGURACIÓN (Dentro del bloque de no autenticados)
+    try:
+        df_config = conn.read(worksheet="CONFIG", ttl=0)
+        estado_registro_manual = df_config.iloc[0]['REGISTRO']
+    except:
+        estado_registro_manual = "OFF" # Por seguridad, si falla la conexión, bloqueamos
+
     if not st.session_state['mostrar_registro']:
+        
         # --- SECCIÓN DE LOGIN ---
         if st.session_state['registro_exitoso']:
             st.success("✅ ¡Registro completado! Ya puedes ingresar.")
