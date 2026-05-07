@@ -45,6 +45,11 @@ def get_flag_img(pais):
         pass
     
     return "⚽" # Fallback si falla la descarga
+
+@st.cache_data(ttl=3600) # Guarda las imágenes en RAM por 1 hora
+def get_flag_img_cached(team_name):
+    # Aquí va tu lógica actual de obtener la imagen (Base64 o URL)
+    return get_flag_img(team_name) 
     
 #-------------------------------- CARGAR FOTO STORAGE (GCS) -----------------------------------------------------
 from google.cloud import storage
@@ -360,9 +365,13 @@ def load_dynamic_data():
 try:
     df_res, df_usuarios = load_static_data()
     df_pro = load_dynamic_data()
+
+    equipos_unicos = pd.concat([df_res['Equipo_1'], df_res['Equipo_2']]).unique()
+    mapa_banderas = {eq: get_flag_img_cached(eq) for eq in equipos_unicos}
+    
 except Exception as e:
-    st.warning("⚠️ La conexión con Google es lenta. Mostrando datos guardados...")
-    # Aquí podrías cargar datos por defecto si fallara la primera vez
+    st.warning("⚠️ La conexión con Google es lenta...")
+    mapa_banderas = {}
 
 # =============================================================================
 # 1. FUNCIÓN DE APOYO PARA PROCESAR INSIGNIAS
@@ -861,8 +870,8 @@ elif menu == "📝 Mis Pronósticos":
                 v1 = int(match.iloc[0]['P1']) if not match.empty and pd.notna(match.iloc[0]['P1']) else 0
                 v2 = int(match.iloc[0]['P2']) if not match.empty and pd.notna(match.iloc[0]['P2']) else 0
                 
-                bandera1 = get_flag_img(row['Equipo_1'])
-                bandera2 = get_flag_img(row['Equipo_2'])
+                bandera1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
+                bandera2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
                             
                 # Diseño de la tarjeta de partido
                 st.markdown(f"""
