@@ -820,14 +820,13 @@ elif menu == "📝 Mis Pronósticos":
     with col_principal:
         st.subheader("📝 Mis Predicciones")
         
-        # 1. USAR DATOS YA CARGADOS (Sin llamar a la API de nuevo)
-        # Estas variables ya las definimos arriba de todo en la App
+        # 1. USAR DATOS YA CARGADOS
         user_actual = st.session_state['user_data']['USUARIO']
         
-        # Filtramos localmente (esto es instantáneo y no consume API)
+        # Filtramos localmente
         df_user_pro = df_pro[df_pro['USUARIO'] == user_actual]
 
-        # --- Lógica de tiempo (se mantiene igual) ---
+        # --- Lógica de tiempo ---
         ahora_arg = datetime.utcnow() - timedelta(hours=3)
         fecha_limite = datetime(2026, 6, 8, 23, 59, 59)
         es_tiempo_valido = ahora_arg < fecha_limite
@@ -841,6 +840,7 @@ elif menu == "📝 Mis Pronósticos":
         
         esta_bloqueado = not (es_tiempo_valido and modo_edicion)
 
+        # INICIO DEL FORMULARIO
         with st.form("form_pronosticos_v3"):
             lista_nuevos_pro = []
             
@@ -878,28 +878,26 @@ elif menu == "📝 Mis Pronósticos":
                 
                 lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
 
-            # EL BOTÓN DEBE IR AQUÍ (Indentado igual que el 'for')
-            if es_tiempo_valido and modo_edicion:
-                if st.form_submit_button("💾 GUARDAR TODO EL PRODE", use_container_width=True):
-                    # 1. Intentamos la operación técnica
-                    try:
-                        df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=0)
-                        df_otros = df_pro_full[df_pro_full['USUARIO'] != user_actual]
-                        df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
-                        
-                        conn.update(worksheet="PRONOSTICOS", data=df_final)
-                        st.cache_data.clear()
-                        # Si llegamos aquí, los datos ya están en Google
-                        exito = True 
-                    except Exception as e:
-                        st.error(f"Error de conexión: {e}")
-                        exito = False
+            # EL BOTÓN DEBE ESTAR SIEMPRE DENTRO DEL BLOQUE 'WITH ST.FORM'
+            # Usamos la variable 'esta_bloqueado' para habilitarlo o no
+            texto_boton = "💾 GUARDAR TODO EL PRODE" if not esta_bloqueado else "LECTURA (EDICIÓN DESHABILITADA)"
+            
+            if st.form_submit_button(texto_boton, use_container_width=True, disabled=esta_bloqueado):
+                try:
+                    df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=0)
+                    # Quitamos los pronósticos viejos del usuario actual para reemplazarlos
+                    df_otros = df_pro_full[df_pro_full['USUARIO'] != user_actual]
+                    df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
                     
-                    # 2. Si fue exitoso, mostramos globos y reiniciamos FUERA del try
-                    if exito:
-                        st.success("✅ ¡Pronósticos guardados correctamente!")
-                        st.balloons()
-                        st.rerun()
+                    conn.update(worksheet="PRONOSTICOS", data=df_final)
+                    st.cache_data.clear()
+                    
+                    st.success("✅ ¡Pronósticos guardados correctamente!")
+                    st.balloons()
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error al guardar: {e}")
+
 
     # --- COLUMNA DERECHA: PERFIL EDITABLE ---
     with col_derecha:
