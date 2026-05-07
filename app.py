@@ -1360,19 +1360,17 @@ elif menu == "⚙️ Panel Control":
         with col_derecha:
         #----------CIERRE DE INSCRIPCIONES------------------
             
-            st.subheader("🚫 Control de Inscripciones")
-            
-            # Supongamos que guardas este estado en la tabla CONFIG
-            # Si no quieres usar otra tabla, puedes usar session_state (pero se reinicia al recargar)
-            if registro_permitido_fecha:
-                st.success("✅ Inscripciones abiertas por fecha (Cierra el 07/06)")
-            else:
-                st.error("⛔ Inscripciones cerradas por fecha.")
+        st.markdown("---")
+        st.subheader("🚫 Control de Inscripciones")
         
-            # Opción manual extra (usando una variable de tu tabla CONFIG)
-            if st.button("🔴 CERRAR REGISTRO MANUALMENTE", use_container_width=True):
-                # Aquí podrías actualizar un campo en Google Sheets llamado 'BLOQUEO_REGISTRO'
-                st.info("Función de bloqueo manual lista para conectar a tu tabla de CONFIG.")
+        if registro_permitido_fecha:
+            st.success("✅ Inscripciones abiertas por fecha (Cierra el 07/06)")
+        else:
+            st.error("⛔ Inscripciones cerradas por fecha.")
+    
+        # Botón informativo (o funcional si tienes la tabla CONFIG)
+        if st.button("🔴 CERRAR REGISTRO MANUALMENTE", use_container_width=True):
+            st.info("Para cerrar manualmente antes de fecha, cambia el valor en la pestaña CONFIG de tu Excel.")
 
            #----------CONTROL DE CARGAS------------------      
             st.subheader("🕵️ Auditoría de Cargas")
