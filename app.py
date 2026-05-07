@@ -85,6 +85,8 @@ def upload_profile_picture(archivo, file_name):
 ahora_arg = datetime.now() - timedelta(hours=3)
 fecha_limite_reg = datetime(2026, 6, 7, 23, 59, 59)
 registro_permitido_fecha = ahora_arg < fecha_limite_reg
+df_config = conn.read(worksheet="CONFIG", ttl=0)
+
 
 #-----------AVATAR GENERICO-----------------
 AVATAR_GENERICO = "https://storage.googleapis.com/foto-prode2026/perfiles/images.png"
@@ -219,15 +221,21 @@ if not st.session_state['autenticado']:
                 # --- AQUÍ COLOCAS LA LÓGICA DE BLOQUEO ---
 
         # Botón para ir a registro (fuera del form)
-        if st.button("🆕 ¿No tienes cuenta? Regístrate aquí"):
-            if not registro_permitido_fecha:
-                st.error("🔒 El período de inscripción ha finalizado el 07/06/2026.")
-            elif estado_mantenimiento == "ON": # Si tienes el mantenimiento activo
-                st.warning("⚠️ El registro está deshabilitado temporalmente por mantenimiento.")
-            else:
-                st.session_state['mostrar_registro'] = True
-                st.session_state['registro_exitoso'] = False
-                st.rerun()
+                estado_registro_manual = df_config.iloc[0]['REGISTRO'] 
+
+                if st.button("🆕 ¿No tienes cuenta? Regístrate aquí"):
+                    # VALIDACIÓN TRIPLE: Fecha límite + Estado Manual + Mantenimiento
+                    if not registro_permitido_fecha:
+                        st.error("🔒 El período de inscripción finalizó el 07/06/2026.")
+                    elif estado_registro_manual == "OFF":
+                        st.error("🚫 El administrador ha cerrado las inscripciones temporalmente.")
+                    elif 'estado_mantenimiento' in locals() and estado_mantenimiento == "ON":
+                        st.warning("⚠️ Web en mantenimiento. Intenta más tarde.")
+                    else:
+                        # Si todo está OK, lo dejamos pasar al formulario
+                        st.session_state['mostrar_registro'] = True
+                        st.session_state['registro_exitoso'] = False
+                        st.rerun()
     
     else:
         # --- SECCIÓN DE REGISTRO ---
@@ -254,9 +262,14 @@ if not st.session_state['autenticado']:
                 else:
                     st.error("Completa Usuario, Contraseña y Nombre.")
         
-        if st.button("⬅️ Volver al Login"):
-            st.session_state['mostrar_registro'] = False
-            st.rerun()
+        if st.form_submit_button("Finalizar Registro"):
+            # Re-chequeamos antes de guardar en el Excel
+            if registro_permitido_fecha and estado_registro_manual == "ON":
+                # ... Aquí va tu código actual de guardar usuario ...
+                pass 
+            else:
+                st.error("Lo sentimos, el registro ya no está disponible.")
+                st.stop() # Detenemos la ejecución
 
     st.stop()
 #---------------------- SI Mantenimiento esta activo ---------------------------
