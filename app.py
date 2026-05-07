@@ -1293,11 +1293,58 @@ elif menu == "⚙️ Panel Control":
     # --- VALIDACIÓN DE SEGURIDAD ---
     if st.session_state['user_data']['ROL'] == 'admin':
         
-        # 1. COLUMNA PRINCIPAL (Gestión de Goles)
+        # 1. COLUMNA PRINCIPAL (Gestión de Goles Oficiales)
         with col_principal:
-            st.subheader("⚽ Resultados Oficiales")
-            # (Aquí va tu código de carga de R1 y R2 que ya tenías)
-            pass
+            st.subheader("⚽ Cargar Resultados Oficiales")
+            st.info("Carga los goles reales de cada partido para actualizar el Ranking.")
+
+            # Leemos la tabla de resultados actual
+            df_res_admin = conn.read(worksheet="RESULTADOS", ttl=0)
+            
+            with st.form("form_admin_goles"):
+                lista_oficial_update = []
+                
+                # Iteramos los 24 partidos
+                for i, row in df_res_admin.sort_values('N_PARTIDO').iterrows():
+                    id_p = int(row['N_PARTIDO'])
+                    
+                    # Valores actuales en el Excel
+                    r1_actual = int(row['R1']) if pd.notna(row['R1']) else 0
+                    r2_actual = int(row['R2']) if pd.notna(row['R2']) else 0
+                    
+                    # Diseño de fila de carga
+                    st.markdown(f"**Partido {id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}")
+                    c1, c_vs, c2, c_fin = st.columns([1, 0.2, 1, 1])
+                    
+                    with c1:
+                        r1_val = st.number_input(f"R1_{id_p}", 0, 20, r1_actual, key=f"adm_r1_{id_p}", label_visibility="collapsed")
+                    with c_vs:
+                        st.write("<div style='text-align:center; padding-top:5px;'>:</div>", unsafe_allow_html=True)
+                    with c2:
+                        r2_val = st.number_input(f"R2_{id_p}", 0, 20, r2_actual, key=f"adm_r2_{id_p}", label_visibility="collapsed")
+                    with c_fin:
+                        # Checkbox para confirmar si el partido ya terminó y debe sumar puntos
+                        finalizado = st.checkbox("Finalizado", value=pd.notna(row['R1']), key=f"chk_{id_p}")
+
+                    # Si no está marcado como finalizado, guardamos como vacío (NaN) para que el ranking no lo cuente
+                    lista_oficial_update.append({
+                        "N_PARTIDO": id_p,
+                        "Equipo_1": row['Equipo_1'],
+                        "R1": r1_val if finalizado else None,
+                        "Equipo_2": row['Equipo_2'],
+                        "R2": r2_val if finalizado else None
+                    })
+                    st.markdown("---")
+
+                # Botón de publicación masiva
+                if st.form_submit_button("📢 PUBLICAR RESULTADOS Y ACTUALIZAR RANKING", use_container_width=True):
+                    df_final_oficial = pd.DataFrame(lista_oficial_update)
+                    conn.update(worksheet="RESULTADOS", data=df_final_oficial)
+                    st.cache_data.clear()
+                    st.success("✅ Resultados oficiales actualizados. ¡Ranking recalculado!")
+                    st.balloons()
+                    st.rerun()
+
 
         # 2. COLUMNA DERECHA (Auditoría y Usuarios)
         with col_derecha:
