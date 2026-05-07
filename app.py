@@ -210,13 +210,23 @@ if not st.session_state['autenticado']:
                     st.rerun()
                 else:
                     st.error("Usuario o contraseña incorrectos")
-        
+                    
+                # --- AQUÍ COLOCAS LA LÓGICA DE BLOQUEO ---
+        fecha_limite_reg = datetime(2026, 6, 7, 23, 59, 59)
+        ahora_arg = datetime.now() - timedelta(hours=3)
+        registro_permitido_fecha = ahora_arg < fecha_limite_reg
+
         # Botón para ir a registro (fuera del form)
         if st.button("🆕 ¿No tienes cuenta? Regístrate aquí"):
-            st.session_state['mostrar_registro'] = True
-            st.session_state['registro_exitoso'] = False
-            st.rerun()
-
+            if not registro_permitido_fecha:
+                st.error("🔒 El período de inscripción ha finalizado el 07/06/2026.")
+            elif estado_mantenimiento == "ON": # Si tienes el mantenimiento activo
+                st.warning("⚠️ El registro está deshabilitado temporalmente por mantenimiento.")
+            else:
+                st.session_state['mostrar_registro'] = True
+                st.session_state['registro_exitoso'] = False
+                st.rerun()
+    
     else:
         # --- SECCIÓN DE REGISTRO ---
         st.subheader("📝 Crear nueva cuenta")
@@ -1348,6 +1358,23 @@ elif menu == "⚙️ Panel Control":
 
         # 2. COLUMNA DERECHA (Auditoría y Usuarios)
         with col_derecha:
+        #----------CIERRE DE INSCRIPCIONES------------------
+            st.markdown("---")
+            st.subheader("🚫 Control de Inscripciones")
+            
+            # Supongamos que guardas este estado en la tabla CONFIG
+            # Si no quieres usar otra tabla, puedes usar session_state (pero se reinicia al recargar)
+            if registro_permitido_fecha:
+                st.success("✅ Inscripciones abiertas por fecha (Cierra el 07/06)")
+            else:
+                st.error("⛔ Inscripciones cerradas por fecha.")
+        
+            # Opción manual extra (usando una variable de tu tabla CONFIG)
+            if st.button("🔴 CERRAR REGISTRO MANUALMENTE", use_container_width=True):
+                # Aquí podrías actualizar un campo en Google Sheets llamado 'BLOQUEO_REGISTRO'
+                st.info("Función de bloqueo manual lista para conectar a tu tabla de CONFIG.")
+
+           #----------CONTROL DE CARGAS------------------      
             st.subheader("🕵️ Auditoría de Cargas")
             
             # 1. Contamos cuántos partidos cargó cada usuario
