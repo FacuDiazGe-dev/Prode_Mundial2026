@@ -104,7 +104,7 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 # --- LECTURA DE CONFIGURACIÓN DE MANTENIMIENTO ---
 try:
-    df_config = conn.read(worksheet="CONFIG", ttl=5)
+    df_config = conn.read(worksheet="CONFIG", ttl=10)
     # Leemos la celda A2 (primera fila de la columna MANTENIMIENTO)
     estado_mantenimiento = str(df_config["MANTENIMIENTO"].iloc[0]).strip().upper()
 except Exception:
@@ -187,7 +187,7 @@ if 'registro_exitoso' not in st.session_state:
 if not st.session_state['autenticado']:
     # 1. LEER CONFIGURACIÓN (Dentro del bloque de no autenticados)
     try:
-        df_config = conn.read(worksheet="CONFIG", ttl=0)
+        df_config = conn.read(worksheet="CONFIG", ttl=10)
         estado_registro_manual = df_config.iloc[0]['REGISTRO']
     except:
         estado_registro_manual = "OFF" # Por seguridad, si falla la conexión, bloqueamos
@@ -942,7 +942,7 @@ elif menu == "📝 Mis Pronósticos":
             if st.form_submit_button(texto_boton, use_container_width=True, disabled=esta_bloqueado):
                 try:
                     # 1. Leer datos actuales de la base
-                    df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=0)
+                    df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=5)
                     
                     # 2. Filtrar para quitar lo viejo del usuario y concatenar lo nuevo
                     df_otros = df_pro_full[df_pro_full['USUARIO'] != user_actual]
@@ -1335,7 +1335,7 @@ elif menu == "⚙️ Panel Control":
             st.info("Carga los goles reales de cada partido para actualizar el Ranking.")
 
             # Leemos la tabla de resultados actual
-            df_res_admin = conn.read(worksheet="RESULTADOS", ttl=0)
+            df_res_admin = conn.read(worksheet="RESULTADOS", ttl=10)
             
             with st.form("form_admin_goles"):
                 lista_oficial_update = []
@@ -1389,7 +1389,7 @@ elif menu == "⚙️ Panel Control":
             
             # 1. Leemos el estado manual actual desde la tabla CONFIG
             # Asumiendo que tu tabla CONFIG tiene una columna 'REGISTRO' con valor 'ON' u 'OFF'
-            df_config = conn.read(worksheet="CONFIG", ttl=0)
+            df_config = conn.read(worksheet="CONFIG", ttl=10)
             estado_manual = df_config.iloc[0]['REGISTRO']
             
             # 2. Lógica combinada (Fecha + Manual)
