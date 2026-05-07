@@ -1359,7 +1359,7 @@ elif menu == "⚙️ Panel Control":
         # 2. COLUMNA DERECHA (Auditoría y Usuarios)
         with col_derecha:
         #----------CIERRE DE INSCRIPCIONES------------------
-            st.markdown("---")
+            
             st.subheader("🚫 Control de Inscripciones")
             
             # Supongamos que guardas este estado en la tabla CONFIG
