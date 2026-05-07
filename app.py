@@ -521,7 +521,13 @@ with st.sidebar:
     opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
     if st.session_state['user_data']['ROL'] == 'admin':
         opciones.append("⚙️ Panel Control")
-    
+ 
+        # --- SOLO VISIBLE PARA EL ADMIN ---
+    if st.session_state['user_data']['ROL'] == 'admin':
+        if st.button("🔄 Sincronizar Datos (Admin)", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
+
     menu = st.radio("Ir a:", opciones, key="menu_navegacion_unificado")
     
     st.markdown("---")
