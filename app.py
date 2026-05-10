@@ -506,9 +506,6 @@ def obtener_ranking_global(df_users, df_pro, df_res):
 # Asegúrate de que df_usuarios, df_pro y df_res estén cargados antes
 df_ranking = obtener_ranking_global(df_usuarios, df_pro, df_res)
 
-
-
-# --- VISUALIZACIÓN ---
 # --- NAVEGACIÓN EN SIDEBAR (OPTIMIZADO PARA MÓVILES) ---
 # --- ESTRUCTURA PRINCIPAL DE DISEÑO (PROPORCIONES 60/40) ---
 col_principal, col_derecha = st.columns([0.6, 0.4])
