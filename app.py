@@ -1384,58 +1384,64 @@ elif menu == "⚙️ Panel Control":
     # --- VALIDACIÓN DE SEGURIDAD ---
     if st.session_state['user_data']['ROL'] == 'admin':
         
-        # 1. COLUMNA PRINCIPAL (Gestión de Goles Oficiales)
+        # 1. COLUMNA PRINCIPAL (Gestión Profesional - 72 Partidos)
         with col_principal:
-            st.subheader("⚽ Cargar Resultados Oficiales")
-            st.info("Carga los goles reales de cada partido para actualizar el Ranking.")
+            st.subheader("⚽ Gestión de Jornada (72 Partidos)")
+            st.info("Usa las pestañas para navegar entre partidos. Guarda al finalizar los cambios.")
 
-            # Leemos la tabla de resultados actual
-            df_res_admin = conn.read(worksheet="RESULTADOS", ttl=10)
+            # Lectura única
+            df_res_admin = conn.read(worksheet="RESULTADOS", ttl=5)
             
-            with st.form("form_admin_goles"):
-                lista_oficial_update = []
+            with st.form("form_admin_master_72"):
+                df_to_update = df_res_admin.copy()
                 
-                # Iteramos los 24 partidos
-                for i, row in df_res_admin.sort_values('N_PARTIDO').iterrows():
-                    id_p = int(row['N_PARTIDO'])
-                    
-                    # Valores actuales en el Excel
-                    r1_actual = int(row['R1']) if pd.notna(row['R1']) else 0
-                    r2_actual = int(row['R2']) if pd.notna(row['R2']) else 0
-                    
-                    # Diseño de fila de carga
-                    st.markdown(f"**Partido {id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}")
-                    c1, c_vs, c2, c_fin = st.columns([1, 0.2, 1, 1])
-                    
-                    with c1:
-                        r1_val = st.number_input(f"R1_{id_p}", 0, 20, r1_actual, key=f"adm_r1_{id_p}", label_visibility="collapsed")
-                    with c_vs:
-                        st.write("<div style='text-align:center; padding-top:5px;'>:</div>", unsafe_allow_html=True)
-                    with c2:
-                        r2_val = st.number_input(f"R2_{id_p}", 0, 20, r2_actual, key=f"adm_r2_{id_p}", label_visibility="collapsed")
-                    with c_fin:
-                        # Checkbox para confirmar si el partido ya terminó y debe sumar puntos
-                        finalizado = st.checkbox("Finalizado", value=pd.notna(row['R1']), key=f"chk_{id_p}")
+                # Dividimos los 72 partidos en 3 grupos para mejor UI
+                t1, t2, t3 = st.tabs(["Partidos 1-24", "Partidos 25-48", "Partidos 49-72"])
+                
+                # Función interna para renderizar bloques de partidos
+                def renderizar_bloque(df_grupo, contenedor):
+                    with contenedor:
+                        for idx_df, row in df_grupo.iterrows():
+                            id_p = int(row['N_PARTIDO'])
+                            
+                            r1_curr = int(row['R1']) if pd.notna(row['R1']) else 0
+                            r2_curr = int(row['R2']) if pd.notna(row['R2']) else 0
+                            viz_actual = str(row['VIZ']).strip().upper() in ['TRUE', '1', '1.0', 'VERDADERO']
 
-                    # Si no está marcado como finalizado, guardamos como vacío (NaN) para que el ranking no lo cuente
-                    lista_oficial_update.append({
-                        "N_PARTIDO": id_p,
-                        "Equipo_1": row['Equipo_1'],
-                        "R1": r1_val if finalizado else None,
-                        "Equipo_2": row['Equipo_2'],
-                        "R2": r2_val if finalizado else None
-                    })
-                    st.markdown("---")
+                            st.markdown(f"**P{id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}")
+                            c1, c_vs, c2, c_viz = st.columns([1, 0.2, 1, 1.2])
+                            
+                            with c1:
+                                r1_val = st.number_input(f"G1_{id_p}", 0, 20, r1_curr, key=f"r1_{id_p}", label_visibility="collapsed")
+                            with c_vs:
+                                st.write("<div style='text-align:center; padding-top:5px;'>:</div>", unsafe_allow_html=True)
+                            with c2:
+                                r2_val = st.number_input(f"G2_{id_p}", 0, 20, r2_curr, key=f"r2_{id_p}", label_visibility="collapsed")
+                            with c_viz:
+                                viz_val = st.toggle("Visible", value=viz_actual, key=f"viz_{id_p}")
+                                finalizado = st.checkbox("Fin", value=pd.notna(row['R1']), key=f"fin_{id_p}")
 
-                # Botón de publicación masiva
-                if st.form_submit_button("📢 PUBLICAR RESULTADOS Y ACTUALIZAR RANKING", use_container_width=True):
-                    df_final_oficial = pd.DataFrame(lista_oficial_update)
-                    conn.update(worksheet="RESULTADOS", data=df_final_oficial)
-                    st.cache_data.clear()
-                    st.success("✅ Resultados oficiales actualizados. ¡Ranking recalculado!")
-                    st.balloons()
-                    st.rerun()
+                            # Guardar cambios en el DataFrame copia
+                            df_to_update.at[idx_df, 'R1'] = r1_val if finalizado else None
+                            df_to_update.at[idx_df, 'R2'] = r2_val if finalizado else None
+                            df_to_update.at[idx_df, 'VIZ'] = "TRUE" if viz_val else "FALSE"
+                            st.markdown("---")
 
+                # Repartimos los partidos por índice (Asumiendo que están ordenados en el Excel)
+                renderizar_bloque(df_to_update.iloc[0:24], t1)
+                renderizar_bloque(df_to_update.iloc[24:48], t2)
+                renderizar_bloque(df_to_update.iloc[48:72], t3)
+
+                # Botón de guardado masivo (Afecta a todas las pestañas)
+                if st.form_submit_button("💾 GUARDAR LOS 72 PARTIDOS", use_container_width=True):
+                    try:
+                        conn.update(worksheet="RESULTADOS", data=df_to_update)
+                        st.cache_data.clear()
+                        st.success("✅ ¡Los 72 partidos han sido actualizados!")
+                        st.balloons()
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Error al conectar: {e}")
 
         # 2. COLUMNA DERECHA (Auditoría y Usuarios)
         with col_derecha:
