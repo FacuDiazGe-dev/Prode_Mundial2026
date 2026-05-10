@@ -1,10 +1,12 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
 from datetime import datetime
 from datetime import datetime, timedelta
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaIoBaseUpload
+
 
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
 #st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
