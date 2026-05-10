@@ -836,9 +836,9 @@ if menu == "🏠 Inicio":
         # --- CURIOSIDADES ---
         st.markdown("---")
         st.subheader("💡 ¿Sabías que...?")
-        if not partidos_jugados.empty:
+        if not partidos_Visibles.empty:
             aciertos_list = []
-            for _, p in partidos_jugados.iterrows():
+            for _, p in partidos_visibles.iterrows():
                 id_p = p['N_PARTIDO']
                 total_ac = 0
                 pros_p = df_pro_all[df_pro_all['N_PARTIDO'] == id_p]
