@@ -832,6 +832,7 @@ if menu == "🏠 Inicio":
         else:
             st.info("💡 La evolución aparecerá cuando los resultados marcados como visibles (VIZ=TRUE) tengan goles cargados.")
 
+
         # --- CURIOSIDADES ---
         st.markdown("---")
         st.subheader("💡 ¿Sabías que...?")
