@@ -762,41 +762,37 @@ if menu == "🏠 Inicio":
             }
         )
 
-        # --- GRÁFICO DE EVOLUCIÓN DE PUNTOS (SOLUCIÓN DEFINITIVA AL ORDEN) ---
+        # --- GRÁFICO DE EVOLUCIÓN (SINCRONIZADO CON RESULTADOS VISIBLES) ---
         st.markdown("---")
         st.subheader("📈 Evolución de Puntos")
         
-        # 1. Limpieza y conversión a números (evita errores de Google Sheets)
-        df_res['N_PARTIDO'] = pd.to_numeric(df_res['N_PARTIDO'], errors='coerce')
-        df_pro_all['N_PARTIDO'] = pd.to_numeric(df_pro_all['N_PARTIDO'], errors='coerce')
-        
-        # 2. Filtrar solo partidos con resultado oficial
-        partidos_jugados = df_res[df_res['R1'].notna()].sort_values('N_PARTIDO')
+        # 1. Filtramos SOLO los partidos que tienen resultado oficial (Visible = TRUE)
+        # Esto asegura que si el partido 5 no tiene goles cargados, la línea no avance
+        partidos_jugados = df_res[df_res['R1'].notna() & df_res['R2'].notna()].sort_values('N_PARTIDO')
         
         if not partidos_jugados.empty:
             evol_list = []
-            usuarios_lista = df_pro_all["USUARIO"].unique()
+            # Usamos la lista de usuarios oficial
+            usuarios_lista = df_usuarios["USUARIO"].unique()
             
             for user in usuarios_lista:
                 pts_acc = 0
-                user_pro = df_pro_all[df_pro_all['USUARIO'] == user]
+                # Filtramos pronósticos del usuario actual
+                user_pro = df_pro[df_pro['USUARIO'] == user]
                 
                 for _, part in partidos_jugados.iterrows():
                     id_p = int(part['N_PARTIDO'])
                     u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
                     
                     if not u_p.empty:
-                        r1, r2 = part['R1'], part['R2']
-                        p1, p2 = u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
-                        
-                        # Cálculo de puntos
-                        t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
-                        t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
-                        
-                        if t_real == t_pron:
-                            pts_acc += 3 if (r1 == p1 and r2 == p2) else 1
+                        # Usamos la función de cálculo oficial para que el gráfico sea idéntico al ranking
+                        pts, _, _ = calcular_detalle(
+                            part['R1'], part['R2'], 
+                            u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
+                        )
+                        pts_acc += pts
                     
-                    # GUARDAR: Usamos el ID numérico puro
+                    # Guardamos el punto en la línea de tiempo
                     evol_list.append({
                         "N_Partido": id_p, 
                         "Jugador": user, 
@@ -805,33 +801,29 @@ if menu == "🏠 Inicio":
             
             if evol_list:
                 df_ev = pd.DataFrame(evol_list)
+                # Pivotamos para que Plotly entienda las líneas por jugador
                 df_ev_pivot = df_ev.pivot(index="N_Partido", columns="Jugador", values="Puntos").sort_index()
                 
-                # --- CONFIGURACIÓN DE GRÁFICO ESTÁTICO Y OPTIMIZADO ---
-                import plotly.express as px
-
+                # --- CONFIGURACIÓN DE PLOTLY (ESTÁTICO) ---
                 fig = px.line(
                     df_ev_pivot, 
-                    labels={"N_Partido": "Nº de Partido", "value": "Puntos Acumulados", "variable": "Jugador"},
-                    markers=True # Agrega puntos en cada partido para mejor lectura
+                    labels={"N_Partido": "Nº Partido", "value": "Puntos", "variable": "Jugador"},
+                    markers=True
                 )
 
-                # BLOQUEO DE ESCALA Y SCROLL
                 fig.update_layout(
-                    xaxis=dict(fixedrange=True, tickmode='linear', dtick=1), # Bloquea zoom X y fuerza números 1,2,3...
-                    yaxis=dict(fixedrange=True), # Bloquea zoom Y
-                    dragmode=False, # Impide arrastrar el gráfico
-                    hovermode="x unified", # Muestra todos los puntos al pasar el mouse por la línea de tiempo
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), # Leyenda horizontal arriba
-                    margin=dict(l=20, r=20, t=30, b=20), # Ajusta márgenes para aprovechar espacio
-                    height=400 # Altura fija para que no varíe al cargar
+                    xaxis=dict(fixedrange=True, tickmode='linear', dtick=1),
+                    yaxis=dict(fixedrange=True),
+                    dragmode=False,
+                    hovermode="x unified",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                    margin=dict(l=20, r=20, t=30, b=20),
+                    height=400
                 )
 
-                # Renderizar con la barra de herramientas oculta
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-                
         else:
-            st.info("💡 La evolución aparecerá cuando haya resultados en la tabla.")
+            st.info("💡 La evolución aparecerá cuando se carguen resultados oficiales.")
 
         # --- CURIOSIDADES ---
         st.markdown("---")
