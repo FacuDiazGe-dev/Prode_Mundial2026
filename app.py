@@ -573,46 +573,47 @@ if menu == "🏠 Inicio":
     with col_principal:
         st.subheader("⚽ Cronograma y Resultados")
         
-        # 1. Aseguramos limpieza absoluta de la columna VIZ
-        # Convertimos todo a string, quitamos espacios y lo pasamos a mayúsculas
+        # 1. FILTRADO ULTRA SEGURO DE VIZ (Igual al que usamos en el ranking)
+        # Normalizamos la columna para que acepte TRUE, True, 1, etc.
         df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
         
-        # 2. Filtramos (Buscamos el texto exacto 'TRUE')
-        df_mostrar = df_res[df_res['VIZ_CHECK'] == "TRUE"].sort_values('N_PARTIDO', ascending=False)
+        # Filtramos los partidos que el Admin decidió mostrar
+        df_mostrar = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO', ascending=False)
 
         with st.container(height=430):
             if df_mostrar.empty:
-                # Si entra aquí, vamos a ver qué está leyendo Python del Excel para arreglarlo:
-                st.info("⚽ No se encontraron partidos con VIZ='TRUE'.")
-                # Solo para depuración (puedes borrarlo después):
-                # st.write("Valores en VIZ detectados:", df_res['VIZ'].unique())
+                st.info("⚽ ¡Bienvenidos! Los resultados oficiales aparecerán aquí a medida que avance el mundial.")
             else:
                 for i, row in df_mostrar.iterrows():
-                    # Definición de Goles (Usa guion si no hay valor)
+                    # Definición de Goles (Si no hay valor oficial, ponemos un guion)
                     r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
                     r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
+                    dia_p = str(row['DIA']) if pd.notna(row['DIA']) else "---"
+                    hora_p = str(row['HORA']) if pd.notna(row['HORA']) else "--:--"
                     
-                    # Banderas optimizadas del mapa_banderas
+                    # Usamos el mapa de banderas optimizado
                     f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
                     f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
                     
-                    # Diseño de tarjeta
+                    # Color del tema: Azul si ya terminó (tiene goles), Gris si es próximo
+                    color_tema = "#007bff" if r1 != "-" else "#6c757d"
+                    
                     st.markdown(f"""
-                    <div style="border: 1px solid #ddd; border-top: 3px solid #007bff; border-radius: 8px; padding: 10px; margin-bottom: 10px; background-color: white;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span style="font-size: 0.7em; font-weight: bold; color: #007bff;">PARTIDO {int(row['N_PARTIDO'])}</span>
-                            <span style="font-size: 0.7em; color: #666;">📅 {row['DIA']} | 🕒 {row['HORA']}</span>
+                    <div style="border: 1px solid #ddd; border-top: 3px solid {color_tema}; border-radius: 8px; padding: 10px; margin-bottom: 10px; background-color: white;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; align-items: center;">
+                            <span style="font-size: 0.7em; font-weight: bold; color: {color_tema}; text-transform: uppercase;">PARTIDO {int(row['N_PARTIDO'])}</span>
+                            <span style="font-size: 0.7em; color: #666; font-weight: bold;">📅 {dia_p} | 🕒 {hora_p}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="width: 35%; text-align: center;">
-                                <img src="{f1}" width="25"><br>
+                                <img src="{f1}" width="28" style="margin-bottom:2px;"><br>
                                 <span style="font-weight: bold; font-size: 0.9em; color: #333;">{row['Equipo_1']}</span>
                             </div>
-                            <div style="width: 25%; text-align: center; background: #f8f9fa; border-radius: 5px; font-weight: bold; font-size: 1.2em; border: 1px solid #eee;">
+                            <div style="width: 25%; text-align: center; background: #f8f9fa; border-radius: 5px; font-weight: bold; font-size: 1.25em; border: 1px solid #eee; color: #333;">
                                 {r1} : {r2}
                             </div>
                             <div style="width: 35%; text-align: center;">
-                                <img src="{f2}" width="25"><br>
+                                <img src="{f2}" width="28" style="margin-bottom:2px;"><br>
                                 <span style="font-weight: bold; font-size: 0.9em; color: #333;">{row['Equipo_2']}</span>
                             </div>
                         </div>
