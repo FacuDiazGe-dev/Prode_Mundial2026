@@ -566,42 +566,42 @@ with st.sidebar:
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 #------------------------------------------------MENU INICIO-----------------------------------------------
 
-if menu == "🏠 Inicio":
+elif menu == "🏠 Inicio":
     with col_principal:
         st.subheader("⚽ Cronograma y Resultados")
         
-        df_pro_all = conn.read(worksheet="PRONOSTICOS", ttl=20)        
-        
-        # 1. Limpieza y Filtro de Visibilidad
-        # Aseguramos que la columna VIZ exista y sea booleana
+        # 1. Filtro de Visibilidad Robusto
         if 'VIZ' in df_res.columns:
-            df_res['VIZ'] = df_res['VIZ'].fillna(False).astype(bool)
-            df_mostrar = df_res[df_res['VIZ'] == True].iloc[::-1]
+            # Convertimos a texto, quitamos espacios y pasamos a mayúsculas
+            # Así detectamos 'TRUE', 'true', ' True', etc.
+            df_res['VIZ_STR'] = df_res['VIZ'].astype(str).str.strip().str.upper()
+            df_mostrar = df_res[df_res['VIZ_STR'] == "TRUE"].sort_values('N_PARTIDO', ascending=False)
         else:
-            # Si aún no creaste la columna en Excel, mostramos todo para no dar error
+            # Si la columna no existe en el Excel aún
             df_mostrar = df_res.iloc[::-1]
 
         with st.container(height=430):
             if df_mostrar.empty:
-                st.info("Próximamente se publicarán los partidos de la jornada.")
+                st.info("⚽ ¡Bienvenidos! Los resultados oficiales aparecerán aquí a medida que avance el mundial.")
             else:
                 for i, row in df_mostrar.iterrows():
-                    # DEFINICIÓN SEGURA DE VARIABLES (Esto evita el NameError)
+                    # DEFINICIÓN SEGURA DE VARIABLES
+                    # R1 y R2 como texto si no hay gol cargado
                     r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
                     r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
                     dia_p = str(row['DIA']) if pd.notna(row['DIA']) else "---"
                     hora_p = str(row['HORA']) if pd.notna(row['HORA']) else "--:--"
                     
-                    f1, f2 = get_flag_img(row['Equipo_1']), get_flag_img(row['Equipo_2'])
-                    i1 = f'<img src="{f1}" width="35" style="border-radius:3px;">' if "data" in f1 else f1
-                    i2 = f'<img src="{f2}" width="35" style="border-radius:3px;">' if "data" in f2 else f2
+                    # Usamos el Mapa de Banderas que optimizamos antes (mapa_banderas)
+                    # Si no existe, usa la función cached
+                    f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
+                    f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
                     
-                    # Color: Azul si terminó, Gris si es próximo
+                    i1 = f'<img src="{f1}" width="25" style="border-radius:2px;">'
+                    i2 = f'<img src="{f2}" width="25" style="border-radius:2px;">'
+                    
+                    # Color: Azul si terminó (tiene goles), Gris si es próximo
                     color_tema = "#007bff" if r1 != "-" else "#6c757d"
-
-                    # Definimos los iconos antes para que el HTML sea más simple
-                    i1 = f'<img src="{get_flag_img(row["Equipo_1"])}" width="25" style="border-radius:2px;">'
-                    i2 = f'<img src="{get_flag_img(row["Equipo_2"])}" width="25" style="border-radius:2px;">'
                     
                     st.markdown(f"""
                     <div style="border: 1px solid #ddd; border-top: 3px solid {color_tema}; border-radius: 8px; padding: 8px; margin-bottom: 10px; background-color: white;">
