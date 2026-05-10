@@ -825,22 +825,17 @@ if menu == "🏠 Inicio":
             }
         )
 
-        # --- GRÁFICO DE EVOLUCIÓN (REVISADO Y SINCRONIZADO) ---
+        # --- GRÁFICO DE EVOLUCIÓN (SINCRO TOTAL) ---
         st.markdown("---")
         st.subheader("📈 Evolución de Puntos")
         
-        # 1. Filtramos los partidos por el campo VIZ (debe decir TRUE en el Excel)
-        # Normalizamos a string y mayúsculas para evitar errores de lectura
-        df_res['VIZ'] = df_res['VIZ'].astype(str).str.upper()
-        
-        # Cambiamos el nombre de la variable para que sea consistente en todo el bloque
-        partidos_visibles = df_res[df_res['VIZ'] == "TRUE"].sort_values('N_PARTIDO')
+        # 1. Filtro flexible para VIZ (detecta TRUE, True, 1, etc.)
+        df_res['VIZ_AUX'] = df_res['VIZ'].astype(str).str.strip().str.upper()
+        partidos_visibles = df_res[df_res['VIZ_AUX'].isin(['TRUE', '1', '1.0', 'VERDADERO'])].sort_values('N_PARTIDO')
         
         if not partidos_visibles.empty:
             evol_list = []
             usuarios_lista = df_usuarios["USUARIO"].unique()
-            
-            # Tomamos la lista de IDs que pasaron el filtro de visibilidad
             ids_visibles = partidos_visibles['N_PARTIDO'].tolist()
             
             for user in usuarios_lista:
@@ -848,21 +843,19 @@ if menu == "🏠 Inicio":
                 user_pro = df_pro[df_pro['USUARIO'] == user]
                 
                 for id_p in ids_visibles:
-                    # Buscamos el partido y el pronóstico
                     part = partidos_visibles[partidos_visibles['N_PARTIDO'] == id_p].iloc[0]
                     u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
                     
                     if not u_p.empty:
-                        # Sumamos puntos usando la función oficial
-                        # Verificamos que haya goles cargados para sumar
-                        if pd.notna(part['R1']) and pd.notna(part['R2']):
-                            pts, _, _ = calcular_detalle(
-                                part['R1'], part['R2'], 
-                                u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
-                            )
+                        # Extraemos valores con iloc[0] para evitar errores de Series
+                        r1, r2 = part['R1'], part['R2']
+                        p1, p2 = u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
+                        
+                        # Solo sumamos si hay goles cargados
+                        if pd.notna(r1) and pd.notna(r2):
+                            pts, _, _ = calcular_detalle(r1, r2, p1, p2)
                             pts_acc += pts
                     
-                    # Guardamos el punto en la evolución
                     evol_list.append({
                         "N_Partido": int(id_p), 
                         "Jugador": user, 
@@ -871,11 +864,12 @@ if menu == "🏠 Inicio":
             
             if evol_list:
                 df_ev = pd.DataFrame(evol_list)
+                # Pivotamos y ordenamos el índice para que la línea sea continua
                 df_ev_pivot = df_ev.pivot(index="N_Partido", columns="Jugador", values="Puntos").sort_index()
                 
                 fig = px.line(
                     df_ev_pivot, 
-                    labels={"N_Partido": "Nº Partido", "value": "Puntos Acumulados", "variable": "Jugador"},
+                    labels={"N_Partido": "Nº Partido", "value": "Puntos", "variable": "Jugador"},
                     markers=True
                 )
 
@@ -884,14 +878,14 @@ if menu == "🏠 Inicio":
                     yaxis=dict(fixedrange=True),
                     dragmode=False,
                     hovermode="x unified",
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                    margin=dict(l=20, r=20, t=30, b=20),
-                    height=400
+                    legend=dict(orientation="h", yanchor="bottom", y=1.1, xanchor="center", x=0.5),
+                    margin=dict(l=20, r=20, t=50, b=20),
+                    height=450
                 )
 
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         else:
-            st.info("💡 La evolución aparecerá cuando los resultados marcados como visibles (VIZ=TRUE) tengan goles cargados.")
+            st.info("💡 La evolución aparecerá cuando haya partidos visibles con resultados cargados.")
 
 
         # --- CURIOSIDADES ---
