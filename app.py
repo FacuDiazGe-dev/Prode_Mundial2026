@@ -414,6 +414,10 @@ def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
     posicion = row.name + 1 
     insignias = ""
     
+    # 1. FILTRADO DE PARTIDOS VISIBLES (Para que las insignias sean reales)
+    df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
+    res_visibles = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])]
+
     # Buscamos datos extra del usuario
     try:
         u_info = df_usuarios[df_usuarios['NOMBRE'] == nombre].iloc[0]
@@ -422,7 +426,7 @@ def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
     except:
         return nombre
 
-    # Reglas de Insignias
+    # --- REGLAS DE INSIGNIAS ---
     if posicion == 1: insignias += " 👑" # Puntero
     if row['EXACTOS'] >= 5: insignias += " 🎯" # Master
     
@@ -431,19 +435,26 @@ def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
     if u_id <= 3: insignias += " 🏅" # Fundador
     if len(df_rank_base) > 2 and posicion == len(df_rank_base): insignias += " 🐌" # Lento
         
-    # Lógica ON FIRE (Racha de 3 o más exactos)
-    user_pro_sorted = df_pro[df_pro['USUARIO'] == u_nick].sort_values('N_PARTIDO')
+    # --- LÓGICA ON FIRE (Filtrada por VIZ) ---
+    # Solo miramos los pronósticos que coinciden con partidos marcados como VISIBLES
+    user_pro = df_pro[df_pro['USUARIO'] == u_nick]
+    
     r_act, r_max = 0, 0
-    for _, p in user_pro_sorted.iterrows():
-        partido_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-        if not partido_ref.empty:
-            res_p = partido_ref.iloc[0]
-            if pd.notna(res_p['R1']):
-                _, exa, _ = calcular_detalle(res_p['R1'], res_p['R2'], p['P1'], p['P2'])
+    # Iteramos solo por los partidos que tú autorizaste mostrar
+    for _, part_v in res_visibles.sort_values('N_PARTIDO').iterrows():
+        id_p = part_v['N_PARTIDO']
+        p_match = user_pro[user_pro['N_PARTIDO'] == id_p]
+        
+        if not p_match.empty:
+            # Solo evaluamos si hay resultado oficial cargado en ese partido visible
+            if pd.notna(part_v['R1']) and pd.notna(part_v['R2']):
+                _, exa, _ = calcular_detalle(part_v['R1'], part_v['R2'], p_match.iloc[0]['P1'], p_match.iloc[0]['P2'])
                 if exa == 1:
                     r_act += 1
                     r_max = max(r_max, r_act)
-                else: r_act = 0
+                else: 
+                    r_act = 0
+                    
     if r_max >= 3: insignias += f" 🔥x{r_max}"
 
     return f"{nombre}{insignias}"
