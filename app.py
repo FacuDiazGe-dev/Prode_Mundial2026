@@ -764,52 +764,54 @@ if menu == "🏠 Inicio":
             }
         )
 
-        # --- GRÁFICO DE EVOLUCIÓN (SINCRONIZADO CON RESULTADOS VISIBLES) ---
+        # --- GRÁFICO DE EVOLUCIÓN (FILTRADO POR COLUMNA VIZ) ---
         st.markdown("---")
         st.subheader("📈 Evolución de Puntos")
         
-        # 1. Filtramos SOLO los partidos que tienen resultado oficial (Visible = TRUE)
-        # Esto asegura que si el partido 5 no tiene goles cargados, la línea no avance
-        partidos_jugados = df_res[df_res['R1'].notna() & df_res['R2'].notna()].sort_values('N_PARTIDO')
+        # 1. Filtramos SOLO los partidos donde VIZ es True (o 1)
+        # Convertimos a string y mayúsculas por si acaso en el Excel dice 'true' o 'TRUE'
+        df_res['VIZ'] = df_res['VIZ'].astype(str).str.upper()
+        partidos_visibles = df_res[df_res['VIZ'] == "TRUE"].sort_values('N_PARTIDO')
         
-        if not partidos_jugados.empty:
+        if not partidos_visibles.empty:
             evol_list = []
-            # Usamos la lista de usuarios oficial
             usuarios_lista = df_usuarios["USUARIO"].unique()
+            
+            # 2. Tomamos los IDs de los partidos que marcaste como visibles
+            ids_visibles = partidos_visibles['N_PARTIDO'].tolist()
             
             for user in usuarios_lista:
                 pts_acc = 0
-                # Filtramos pronósticos del usuario actual
                 user_pro = df_pro[df_pro['USUARIO'] == user]
                 
-                for _, part in partidos_jugados.iterrows():
-                    id_p = int(part['N_PARTIDO'])
+                for id_p in ids_visibles:
+                    # Buscamos el resultado oficial y el pronóstico del usuario
+                    part = partidos_visibles[partidos_visibles['N_PARTIDO'] == id_p].iloc[0]
                     u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
                     
                     if not u_p.empty:
-                        # Usamos la función de cálculo oficial para que el gráfico sea idéntico al ranking
-                        pts, _, _ = calcular_detalle(
-                            part['R1'], part['R2'], 
-                            u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
-                        )
-                        pts_acc += pts
+                        # Solo sumamos puntos si hay goles cargados (R1 y R2 no nulos)
+                        if pd.notna(part['R1']) and pd.notna(part['R2']):
+                            pts, _, _ = calcular_detalle(
+                                part['R1'], part['R2'], 
+                                u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
+                            )
+                            pts_acc += pts
                     
-                    # Guardamos el punto en la línea de tiempo
+                    # Guardamos el punto en la línea de tiempo del gráfico
                     evol_list.append({
-                        "N_Partido": id_p, 
+                        "N_Partido": int(id_p), 
                         "Jugador": user, 
                         "Puntos": pts_acc
                     })
             
             if evol_list:
                 df_ev = pd.DataFrame(evol_list)
-                # Pivotamos para que Plotly entienda las líneas por jugador
                 df_ev_pivot = df_ev.pivot(index="N_Partido", columns="Jugador", values="Puntos").sort_index()
                 
-                # --- CONFIGURACIÓN DE PLOTLY (ESTÁTICO) ---
                 fig = px.line(
                     df_ev_pivot, 
-                    labels={"N_Partido": "Nº Partido", "value": "Puntos", "variable": "Jugador"},
+                    labels={"N_Partido": "Nº Partido", "value": "Puntos Acumulados", "variable": "Jugador"},
                     markers=True
                 )
 
@@ -825,7 +827,7 @@ if menu == "🏠 Inicio":
 
                 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         else:
-            st.info("💡 La evolución aparecerá cuando se carguen resultados oficiales.")
+            st.info("💡 La evolución aparecerá cuando los resultados sean marcados como visibles (VIZ=TRUE).")
 
         # --- CURIOSIDADES ---
         st.markdown("---")
