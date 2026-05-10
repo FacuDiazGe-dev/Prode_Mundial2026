@@ -563,7 +563,7 @@ with st.sidebar:
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 #------------------------------------------------MENU INICIO-----------------------------------------------
 
-elif menu == "🏠 Inicio":
+if menu == "🏠 Inicio":
     with col_principal:
         st.subheader("⚽ Cronograma y Resultados")
         
