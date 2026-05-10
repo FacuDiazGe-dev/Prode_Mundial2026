@@ -455,18 +455,21 @@ def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
 def obtener_ranking_global(df_users, df_pro, df_res):
     ranking_data = []
     
-    # 1. Filtro seguro de Visibilidad
+    # 1. FILTRADO ULTRA SEGURO DE VIZ
     if 'VIZ' in df_res.columns:
-        df_res['VIZ_STR'] = df_res['VIZ'].astype(str).str.strip().upper()
-        res_visibles = df_res[df_res['VIZ_STR'].isin(['TRUE', '1', '1.0'])]
+        # Convertimos a string primero para evitar el AttributeError
+        df_res['VIZ_STR'] = df_res['VIZ'].fillna('FALSE').astype(str)
+        # Filtramos buscando cualquier rastro de "verdadero"
+        res_visibles = df_res[df_res['VIZ_STR'].str.upper().str.contains('TRUE|1|1.0', na=False)]
     else:
-        # Si por algún motivo no detecta la columna, tomamos partidos con goles cargados
+        # Si la columna no existe, no rompemos la app, solo tomamos los que tienen goles
         res_visibles = df_res[df_res['R1'].notna()]
     
     for _, u in df_users.iterrows():
         u_nick = u['USUARIO']
         pts_t, exa_t, gen_t = 0, 0, 0
         
+        # Filtramos pronósticos del usuario
         pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
         
         for _, part in res_visibles.iterrows():
@@ -474,8 +477,8 @@ def obtener_ranking_global(df_users, df_pro, df_res):
             p_match = pro_usr[pro_usr['N_PARTIDO'] == id_p]
             
             if not p_match.empty:
+                # Usamos .iloc[0] para extraer el valor individual
                 r1, r2 = part['R1'], part['R2']
-                # Usamos .iloc[0] para asegurar que tomamos el valor del primer match
                 p1, p2 = p_match.iloc[0]['P1'], p_match.iloc[0]['P2']
                 
                 if pd.notna(r1) and pd.notna(r2):
@@ -493,9 +496,14 @@ def obtener_ranking_global(df_users, df_pro, df_res):
             'USUARIO': u_nick
         })
     
+    # 2. CREACIÓN DEL DATAFRAME DE RANKING
+    if not ranking_data:
+        return pd.DataFrame(columns=['Nº', 'JUGADOR', 'PUNTOS', 'EXACTOS', 'GENERALES'])
+
     df_rank = pd.DataFrame(ranking_data).sort_values(by=['PUNTOS', 'EXACTOS'], ascending=False).reset_index(drop=True)
     df_rank.index = df_rank.index + 1
     df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
+    
     return df_rank
 
 # =============================================================================
