@@ -1390,20 +1390,22 @@ elif menu == "⚙️ Panel Control":
             
             df_res_admin = conn.read(worksheet="RESULTADOS", ttl=5)
             
-            # TODO este bloque debe estar indentado dentro del with col_principal
             with st.form("form_admin_master_72"):
+                # --- SOLUCIÓN AL TYPEERROR ---
+                # Convertimos VIZ a objeto para que acepte cualquier texto sin chillar
                 df_to_update = df_res_admin.copy()
+                df_to_update['VIZ'] = df_to_update['VIZ'].astype(object)
                 
-                # Definimos las pestañas
                 t1, t2, t3 = st.tabs(["Fase 1", "Fase 2", "Fase 3"])
                 
-                # Función interna (debe estar dentro del form para acceder a df_to_update)
                 def renderizar_bloque(df_grupo, contenedor):
                     with contenedor:
                         for idx_df, row in df_grupo.iterrows():
                             id_p = int(row['N_PARTIDO'])
                             r1_curr = int(row['R1']) if pd.notna(row['R1']) else 0
                             r2_curr = int(row['R2']) if pd.notna(row['R2']) else 0
+                            
+                            # Normalización de visibilidad para el toggle
                             viz_act = str(row['VIZ']).strip().upper() in ['TRUE', '1', '1.0', 'VERDADERO']
 
                             st.markdown(f"**P{id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}")
@@ -1419,19 +1421,19 @@ elif menu == "⚙️ Panel Control":
                                 viz_val = st.toggle("Visible", value=viz_act, key=f"viz_{id_p}")
                                 finalizado = st.checkbox("Fin", value=pd.notna(row['R1']), key=f"fin_{id_p}")
 
-                            # Actualización de la copia
+                            # Actualización segura
                             df_to_update.at[idx_df, 'R1'] = r1_val if finalizado else None
                             df_to_update.at[idx_df, 'R2'] = r2_val if finalizado else None
+                            # Guardamos como string puro para máxima compatibilidad con el resto de la app
                             df_to_update.at[idx_df, 'VIZ'] = "TRUE" if viz_val else "FALSE"
                             st.markdown("---")
 
-                # Llamamos a la función para cada pestaña
+                # Renderizamos los 3 bloques
                 renderizar_bloque(df_to_update.iloc[0:24], t1)
                 renderizar_bloque(df_to_update.iloc[24:48], t2)
                 renderizar_bloque(df_to_update.iloc[48:72], t3)
 
-                # --- EL BOTÓN DEBE ESTAR AQUÍ ---
-                # Alineado con el comando 't1, t2, t3 = st.tabs...'
+                # Botón de envío alineado correctamente
                 submit = st.form_submit_button("💾 GUARDAR LOS 72 PARTIDOS", use_container_width=True)
                 
                 if submit:
@@ -1443,6 +1445,7 @@ elif menu == "⚙️ Panel Control":
                         st.rerun()
                     except Exception as e:
                         st.error(f"❌ Error al conectar: {e}")
+
 
 
         # 2. COLUMNA DERECHA (Auditoría y Usuarios)
