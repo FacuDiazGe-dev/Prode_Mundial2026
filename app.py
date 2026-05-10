@@ -451,27 +451,36 @@ def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
 # =============================================================================
 # 2. FUNCIÓN PRINCIPAL DE RANKING
 # =============================================================================
-@st.cache_data(ttl=300)
-def obtener_ranking_global(df_users_list, df_pro_total, df_res_oficial):
+@st.cache_data(ttl=60)
+def obtener_ranking_global(df_users, df_pro, df_res):
     ranking_data = []
     
-    for _, u in df_users_list.iterrows():
+    # 1. Filtramos los resultados oficiales que el Admin decidió mostrar
+    df_res['VIZ'] = df_res['VIZ'].astype(str).str.upper()
+    res_visibles = df_res[df_res['VIZ'] == "TRUE"]
+    
+    for _, u in df_users.iterrows():
         u_nick = u['USUARIO']
         u_nombre = u['NOMBRE']
         u_id = u['ID']
         pts_t, exa_t, gen_t = 0, 0, 0
         
-        pro_usr = df_pro_total[df_pro_total['USUARIO'] == u_nick]
+        pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
         
-        for _, p in pro_usr.iterrows():
-            res_p = df_res_oficial[df_res_oficial['N_PARTIDO'] == p['N_PARTIDO']]
+        # 2. Solo iteramos sobre los partidos que son VISIBLES
+        for _, part_oficial in res_visibles.iterrows():
+            id_p = part_oficial['N_PARTIDO']
             
-            if not res_p.empty:
-                r1_oficial = res_p.iloc[0]['R1']
-                r2_oficial = res_p.iloc[0]['R2']
+            # Buscamos el pronóstico del usuario para ese partido visible
+            p_match = pro_usr[pro_usr['N_PARTIDO'] == id_p]
+            
+            if not p_match.empty:
+                r1, r2 = part_oficial['R1'], part_oficial['R2']
+                p1, p2 = p_match.iloc[0]['P1'], p_match.iloc[0]['P2']
                 
-                if pd.notna(r1_oficial) and pd.notna(r2_oficial):
-                    pts, exa, gen = calcular_detalle(r1_oficial, r2_oficial, p['P1'], p['P2'])
+                # Solo calculamos si hay goles oficiales cargados
+                if pd.notna(r1) and pd.notna(r2):
+                    pts, exa, gen = calcular_detalle(r1, r2, p1, p2)
                     pts_t += pts
                     exa_t += exa
                     gen_t += gen
@@ -481,23 +490,11 @@ def obtener_ranking_global(df_users_list, df_pro_total, df_res_oficial):
             'JUGADOR': u_nombre, 
             'PUNTOS': pts_t, 
             'EXACTOS': exa_t, 
-            'GENERALES': gen_t
+            'GENERALES': gen_t,
+            'USUARIO': u_nick
         })
     
-    # Crear DataFrame base y ordenar
-    df_rank = pd.DataFrame(ranking_data).sort_values(
-        by=['PUNTOS', 'EXACTOS'], 
-        ascending=False
-    ).reset_index(drop=True)
-    
-    # Aplicar insignias a los nombres
-    if not df_rank.empty:
-        df_rank['JUGADOR'] = df_rank.apply(
-            lambda row: procesar_nombres_ranking(row, df_rank, df_pro_total, df_res_oficial, df_users_list), 
-            axis=1
-        )
-        
-    # Crear columna de posición Nº
+    df_rank = pd.DataFrame(ranking_data).sort_values(by=['PUNTOS', 'EXACTOS'], ascending=False).reset_index(drop=True)
     df_rank.index = df_rank.index + 1
     df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
     
