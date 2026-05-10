@@ -836,7 +836,7 @@ if menu == "🏠 Inicio":
         # --- CURIOSIDADES ---
         st.markdown("---")
         st.subheader("💡 ¿Sabías que...?")
-        if not partidos_Visibles.empty:
+        if not partidos_visibles.empty:
             aciertos_list = []
             for _, p in partidos_visibles.iterrows():
                 id_p = p['N_PARTIDO']
