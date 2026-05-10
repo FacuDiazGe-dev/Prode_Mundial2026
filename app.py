@@ -891,28 +891,44 @@ if menu == "🏠 Inicio":
         # --- CURIOSIDADES ---
         st.markdown("---")
         st.subheader("💡 ¿Sabías que...?")
+        
+        # Usamos la variable partidos_visibles que definimos en el bloque del gráfico
         if not partidos_visibles.empty:
             aciertos_list = []
             for _, p in partidos_visibles.iterrows():
                 id_p = p['N_PARTIDO']
                 total_ac = 0
-                pros_p = df_pro_all[df_pro_all['N_PARTIDO'] == id_p]
-                t_real = 1 if p['R1'] > p['R2'] else (2 if p['R2'] > p['R1'] else 0)
+                
+                # CORRECCIÓN: Cambiamos df_pro_all por df_pro
+                pros_p = df_pro[df_pro['N_PARTIDO'] == id_p]
+                
+                # Determinamos tendencia real (1=Local, 2=Visitante, 0=Empate)
+                r1, r2 = p['R1'], p['R2']
+                t_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
+                
                 for _, pr in pros_p.iterrows():
-                    if (1 if pr['P1'] > pr['P2'] else (2 if pr['P2'] > pr['P1'] else 0)) == t_real:
+                    # Tendencia pronosticada
+                    p1, p2 = pr['P1'], pr['P2']
+                    t_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
+                    
+                    if t_pron == t_real:
                         total_ac += 1
+                        
                 aciertos_list.append({"Partido": f"{p['Equipo_1']} vs {p['Equipo_2']}", "Cant": total_ac})
             
-            df_h = pd.DataFrame(aciertos_list)
-            st.write(f"✅ **Más fácil:** {df_h.loc[df_h['Cant'].idxmax()]['Partido']}")
-            st.write(f"😱 **Sorpresa:** {df_h.loc[df_h['Cant'].idxmin()]['Partido']}")
+            if aciertos_list:
+                df_h = pd.DataFrame(aciertos_list)
+                # Mostramos los datos con íconos descriptivos
+                st.write(f"✅ **Más fácil (más aciertos de tendencia):** {df_h.loc[df_h['Cant'].idxmax()]['Partido']}")
+                st.write(f"😱 **Sorpresa (menos aciertos de tendencia):** {df_h.loc[df_h['Cant'].idxmin()]['Partido']}")
 
         # --- ESTADÍSTICAS GLOBALES ---
         st.markdown("---")
         st.subheader("📊 Global")
         c1, c2 = st.columns(2)
-        c1.metric("🎯 Exactos", int(df_ranking["EXACTOS"].sum()))
-        c2.metric("✅ Grales", int(df_ranking["GENERALES"].sum()))
+        # Aseguramos que sume sobre df_ranking que ya está calculado arriba
+        c1.metric("🎯 Total Exactos", int(df_ranking["EXACTOS"].sum()))
+        c2.metric("✅ Total Grales", int(df_ranking["GENERALES"].sum()))
 
 #---------- MENU MIS PRONOSTICOS (CÓDIGO CORREGIDO Y COMPLETO) ----------------------------------
 
