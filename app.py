@@ -567,56 +567,47 @@ if menu == "🏠 Inicio":
     with col_principal:
         st.subheader("⚽ Cronograma y Resultados")
         
-        # 1. Filtro de Visibilidad Robusto
-        if 'VIZ' in df_res.columns:
-            # Convertimos a texto, quitamos espacios y pasamos a mayúsculas
-            # Así detectamos 'TRUE', 'true', ' True', etc.
-            df_res['VIZ_STR'] = df_res['VIZ'].astype(str).str.strip().str.upper()
-            df_mostrar = df_res[df_res['VIZ_STR'] == "TRUE"].sort_values('N_PARTIDO', ascending=False)
-        else:
-            # Si la columna no existe en el Excel aún
-            df_mostrar = df_res.iloc[::-1]
+        # 1. Aseguramos limpieza absoluta de la columna VIZ
+        # Convertimos todo a string, quitamos espacios y lo pasamos a mayúsculas
+        df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
+        
+        # 2. Filtramos (Buscamos el texto exacto 'TRUE')
+        df_mostrar = df_res[df_res['VIZ_CHECK'] == "TRUE"].sort_values('N_PARTIDO', ascending=False)
 
         with st.container(height=430):
             if df_mostrar.empty:
-                st.info("⚽ ¡Bienvenidos! Los resultados oficiales aparecerán aquí a medida que avance el mundial.")
+                # Si entra aquí, vamos a ver qué está leyendo Python del Excel para arreglarlo:
+                st.info("⚽ No se encontraron partidos con VIZ='TRUE'.")
+                # Solo para depuración (puedes borrarlo después):
+                # st.write("Valores en VIZ detectados:", df_res['VIZ'].unique())
             else:
                 for i, row in df_mostrar.iterrows():
-                    # DEFINICIÓN SEGURA DE VARIABLES
-                    # R1 y R2 como texto si no hay gol cargado
+                    # Definición de Goles (Usa guion si no hay valor)
                     r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
                     r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
-                    dia_p = str(row['DIA']) if pd.notna(row['DIA']) else "---"
-                    hora_p = str(row['HORA']) if pd.notna(row['HORA']) else "--:--"
                     
-                    # Usamos el Mapa de Banderas que optimizamos antes (mapa_banderas)
-                    # Si no existe, usa la función cached
+                    # Banderas optimizadas del mapa_banderas
                     f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
                     f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
                     
-                    i1 = f'<img src="{f1}" width="25" style="border-radius:2px;">'
-                    i2 = f'<img src="{f2}" width="25" style="border-radius:2px;">'
-                    
-                    # Color: Azul si terminó (tiene goles), Gris si es próximo
-                    color_tema = "#007bff" if r1 != "-" else "#6c757d"
-                    
+                    # Diseño de tarjeta
                     st.markdown(f"""
-                    <div style="border: 1px solid #ddd; border-top: 3px solid {color_tema}; border-radius: 8px; padding: 8px; margin-bottom: 10px; background-color: white;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; align-items: center;">
-                            <span style="font-size: 0.65em; font-weight: bold; color: {color_tema}; text-transform: uppercase;">PARTIDO {int(row['N_PARTIDO'])}</span>
-                            <span style="font-size: 0.65em; color: #666; font-weight: bold;">📅 {dia_p} | 🕒 {hora_p}</span>
+                    <div style="border: 1px solid #ddd; border-top: 3px solid #007bff; border-radius: 8px; padding: 10px; margin-bottom: 10px; background-color: white;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="font-size: 0.7em; font-weight: bold; color: #007bff;">PARTIDO {int(row['N_PARTIDO'])}</span>
+                            <span style="font-size: 0.7em; color: #666;">📅 {row['DIA']} | 🕒 {row['HORA']}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="width: 38%; text-align: center;">
-                                <div style="margin-bottom: 3px;">{i1}</div>
-                                <div style="font-weight: bold; font-size: 0.85em; color: #333;">{row['Equipo_1']}</div>
+                            <div style="width: 35%; text-align: center;">
+                                <img src="{f1}" width="25"><br>
+                                <span style="font-weight: bold; font-size: 0.9em; color: #333;">{row['Equipo_1']}</span>
                             </div>
-                            <div style="width: 24%; text-align: center;">
-                                <div style="background: #f8f9fa; border: 1px solid #ddd; color: #333; font-size: 1.2em; font-weight: bold; border-radius: 5px; padding: 2px 0;">{r1}:{r2}</div>
+                            <div style="width: 25%; text-align: center; background: #f8f9fa; border-radius: 5px; font-weight: bold; font-size: 1.2em; border: 1px solid #eee;">
+                                {r1} : {r2}
                             </div>
-                            <div style="width: 38%; text-align: center;">
-                                <div style="margin-bottom: 3px;">{i2}</div>
-                                <div style="font-weight: bold; font-size: 0.85em; color: #333;">{row['Equipo_2']}</div>
+                            <div style="width: 35%; text-align: center;">
+                                <img src="{f2}" width="25"><br>
+                                <span style="font-weight: bold; font-size: 0.9em; color: #333;">{row['Equipo_2']}</span>
                             </div>
                         </div>
                     </div>""", unsafe_allow_html=True)
