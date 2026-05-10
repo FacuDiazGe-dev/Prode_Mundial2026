@@ -455,30 +455,29 @@ def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
 def obtener_ranking_global(df_users, df_pro, df_res):
     ranking_data = []
     
-    # 1. Filtramos los resultados oficiales que el Admin decidió mostrar
-    df_res['VIZ'] = df_res['VIZ'].astype(str).str.upper()
-    res_visibles = df_res[df_res['VIZ'] == "TRUE"]
+    # 1. Filtro seguro de Visibilidad
+    if 'VIZ' in df_res.columns:
+        df_res['VIZ_STR'] = df_res['VIZ'].astype(str).str.strip().upper()
+        res_visibles = df_res[df_res['VIZ_STR'].isin(['TRUE', '1', '1.0'])]
+    else:
+        # Si por algún motivo no detecta la columna, tomamos partidos con goles cargados
+        res_visibles = df_res[df_res['R1'].notna()]
     
     for _, u in df_users.iterrows():
         u_nick = u['USUARIO']
-        u_nombre = u['NOMBRE']
-        u_id = u['ID']
         pts_t, exa_t, gen_t = 0, 0, 0
         
         pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
         
-        # 2. Solo iteramos sobre los partidos que son VISIBLES
-        for _, part_oficial in res_visibles.iterrows():
-            id_p = part_oficial['N_PARTIDO']
-            
-            # Buscamos el pronóstico del usuario para ese partido visible
+        for _, part in res_visibles.iterrows():
+            id_p = int(part['N_PARTIDO'])
             p_match = pro_usr[pro_usr['N_PARTIDO'] == id_p]
             
             if not p_match.empty:
-                r1, r2 = part_oficial['R1'], part_oficial['R2']
+                r1, r2 = part['R1'], part['R2']
+                # Usamos .iloc[0] para asegurar que tomamos el valor del primer match
                 p1, p2 = p_match.iloc[0]['P1'], p_match.iloc[0]['P2']
                 
-                # Solo calculamos si hay goles oficiales cargados
                 if pd.notna(r1) and pd.notna(r2):
                     pts, exa, gen = calcular_detalle(r1, r2, p1, p2)
                     pts_t += pts
@@ -486,8 +485,8 @@ def obtener_ranking_global(df_users, df_pro, df_res):
                     gen_t += gen
                     
         ranking_data.append({
-            'ID_PARA_FOTO': u_id,
-            'JUGADOR': u_nombre, 
+            'ID_PARA_FOTO': u['ID'],
+            'JUGADOR': u['NOMBRE'], 
             'PUNTOS': pts_t, 
             'EXACTOS': exa_t, 
             'GENERALES': gen_t,
@@ -497,7 +496,6 @@ def obtener_ranking_global(df_users, df_pro, df_res):
     df_rank = pd.DataFrame(ranking_data).sort_values(by=['PUNTOS', 'EXACTOS'], ascending=False).reset_index(drop=True)
     df_rank.index = df_rank.index + 1
     df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
-    
     return df_rank
 
 # =============================================================================
