@@ -1387,26 +1387,24 @@ elif menu == "⚙️ Panel Control":
         # 1. COLUMNA PRINCIPAL (Gestión Profesional - 72 Partidos)
         with col_principal:
             st.subheader("⚽ Gestión de Jornada (72 Partidos)")
-            st.info("Usa las pestañas para navegar entre partidos. Guarda al finalizar los cambios.")
-
-            # Lectura única
+            
             df_res_admin = conn.read(worksheet="RESULTADOS", ttl=5)
             
+            # TODO este bloque debe estar indentado dentro del with col_principal
             with st.form("form_admin_master_72"):
                 df_to_update = df_res_admin.copy()
                 
-                # Dividimos los 72 partidos en 3 grupos para mejor UI
-                t1, t2, t3 = st.tabs(["Partidos 1-24", "Partidos 25-48", "Partidos 49-72"])
+                # Definimos las pestañas
+                t1, t2, t3 = st.tabs(["Fase 1", "Fase 2", "Fase 3"])
                 
-                # Función interna para renderizar bloques de partidos
+                # Función interna (debe estar dentro del form para acceder a df_to_update)
                 def renderizar_bloque(df_grupo, contenedor):
                     with contenedor:
                         for idx_df, row in df_grupo.iterrows():
                             id_p = int(row['N_PARTIDO'])
-                            
                             r1_curr = int(row['R1']) if pd.notna(row['R1']) else 0
                             r2_curr = int(row['R2']) if pd.notna(row['R2']) else 0
-                            viz_actual = str(row['VIZ']).strip().upper() in ['TRUE', '1', '1.0', 'VERDADERO']
+                            viz_act = str(row['VIZ']).strip().upper() in ['TRUE', '1', '1.0', 'VERDADERO']
 
                             st.markdown(f"**P{id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}")
                             c1, c_vs, c2, c_viz = st.columns([1, 0.2, 1, 1.2])
@@ -1418,22 +1416,25 @@ elif menu == "⚙️ Panel Control":
                             with c2:
                                 r2_val = st.number_input(f"G2_{id_p}", 0, 20, r2_curr, key=f"r2_{id_p}", label_visibility="collapsed")
                             with c_viz:
-                                viz_val = st.toggle("Visible", value=viz_actual, key=f"viz_{id_p}")
+                                viz_val = st.toggle("Visible", value=viz_act, key=f"viz_{id_p}")
                                 finalizado = st.checkbox("Fin", value=pd.notna(row['R1']), key=f"fin_{id_p}")
 
-                            # Guardar cambios en el DataFrame copia
+                            # Actualización de la copia
                             df_to_update.at[idx_df, 'R1'] = r1_val if finalizado else None
                             df_to_update.at[idx_df, 'R2'] = r2_val if finalizado else None
                             df_to_update.at[idx_df, 'VIZ'] = "TRUE" if viz_val else "FALSE"
                             st.markdown("---")
 
-                # Repartimos los partidos por índice (Asumiendo que están ordenados en el Excel)
+                # Llamamos a la función para cada pestaña
                 renderizar_bloque(df_to_update.iloc[0:24], t1)
                 renderizar_bloque(df_to_update.iloc[24:48], t2)
                 renderizar_bloque(df_to_update.iloc[48:72], t3)
 
-                # Botón de guardado masivo (Afecta a todas las pestañas)
-                if st.form_submit_button("💾 GUARDAR LOS 72 PARTIDOS", use_container_width=True):
+                # --- EL BOTÓN DEBE ESTAR AQUÍ ---
+                # Alineado con el comando 't1, t2, t3 = st.tabs...'
+                submit = st.form_submit_button("💾 GUARDAR LOS 72 PARTIDOS", use_container_width=True)
+                
+                if submit:
                     try:
                         conn.update(worksheet="RESULTADOS", data=df_to_update)
                         st.cache_data.clear()
@@ -1442,6 +1443,7 @@ elif menu == "⚙️ Panel Control":
                         st.rerun()
                     except Exception as e:
                         st.error(f"❌ Error al conectar: {e}")
+
 
         # 2. COLUMNA DERECHA (Auditoría y Usuarios)
         with col_derecha:
