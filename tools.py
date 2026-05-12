@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import base64
+from datetime import datetime
 from google.cloud import storage
 import io 
 
@@ -71,3 +72,37 @@ def upload_profile_picture(archivo, file_name):
         
     except Exception as e:
         return f"Error: {e}"
+
+# --- FUNCIÓN DE REGISTRO BLINDADA -------------------------------------------------------------------------------------
+def registrar_usuario(conn, nombre, usuario, contraseña, avatar_url, equipo):
+    """
+    Registra un nuevo usuario en la pestaña USUARIOS de Google Sheets.
+    """
+    try:
+        # 1. Leer usuarios actuales
+        df_usuarios = conn.read(worksheet="USUARIOS", ttl=0)
+        
+        # 2. Verificar si el usuario ya existe (case insensitive)
+        if usuario.lower().strip() in df_usuarios['USUARIO'].astype(str).str.lower().str.strip().values:
+            return False, "⚠️ El nombre de usuario ya está en uso."
+        
+        # 3. Crear el nuevo registro
+        nuevo_id = int(df_usuarios['ID'].max() + 1) if not df_usuarios.empty else 1
+        nuevo_user = {
+            "ID": nuevo_id,
+            "FECHA_REG": datetime.now().strftime("%d/%m/%Y"),
+            "NOMBRE": nombre.strip(),
+            "USUARIO": usuario.strip(),
+            "CONTRASEÑA": contraseña,
+            "ROL": "user",
+            "AVATAR_URL": avatar_url,
+            "EQUIPO": equipo
+        }
+        
+        # 4. Concatenar y subir
+        df_update = pd.concat([df_usuarios, pd.DataFrame([nuevo_user])], ignore_index=True)
+        conn.update(worksheet="USUARIOS", data=df_update)
+        return True, "✅ ¡Registro exitoso! Ya puedes iniciar sesión."
+    
+    except Exception as e:
+        return False, f"❌ Error al registrar: {e}"
