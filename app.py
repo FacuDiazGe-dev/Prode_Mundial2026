@@ -340,7 +340,8 @@ if MANTENIMIENTO_ACTIVO and st.session_state['user_data']['ROL'] != 'admin':
 #     </div>
 # """, unsafe_allow_html=True)
 
-
+aplicar_estilos_globales()
+dibujar_banner()
 # --- SIDEBAR DE BIENVENIDA ---
 st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
 
