@@ -61,54 +61,6 @@ if estado_mantenimiento == "ON":
             st.rerun()
         st.stop() 
 
-
-# # --- FUNCIÓN DE REGISTRO BLINDADA -------------------------------------------------------------------------------------
-# def registrar_usuario(datos_nuevos):
-#     try:
-#         # 1. Leer la tabla actual (sin usar caché para ver lo real)
-#         df_actual = conn.read(worksheet="USUARIOS", ttl=10)
-        
-#         # 2. Limpiar nombres para comparar (evita duplicados por espacios o mayúsculas)
-#         nuevo_u_clean = str(datos_nuevos["USUARIO"]).strip().lower()
-#         usuarios_existentes = df_actual["USUARIO"].astype(str).str.strip().str.lower().tolist()
-        
-#         if nuevo_u_clean in usuarios_existentes:
-#             st.error(f"❌ El usuario '{datos_nuevos['USUARIO']}' ya existe. Elige otro nick.")
-#             return False
-
-#         # 3. Preparar los datos del nuevo usuario
-#         # ID automático: Si está vacío empieza en 1, sino Max + 1
-#         nuevo_id = int(df_actual["ID"].max() + 1) if not df_actual.empty else 1
-        
-#         # Creamos un diccionario limpio con el orden exacto de las columnas
-#         nuevo_registro = {
-#             "ID": nuevo_id,
-#             "USUARIO": datos_nuevos["USUARIO"].strip(),
-#             "CONTRASEÑA": str(datos_nuevos["CONTRASEÑA"]),
-#             "NOMBRE": datos_nuevos["NOMBRE"].strip(),
-#             "EDAD": datos_nuevos["EDAD"],
-#             "EQUIPO FAVORITO": datos_nuevos["EQUIPO FAVORITO"],
-#             "DESCRIPCION": datos_nuevos["DESCRIPCION"],
-#             "ROL": "jugador",
-#             "FECHA_REG": datetime.now().strftime("%d/%m/%Y"),
-#             "AVATAR_URL": ""
-#         }
-        
-#         # 4. Concatenar: El nuevo usuario se suma al final del DataFrame actual
-#         df_para_subir = pd.concat([df_actual, pd.DataFrame([nuevo_registro])], ignore_index=True)
-        
-#         # 5. ACTUALIZAR GOOGLE SHEETS (Sobrescribe la pestaña con la lista actualizada)
-#         conn.update(worksheet="USUARIOS", data=df_para_subir)
-        
-#         # Limpiamos caché de Streamlit para que la próxima lectura vea al nuevo usuario
-#         st.cache_data.clear()
-#         st.success("✅ ¡Usuario creado con éxito!")
-#         return True
-
-#     except Exception as e:
-#         st.error(f"Error técnico: {e}")
-#         return False
-
 # --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) --------------------------------------------------------
 
 if 'autenticado' not in st.session_state:
