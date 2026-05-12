@@ -520,61 +520,61 @@ except Exception as e:
 # def obtener_ranking_global(df_users, df_pro, df_res):
 #     ranking_data = []
     
-    # 1. Filtro de Visibilidad (Sincronizado con el Inicio)
-    df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
-    res_visibles = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])]
+    # # 1. Filtro de Visibilidad (Sincronizado con el Inicio)
+    # df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
+    # res_visibles = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])]
     
-    for _, u in df_users.iterrows():
-        u_nick = u['USUARIO']
-        u_nombre = u['NOMBRE']
-        u_id = u['ID']
-        pts_t, exa_t, gen_t = 0, 0, 0
+    # for _, u in df_users.iterrows():
+    #     u_nick = u['USUARIO']
+    #     u_nombre = u['NOMBRE']
+    #     u_id = u['ID']
+    #     pts_t, exa_t, gen_t = 0, 0, 0
         
-        pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
+    #     pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
         
-        # 2. Solo sumamos puntos de partidos marcados como VISIBLES
-        for _, part in res_visibles.iterrows():
-            id_p = int(part['N_PARTIDO'])
-            p_match = pro_usr[pro_usr['N_PARTIDO'] == id_p]
+    #     # 2. Solo sumamos puntos de partidos marcados como VISIBLES
+    #     for _, part in res_visibles.iterrows():
+    #         id_p = int(part['N_PARTIDO'])
+    #         p_match = pro_usr[pro_usr['N_PARTIDO'] == id_p]
             
-            if not p_match.empty:
-                r1, r2 = part['R1'], part['R2']
-                p1, p2 = p_match.iloc[0]['P1'], p_match.iloc[0]['P2']
+    #         if not p_match.empty:
+    #             r1, r2 = part['R1'], part['R2']
+    #             p1, p2 = p_match.iloc[0]['P1'], p_match.iloc[0]['P2']
                 
-                if pd.notna(r1) and pd.notna(r2):
-                    pts, exa, gen = calcular_detalle(r1, r2, p1, p2)
-                    pts_t += pts
-                    exa_t += exa
-                    gen_t += gen
+    #             if pd.notna(r1) and pd.notna(r2):
+    #                 pts, exa, gen = calcular_detalle(r1, r2, p1, p2)
+    #                 pts_t += pts
+    #                 exa_t += exa
+    #                 gen_t += gen
                     
-        ranking_data.append({
-            'ID_PARA_FOTO': u_id,
-            'JUGADOR': u_nombre, 
-            'PUNTOS': pts_t, 
-            'EXACTOS': exa_t, 
-            'GENERALES': gen_t,
-            'USUARIO': u_nick
-        })
+    #     ranking_data.append({
+    #         'ID_PARA_FOTO': u_id,
+    #         'JUGADOR': u_nombre, 
+    #         'PUNTOS': pts_t, 
+    #         'EXACTOS': exa_t, 
+    #         'GENERALES': gen_t,
+    #         'USUARIO': u_nick
+    #     })
     
-    # 3. Crear DataFrame y ordenar
-    df_rank = pd.DataFrame(ranking_data).sort_values(
-        by=['PUNTOS', 'EXACTOS'], 
-        ascending=False
-    ).reset_index(drop=True)
+    # # 3. Crear DataFrame y ordenar
+    # df_rank = pd.DataFrame(ranking_data).sort_values(
+    #     by=['PUNTOS', 'EXACTOS'], 
+    #     ascending=False
+    # ).reset_index(drop=True)
     
-    # 4. APLICAR INSIGNIAS DINÁMICAS
-    if not df_rank.empty:
-        # Usamos la función de procesamiento de nombres que ya teníamos
-        df_rank['JUGADOR'] = df_rank.apply(
-            lambda row: procesar_nombres_ranking(row, df_rank, df_pro, df_res, df_users), 
-            axis=1
-        )
+    # # 4. APLICAR INSIGNIAS DINÁMICAS
+    # if not df_rank.empty:
+    #     # Usamos la función de procesamiento de nombres que ya teníamos
+    #     df_rank['JUGADOR'] = df_rank.apply(
+    #         lambda row: procesar_nombres_ranking(row, df_rank, df_pro, df_res, df_users), 
+    #         axis=1
+    #     )
     
-    # 5. Formato de posición
-    df_rank.index = df_rank.index + 1
-    df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
+    # # 5. Formato de posición
+    # df_rank.index = df_rank.index + 1
+    # df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
     
-    return df_rank
+    # return df_rank
 
 # =============================================================================
 # 3. EJECUCIÓN
