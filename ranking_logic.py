@@ -113,8 +113,10 @@ def obtener_ranking_global(df_users, df_pro, df_res):
     df_rank = pd.DataFrame(ranking_data).sort_values(by=['PUNTOS', 'EXACTOS'], ascending=False).reset_index(drop=True)
     
     # IMPORTANTE: Aplicar insignias antes de formatear el índice
-    df_rank['JUGADOR'] = df_rank.apply(lambda r: procesar_nombres_ranking(r, df_rank, df_pro, df_res, df_users), axis=1)
-    
+    df_rank['JUGADOR'] = df_rank.apply(
+        lambda r: procesar_nombres_ranking(r, df_rank, df_pro, df_res, df_users), 
+        axis=1
+    )
     df_rank.index = df_rank.index + 1
     df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
     
