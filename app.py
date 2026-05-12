@@ -12,8 +12,12 @@ from styles_config import aplicar_estilos_globales, dibujar_banner, mostrar_deca
 from tools import get_flag_img_cached, upload_profile_picture, registrar_usuario
 from io import BytesIO
 
-st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
-#st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
+# --- CONFIGURACIÓN DE PÁGINA ---
+st.set_page_config(
+    page_title="Prode Mundial 2026", 
+    page_icon="https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png", 
+    layout="wide"
+)
 
 # --- CONEXIÓN ---
 # Conexión única
