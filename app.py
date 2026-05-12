@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
+from data_manager import cargar_todo
 from datetime import datetime
 from datetime import datetime, timedelta
 from google.auth.transport.requests import Request
@@ -26,7 +27,14 @@ MENSAJE_MANTENIMIENTO = "⚠️ Estamos actualizando los servidores para la pró
 
 
 # --- CONEXIÓN ---
-# conn = st.connection("gsheets", type=GSheetsConnection)
+# Conexión única
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+# Carga maestra (Llama a nuestro nuevo módulo)
+df_res, df_usuarios, df_pro, mapa_banderas = cargar_todo(conn)
+
+if df_res is None:
+    st.stop() # Si falla la carga, detenemos la app con el error del módulo
 
 #-----carga de insignias de ranking----
 
