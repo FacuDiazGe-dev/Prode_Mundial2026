@@ -6,6 +6,7 @@ from datetime import datetime
 from datetime import datetime, timedelta
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaIoBaseUpload
+from ranking_logic import obtener_ranking_global, calcular_detalle
 
 
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
@@ -344,31 +345,31 @@ st.markdown(f"""
 st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
 
 # --- CARGA DE DATOS DE TABLAS GSHEET ---------------------------------------------------------------------------------------------
-# =============================================================================
-# 1. FUNCIÓN DE CÁLCULO DE PUNTOS
-# =============================================================================
-def calcular_detalle(r1, r2, p1, p2):
-    """
-    Calcula puntos según: +1 por tendencia, +2 adicional por exacto (Total 3).
-    """
-    if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
-        return 0, 0, 0 
+# # =============================================================================
+# # 1. FUNCIÓN DE CÁLCULO DE PUNTOS
+# # =============================================================================
+# def calcular_detalle(r1, r2, p1, p2):
+#     """
+#     Calcula puntos según: +1 por tendencia, +2 adicional por exacto (Total 3).
+#     """
+#     if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
+#         return 0, 0, 0 
     
-    puntos, exactos, generales = 0, 0, 0
-    r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
+#     puntos, exactos, generales = 0, 0, 0
+#     r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
     
-    tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
-    tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
+#     tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
+#     tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
     
-    # Si acertó la tendencia (Ganador o Empate)
-    if tendencia_real == tendencia_pron:
-        generales = 1
-        puntos = 1 
-        # Si además acertó el marcador exacto
-        if r1 == p1 and r2 == p2:
-            exactos = 1
-            puntos = 3 
-    return puntos, exactos, generales
+#     # Si acertó la tendencia (Ganador o Empate)
+#     if tendencia_real == tendencia_pron:
+#         generales = 1
+#         puntos = 1 
+#         # Si además acertó el marcador exacto
+#         if r1 == p1 and r2 == p2:
+#             exactos = 1
+#             puntos = 3 
+#     return puntos, exactos, generales
 
 # =============================================================================
 # 2. CARGA DE DATOS (FRESH)
@@ -462,62 +463,62 @@ def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
 # =============================================================================
 # 2. FUNCIÓN PRINCIPAL DE RANKING
 # =============================================================================
-@st.cache_data(ttl=60)
-def obtener_ranking_global(df_users, df_pro, df_res):
-    ranking_data = []
+# @st.cache_data(ttl=60)
+# def obtener_ranking_global(df_users, df_pro, df_res):
+#     ranking_data = []
     
-    # 1. FILTRADO ULTRA SEGURO DE VIZ
-    if 'VIZ' in df_res.columns:
-        # Convertimos a string primero para evitar el AttributeError
-        df_res['VIZ_STR'] = df_res['VIZ'].fillna('FALSE').astype(str)
-        # Filtramos buscando cualquier rastro de "verdadero"
-        res_visibles = df_res[df_res['VIZ_STR'].str.upper().str.contains('TRUE|1|1.0', na=False)]
-    else:
-        # Si la columna no existe, no rompemos la app, solo tomamos los que tienen goles
-        res_visibles = df_res[df_res['R1'].notna()]
+#     # 1. FILTRADO ULTRA SEGURO DE VIZ
+#     if 'VIZ' in df_res.columns:
+#         # Convertimos a string primero para evitar el AttributeError
+#         df_res['VIZ_STR'] = df_res['VIZ'].fillna('FALSE').astype(str)
+#         # Filtramos buscando cualquier rastro de "verdadero"
+#         res_visibles = df_res[df_res['VIZ_STR'].str.upper().str.contains('TRUE|1|1.0', na=False)]
+#     else:
+#         # Si la columna no existe, no rompemos la app, solo tomamos los que tienen goles
+#         res_visibles = df_res[df_res['R1'].notna()]
     
-    for _, u in df_users.iterrows():
-        u_nick = u['USUARIO']
-        pts_t, exa_t, gen_t = 0, 0, 0
+#     for _, u in df_users.iterrows():
+#         u_nick = u['USUARIO']
+#         pts_t, exa_t, gen_t = 0, 0, 0
         
-        # Filtramos pronósticos del usuario
-        pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
+#         # Filtramos pronósticos del usuario
+#         pro_usr = df_pro[df_pro['USUARIO'] == u_nick]
         
-        for _, part in res_visibles.iterrows():
-            id_p = int(part['N_PARTIDO'])
-            p_match = pro_usr[pro_usr['N_PARTIDO'] == id_p]
+#         for _, part in res_visibles.iterrows():
+#             id_p = int(part['N_PARTIDO'])
+#             p_match = pro_usr[pro_usr['N_PARTIDO'] == id_p]
             
-            if not p_match.empty:
-                # Usamos .iloc[0] para extraer el valor individual
-                r1, r2 = part['R1'], part['R2']
-                p1, p2 = p_match.iloc[0]['P1'], p_match.iloc[0]['P2']
+#             if not p_match.empty:
+#                 # Usamos .iloc[0] para extraer el valor individual
+#                 r1, r2 = part['R1'], part['R2']
+#                 p1, p2 = p_match.iloc[0]['P1'], p_match.iloc[0]['P2']
                 
-                if pd.notna(r1) and pd.notna(r2):
-                    pts, exa, gen = calcular_detalle(r1, r2, p1, p2)
-                    pts_t += pts
-                    exa_t += exa
-                    gen_t += gen
+#                 if pd.notna(r1) and pd.notna(r2):
+#                     pts, exa, gen = calcular_detalle(r1, r2, p1, p2)
+#                     pts_t += pts
+#                     exa_t += exa
+#                     gen_t += gen
                     
-        ranking_data.append({
-            'ID_PARA_FOTO': u['ID'],
-            'JUGADOR': u['NOMBRE'], 
-            'PUNTOS': pts_t, 
-            'EXACTOS': exa_t, 
-            'GENERALES': gen_t,
-            'USUARIO': u_nick
-        })
+#         ranking_data.append({
+#             'ID_PARA_FOTO': u['ID'],
+#             'JUGADOR': u['NOMBRE'], 
+#             'PUNTOS': pts_t, 
+#             'EXACTOS': exa_t, 
+#             'GENERALES': gen_t,
+#             'USUARIO': u_nick
+#         })
     
-    # 2. CREACIÓN DEL DATAFRAME DE RANKING
-    if not ranking_data:
-        return pd.DataFrame(columns=['Nº', 'JUGADOR', 'PUNTOS', 'EXACTOS', 'GENERALES'])
+#     # 2. CREACIÓN DEL DATAFRAME DE RANKING
+#     if not ranking_data:
+#         return pd.DataFrame(columns=['Nº', 'JUGADOR', 'PUNTOS', 'EXACTOS', 'GENERALES'])
 
-    df_rank = pd.DataFrame(ranking_data).sort_values(by=['PUNTOS', 'EXACTOS'], ascending=False).reset_index(drop=True)
-    df_rank.index = df_rank.index + 1
-    df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
+#     df_rank = pd.DataFrame(ranking_data).sort_values(by=['PUNTOS', 'EXACTOS'], ascending=False).reset_index(drop=True)
+#     df_rank.index = df_rank.index + 1
+#     df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
     
-    return df_rank@st.cache_data(ttl=60)
-def obtener_ranking_global(df_users, df_pro, df_res):
-    ranking_data = []
+#     return df_rank@st.cache_data(ttl=60)
+# def obtener_ranking_global(df_users, df_pro, df_res):
+#     ranking_data = []
     
     # 1. Filtro de Visibilidad (Sincronizado con el Inicio)
     df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
