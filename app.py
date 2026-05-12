@@ -1115,7 +1115,7 @@ elif menu == "📝 Mis Pronósticos":
 elif menu == "👥 Jugadores":
     # --- COLUMNA CENTRAL ---
     with col_principal:
-        st.subheader("👥 Comunidad de Jugadores")
+        st.subheader("👥 Lista de Jugadores")
         
         # 1. Creamos el selector de nombres
         nombres_usuarios = df_usuarios['NOMBRE'].tolist()
@@ -1218,7 +1218,7 @@ elif menu == "👥 Jugadores":
 
             # --- PREDICCIONES DEL USUARIO ---
             st.markdown("---")
-            st.write(f"🗳️ **Predicciones de {user_sel['NOMBRE']}:**")
+            st.write(f"🗳️ **Pronosticos de {user_sel['NOMBRE']}:**")
             pro_user_sel = df_pro[df_pro['USUARIO'] == user_sel['USUARIO']]
             
             if pro_user_sel.empty:
