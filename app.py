@@ -90,10 +90,6 @@ fecha_limite_reg = datetime(2026, 6, 7, 23, 59, 59)
 registro_permitido_fecha = ahora_arg < fecha_limite_reg
 
 
-
-# #-----------AVATAR GENERICO-----------------
-# AVATAR_GENERICO = "https://storage.googleapis.com/foto-prode2026/perfiles/images.png"
-
 #---------------------------MANTENIMIENTO -  True (Activado)  False (Desactivo)------------------------------------------------------------------
 MANTENIMIENTO_ACTIVO = False 
 MENSAJE_MANTENIMIENTO = "⚠️ Estamos actualizando los servidores para la próxima fecha. ¡Volvemos en unos minutos!"
@@ -290,55 +286,6 @@ if MANTENIMIENTO_ACTIVO and st.session_state['user_data']['ROL'] != 'admin':
         st.rerun()
     st.stop() 
 
-# # =============================================================================
-# # --- DISEÑO VISUAL (FONDOS, BANNERS Y CONTRASTE) ---
-# # =============================================================================
-# st.markdown(f"""
-#     <style>
-#     /* 1. Fondo base del sitio */
-#     .stApp {{
-#         background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/FONDO%20BASE.jpg");
-#         background-attachment: fixed;
-#         background-size: cover;
-#     }}
-
-#     /* 2. Banner Vertical en el Sidebar y contraste de letras */
-#     [data-testid="stSidebar"] {{
-#         background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20VERTICAL_V3.jpg");
-#         background-size: cover;
-#         background-position: center;
-#     }}
-
-#     /* Estilo de letras en Sidebar para fondo oscuro */
-#     [data-testid="stSidebar"] .stMarkdown, 
-#     [data-testid="stSidebar"] label, 
-#     [data-testid="stSidebar"] .stRadio p,
-#     [data-testid="stSidebar"] h3 {{
-#         color: #FFFFFF !important;
-#         font-weight: 800 !important;
-#         text-shadow: 2px 2px 8px #000000, 0px 0px 10px #000000 !important;
-#     }}
-
-#     /* 3. Banner Superior Horizontal */
-#     .banner-superior {{
-#         background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
-#                           url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg");
-#         background-size: cover;
-#         background-position: center 10%;
-#         padding: 50px;
-#         border-radius: 15px;
-#         text-align: center;
-#         color: white;
-#         margin-bottom: 25px;
-#         box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
-#     }}
-#     </style>
-    
-#     <div class="banner-superior">
-#         <h1 style="font-size: 2.8em; text-shadow: 3px 3px 6px black; margin: 0;">🏆 PRODE MUNDIAL 2026 - Fase de Grupos</h1>
-#         <p style="font-size: 1.2em; text-shadow: 2px 2px 4px black; margin: 0;">¡La gloria está en tus predicciones!</p>
-#     </div>
-# """, unsafe_allow_html=True)
 
 aplicar_estilos_globales()
 dibujar_banner()
@@ -407,34 +354,6 @@ with st.sidebar:
     if st.button("🚪 Cerrar Sesión", use_container_width=True):
         st.session_state['autenticado'] = False
         st.rerun()
-
-    # --- LABORATORIO DE PRUEBA: SUBIDA A DRIVE ( OCULTO )---
-    #st.markdown("---")
-    #st.subheader("🧪 Test de Subida")
-    #archivo_test = st.file_uploader("Probá subir una foto aquí", type=['jpg', 'png', 'jpeg'], key="test_uploader")
-    #
-    #if archivo_test: 
-    #    if st.button("🚀 Subir a Drive", use_container_width=True):
-    #        with st.spinner("Autenticando y subiendo..."):
-    #            # Generamos el nombre
-    #            nombre_t = f"test_{datetime.now().strftime('%H%M%S')}.jpg"
-    #            
-    #            # Intentamos la subida
-    #            try:
-    #                # USAMOS EL NOMBRE CORRECTO DE LA FUNCIÓN
-    #                resultado_url = upload_profile_picture(archivo_test.getvalue(), nombre_t)
-    #                
-    #                if resultado_url and resultado_url.startswith("https"):
-    #                    st.success("✅ ¡Subida exitosa!")
-    #                    st.image(resultado_url, caption="Foto desde Drive")
-    #                    st.code(resultado_url)
-    #                else:
-    #                    st.error(f"❌ Error de Google: {resultado_url}")
-    #            except NameError:
-    #                st.error("❌ Error: La función 'upload_profile_picture' no está definida arriba del código.")
-    #            except Exception as e:
-    #                st.error(f"❌ Error inesperado: {e}")
-
 
 # --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
 #------------------------------------------------MENU INICIO-----------------------------------------------
@@ -941,22 +860,6 @@ elif menu == "👥 Jugadores":
                     <span style="color:#333;"><b>{u['NOMBRE']}</b> — <small>{u['EQUIPO FAVORITO']}</small></span>
                 </div>
             """, unsafe_allow_html=True)
-
-    # with col_derecha:
-    #     if 'user_sel' in locals():
-    #         # Traemos la foto del usuario seleccionado (GCS o genérica)
-    #         foto_j = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) else "https://w3schools.com"
-            
-    #         # Mostramos la tarjeta del jugador
-    #         st.markdown(f"""
-    #             <div style="text-align: center; background-color: #f8f9fa; padding: 20px; border-radius: 15px; border: 1px solid #ddd;">
-    #                 <img src="{foto_j}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #28a745;">
-    #                 <h3 style="margin-bottom: 0;">{user_sel['NOMBRE']}</h3>
-    #                 <p style="color: gray; font-size: 0.9em;">@{user_sel['USUARIO']}</p>
-    #                 <p style="margin-top: 10px;"><b>⚽ Hincha de:</b> {user_sel['EQUIPO FAVORITO']}</p>
-    #                 <p style="font-size: 0.85em; color: #555;"><i>"{user_sel['DESCRIPCION']}"</i></p>
-    #             </div>
-    #         """, unsafe_allow_html=True)
             
     with col_derecha:
         st.subheader("👤 Perfil Seleccionado")
@@ -1158,44 +1061,6 @@ elif menu == "💬 Foro":
         
         st.markdown("---")
         
-        # # --- EL DECÁLOGO DEL PRODE 2026 (ESTILO SOBRIO AZUL PROFUNDO) ---
-        # st.markdown("""
-        # <div style="background: rgba(240, 242, 246, 0.85); padding: 25px; border-radius: 15px; border: 1px solid rgba(3, 41, 73, 0.2); backdrop-filter: blur(10px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);">
-        #     <h4 style="text-align: center; color: rgb(3, 41, 73); margin-top: 0; margin-bottom: 25px; font-family: sans-serif; letter-spacing: 2px; font-weight: 800; text-transform: uppercase;">📜 EL DECÁLOGO DEL PRODE</h4>
-        #     <ol style="font-size: 0.95em; color: #333333; padding-left: 25px; font-family: sans-serif;">
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Respetar al rival:</b> La chicana es parte del juego, la falta de respeto no.</span>
-        #         </li>
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Ley del VAR:</b> ¡Prohibido llorar por el VAR!, a Pe-la-se!.</span>
-        #         </li>
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Fair Play:</b> No tontié, no pidas que te editen un resultado después del 8/6.</span>
-        #         </li>
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">El Puntero:</b> Al que va primero en el ranking se le respeta... o se le envidia.</span>
-        #         </li>
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Grito de Gol:</b> Se permite escribir "¡GOOOOL!" en mayúsculas.</span>
-        #         </li>
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">La Cábala:</b> No se revelan las cábalas personales.</span>
-        #         </li>
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Oliver Atom:</b> Recuerda que: "¡El balón está vivo!" y que "El partido no se termina hasta que se termina" .</span>
-        #         </li>
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Sabiduría:</b> Si no sabes de fútbol, fingí que sí; los puntos no mienten wachx.</span>
-        #         </li>
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Puntualidad:</b> No dejes para mañana el pronóstico que puedes cargar hoy, amen.</span>
-        #         </li>
-        #         <li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-        #             <span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">La Gloria:</b> ¡Disfrutar el mundial! ⚽</span>
-        #         </li>
-        #     </ol>
-        # </div>
-        # """, unsafe_allow_html=True)
         
 elif menu == "⚙️ Panel Control":
     # --- VALIDACIÓN DE SEGURIDAD ---
@@ -1382,76 +1247,3 @@ elif menu == "⚙️ Panel Control":
     else:
         # Este else ahora sí corresponde al IF inicial de ROL == 'admin'
         st.error("⛔ No tienes permisos para acceder a esta sección.")
-
-
-                 #---------------------------test
-            # st.subheader("🧪 Test: Conexión con Ranking Global")
-            
-            # # 1. Recuperamos el Ranking del Session State (la "Fuente Única de Verdad")
-            # df_global = st.session_state.get('df_ranking_global')
-        
-            # if df_global is None:
-            #     st.error("⚠️ El Ranking Global no está inicializado en el Session State.")
-            #     # Opcional: Forzar carga si no existe
-            #     if st.button("🔄 Inicializar Ranking Global"):
-            #         st.session_state['df_ranking_global'] = obtener_ranking_global(df_usuarios, df_pro, df_res)
-            #         st.rerun()
-            # else:
-            #     # 2. Selector de usuario (usando el DF global para asegurar que existan)
-            #     nombres_rank = df_global['JUGADOR'].tolist()
-            #     nombre_test = st.selectbox("Selecciona un jugador del ranking:", nombres_rank, index=None)
-        
-            #     if nombre_test:
-            #         # 3. Buscamos los datos DIRECTAMENTE en el DataFrame global
-            #         match = df_global[df_global['JUGADOR'] == nombre_test]
-                    
-            #         if not match.empty:
-            #             idx_real = match.index[0]
-            #             datos_vivos = match.iloc[0]
-                        
-            #             # Buscamos datos extra (Avatar, Bio) en la tabla de usuarios original
-            #             u_info = df_usuarios[df_usuarios['NOMBRE'] == nombre_test].iloc[0]
-        
-            #             # --- 4. LÓGICA DE INSIGNIAS (Sin cálculos, solo lectura) ---
-            #             css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
-                        
-            #             # Puntero: Posición 1 (índice 0)
-            #             if idx_real == 0 and datos_vivos['PUNTOS'] > 0: css["puntero"] = ""
-                        
-            #             # Master: Exactos >= 5
-            #             if int(datos_vivos['EXACTOS']) >= 5: css["master"] = ""
-                        
-            #             # Mentalista: Si tiene el máximo de generales
-            #             if int(datos_vivos['GENERALES']) == df_global['GENERALES'].max() and df_global['GENERALES'].max() > 0:
-            #                 css["mentalista"] = ""
-                        
-            #             # Lento: Última posición
-            #             if len(df_global) > 2 and idx_real == (len(df_global) - 1): css["lento"] = ""
-        
-            #             # Fundador: ID <= 3
-            #             if int(u_info['ID']) <= 3: css["fundador"] = ""
-        
-            #             # --- 5. RENDERIZADO ---
-            #             foto = u_info.get('AVATAR_URL')
-            #             if not foto or pd.isna(foto):
-            #                 foto = f"https://ui-avatars.com{nombre_test}&background=random"
-        
-            #             st.markdown(f"""
-            #                 <div style="display: flex; align-items: center; background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px solid #007bff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            #                     <div style="flex: 0 0 90px; text-align: center; border-right: 1px solid #eee; padding-right: 15px; margin-right: 15px;">
-            #                         <img src="{foto}" style="border-radius: 50%; width: 70px; height: 70px; object-fit: cover; border: 2px solid #007bff;">
-            #                         <div style="font-weight: bold; font-size: 0.85em; margin-top: 5px;">{nombre_test}</div>
-            #                     </div>
-            #                     <div style="flex: 1; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 8px;">
-            #                         <span title="Puntero" style="font-size: 1.7em; {css['puntero']}">🏆</span>
-            #                         <span title="Master Exactos" style="font-size: 1.7em; {css['master']}">🎯</span>
-            #                         <span title="Mentalista" style="font-size: 1.7em; {css['mentalista']}">🧙‍♂️</span>
-            #                         <span title="Fundador" style="font-size: 1.7em; {css['fundador']}">🏅</span>
-            #                         <span title="On Fire" style="font-size: 1.7em; {css['onfire']}">🔥</span>
-            #                         <span title="El más lento" style="font-size: 1.7em; {css['lento']}">🐌</span>
-            #                     </div>
-            #                 </div>
-            #             """, unsafe_allow_html=True)
-                        
-            #             st.success(f"Datos vinculados: Posición #{idx_real + 1} | Puntos: {datos_vivos['PUNTOS']}")
-#---------------------------------------
