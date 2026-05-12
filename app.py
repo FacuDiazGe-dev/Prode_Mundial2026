@@ -25,40 +25,42 @@ if df_res is None:
     st.stop() # Si falla la carga, detenemos la app con el error del módulo
 
 # --- 2. CONFIGURACIÓN DINÁMICA (Desde GSheets) ---
+# 1. Definimos valores por defecto (Si algo falla, la web queda abierta por seguridad)
+estado_mantenimiento = "OFF"
+estado_registro_manual = "ON"
+
 try:
-    # Leemos la pestaña CONFIG para Mantenimiento y Registro Manual
+    # Leemos la pestaña CONFIG
     df_config = conn.read(worksheet="CONFIG", ttl=0)
-    # Si en el Excel dice 'ON', activamos mantenimiento
-    MANTENIMIENTO_ACTIVO = df_config.iloc[0]['MANTENIMIENTO'] == "ON"
-    # Si en el Excel dice 'OFF', cerramos el registro manualmente
-    ESTADO_REGISTRO_MANUAL = df_config.iloc[0]['REGISTRO']
-except:
-    MANTENIMIENTO_ACTIVO = False
-    ESTADO_REGISTRO_MANUAL = "ON"
+    
+    # Validamos que las columnas existan antes de asignar
+    if "MANTENIMIENTO" in df_config.columns:
+        estado_mantenimiento = str(df_config["MANTENIMIENTO"].iloc[0]).strip().upper()
+    if "REGISTRO" in df_config.columns:
+        estado_registro_manual = str(df_config["REGISTRO"].iloc[0]).strip().upper()
+except Exception as e:
+    # Si falla la lectura de CONFIG, avisamos en consola pero usamos los valores por defecto
+    print(f"Aviso: Usando configuración por defecto debido a: {e}")
 
 # --- 3. LÓGICA DE TIEMPOS ---
 ahora_arg = datetime.now() - timedelta(hours=3)
 fecha_limite_reg = datetime(2026, 6, 7, 23, 59, 59)
 registro_permitido_fecha = ahora_arg < fecha_limite_reg
     
-# --- 4. FILTRO DE ACCESO (PROTECCIÓN) ---
-# Si la web está en mantenimiento...
+# --- 3. FILTRO DE ACCESO (PROTECCIÓN) ---
+# Ahora 'estado_mantenimiento' existe sí o sí
 if estado_mantenimiento == "ON":
-    # ...y el usuario NO es admin (o ni siquiera se logueó todavía)
+    # Verificamos si el usuario es admin (usando .get para evitar errores si no hay sesión)
     is_admin = st.session_state.get('user_data', {}).get('ROL') == 'admin'
     
     if not is_admin:
         st.title("🏆 Prode Mundial 2026")
-        st.markdown(f"""
-            <div style="background-color: #fff3cd; padding: 20px; border-radius: 10px; border-left: 5px solid #ffc107; margin-bottom: 20px;">
-                <h2 style="color: #856404; margin: 0;">⚠️ Mantenimiento en curso</h2>
-                <p style="color: #856404; margin-top: 10px;">Estamos realizando ajustes técnicos. ¡Volvemos pronto!</p>
-            </div>
-        """, unsafe_allow_html=True)
+        st.warning("⚠️ Mantenimiento en curso. Estamos realizando ajustes técnicos. ¡Volvemos pronto!")
         st.info("Solo el Administrador tiene acceso en este momento.")
-        if st.button("🚪 Ir al Login (Solo Admin)"):
+        if st.button("🚪 Reintentar / Login Admin"):
             st.rerun()
-        st.stop() # FRENO TOTAL para usuarios comunes
+        st.stop() 
+
 
 # --- FUNCIÓN DE REGISTRO BLINDADA -------------------------------------------------------------------------------------
 def registrar_usuario(datos_nuevos):
