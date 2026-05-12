@@ -15,55 +15,50 @@ from io import BytesIO
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
 #st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
 
-#--------------FECHA DE FIN DE REGISTRO---------------------        
-ahora_arg = datetime.now() - timedelta(hours=3)
-fecha_limite_reg = datetime(2026, 6, 7, 23, 59, 59)
-registro_permitido_fecha = ahora_arg < fecha_limite_reg
-
-
-#---------------------------MANTENIMIENTO -  True (Activado)  False (Desactivo)------------------------------------------------------------------
-MANTENIMIENTO_ACTIVO = False 
-MENSAJE_MANTENIMIENTO = "⚠️ Estamos actualizando los servidores para la próxima fecha. ¡Volvemos en unos minutos!"
-
-
 # --- CONEXIÓN ---
 # Conexión única
 conn = st.connection("gsheets", type=GSheetsConnection)
-
 # Carga maestra (Llama a nuestro nuevo módulo)
 df_res, df_usuarios, df_pro, mapa_banderas = cargar_todo(conn)
 
 if df_res is None:
     st.stop() # Si falla la carga, detenemos la app con el error del módulo
 
-#-----carga de insignias de ranking----
-
-
-# --- LECTURA DE CONFIGURACIÓN DE MANTENIMIENTO ---
+# --- 2. CONFIGURACIÓN DINÁMICA (Desde GSheets) ---
 try:
-    df_config = conn.read(worksheet="CONFIG", ttl=10)
-    # Leemos la celda A2 (primera fila de la columna MANTENIMIENTO)
-    estado_mantenimiento = str(df_config["MANTENIMIENTO"].iloc[0]).strip().upper()
-except Exception:
-    # Si la hoja no existe o falla, por defecto la web queda abierta
-    estado_mantenimiento = "OFF"
+    # Leemos la pestaña CONFIG para Mantenimiento y Registro Manual
+    df_config = conn.read(worksheet="CONFIG", ttl=0)
+    # Si en el Excel dice 'ON', activamos mantenimiento
+    MANTENIMIENTO_ACTIVO = df_config.iloc[0]['MANTENIMIENTO'] == "ON"
+    # Si en el Excel dice 'OFF', cerramos el registro manualmente
+    ESTADO_REGISTRO_MANUAL = df_config.iloc[0]['REGISTRO']
+except:
+    MANTENIMIENTO_ACTIVO = False
+    ESTADO_REGISTRO_MANUAL = "ON"
 
-# --- FILTRO DE ACCESO (PROTECCIÓN) ---
-# Este bloque se activa solo si ya hay alguien logueado (para saber si es admin)
-if 'user_data' in st.session_state and st.session_state.get('autenticado'):
-    if estado_mantenimiento == "ON" and st.session_state['user_data'].get('ROL') != 'admin':
+# --- 3. LÓGICA DE TIEMPOS ---
+ahora_arg = datetime.now() - timedelta(hours=3)
+fecha_limite_reg = datetime(2026, 6, 7, 23, 59, 59)
+registro_permitido_fecha = ahora_arg < fecha_limite_reg
+    
+# --- 4. FILTRO DE ACCESO (PROTECCIÓN) ---
+# Si la web está en mantenimiento...
+if estado_mantenimiento == "ON":
+    # ...y el usuario NO es admin (o ni siquiera se logueó todavía)
+    is_admin = st.session_state.get('user_data', {}).get('ROL') == 'admin'
+    
+    if not is_admin:
         st.title("🏆 Prode Mundial 2026")
         st.markdown(f"""
-            <div style="background-color: #fff3cd; padding: 20px; border-radius: 10px; border-left: 5px solid #ffc107;">
-                <h2 style="color: #856404; margin: 0;">⚠️ Estamos en mantenimiento</h2>
-                <p style="color: #856404; margin-top: 10px;">Estamos realizando ajustes técnicos para mejorar la estabilidad. ¡Volvemos en unos minutos!</p>
+            <div style="background-color: #fff3cd; padding: 20px; border-radius: 10px; border-left: 5px solid #ffc107; margin-bottom: 20px;">
+                <h2 style="color: #856404; margin: 0;">⚠️ Mantenimiento en curso</h2>
+                <p style="color: #856404; margin-top: 10px;">Estamos realizando ajustes técnicos. ¡Volvemos pronto!</p>
             </div>
         """, unsafe_allow_html=True)
         st.info("Solo el Administrador tiene acceso en este momento.")
-        if st.button("🔄 Reintentar acceso"):
+        if st.button("🚪 Ir al Login (Solo Admin)"):
             st.rerun()
-        st.stop()## FRENO
-
+        st.stop() # FRENO TOTAL para usuarios comunes
 
 # --- FUNCIÓN DE REGISTRO BLINDADA -------------------------------------------------------------------------------------
 def registrar_usuario(datos_nuevos):
