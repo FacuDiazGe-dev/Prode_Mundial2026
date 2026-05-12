@@ -62,52 +62,52 @@ if estado_mantenimiento == "ON":
         st.stop() 
 
 
-# --- FUNCIÓN DE REGISTRO BLINDADA -------------------------------------------------------------------------------------
-def registrar_usuario(datos_nuevos):
-    try:
-        # 1. Leer la tabla actual (sin usar caché para ver lo real)
-        df_actual = conn.read(worksheet="USUARIOS", ttl=10)
+# # --- FUNCIÓN DE REGISTRO BLINDADA -------------------------------------------------------------------------------------
+# def registrar_usuario(datos_nuevos):
+#     try:
+#         # 1. Leer la tabla actual (sin usar caché para ver lo real)
+#         df_actual = conn.read(worksheet="USUARIOS", ttl=10)
         
-        # 2. Limpiar nombres para comparar (evita duplicados por espacios o mayúsculas)
-        nuevo_u_clean = str(datos_nuevos["USUARIO"]).strip().lower()
-        usuarios_existentes = df_actual["USUARIO"].astype(str).str.strip().str.lower().tolist()
+#         # 2. Limpiar nombres para comparar (evita duplicados por espacios o mayúsculas)
+#         nuevo_u_clean = str(datos_nuevos["USUARIO"]).strip().lower()
+#         usuarios_existentes = df_actual["USUARIO"].astype(str).str.strip().str.lower().tolist()
         
-        if nuevo_u_clean in usuarios_existentes:
-            st.error(f"❌ El usuario '{datos_nuevos['USUARIO']}' ya existe. Elige otro nick.")
-            return False
+#         if nuevo_u_clean in usuarios_existentes:
+#             st.error(f"❌ El usuario '{datos_nuevos['USUARIO']}' ya existe. Elige otro nick.")
+#             return False
 
-        # 3. Preparar los datos del nuevo usuario
-        # ID automático: Si está vacío empieza en 1, sino Max + 1
-        nuevo_id = int(df_actual["ID"].max() + 1) if not df_actual.empty else 1
+#         # 3. Preparar los datos del nuevo usuario
+#         # ID automático: Si está vacío empieza en 1, sino Max + 1
+#         nuevo_id = int(df_actual["ID"].max() + 1) if not df_actual.empty else 1
         
-        # Creamos un diccionario limpio con el orden exacto de las columnas
-        nuevo_registro = {
-            "ID": nuevo_id,
-            "USUARIO": datos_nuevos["USUARIO"].strip(),
-            "CONTRASEÑA": str(datos_nuevos["CONTRASEÑA"]),
-            "NOMBRE": datos_nuevos["NOMBRE"].strip(),
-            "EDAD": datos_nuevos["EDAD"],
-            "EQUIPO FAVORITO": datos_nuevos["EQUIPO FAVORITO"],
-            "DESCRIPCION": datos_nuevos["DESCRIPCION"],
-            "ROL": "jugador",
-            "FECHA_REG": datetime.now().strftime("%d/%m/%Y"),
-            "AVATAR_URL": ""
-        }
+#         # Creamos un diccionario limpio con el orden exacto de las columnas
+#         nuevo_registro = {
+#             "ID": nuevo_id,
+#             "USUARIO": datos_nuevos["USUARIO"].strip(),
+#             "CONTRASEÑA": str(datos_nuevos["CONTRASEÑA"]),
+#             "NOMBRE": datos_nuevos["NOMBRE"].strip(),
+#             "EDAD": datos_nuevos["EDAD"],
+#             "EQUIPO FAVORITO": datos_nuevos["EQUIPO FAVORITO"],
+#             "DESCRIPCION": datos_nuevos["DESCRIPCION"],
+#             "ROL": "jugador",
+#             "FECHA_REG": datetime.now().strftime("%d/%m/%Y"),
+#             "AVATAR_URL": ""
+#         }
         
-        # 4. Concatenar: El nuevo usuario se suma al final del DataFrame actual
-        df_para_subir = pd.concat([df_actual, pd.DataFrame([nuevo_registro])], ignore_index=True)
+#         # 4. Concatenar: El nuevo usuario se suma al final del DataFrame actual
+#         df_para_subir = pd.concat([df_actual, pd.DataFrame([nuevo_registro])], ignore_index=True)
         
-        # 5. ACTUALIZAR GOOGLE SHEETS (Sobrescribe la pestaña con la lista actualizada)
-        conn.update(worksheet="USUARIOS", data=df_para_subir)
+#         # 5. ACTUALIZAR GOOGLE SHEETS (Sobrescribe la pestaña con la lista actualizada)
+#         conn.update(worksheet="USUARIOS", data=df_para_subir)
         
-        # Limpiamos caché de Streamlit para que la próxima lectura vea al nuevo usuario
-        st.cache_data.clear()
-        st.success("✅ ¡Usuario creado con éxito!")
-        return True
+#         # Limpiamos caché de Streamlit para que la próxima lectura vea al nuevo usuario
+#         st.cache_data.clear()
+#         st.success("✅ ¡Usuario creado con éxito!")
+#         return True
 
-    except Exception as e:
-        st.error(f"Error técnico: {e}")
-        return False
+#     except Exception as e:
+#         st.error(f"Error técnico: {e}")
+#         return False
 
 # --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) --------------------------------------------------------
 
@@ -226,37 +226,6 @@ aplicar_estilos_globales()
 dibujar_banner()
 # --- SIDEBAR DE BIENVENIDA ---
 st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
-
-
-# @st.cache_data(ttl=300) # Los resultados y usuarios se guardan por 5 minutos
-# def load_static_data():
-#     # Solo leemos lo que casi no cambia
-#     df_res = conn.read(worksheet="RESULTADOS")
-#     df_users = conn.read(worksheet="USUARIOS")
-    
-#     # Limpieza de datos una sola vez
-#     df_res['R1'] = pd.to_numeric(df_res['R1'], errors='coerce')
-#     df_res['R2'] = pd.to_numeric(df_res['R2'], errors='coerce')
-#     return df_res, df_users
-
-# @st.cache_data(ttl=60) # Los pronósticos se refrescan cada 1 minuto
-# def load_dynamic_data():
-#     df_pro = conn.read(worksheet="PRONOSTICOS")
-#     df_pro['P1'] = pd.to_numeric(df_pro['P1'], errors='coerce')
-#     df_pro['P2'] = pd.to_numeric(df_pro['P2'], errors='coerce')
-#     return df_pro
-
-# # Ejecución inteligente
-# try:
-#     df_res, df_usuarios = load_static_data()
-#     df_pro = load_dynamic_data()
-
-#     equipos_unicos = pd.concat([df_res['Equipo_1'], df_res['Equipo_2']]).unique()
-#     mapa_banderas = {eq: get_flag_img_cached(eq) for eq in equipos_unicos}
-    
-# except Exception as e:
-#     st.warning("⚠️ La conexión con Google es lenta...")
-#     mapa_banderas = {}
 
 # =============================================================================
 # 3. EJECUCIÓN
