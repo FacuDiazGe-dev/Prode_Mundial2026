@@ -36,9 +36,9 @@ def generar_mapa_banderas(df_res):
     except:
         return {}
 
-def cargar_todo(conn):
-    """Función maestra para app.py."""
+def cargar_todo(conn): # <--- Recibe 'conn' desde app.py
     try:
+        # Pasa 'conn' a las funciones con caché (que lo reciben como _conn)
         df_res, df_usuarios = load_static_data(conn)
         df_pro = load_dynamic_data(conn)
         mapa = generar_mapa_banderas(df_res)
