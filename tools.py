@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import requests
 import base64
-
+from google.cloud import storage
+import io 
 
 @st.cache_data(ttl=3600)
 def get_flag_img(pais):
@@ -42,3 +43,31 @@ def get_flag_img_cached(team_name):
     # Aquí va tu lógica actual de obtener la imagen (Base64 o URL)
     return get_flag_img(team_name) 
 
+#-------------------------------- CARGAR FOTO STORAGE (GCS) -----------------------------------------------------
+
+#Definicion variable carga de la imagen
+def upload_profile_picture(archivo, file_name):
+    from google.cloud import storage
+    import io
+    try:
+        creds_info = st.secrets["connections"]["gsheets"] 
+        client = storage.Client.from_service_account_info(creds_info)
+        
+        bucket_name = "foto-prode2026" 
+        bucket = client.bucket(bucket_name)
+        blob = bucket.blob(f"perfiles/{file_name}")
+        
+        if isinstance(archivo, bytes):
+            objeto_archivo = io.BytesIO(archivo)
+        else:
+            objeto_archivo = archivo
+            objeto_archivo.seek(0)
+        
+        tipo_mimo = getattr(archivo, 'type', 'image/jpeg')
+
+        blob.upload_from_file(objeto_archivo, content_type=tipo_mimo)
+        
+        return f"https://storage.googleapis.com/{bucket_name}/perfiles/{file_name}"
+        
+    except Exception as e:
+        return f"Error: {e}"
