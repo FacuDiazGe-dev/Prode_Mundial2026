@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaIoBaseUpload
 from ranking_logic import obtener_ranking_global, calcular_detalle
-
+from styles_config import aplicar_estilos_globales, dibujar_banner, mostrar_decalogo, AVATAR_GENERICO
 
 st.set_page_config(page_title="Prode Mundial 2026", layout="wide")
 #st.title("🏆 Prode Mundial 2026 - Fase de Grupos")
