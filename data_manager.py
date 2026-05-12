@@ -10,7 +10,7 @@ def get_connection():
     return st.connection("gsheets", type=GSheetsConnection)
 
 @st.cache_data(ttl=300)
-def load_static_data(conn):
+def load_static_data(_conn):
     """Carga resultados y usuarios (Refresh cada 5 min)."""
     df_res = conn.read(worksheet="RESULTADOS")
     df_users = conn.read(worksheet="USUARIOS")
@@ -21,7 +21,7 @@ def load_static_data(conn):
     return df_res, df_users
 
 @st.cache_data(ttl=60)
-def load_dynamic_data(conn):
+def load_dynamic_data(_conn):
     """Carga pronósticos (Refresh cada 1 min)."""
     df_pro = conn.read(worksheet="PRONOSTICOS")
     df_pro['P1'] = pd.to_numeric(df_pro['P1'], errors='coerce')
