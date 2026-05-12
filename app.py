@@ -863,7 +863,7 @@ elif menu == "👥 Jugadores":
                         p_match = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
                         if not p_match.empty:
                             p_inf = p_match.iloc[0]
-                            f1, f2 = get_flag_img(p_inf['Equipo_1']), get_flag_img(p_inf['Equipo_2'])
+                            f1, f2 = get_flag_img_cached(p_inf['Equipo_1']), get_flag_img_cached(p_inf['Equipo_2'])
                             i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
                             i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
                             
