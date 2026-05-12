@@ -71,16 +71,15 @@ if 'registro_exitoso' not in st.session_state:
     st.session_state['registro_exitoso'] = False
 
 if not st.session_state['autenticado']:
-    # 1. LEER CONFIGURACIÓN (Dentro del bloque de no autenticados)
+    # 1. LEER CONFIGURACIÓN (Solo para no autenticados)
     try:
-        df_config = conn.read(worksheet="CONFIG", ttl=10)
-        estado_registro_manual = df_config.iloc[0]['REGISTRO']
+        df_config = conn.read(worksheet="CONFIG", ttl=0)
+        estado_registro_manual = str(df_config["REGISTRO"].iloc[0]).strip().upper()
     except:
-        estado_registro_manual = "OFF" # Por seguridad, si falla la conexión, bloqueamos
+        estado_registro_manual = "OFF"
 
+    # --- CASO A: PESTAÑA DE LOGIN ---
     if not st.session_state['mostrar_registro']:
-        
-        # --- SECCIÓN DE LOGIN ---
         if st.session_state['registro_exitoso']:
             st.success("✅ ¡Registro completado! Ya puedes ingresar.")
             
@@ -89,80 +88,67 @@ if not st.session_state['autenticado']:
             u = st.text_input("Usuario")
             p = st.text_input("Contraseña", type="password")
             
-            if st.form_submit_button("Entrar"):
-                # Leemos la base de usuarios
-                df_u = conn.read(worksheet="USUARIOS", ttl=10)
-                
-                # --- NORMALIZACIÓN PARA IGNORAR MAYÚSCULAS/MINÚSCULAS ---
-                # Comparamos usuario en minúsculas. La contraseña se mantiene exacta por seguridad.
-                user_match = df_u[
-                    (df_u['USUARIO'].astype(str).str.lower() == u.lower().strip()) & 
-                    (df_u['CONTRASEÑA'].astype(str) == str(p))
+            if st.form_submit_button("Entrar", use_container_width=True):
+                # Normalización para ignorar mayúsculas
+                user_match = df_usuarios[
+                    (df_usuarios['USUARIO'].astype(str).str.lower() == u.lower().strip()) & 
+                    (df_usuarios['CONTRASEÑA'].astype(str) == str(p))
                 ]
                 
                 if not user_match.empty:
                     st.session_state['autenticado'] = True
-                    # Guardamos los datos de la primera coincidencia encontrada
                     st.session_state['user_data'] = user_match.iloc[0].to_dict()
                     st.session_state['registro_exitoso'] = False
                     st.rerun()
                 else:
                     st.error("Usuario o contraseña incorrectos")
-                    
-                # --- AQUÍ COLOCAS LA LÓGICA DE BLOQUEO ---
 
-        # Botón para ir a registro (fuera del form)
-                estado_registro_manual = df_config.iloc[0]['REGISTRO'] 
+        st.markdown("---")
+        # BOTÓN DE REGISTRO: Fuera del formulario y alineado con el 'if not mostrar_registro'
+        if st.button("🆕 ¿No tienes cuenta? Regístrate aquí", use_container_width=True):
+            if not registro_permitido_fecha:
+                st.error("🔒 El período de inscripción finalizó el 07/06/2026.")
+            elif estado_registro_manual == "OFF":
+                st.error("🚫 Inscripciones cerradas temporalmente por el administrador.")
+            elif estado_mantenimiento == "ON":
+                st.warning("⚠️ Web en mantenimiento. Intenta más tarde.")
+            else:
+                st.session_state['mostrar_registro'] = True
+                st.rerun()
 
-                if st.button("🆕 ¿No tienes cuenta? Regístrate aquí"):
-                    # VALIDACIÓN TRIPLE: Fecha límite + Estado Manual + Mantenimiento
-                    if not registro_permitido_fecha:
-                        st.error("🔒 El período de inscripción finalizó el 07/06/2026.")
-                    elif estado_registro_manual == "OFF":
-                        st.error("🚫 El administrador ha cerrado las inscripciones temporalmente.")
-                    elif 'estado_mantenimiento' in locals() and estado_mantenimiento == "ON":
-                        st.warning("⚠️ Web en mantenimiento. Intenta más tarde.")
-                    else:
-                        # Si todo está OK, lo dejamos pasar al formulario
-                        st.session_state['mostrar_registro'] = True
-                        st.session_state['registro_exitoso'] = False
-                        st.rerun()
-    
+    # --- CASO B: PESTAÑA DE REGISTRO ---
     else:
-        # --- SECCIÓN DE REGISTRO ---
         st.subheader("📝 Crear nueva cuenta")
         with st.form("reg_form", clear_on_submit=True):
-            r_u = st.text_input("Nick de Usuario")
-            r_p = st.text_input("Contraseña", type="password")
             r_n = st.text_input("Nombre Completo")
-            r_e = st.number_input("Edad", 1, 100, 25)
-            r_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "España", "Brasil", "EEUU", "Otro"])
-            r_d = st.text_area("Breve descripción")
+            r_u = st.text_input("Nick de Usuario (para el ranking)")
+            r_p = st.text_input("Contraseña", type="password")
+            r_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "España", "Brasil", "Uruguay", "Otro"])
             
-            if st.form_submit_button("Crear mi cuenta"):
-                if r_u and r_p and r_n:
-                    # Usamos tu función registrar_usuario
-                    if registrar_usuario({
-                        "USUARIO": r_u, "CONTRASEÑA": r_p, "NOMBRE": r_n,
-                        "EDAD": r_e, "EQUIPO FAVORITO": r_f, "DESCRIPCION": r_d
-                    }):
-                        # TRUCO FINAL: Cambiamos los estados para que al recargar muestre el Login
-                        st.session_state['registro_exitoso'] = True
-                        st.session_state['mostrar_registro'] = False 
-                        st.rerun()
+            # Botón único de envío
+            if st.form_submit_button("🚀 FINALIZAR REGISTRO", use_container_width=True):
+                # Re-chequeo de seguridad
+                if registro_permitido_fecha and estado_registro_manual == "ON":
+                    if r_u and r_p and r_n:
+                        # Usamos la función del módulo TOOLS
+                        exito, mensaje = registrar_usuario(conn, r_n, r_u, r_p, AVATAR_GENERICO, r_f)
+                        if exito:
+                            st.session_state['registro_exitoso'] = True
+                            st.session_state['mostrar_registro'] = False 
+                            st.rerun()
+                        else:
+                            st.error(mensaje)
+                    else:
+                        st.error("Por favor completa los campos obligatorios.")
                 else:
-                    st.error("Completa Usuario, Contraseña y Nombre.")
-        
-        if st.form_submit_button("Finalizar Registro"):
-            # Re-chequeamos antes de guardar en el Excel
-            if registro_permitido_fecha and estado_registro_manual == "ON":
-                # ... Aquí va tu código actual de guardar usuario ...
-                pass 
-            else:
-                st.error("Lo sentimos, el registro ya no está disponible.")
-                st.stop() # Detenemos la ejecución
+                    st.error("El registro ya no está disponible.")
 
-    st.stop()
+        if st.button("⬅️ Volver al Login"):
+            st.session_state['mostrar_registro'] = False
+            st.rerun()
+
+    st.stop() # Freno para que no cargue el resto de la app sin estar logueado
+
 #---------------------- SI Mantenimiento esta activo ---------------------------
 # Usamos 'estado_mantenimiento' que viene del Excel y '.get' para evitar errores de sesión
 if estado_mantenimiento == "ON" and st.session_state.get('user_data', {}).get('ROL') != 'admin':
