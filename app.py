@@ -212,15 +212,15 @@ if not st.session_state['autenticado']:
 
     st.stop()
 #---------------------- SI Mantenimiento esta activo ---------------------------
-if MANTENIMIENTO_ACTIVO and st.session_state['user_data']['ROL'] != 'admin':
-    st.warning(MENSAJE_MANTENIMIENTO)
+# Usamos 'estado_mantenimiento' que viene del Excel y '.get' para evitar errores de sesión
+if estado_mantenimiento == "ON" and st.session_state.get('user_data', {}).get('ROL') != 'admin':
+    st.warning("⚠️ Estamos actualizando los servidores para la próxima fecha. ¡Volvemos en unos minutos!")
     st.info("Solo el Administrador tiene acceso en este momento.")
     
     # Detenemos la ejecución para que no vean nada más
     if st.button("🔄 Reintentar"):
         st.rerun()
-    st.stop() 
-
+    st.stop()
 
 aplicar_estilos_globales()
 dibujar_banner()
