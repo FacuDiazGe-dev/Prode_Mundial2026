@@ -689,7 +689,7 @@ if menu == "🏠 Inicio":
                     </div>""", unsafe_allow_html=True)
     
         # --- BLOQUE 2: FORO (Actividad Reciente en el Inicio) ---------------------------------------------------------------------------------------
-        st.subheader("💬 Actividad Reciente")
+        st.subheader("💬 En los pasillos de la Villa se comenta")
         
         # 1. CARGA DE DATOS
         df_foro_inicio = conn.read(worksheet="FORO", ttl=10) # ttl=10 para ver mensajes al instante
@@ -890,7 +890,7 @@ if menu == "🏠 Inicio":
 
         # --- CURIOSIDADES ---
         st.markdown("---")
-        st.subheader("💡 ¿Sabías que...?")
+        st.subheader("💡 ¿Mira Vo...?")
         
         # Usamos la variable partidos_visibles que definimos en el bloque del gráfico
         if not partidos_visibles.empty:
