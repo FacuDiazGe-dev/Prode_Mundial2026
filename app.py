@@ -223,35 +223,35 @@ dibujar_banner()
 st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
 
 
-@st.cache_data(ttl=300) # Los resultados y usuarios se guardan por 5 minutos
-def load_static_data():
-    # Solo leemos lo que casi no cambia
-    df_res = conn.read(worksheet="RESULTADOS")
-    df_users = conn.read(worksheet="USUARIOS")
+# @st.cache_data(ttl=300) # Los resultados y usuarios se guardan por 5 minutos
+# def load_static_data():
+#     # Solo leemos lo que casi no cambia
+#     df_res = conn.read(worksheet="RESULTADOS")
+#     df_users = conn.read(worksheet="USUARIOS")
     
-    # Limpieza de datos una sola vez
-    df_res['R1'] = pd.to_numeric(df_res['R1'], errors='coerce')
-    df_res['R2'] = pd.to_numeric(df_res['R2'], errors='coerce')
-    return df_res, df_users
+#     # Limpieza de datos una sola vez
+#     df_res['R1'] = pd.to_numeric(df_res['R1'], errors='coerce')
+#     df_res['R2'] = pd.to_numeric(df_res['R2'], errors='coerce')
+#     return df_res, df_users
 
-@st.cache_data(ttl=60) # Los pronósticos se refrescan cada 1 minuto
-def load_dynamic_data():
-    df_pro = conn.read(worksheet="PRONOSTICOS")
-    df_pro['P1'] = pd.to_numeric(df_pro['P1'], errors='coerce')
-    df_pro['P2'] = pd.to_numeric(df_pro['P2'], errors='coerce')
-    return df_pro
+# @st.cache_data(ttl=60) # Los pronósticos se refrescan cada 1 minuto
+# def load_dynamic_data():
+#     df_pro = conn.read(worksheet="PRONOSTICOS")
+#     df_pro['P1'] = pd.to_numeric(df_pro['P1'], errors='coerce')
+#     df_pro['P2'] = pd.to_numeric(df_pro['P2'], errors='coerce')
+#     return df_pro
 
-# Ejecución inteligente
-try:
-    df_res, df_usuarios = load_static_data()
-    df_pro = load_dynamic_data()
+# # Ejecución inteligente
+# try:
+#     df_res, df_usuarios = load_static_data()
+#     df_pro = load_dynamic_data()
 
-    equipos_unicos = pd.concat([df_res['Equipo_1'], df_res['Equipo_2']]).unique()
-    mapa_banderas = {eq: get_flag_img_cached(eq) for eq in equipos_unicos}
+#     equipos_unicos = pd.concat([df_res['Equipo_1'], df_res['Equipo_2']]).unique()
+#     mapa_banderas = {eq: get_flag_img_cached(eq) for eq in equipos_unicos}
     
-except Exception as e:
-    st.warning("⚠️ La conexión con Google es lenta...")
-    mapa_banderas = {}
+# except Exception as e:
+#     st.warning("⚠️ La conexión con Google es lenta...")
+#     mapa_banderas = {}
 
 # =============================================================================
 # 3. EJECUCIÓN
