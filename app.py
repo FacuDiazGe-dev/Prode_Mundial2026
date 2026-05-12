@@ -24,9 +24,9 @@ registro_permitido_fecha = ahora_arg < fecha_limite_reg
 MANTENIMIENTO_ACTIVO = False 
 MENSAJE_MANTENIMIENTO = "⚠️ Estamos actualizando los servidores para la próxima fecha. ¡Volvemos en unos minutos!"
 
-# ----LOGIN---
+
 # --- CONEXIÓN ---
-conn = st.connection("gsheets", type=GSheetsConnection)
+# conn = st.connection("gsheets", type=GSheetsConnection)
 
 #-----carga de insignias de ranking----
 
