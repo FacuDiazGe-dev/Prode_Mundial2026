@@ -1092,7 +1092,7 @@ elif menu == "⚙️ Panel Control":
 
 
 elif menu == "🧪 Laboratorio":
-    # --- 1. PREPARACIÓN DE DATOS (Mantenemos tu lógica) ---
+    # --- 1. PREPARACIÓN DE DATOS (Se mantiene igual) ---
     top_3 = df_ranking.head(3)
     def get_pod_data(index):
         if len(top_3) > index:
@@ -1116,8 +1116,7 @@ elif menu == "🧪 Laboratorio":
     except:
         pos_num, pts_usr, dif_ref = "-", 0, "..."
 
-    # --- 2. HTML HERO (PEGADO AL BORDE IZQUIERDO) ---
-    # Nota: Usamos {{ }} para el CSS y { } para tus variables
+    # --- 2. HTML INTEGRADO (PEGADO AL BORDE IZQUIERDO) ---
     html_hero = f"""
 <style>
 @import url('https://googleapis.com');
@@ -1126,108 +1125,108 @@ elif menu == "🧪 Laboratorio":
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.85) 100%), 
                 url('https://googleapis.com');
-    background-size: cover;
-    background-position: center;
-    border-radius: 35px;
-    padding: 45px 55px;
-    min-height: 320px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 60px;
-    color: white;
-    box-shadow: 0 35px 70px -15px rgba(0,0,0,0.95);
+    background-size: cover; background-position: center 20%;
+    border-radius: 30px; 
+    padding: 50px 60px;
+    min-height: 350px;
+    display: flex; flex-direction: column; justify-content: center;
+    color: white; box-shadow: 0 35px 70px -15px rgba(0,0,0,0.95);
     border: 1px solid rgba(255,255,255,0.08);
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
 }}
 
-.bg-title {{
-    position: absolute; top: 25px; left: 50%; transform: translateX(-50%);
-    font-family: 'Montserrat', sans-serif; font-size: 18px; letter-spacing: 5px;
-    font-weight: 700; opacity: 0.1; text-transform: uppercase; white-space: nowrap;
+/* TÍTULO INTEGRADO */
+.main-header {{
+    text-align: center; margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 20px;
+}}
+.header-title {{
+    font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 900;
+    letter-spacing: 1px; text-transform: uppercase; margin: 0;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+}}
+.header-sub {{
+    font-size: 14px; opacity: 0.6; letter-spacing: 3px; font-weight: 400; margin-top: 5px;
+}}
+
+.content-row {{
+    display: flex; align-items: center; justify-content: space-between; gap: 40px;
 }}
 
 .left-block {{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-width: 250px;
-    border-right: 1px solid rgba(255,255,255,0.08);
-    height: 180px;
-    padding-right: 50px;
+    display: flex; flex-direction: column; justify-content: center;
+    min-width: 240px; border-right: 1px solid rgba(255,255,255,0.08);
+    padding-right: 40px; height: 160px;
 }}
 
 .pos-big {{
-    font-family: 'Montserrat', sans-serif; font-size: 88px; font-weight: 800; 
-    line-height: 0.85; margin: 8px 0; letter-spacing: -3px; color: #F4C542;
+    font-family: 'Montserrat', sans-serif; font-size: 85px; font-weight: 800; 
+    line-height: 0.85; margin: 5px 0; letter-spacing: -4px; color: #F4C542;
     text-shadow: 0 0 20px rgba(244,197,66,0.15);
 }}
+.pts-big {{ font-family: 'Montserrat', sans-serif; font-size: 34px; font-weight: 800; margin: 0; }}
 
-.pts-big {{ 
-    font-family: 'Montserrat', sans-serif; font-size: 38px; font-weight: 800; 
-    margin: 0; letter-spacing: -0.5px; 
-}}
-
-.podium-wrap {{ display: flex; gap: 45px; align-items: flex-end; flex-grow: 1; justify-content: center; }}
-
-.avatar-img {{ 
-    border-radius: 50%; object-fit: cover; 
-    border: 3px solid rgba(255,255,255,0.2); 
-    box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
-    background-color: #222;
-}}
+.podium-wrap {{ display: flex; gap: 40px; align-items: flex-end; flex-grow: 1; justify-content: center; }}
+.p-item {{ position: relative; text-align: center; }}
+.avatar-img {{ border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.6); background: #111; }}
 
 .badge-v {{
-    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; 
-    justify-content: center; font-size: 16px; font-weight: 800; z-index: 10; font-family: 'Montserrat', sans-serif;
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; 
+    justify-content: center; font-size: 15px; font-weight: 800; z-index: 10;
 }}
-
 .gold {{ background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }}
 .silver {{ background: #C0C0C0; color: black; }}
 .bronze {{ background: #CD7F32; color: white; }}
 
 @media (max-width: 950px) {{
-    .hero-card {{ flex-direction: column; text-align: center; padding: 40px 25px; gap: 35px; }}
-    .left-block {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 0 35px 0; width: 100%; height: auto; }}
-    .podium-wrap {{ gap: 25px; transform: scale(0.9); }}
+    .hero-card {{ padding: 30px 20px; }}
+    .header-title {{ font-size: 20px; }}
+    .content-row {{ flex-direction: column; text-align: center; gap: 30px; }}
+    .left-block {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 0 30px 0; width: 100%; height: auto; }}
+    .podium-wrap {{ gap: 20px; transform: scale(0.85); }}
 }}
 </style>
 
 <div class="hero-card">
-<div class="bg-title">PRODE MUNDIAL 2026</div>
-
-<div class="left-block">
-    <p style="font-size:15px; opacity:0.6; margin:0;">Tu Posición Actual:</p>
-    <h1 class="pos-big">{pos_num}°</h1>
-    <p class="pts-big">{pts_usr} Pts.</p>
-    <p style="font-size:14px; opacity:0.65; margin-top:12px;">{dif_ref}</p>
+<div class="main-header">
+    <h1 class="header-title">🏆 PRODE MUNDIAL 2026 - Fase de Grupos</h1>
+    <div class="header-sub">¡La gloria está en tus predicciones!</div>
 </div>
 
-<div class="podium-wrap">
-    <div style="position:relative; text-align:center;">
-        <div class="badge-v silver">2</div>
-        <img src="{f2}" class="avatar-img" style="width:85px; height:85px;">
-        <div style="font-weight:700; font-size:23px; margin-top:18px;">{n2}</div>
-        <div style="font-size:16px; opacity:0.7;">{p2} Pts.</div>
+<div class="content-row">
+    <div class="left-block">
+        <p style="font-size:14px; opacity:0.6; margin:0;">Tu Posición Actual:</p>
+        <h1 class="pos-big">{pos_num}°</h1>
+        <p class="pts-big">{pts_usr} Pts.</p>
+        <p style="font-size:13px; opacity:0.6; margin-top:10px;">{dif_ref}</p>
     </div>
-    <div style="position:relative; text-align:center; margin-bottom: 30px;">
-        <div class="badge-v gold">1</div>
-        <img src="{f1}" class="avatar-img" style="width:115px; height:115px; border-color:#F4C542;">
-        <div style="font-weight:700; font-size:23px; margin-top:18px; color:#F4C542;">{n1}</div>
-        <div style="font-size:16px; opacity:1; color:#F4C542;">{p1} Pts.</div>
-    </div>
-    <div style="position:relative; text-align:center;">
-        <div class="badge-v bronze">3</div>
-        <img src="{f3}" class="avatar-img" style="width:85px; height:85px;">
-        <div style="font-weight:700; font-size:23px; margin-top:18px;">{n3}</div>
-        <div style="font-size:16px; opacity:0.7;">{p3} Pts.</div>
+
+    <div class="podium-wrap">
+        <div class="p-item">
+            <div class="badge-v silver">2</div>
+            <img src="{f2}" class="avatar-img" style="width:85px; height:85px;">
+            <div style="font-weight:700; font-size:22px; margin-top:15px;">{n2}</div>
+            <div style="font-size:15px; opacity:0.7;">{p2} Pts.</div>
+        </div>
+        <div class="p-item" style="margin-bottom: 25px;">
+            <div class="badge-v gold">1</div>
+            <img src="{f1}" class="avatar-img" style="width:115px; height:115px; border-color:#F4C542;">
+            <div style="font-weight:700; font-size:22px; margin-top:15px; color:#F4C542;">{n1}</div>
+            <div style="font-size:15px; color:#F4C542;">{p1} Pts.</div>
+        </div>
+        <div class="p-item">
+            <div class="badge-v bronze">3</div>
+            <img src="{f3}" class="avatar-img" style="width:85px; height:85px;">
+            <div style="font-weight:700; font-size:22px; margin-top:15px;">{n3}</div>
+            <div style="font-size:15px; opacity:0.7;">{p3} Pts.</div>
+        </div>
     </div>
 </div>
 </div>
 """
     st.markdown(html_hero, unsafe_allow_html=True)
+
 
     
     # --- 3. CUERPO (GRID 2x2) ---
