@@ -2052,8 +2052,9 @@ elif menu == "🧪 Laboratorio":
             border-radius: 18px;
             padding: 12px;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            margin-top: -10px;
         }
-        
+                
         .chat-scroll {
             height: 265px;
             overflow-y: auto;
@@ -2201,7 +2202,7 @@ elif menu == "🧪 Laboratorio":
         if df_foro.empty:
             chat_html += '<div class="chat-empty">Todavía no hay comentarios.<br>¡Sé el primero en tirar una chicana mundialista!</div>'
         else:
-            df_foro_mostrar = df_foro.tail(20)
+            df_foro_mostrar = df_foro.tail(20).iloc[::-1]
         
             for _, msg in df_foro_mostrar.iterrows():
                 usuario_msg = str(msg.get("USUARIO", "Usuario"))
