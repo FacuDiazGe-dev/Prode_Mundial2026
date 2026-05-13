@@ -1220,39 +1220,39 @@ html_hero = textwrap.dedent(f"""
         <div class="header-sub">¡La gloria está en tus predicciones!</div>
     </div>
 
-        <div class="content-row">
-            <div class="left-block">
-                <p style="font-size:11px; opacity:0.6; margin:0; text-transform: uppercase;">Tu Posición</p>
-                <h1 class="pos-big">{pos_display}°</h1>
-                <p class="pts-big">{pts_usr} <span style="font-size:13px;">Pts</span></p>
-                <p style="font-size:11px; font-weight:500; opacity:0.6; margin-top:3px;">{dif_ref}</p>
-            </div>
-
-            <div class="podium-wrap">
-                <div class="p-item">
-                    <div class="badge-v silver">2</div>
-                    <img src="{f2}" class="avatar-img" style="width:65px;">
-                    <div class="p-name">{n2}</div>
-                    <div class="p-score">{p2} Pts.</div>
-                </div>
-                
-                <div class="p-item" style="margin-bottom: 10px;">
-                    <div class="badge-v gold">1</div>
-                    <img src="{f1}" class="avatar-img" style="width:85px; border-color:#F4C542;">
-                    <div class="p-name" style="color:#F4C542;">{n1}</div>
-                    <div class="p-score" style="color:#F4C542;">{p1} Pts.</div>
-                </div>
-
-                <div class="p-item">
-                    <div class="badge-v bronze">3</div>
-                    <img src="{f3}" class="avatar-img" style="width:65px;">
-                    <div class="p-name">{n3}</div>
-                    <div class="p-score">{p3} Pts.</div>
-                </div>
-            </div>
-        </div>
+<div class="content-row">
+    <div class="left-block">
+        <p style="font-size:11px; opacity:0.6; margin:0; text-transform: uppercase;">Tu Posición</p>
+        <h1 class="pos-big">{pos_display}°</h1>
+        <p class="pts-big">{pts_usr} <span style="font-size:13px;">Pts</span></p>
+        <p style="font-size:11px; font-weight:500; opacity:0.6; margin-top:3px;">{dif_ref}</p>
     </div>
-    """)
+
+<div class="podium-wrap">
+    <div class="p-item">
+        <div class="badge-v silver">2</div>
+        <img src="{f2}" class="avatar-img" style="width:65px;">
+        <div class="p-name">{n2}</div>
+        <div class="p-score">{p2} Pts.</div>
+    </div>
+                
+    <div class="p-item" style="margin-bottom: 10px;">
+        <div class="badge-v gold">1</div>
+        <img src="{f1}" class="avatar-img" style="width:85px; border-color:#F4C542;">
+        <div class="p-name" style="color:#F4C542;">{n1}</div>
+        <div class="p-score" style="color:#F4C542;">{p1} Pts.</div>
+    </div>
+
+    <div class="p-item">
+        <div class="badge-v bronze">3</div>
+        <img src="{f3}" class="avatar-img" style="width:65px;">
+        <div class="p-name">{n3}</div>
+        <div class="p-score">{p3} Pts.</div>
+    </div>
+</div>
+</div>
+</div>
+""")
 
     st.markdown(html_hero, unsafe_allow_html=True)
     
