@@ -1540,7 +1540,6 @@ elif menu == "🧪 Laboratorio":
     
         st.markdown(ranking_html, unsafe_allow_html=True)
         
-        st.markdown("<br>", unsafe_allow_html=True)
         # ============================================================
         # EVOLUCIÓN DE PUNTOS - OPCIÓN C
         # Usuario actual destacado + resto como contexto
