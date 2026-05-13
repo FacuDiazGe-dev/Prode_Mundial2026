@@ -1362,59 +1362,110 @@ elif menu == "🧪 Laboratorio":
         else:
             st.info("La gráfica se dibujará cuando existan partidos oficiales validados.")
 
-    # ------------------ COLUMNA DERECHA ------------------
+       # ------------------ COLUMNA DERECHA (RESULTADOS Y CHAT CON ESTRENA COMPLETA) ------------------
     with c_der:
-        # Bloque 3: Últimos Partidos Terminados
-        st.subheader("🏟️ Últimos Resultados")
-        df_recientes = df_res[df_res['VIZ'].astype(str).str.upper() == "TRUE"].sort_values('N_PARTIDO', ascending=False).head(4)
+        # Bloque 3: Historial Completo de Partidos Visibles con Scroll
+        st.subheader("🏟️ Resultados Oficiales")
         
-        if df_recientes.empty:
-            st.info("No hay resultados visibles cargados en el sistema.")
-        else:
-            for _, row in df_recientes.iterrows():
-                # Obtenemos las banderas usando el mapa precalculado en la carga maestra
-                f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
-                f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
-                
-                st.markdown(f"""
-                <div style="background: rgba(255, 255, 255, 0.9); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                    <div style="display: flex; align-items: center; gap: 10px; width: 40%;">
-                        <img src="{f1}" width="24" style="border-radius:2px;">
-                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13px;">{row['Equipo_1']}</span>
-                    </div>
-                    <div style="background: #007bff; color: white; padding: 2px 12px; border-radius: 20px; font-weight: 900; font-size: 13px; min-width: 55px; text-align: center;">
-                        {int(row['R1'])} - {int(row['R2'])}
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-end; width: 40%; text-align: right;">
-                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13px;">{row['Equipo_2']}</span>
-                        <img src="{f2}" width="24" style="border-radius:2px;">
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+        # Filtramos todos los partidos que marcaste como visibles (ordenados del más reciente al más viejo)
+        df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
+        df_mostrar_partidos = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO', ascending=False)
+
+        # Contenedor con scroll vertical idéntico al Inicio
+        with st.container(height=430):
+            if df_mostrar_partidos.empty:
+                st.info("⚽ No hay resultados oficiales visibles todavía.")
+            else:
+                for i, row in df_mostrar_partidos.iterrows():
+                    r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
+                    r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
+                    dia_p = str(row['DIA']) if pd.notna(row['DIA']) else "---"
+                    hora_p = str(row['HORA']) if pd.notna(row['HORA']) else "--:--"
+                    
+                    # Banderas optimizadas del mapa_banderas
+                    f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
+                    f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
+                    
+                    color_tema = "#007bff" if r1 != "-" else "#6c757d"
+                    
+                    st.markdown(f"""
+                    <div style="border: 1px solid #ddd; border-top: 3px solid {color_tema}; border-radius: 8px; padding: 10px; margin-bottom: 10px; background-color: white;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; align-items: center;">
+                            <span style="font-size: 0.7em; font-weight: bold; color: {color_tema}; text-transform: uppercase;">PARTIDO {int(row['N_PARTIDO'])}</span>
+                            <span style="font-size: 0.7em; color: #666; font-weight: bold;">📅 {dia_p} | 🕒 {hora_p}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="width: 35%; text-align: center;">
+                                <img src="{f1}" width="28" style="margin-bottom:2px;"><br>
+                                <span style="font-weight: bold; font-size: 0.9em; color: #333;">{row['Equipo_1']}</span>
+                            </div>
+                            <div style="width: 25%; text-align: center; background: #f8f9fa; border-radius: 5px; font-weight: bold; font-size: 1.25em; border: 1px solid #eee; color: #333;">
+                                {r1} : {r2}
+                            </div>
+                            <div style="width: 35%; text-align: center;">
+                                <img src="{f2}" width="28" style="margin-bottom:2px;"><br>
+                                <span style="font-weight: bold; font-size: 0.9em; color: #333;">{row['Equipo_2']}</span>
+                            </div>
+                        </div>
+                    </div>""", unsafe_allow_html=True)
 
         st.markdown("---")
         
-        # Bloque 4: Caja de Chat compacto e instantáneo
-        st.subheader("💬 Foro Rápido")
+        # Bloque 4: Foro con Estética de Burbujas de WhatsApp
+        st.subheader("💬 Foro de la Fecha")
         
-        # Leemos el foro directamente desde tu base en tiempo real
+        # Leemos el foro de la base de datos
         df_foro = conn.read(worksheet="FORO", ttl=10)
         
-        with st.container(height=280):
+        # Contenedor del Chat con scroll
+        with st.container(height=380):
             if df_foro.empty:
-                st.caption("Aún no hay comentarios en esta jornada. ¡Sé el primero!")
+                st.caption("Aún no hay comentarios. ¡Inaugura el Foro!")
             else:
-                # Mostramos los últimos 15 mensajes ordenados de manera cronológica invertida
-                for _, msg in df_foro.tail(15).iterrows():
+                for _, msg in df_foro.iterrows():
                     user_msg = msg['USUARIO']
                     txt_msg = msg['MENSAJE']
                     hora_msg = str(msg.get('HORA', '--:--'))
                     
-                    # Estilo mini-burbuja de chat compacto
+                    # Buscamos el avatar real del usuario para la burbuja
+                    u_info = df_usuarios[df_usuarios['USUARIO'] == user_msg]
+                    avatar_chat = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
+                    
+                    # Identificamos si el mensaje es del usuario logueado para cambiar el color de la burbuja
+                    es_propio = user_msg == st.session_state['user_data']['USUARIO']
+                    bg_burbuja = "#d9fdd3" if es_propio else "#ffffff"
+                    alineacion = "flex-end" if es_propio else "flex-start"
+                    color_nombre = "#00a884" if es_propio else "#128c7e"
+
                     st.markdown(f"""
-                    <div style="margin-bottom: 8px; font-size: 12px; line-height: 1.3;">
-                        <span style="color: #007bff; font-weight: 800;">{user_msg}:</span>
-                        <span style="color: #222222;">{txt_msg}</span>
-                        <span style="font-size: 9px; color: #999999; margin-left: 5px;">{hora_msg}</span>
+                    <div style="display: flex; justify-content: {alineacion}; margin-bottom: 12px; font-family: sans-serif;">
+                        <div style="display: flex; max-width: 85%; background: {bg_burbuja}; padding: 10px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); gap: 10px; align-items: flex-start;">
+                            <img src="{avatar_chat}" width="32" height="32" style="border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: bold; color: {color_nombre}; font-size: 12px; margin-bottom: 2px;">{user_msg}</div>
+                                <div style="color: #333333; font-size: 13px; word-break: break-word;">{txt_msg}</div>
+                                <div style="text-align: right; font-size: 9px; color: #888888; margin-top: 4px;">{hora_msg}</div>
+                            </div>
+                        </div>
                     </div>
                     """, unsafe_allow_html=True)
+
+        # Formulario rápido para enviar mensajes directamente desde el Dashboard
+        with st.form("form_foro_rapido", clear_on_submit=True):
+            c_txt, c_btn = st.columns([0.8, 0.2])
+            with c_txt:
+                nuevo_msg = st.text_input("Escribe un mensaje...", label_visibility="collapsed", placeholder="Escribe un mensaje...")
+            with c_btn:
+                enviar = st.form_submit_button("🚀", use_container_width=True)
+                
+            if enviar and nuevo_msg.strip():
+                # Lógica de inserción en la pestaña FORO
+                nuevo_registro = {
+                    "USUARIO": st.session_state['user_data']['USUARIO'],
+                    "MENSAJE": nuevo_msg.strip(),
+                    "HORA": datetime.now().strftime("%H:%M")
+                }
+                df_nuevo_foro = pd.concat([df_foro, pd.DataFrame([nuevo_registro])], ignore_index=True)
+                conn.update(worksheet="FORO", data=df_nuevo_foro)
+                st.cache_data.clear()
+                st.rerun()
