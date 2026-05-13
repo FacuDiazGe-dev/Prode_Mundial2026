@@ -1092,14 +1092,14 @@ elif menu == "⚙️ Panel Control":
 
 
 elif menu == "🧪 Laboratorio":
-    # --- 1. PREPARACIÓN DE DATOS (Misma lógica robusta) ---
+    # --- 1. PREPARACIÓN DE DATOS (Mantenemos tu lógica) ---
     top_3 = df_ranking.head(3)
     def get_pod_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
-            foto = u_info['AVATAR_URL'].values if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values) else AVATAR_GENERICO
-            nombre = str(row['JUGADOR']).split(' ')
+            foto = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
+            nombre = str(row['JUGADOR']).split(' ')[0]
             return nombre, int(row['PUNTOS']), foto
         return "-", 0, AVATAR_GENERICO
 
@@ -1109,14 +1109,15 @@ elif menu == "🧪 Laboratorio":
 
     try:
         row_user = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
-        pos_num = int(row_user.index)
-        pts_usr = int(row_user['PUNTOS'].values)
+        pos_num = int(row_user.index[0])
+        pts_usr = int(row_user['PUNTOS'].values[0])
         dif = int(p1 - pts_usr)
         dif_ref = "Eres el Líder 🏆" if pos_num == 1 else f"↑ a {dif} Pts. del Líder"
     except:
         pos_num, pts_usr, dif_ref = "-", 0, "..."
 
-    # --- 2. HTML ELITE (SÓLO EL HERO ACTUALIZADO) ---
+    # --- 2. HTML HERO (PEGADO AL BORDE IZQUIERDO) ---
+    # Nota: Usamos {{ }} para el CSS y { } para tus variables
     html_hero = f"""
 <style>
 @import url('https://googleapis.com');
@@ -1125,14 +1126,20 @@ elif menu == "🧪 Laboratorio":
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.85) 100%), 
                 url('https://googleapis.com');
-    background-size: cover; background-position: center;
-    border-radius: 35px; 
-    padding: 45px 55px; /* Aumento de padding lateral */
+    background-size: cover;
+    background-position: center;
+    border-radius: 35px;
+    padding: 45px 55px;
     min-height: 320px;
-    display: flex; align-items: center; justify-content: space-between; gap: 60px;
-    color: white; box-shadow: 0 35px 70px -15px rgba(0,0,0,0.95);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+    color: white;
+    box-shadow: 0 35px 70px -15px rgba(0,0,0,0.95);
     border: 1px solid rgba(255,255,255,0.08);
-    position: relative; overflow: hidden;
+    position: relative;
+    overflow: hidden;
 }}
 
 .bg-title {{
@@ -1141,44 +1148,45 @@ elif menu == "🧪 Laboratorio":
     font-weight: 700; opacity: 0.1; text-transform: uppercase; white-space: nowrap;
 }}
 
-/* Bloque Izquierdo: Tu Posición */
 .left-block {{
-    display: flex; flex-direction: column; justify-content: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     min-width: 250px;
-    border-right: 1px solid rgba(255,255,255,0.08); /* Línea más sutil */
-    height: 180px; /* Altura controlada para centrar la línea */
+    border-right: 1px solid rgba(255,255,255,0.08);
+    height: 180px;
     padding-right: 50px;
 }}
-.label-pos {{ font-size: 15px; font-weight: 500; opacity: 0.6; margin: 0; }}
+
 .pos-big {{
     font-family: 'Montserrat', sans-serif; font-size: 88px; font-weight: 800; 
     line-height: 0.85; margin: 8px 0; letter-spacing: -3px; color: #F4C542;
     text-shadow: 0 0 20px rgba(244,197,66,0.15);
 }}
+
 .pts-big {{ 
     font-family: 'Montserrat', sans-serif; font-size: 38px; font-weight: 800; 
     margin: 0; letter-spacing: -0.5px; 
 }}
-.msg-dif {{ font-size: 14px; opacity: 0.65; margin-top: 12px; font-weight: 400; }}
 
-/* Podio */
 .podium-wrap {{ display: flex; gap: 45px; align-items: flex-end; flex-grow: 1; justify-content: center; }}
-.p-item {{ position: relative; text-align: center; }}
-.avatar-img {{ border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.6); }}
-.p1-img {{ width: 115px; height: 115px; border-color: #F4C542; filter: drop-shadow(0 0 10px rgba(244,197,66,0.1)); }}
-.px-img {{ width: 85px; height: 85px; }}
+
+.avatar-img {{ 
+    border-radius: 50%; object-fit: cover; 
+    border: 3px solid rgba(255,255,255,0.2); 
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
+    background-color: #222;
+}}
 
 .badge-v {{
     position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
     width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; 
     justify-content: center; font-size: 16px; font-weight: 800; z-index: 10; font-family: 'Montserrat', sans-serif;
 }}
+
 .gold {{ background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }}
 .silver {{ background: #C0C0C0; color: black; }}
 .bronze {{ background: #CD7F32; color: white; }}
-
-.p-name {{ font-weight: 700; font-size: 23px; margin-top: 18px; letter-spacing: -0.5px; }}
-.p-pts {{ font-size: 16px; opacity: 0.7; }}
 
 @media (max-width: 950px) {{
     .hero-card {{ flex-direction: column; text-align: center; padding: 40px 25px; gap: 35px; }}
@@ -1191,30 +1199,30 @@ elif menu == "🧪 Laboratorio":
     <div class="bg-title">PRODE MUNDIAL 2026</div>
     
     <div class="left-block">
-        <p class="label-pos">Tu Posición Actual:</p>
+        <p style="font-size:15px; opacity:0.6; margin:0;">Tu Posición Actual:</p>
         <h1 class="pos-big">{pos_num}°</h1>
         <p class="pts-big">{pts_usr} Pts.</p>
-        <p class="msg-dif">{dif_ref}</p>
+        <p style="font-size:14px; opacity:0.65; margin-top:12px;">{dif_ref}</p>
     </div>
 
     <div class="podium-wrap">
-        <div class="p-item">
+        <div style="position:relative; text-align:center;">
             <div class="badge-v silver">2</div>
-            <img src="{f2}" class="avatar-img px-img">
-            <div class="p-name">{n2}</div>
-            <div class="p-pts">{p2} Pts.</div>
+            <img src="{f2}" class="avatar-img" style="width:85px; height:85px;">
+            <div style="font-weight:700; font-size:23px; margin-top:18px;">{n2}</div>
+            <div style="font-size:16px; opacity:0.7;">{p2} Pts.</div>
         </div>
-        <div class="p-item" style="margin-bottom: 30px;">
+        <div style="position:relative; text-align:center; margin-bottom: 30px;">
             <div class="badge-v gold">1</div>
-            <img src="{f1}" class="avatar-img p1-img">
-            <div class="p-name" style="color: #F4C542;">{n1}</div>
-            <div class="p-pts" style="color: #F4C542; opacity: 1;">{p1} Pts.</div>
+            <img src="{f1}" class="avatar-img" style="width:115px; height:115px; border-color:#F4C542;">
+            <div style="font-weight:700; font-size:23px; margin-top:18px; color:#F4C542;">{n1}</div>
+            <div style="font-size:16px; opacity:1; color:#F4C542;">{p1} Pts.</div>
         </div>
-        <div class="p-item">
+        <div style="position:relative; text-align:center;">
             <div class="badge-v bronze">3</div>
-            <img src="{f3}" class="avatar-img px-img">
-            <div class="p-name">{n3}</div>
-            <div class="p-pts">{p3} Pts.</div>
+            <img src="{f3}" class="avatar-img" style="width:85px; height:85px;">
+            <div style="font-weight:700; font-size:23px; margin-top:18px;">{n3}</div>
+            <div style="font-size:16px; opacity:0.7;">{p3} Pts.</div>
         </div>
     </div>
 </div>
