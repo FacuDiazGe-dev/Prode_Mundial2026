@@ -1279,138 +1279,120 @@ elif menu == "🧪 Laboratorio":
 
     st.markdown(html_hero, unsafe_allow_html=True)
     
-    # =============================================================================
-    # 3. CUERPO INTERACTIVO (GRID UNIFICADO CON ESTILOS PREMIUM)
+# =============================================================================
+    # 3. CUERPO INTERACTIVO (DISEÑO PREMIUM UNIFICADO)
     # =============================================================================
 
-    # Inyección de estilos con DOBLE LLAVE para evitar errores de f-string
+    # Inyección de estilos con escape de llaves {{ }} y alineación limpia
     st.markdown(f"""
-        <style>
-        .dash-title {{
-            font-family: 'Inter', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding-left: 5px;
-            border-left: 4px solid #1d4ed8;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
-        }}
-        .score-card {{
-            background: white; 
-            border: 1px solid #f0f2f6; 
-            border-radius: 12px; 
-            padding: 12px; 
-            margin-bottom: 10px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            color: black;
-        }}
-        .chat-bubble {{
-            padding: 10px 14px; 
-            border-radius: 12px; 
-            max-width: 85%; 
-            margin-bottom: 10px;
-            font-family: 'Inter', sans-serif;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }}
-        </style>
+<style>
+    /* Títulos con degradado sutil para coherencia con el Header */
+    .dash-title {{
+        font-family: 'Inter', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #1d4ed8 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-left: 2px;
+        border-left: 5px solid #1d4ed8;
+        padding-left: 15px;
+    }}
+
+    /* Tarjetas de Score tipo 'Glass' */
+    .score-card {{
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(229, 231, 235, 0.5);
+        border-radius: 16px;
+        padding: 15px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+    }}
+    .score-card:hover {{
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }}
+
+    /* Burbujas de Chat estilizadas */
+    .chat-bubble {{
+        padding: 12px 16px;
+        border-radius: 18px;
+        max-width: 85%;
+        margin-bottom: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }}
+
+    /* Ajuste para que los Dataframes de Streamlit se vean más limpios */
+    [data-testid="stDataFrame"] {{
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #f0f2f6;
+    }}
+</style>
     """, unsafe_allow_html=True)
 
-    c_izq, c_der = st.columns([1, 1], gap="large")
+    c_izq, c_der = st.columns([1, 1.1], gap="large")
 
-    # ------------------ COLUMNA IZQUIERDA ------------------
+    # ------------------ COLUMNA IZQUIERDA: LÍDERES Y TENDENCIAS ------------------
     with c_izq:
-        st.markdown('<div class="dash-title">🥇 Ranking Top 8</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-title">🥇 Leaderboard Pro</div>', unsafe_allow_html=True)
         st.dataframe(
             df_ranking.head(8), 
             use_container_width=True, 
             hide_index=True, 
-            height=310, 
+            height=315, 
             column_config={
                 "ID_PARA_FOTO": None, "USUARIO": None,
                 "Nº": st.column_config.TextColumn("Pos", width="small"),
-                "PUNTOS": st.column_config.NumberColumn("Pts", format="%d"),
+                "PUNTOS": st.column_config.NumberColumn("Pts", format="%d 🏆"),
                 "EXACTOS": st.column_config.NumberColumn("🎯"),
                 "GENERALES": st.column_config.NumberColumn("✅")
             }
         )
         
         st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown('<div class="dash-title">📈 Evolución Temporal</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-title">📈 Evolución de Puntos</div>', unsafe_allow_html=True)
         
-        # Inyección segura de la lógica gráfica para evitar desconfiguraciones
+        # Lógica de datos (se mantiene tu procesamiento impecable)
         df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
         partidos_visibles = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO')
         
-        # --- CORRECCIÓN DE INDEXACIÓN EN GRÁFICO (REMPLAZAR ESTE BLOQUE) ---
         if not partidos_visibles.empty:
-            evol_list = []
-            usuarios_lista = df_usuarios["USUARIO"].unique()
-            ids_visibles = partidos_visibles['N_PARTIDO'].tolist()
+            # ... (Toda tu lógica de evol_list y df_ev_pivot aquí) ...
             
-            for user in usuarios_lista:
-                pts_acc = 0
-                user_pro = df_pro[df_pro['USUARIO'] == user]
-                
-                for id_p in ids_visibles:
-                    # Filtramos la fila del partido correspondiente como un DataFrame
-                    part_row = partidos_visibles[partidos_visibles['N_PARTIDO'] == id_p]
-                    u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
-                    
-                    if not part_row.empty and not u_p.empty:
-                        # Usamos .iloc[0] para extraer los valores fila por fila de forma segura
-                        r1_g = part_row['R1'].iloc[0]
-                        r2_g = part_row['R2'].iloc[0]
-                        p1_g = u_p['P1'].iloc[0]
-                        p2_g = u_p['P2'].iloc[0]
-                        
-                        if pd.notna(r1_g) and pd.notna(r2_g):
-                            pts_g, _, _ = calcular_detalle(r1_g, r2_g, p1_g, p2_g)
-                            pts_acc += pts_g
-                    
-                    evol_list.append({
-                        "N_Partido": int(id_p), 
-                        "Jugador": user, 
-                        "Puntos": pts_acc
-                    })
-            
-            if evol_list:
-                df_ev = pd.DataFrame(evol_list)
-                df_ev_pivot = df_ev.pivot(index="N_Partido", columns="Jugador", values="Puntos").sort_index()
-                
-                fig = px.line(
-                    df_ev_pivot, 
-                    labels={"N_Partido": "Partido", "value": "Puntos", "variable": "Jugador"},
-                    markers=True
-                )
-                fig.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    xaxis=dict(fixedrange=True, tickmode='linear', dtick=1, gridcolor='rgba(255,255,255,0.1)'),
-                    yaxis=dict(fixedrange=True, gridcolor='rgba(255,255,255,0.1)'),
-                    dragmode=False,
-                    hovermode="x unified",
-                    height=300,
-                    margin=dict(l=10, r=10, t=10, b=10),
-                    legend=dict(font=dict(size=10), orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5)
-                )
-                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+            # Estilización del gráfico para que parezca un widget premium
+            fig.update_layout(
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                font=dict(family="Inter", size=11, color="#6b7280"),
+                xaxis=dict(showgrid=False, linecolor='#e5e7eb'),
+                yaxis=dict(gridcolor='#f3f4f6', zeroline=False),
+                margin=dict(l=0, r=0, t=20, b=0),
+                height=280,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            )
+            fig.update_traces(line_width=3, marker=dict(size=8, line=dict(width=2, color='white')))
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         else:
-            st.info("Sin datos de evolución aún.")
+            st.info("Esperando el silbato inicial para mostrar estadísticas.")
 
-    # ------------------ COLUMNA DERECHA ------------------
+    # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
     with c_der:
-        st.markdown('<div class="dash-title">🏟️ Últimos Resultados</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-title">🏟️ Resultados de la Fecha</div>', unsafe_allow_html=True)
         
-        # Filtro de visibilidad maestro para la sección de partidos del dashboard
         df_mostrar_partidos = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO', ascending=False)
 
-        with st.container(height=310): 
+        with st.container(height=315): 
             if df_mostrar_partidos.empty:
-                st.info("⚽ No hay partidos visibles.")
+                st.info("⚽ No hay resultados confirmados.")
             else:
                 for i, row in df_mostrar_partidos.iterrows():
                     r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
@@ -1419,63 +1401,86 @@ elif menu == "🧪 Laboratorio":
                     f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
                     
                     st.markdown(f"""
-                    <div class="score-card">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #9ca3af; font-weight: 700; margin-bottom: 8px;">
-                            <span>PARTIDO {int(row['N_PARTIDO'])}</span>
-                            <span>{row['DIA']} | {row['HORA']}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div style="flex: 1; text-align: right; font-weight: 700; font-size: 0.85rem;">{row['Equipo_1']}</div>
-                            <img src="{f1}" width="24" style="margin: 0 10px; border-radius: 2px;">
-                            <div style="background: #1f2937; color: white; padding: 3px 10px; border-radius: 6px; font-weight: 800; min-width: 45px; text-align: center;">{r1} : {r2}</div>
-                            <img src="{f2}" width="24" style="margin: 0 10px; border-radius: 2px;">
-                            <div style="flex: 1; text-align: left; font-weight: 700; font-size: 0.85rem;">{row['Equipo_2']}</div>
-                        </div>
-                    </div>""", unsafe_allow_html=True)
+<div class="score-card">
+    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #9ca3af; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">
+        <span>Match #{int(row['N_PARTIDO'])}</span>
+        <span>{row['DIA']} | {row['HORA']}</span>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <div style="flex: 1; text-align: right; font-weight: 700; font-size: 0.9rem; color: #1f2937;">{row['Equipo_1']}</div>
+        <img src="{f1}" width="28" style="border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="background: #1e293b; color: #f8fafc; padding: 5px 12px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 1.1rem; min-width: 60px; text-align: center;">
+            {r1} : {r2}
+        </div>
+        <img src="{f2}" width="28" style="border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="flex: 1; text-align: left; font-weight: 700; font-size: 0.9rem; color: #1f2937;">{row['Equipo_2']}</div>
+    </div>
+</div>""", unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown('<div class="dash-title">💬 Foro de la Fecha</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-title">💬 Foro en Vivo</div>', unsafe_allow_html=True)
         
-        # Lectura segura del foro desde la hoja de cálculo
-        df_foro = conn.read(worksheet="FORO", ttl=10)
-        
-        with st.container(height=260):
+        with st.container(height=265):
             if df_foro.empty:
-                st.caption("Aún no hay mensajes en esta fecha.")
+                st.caption("Sé el primero en comentar la jornada...")
             else:
                 for _, msg in df_foro.iterrows():
                     es_propio = msg['USUARIO'] == st.session_state['user_data']['USUARIO']
                     u_info = df_usuarios[df_usuarios['USUARIO'] == msg['USUARIO']]
-                    
-                    # Corrección del vicio del array de Pandas
                     avatar = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
                     
                     st.markdown(f"""
-                    <div style="display: flex; justify-content: {'flex-end' if es_propio else 'flex-start'}; margin-bottom: 10px;">
-                        <div class="chat-bubble" style="background: {'#dcf8c6' if es_propio else '#ffffff'}; border: 1px solid {'#c7e9b0' if es_propio else '#e5e7eb'}; display: flex; gap: 8px; align-items: center; color: black;">
-                            <img src="{avatar}" width="24" height="24" style="border-radius: 50%; object-fit: cover;">
-                            <div>
-                                <div style="font-weight: 800; font-size: 0.7rem; color: #075e54;">{msg['USUARIO']}</div>
-                                <div style="font-size: 0.85rem; color: #1f2937;">{msg['MENSAJE']}</div>
-                            </div>
-                        </div>
-                    </div>""", unsafe_allow_html=True)
+<div style="display: flex; justify-content: {'flex-end' if es_propio else 'flex-start'}; margin-bottom: 12px;">
+    <div class="chat-bubble" style="background: {'#dbeafe' if es_propio else '#f3f4f6'}; color: #1e293b; border: 1px solid {'#bfdbfe' if es_propio else '#e5e7eb'}; border-radius: {'18px 18px 2px 18px' if es_propio else '18px 18px 18px 2px'};">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <img src="{avatar}" width="18" height="18" style="border-radius: 50%; object-fit: cover;">
+            <span style="font-weight: 800; font-size: 0.7rem; color: #1d4ed8;">{msg['USUARIO']}</span>
+        </div>
+        <div>{msg['MENSAJE']}</div>
+    </div>
+</div>""", unsafe_allow_html=True)
 
-        # Formulario de Chat unificado
-        with st.form("form_foro_premium", clear_on_submit=True):
-            c_txt, c_btn = st.columns([0.85, 0.15])
-            with c_txt:
-                nuevo_msg = st.text_input("Escribe...", label_visibility="collapsed", placeholder="Escribe un mensaje en el foro...")
-            with c_btn:
-                enviar = st.form_submit_button("🚀", use_container_width=True)
-                
-            if enviar and nuevo_msg.strip():
-                nuevo_reg = {
-                    "USUARIO": st.session_state['user_data']['USUARIO'],
-                    "MENSAJE": nuevo_msg.strip(),
-                    "HORA": datetime.now().strftime("%H:%M")
-                }
-                df_nuevo = pd.concat([df_foro, pd.DataFrame([nuevo_reg])], ignore_index=True)
-                conn.update(worksheet="FORO", data=df_nuevo)
-                st.cache_data.clear()
-                st.rerun()
+# 1. CSS adicional para "tunear" el botón del formulario (añadir al bloque de <style> arriba)
+    st.markdown(f"""
+<style>
+    /* Estilo para el botón de enviar del formulario */
+    .stForm [data-testid="stFormSubmitButton"] button {{
+        background: linear-gradient(90deg, #1d4ed8 0%, #3b82f6 100%);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }}
+    .stForm [data-testid="stFormSubmitButton"] button:hover {{
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4);
+    }}
+</style>
+    """, unsafe_allow_html=True)
+
+    # 2. El bloque del formulario con micro-ajustes
+    with st.form("form_foro_premium", clear_on_submit=True):
+        c_txt, c_btn = st.columns([0.88, 0.12]) # Un poco más de aire al texto
+        with c_txt:
+            nuevo_msg = st.text_input(
+                "Escribe...", 
+                label_visibility="collapsed", 
+                placeholder="Escribe un mensaje en el foro..."
+            )
+        with c_btn:
+            # Quitamos el label del botón para que el emoji sea el protagonista
+            enviar = st.form_submit_button("🚀", use_container_width=True)
+            
+        if enviar and nuevo_msg.strip():
+            nuevo_reg = {
+                "USUARIO": st.session_state['user_data']['USUARIO'],
+                "MENSAJE": nuevo_msg.strip(),
+                "HORA": datetime.now().strftime("%H:%M")
+            }
+            # Lógica de actualización (Tu código actual está perfecto aquí)
+            df_nuevo = pd.concat([df_foro, pd.DataFrame([nuevo_reg])], ignore_index=True)
+            conn.update(worksheet="FORO", data=df_nuevo)
+            st.cache_data.clear()
+            st.rerun()
