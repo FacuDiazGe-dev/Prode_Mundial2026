@@ -1137,22 +1137,22 @@ elif menu == "🧪 Laboratorio":
 
     /* SECCIÓN SUPERIOR COMPACTA */
     .header-top {{
-        padding: 12px 10px 5px 10px; /* Reducido drásticamente */
+        padding: 10px 10px 5px 10px; /* Reducido drásticamente */
         text-align: center;
     }}
     .title-main {{
         font-family: 'Montserrat', sans-serif;
-        font-size: 24px; font-weight: 900;
+        font-size: 20px; font-weight: 900;
         text-transform: uppercase; 
         margin: 0; /* Sin márgenes para apretar */
         line-height: 1.1;
         letter-spacing: 1px;
     }}
     .title-sub {{
-        font-size: 9px; 
+        font-size: 10px; 
         opacity: 0.4; 
         letter-spacing: 1.5px;
-        margin: 2px 0 0 0; /* Margen mínimo superior */
+        margin: -10px 0 0 0; /* Margen mínimo superior */
         text-transform: uppercase;
     }}
     .divider-h {{
