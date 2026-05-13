@@ -1541,63 +1541,193 @@ elif menu == "🧪 Laboratorio":
         st.markdown(ranking_html, unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
+        # ============================================================
+        # EVOLUCIÓN DE PUNTOS - GRÁFICO PREMIUM
+        # Reemplaza el bloque actual de Evolución de Puntos
+        # ============================================================
+        
         st.markdown('<div class="dash-title">📈 Evolución de Puntos</div>', unsafe_allow_html=True)
         
-        # 1. Filtro de partidos visibles
-        df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
-        partidos_visibles = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO')
+        df_res["VIZ_CHECK"] = df_res["VIZ"].astype(str).str.strip().str.upper()
         
-        if not partidos_visibles.empty:
+        partidos_visibles = (
+            df_res[
+                df_res["VIZ_CHECK"].isin(
+                    ["TRUE", "1", "1.0", "VERDADERO", "T"]
+                )
+            ]
+            .sort_values("N_PARTIDO")
+        )
+        
+        if partidos_visibles.empty:
+            st.info("Esperando el silbato inicial para mostrar estadísticas.")
+        else:
             evol_list = []
             usuarios_lista = df_usuarios["USUARIO"].unique()
-            ids_visibles = partidos_visibles['N_PARTIDO'].tolist()
-            
-            # 2. Generar datos para el gráfico
+            ids_visibles = partidos_visibles["N_PARTIDO"].tolist()
+        
             for user in usuarios_lista:
                 pts_acc = 0
-                user_pro = df_pro[df_pro['USUARIO'] == user]
+                user_pro = df_pro[df_pro["USUARIO"] == user]
+        
                 for id_p in ids_visibles:
-                    part_row = partidos_visibles[partidos_visibles['N_PARTIDO'] == id_p]
-                    u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
-                    
+                    part_row = partidos_visibles[partidos_visibles["N_PARTIDO"] == id_p]
+                    u_p = user_pro[user_pro["N_PARTIDO"] == id_p]
+        
                     if not part_row.empty and not u_p.empty:
-                        r1_g, r2_g = part_row['R1'].iloc[0], part_row['R2'].iloc[0]
-                        p1_g, p2_g = u_p['P1'].iloc[0], u_p['P2'].iloc[0]
-                        
+                        r1_g = part_row["R1"].iloc[0]
+                        r2_g = part_row["R2"].iloc[0]
+                        p1_g = u_p["P1"].iloc[0]
+                        p2_g = u_p["P2"].iloc[0]
+        
                         if pd.notna(r1_g) and pd.notna(r2_g):
-                            pts_g, _, _ = calcular_detalle(r1_g, r2_g, p1_g, p2_g)
+                            pts_g, _, _ = calcular_detalle(
+                                r1_g,
+                                r2_g,
+                                p1_g,
+                                p2_g
+                            )
                             pts_acc += pts_g
-                    
-                    evol_list.append({"N_Partido": int(id_p), "Jugador": user, "Puntos": pts_acc})
-            
-            # 3. CREACIÓN DEL OBJETO FIG (Lo que faltaba)
+        
+                    evol_list.append(
+                        {
+                            "N_Partido": int(id_p),
+                            "Jugador": user,
+                            "Puntos": pts_acc
+                        }
+                    )
+        
             if evol_list:
                 df_ev = pd.DataFrame(evol_list)
-                df_ev_pivot = df_ev.pivot(index="N_Partido", columns="Jugador", values="Puntos").sort_index()
-                
-                # Definimos fig antes de usar fig.update_layout
+        
+                usuario_actual = st.session_state["user_data"]["USUARIO"]
+        
                 fig = px.line(
-                    df_ev_pivot, 
-                    labels={"N_Partido": "Partido", "value": "Puntos", "variable": "Jugador"},
-                    markers=True
+                    df_ev,
+                    x="N_Partido",
+                    y="Puntos",
+                    color="Jugador",
+                    markers=True,
+                    labels={
+                        "N_Partido": "Partido",
+                        "Puntos": "Puntos",
+                        "Jugador": "Jugador"
+                    }
                 )
-                
-                # 4. Estilización Premium del gráfico
+        
+                # ----------------------------------------------------
+                # ESTILO GENERAL
+                # ----------------------------------------------------
                 fig.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    font=dict(family="Inter", size=11, color="#6b7280"),
-                    xaxis=dict(showgrid=False, linecolor='#e5e7eb', tickmode='linear', dtick=1),
-                    yaxis=dict(gridcolor='#f3f4f6', zeroline=False),
-                    margin=dict(l=0, r=0, t=20, b=0),
-                    height=280,
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+                    height=315,
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(255,255,255,0.55)",
+                    font=dict(
+                        family="Inter, sans-serif",
+                        size=11,
+                        color="#64748b"
+                    ),
+                    margin=dict(
+                        l=10,
+                        r=10,
+                        t=35,
+                        b=10
+                    ),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.05,
+                        xanchor="center",
+                        x=0.5,
+                        font=dict(
+                            size=10,
+                            color="#475569"
+                        ),
+                        bgcolor="rgba(255,255,255,0)"
+                    ),
+                    hovermode="x unified"
                 )
-                fig.update_traces(line_width=3, marker=dict(size=8, line=dict(width=2, color='white')))
-                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
-        else:
-            st.info("Esperando el silbato inicial para mostrar estadísticas.")
-
+        
+                # ----------------------------------------------------
+                # EJES
+                # ----------------------------------------------------
+                fig.update_xaxes(
+                    title_text="Partido",
+                    showgrid=False,
+                    showline=False,
+                    zeroline=False,
+                    tickmode="linear",
+                    dtick=1,
+                    color="#94a3b8",
+                    title_font=dict(
+                        size=11,
+                        color="#64748b"
+                    )
+                )
+        
+                fig.update_yaxes(
+                    title_text="Puntos",
+                    gridcolor="rgba(148,163,184,0.18)",
+                    showline=False,
+                    zeroline=False,
+                    color="#94a3b8",
+                    title_font=dict(
+                        size=11,
+                        color="#64748b"
+                    )
+                )
+        
+                # ----------------------------------------------------
+                # LÍNEAS
+                # ----------------------------------------------------
+                for trace in fig.data:
+                    if trace.name == usuario_actual:
+                        trace.update(
+                            line=dict(
+                                width=5
+                            ),
+                            marker=dict(
+                                size=9,
+                                line=dict(
+                                    width=2,
+                                    color="white"
+                                )
+                            ),
+                            opacity=1
+                        )
+                    else:
+                        trace.update(
+                            line=dict(
+                                width=2
+                            ),
+                            marker=dict(
+                                size=6,
+                                line=dict(
+                                    width=1,
+                                    color="white"
+                                )
+                            ),
+                            opacity=0.55
+                        )
+        
+                # ----------------------------------------------------
+                # TOOLTIP
+                # ----------------------------------------------------
+                fig.update_traces(
+                    hovertemplate="<b>%{fullData.name}</b><br>Partido %{x}<br>%{y} pts<extra></extra>"
+                )
+        
+                st.plotly_chart(
+                    fig,
+                    use_container_width=True,
+                    config={
+                        "displayModeBar": False,
+                        "responsive": True
+                    }
+                )
+            else:
+                st.info("Todavía no hay datos suficientes para mostrar la evolución.")
+        
 # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
     with c_der:
 # ============================================================
