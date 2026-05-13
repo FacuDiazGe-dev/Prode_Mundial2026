@@ -1092,267 +1092,166 @@ elif menu == "⚙️ Panel Control":
 
 elif menu == "🧪 Laboratorio":
     # --- 1. PREPARACIÓN DE DATOS REALES ---
-import streamlit as st
+    top_3 = df_ranking.head(3)
+    
+    def get_podium_data(index):
+        if len(top_3) > index:
+            row = top_3.iloc[index]
+            u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
+            # Extraemos URL de foto o genérico
+            foto = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
+            # Limpiamos el nombre (tomamos el primer nombre antes de cualquier emoji)
+            nombre_limpio = str(row['JUGADOR']).split(' ')[0]
+            return nombre_limpio, int(row['PUNTOS']), foto
+        return "-", 0, AVATAR_GENERICO
 
-# -----------------------------
-# DATOS EJEMPLO
-# -----------------------------
-pos = 3
-pts = 128
-dif_msg = "A 5 puntos del líder"
+    n1, p1, f1 = get_podium_data(0)
+    n2, p2, f2 = get_podium_data(1)
+    n3, p3, f3 = get_podium_data(2)
 
-n1, n2, n3 = "Juan", "Ana", "Facu"
+    # Datos del usuario logueado
+    try:
+        user_row = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
+        pos_actual = user_row.index[0] + 1
+        pts_actual = int(user_row['PUNTOS'].iloc[0])
+        dif = int(p1 - pts_actual)
+        dif_msg = "🏆 ¡Eres el líder!" if dif <= 0 else f"A {dif} puntos del líder"
+    except:
+        pos_actual, pts_actual, dif_msg = "-", 0, "Calculando..."
 
-f1 = "https://randomuser.me/api/portraits/men/32.jpg"
-f2 = "https://randomuser.me/api/portraits/women/44.jpg"
-f3 = "https://randomuser.me/api/portraits/men/65.jpg"
-
-# -----------------------------
-# HERO HTML
-# -----------------------------
-html_hero = f"""
-<style>
-
-.hero-card {{
-    background-image:
-        linear-gradient(to right, rgba(0,0,0,0.88), rgba(0,0,0,0.45)),
-        url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1920');
-
-    background-size: cover;
-    background-position: center;
-
-    border-radius: 24px;
-    padding: 35px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    color: white;
-    font-family: sans-serif;
-
-    box-shadow:
-        0 10px 40px rgba(0,0,0,0.45),
-        inset 0 1px 0 rgba(255,255,255,0.05);
-
-    border: 1px solid rgba(255,255,255,0.08);
-
-    margin-bottom: 30px;
-    gap: 30px;
-
-    min-height: 240px;
-}}
-
-.stat-section {{
-    border-right: 1px solid rgba(255,255,255,0.15);
-    padding-right: 35px;
-    min-width: 180px;
-}}
-
-.pos-number {{
-    font-size: 68px;
-    font-weight: 900;
-    line-height: 1;
-    margin: 0;
-
-    color: #F4C542;
-}}
-
-.podium-section {{
-    display: flex;
-    gap: 25px;
-    align-items: flex-end;
-    text-align: center;
-
-    flex-grow: 1;
-    justify-content: center;
-}}
-
-.avatar-frame {{
-    position: relative;
-    display: inline-block;
-}}
-
-.badge {{
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-
-    width: 28px;
-    height: 28px;
-
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 13px;
-    font-weight: bold;
-
-    z-index: 10;
-}}
-
-.gold {{
-    background: #FFD700;
-    color: black;
-}}
-
-.silver {{
-    background: #C0C0C0;
-    color: black;
-}}
-
-.bronze {{
-    background: #CD7F32;
-    color: white;
-}}
-
-.img-circ {{
-    width: 70px;
-    height: 70px;
-
-    border-radius: 50%;
-    object-fit: cover;
-
-    border: 3px solid white;
-}}
-
-.first-place {{
-    width: 90px;
-    height: 90px;
-    border-color: #FFD700;
-}}
-
-.hero-title {{
-    font-size: 15px;
-    opacity: 0.7;
-    margin: 0;
-}}
-
-.hero-points {{
-    font-size: 22px;
-    font-weight: bold;
-    margin: 0;
-}}
-
-.hero-diff {{
-    font-size: 12px;
-    opacity: 0.7;
-    margin-top: 6px;
-}}
-
-.player-name {{
-    margin-top: 8px;
-    font-size: 14px;
-}}
-
-.player-score {{
-    font-size: 12px;
-    opacity: 0.8;
-}}
-
-@media (max-width: 768px) {{
-
+    # --- 2. HERO HTML (CSS Y ESTRUCTURA) ---
+    html_hero = f"""
+    <style>
     .hero-card {{
-        flex-direction: column;
-        text-align: center;
+        background-image: linear-gradient(to right, rgba(0,0,0,0.88), rgba(0,0,0,0.45)),
+            url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1920');
+        background-size: cover;
+        background-position: center;
+        border-radius: 24px;
+        padding: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+        font-family: sans-serif;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        margin-bottom: 30px;
+        gap: 30px;
+        min-height: 240px;
     }}
-
     .stat-section {{
-        border-right: none;
-        border-bottom: 1px solid rgba(255,255,255,0.15);
-
-        padding-right: 0;
-        padding-bottom: 20px;
+        border-right: 1px solid rgba(255,255,255,0.15);
+        padding-right: 35px;
+        min-width: 180px;
     }}
-
+    .pos-number {{
+        font-size: 68px;
+        font-weight: 900;
+        line-height: 1;
+        margin: 0;
+        color: #F4C542;
+    }}
     .podium-section {{
-        width: 100%;
+        display: flex;
+        gap: 25px;
+        align-items: flex-end;
+        text-align: center;
+        flex-grow: 1;
+        justify-content: center;
     }}
-}}
+    .avatar-frame {{
+        position: relative;
+        display: inline-block;
+    }}
+    .badge {{
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: bold;
+        z-index: 10;
+    }}
+    .gold {{ background: #FFD700; color: black; }}
+    .silver {{ background: #C0C0C0; color: black; }}
+    .bronze {{ background: #CD7F32; color: white; }}
+    .img-circ {{
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid white;
+        background-color: #222;
+    }}
+    .first-place {{
+        width: 90px;
+        height: 90px;
+        border-color: #FFD700;
+    }}
+    .hero-title {{ font-size: 15px; opacity: 0.7; margin: 0; }}
+    .hero-points {{ font-size: 22px; font-weight: bold; margin: 0; }}
+    .hero-diff {{ font-size: 12px; opacity: 0.7; margin-top: 6px; }}
+    .player-name {{ margin-top: 8px; font-size: 14px; }}
+    .player-score {{ font-size: 12px; opacity: 0.8; }}
 
-</style>
+    @media (max-width: 768px) {{
+        .hero-card {{ flex-direction: column; text-align: center; gap: 20px; }}
+        .stat-section {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding-right: 0; padding-bottom: 20px; }}
+        .podium-section {{ width: 100%; }}
+    }}
+    </style>
 
-<div class="hero-card">
+    <div class="hero-card">
+        <div class="stat-section">
+            <p class="hero-title">Tu posición actual</p>
+            <h1 class="pos-number">{pos_actual}°</h1>
+            <p class="hero-points">{pts_actual} puntos</p>
+            <p class="hero-diff">{dif_msg}</p>
+        </div>
 
-    <div class="stat-section">
+        <div class="podium-section">
+            <!-- Segundo -->
+            <div>
+                <div class="avatar-frame">
+                    <div class="badge silver">2</div>
+                    <img src="{f2}" class="img-circ">
+                </div>
+                <div class="player-name">{n2}</div>
+                <div class="player-score">{p2} pts</div>
+            </div>
 
-        <p class="hero-title">
-            Tu posición actual
-        </p>
+            <!-- Primero -->
+            <div style="margin-top:-25px;">
+                <div class="avatar-frame">
+                    <div class="badge gold">1</div>
+                    <img src="{f1}" class="img-circ first-place">
+                </div>
+                <div class="player-name" style="font-weight:bold;color:#FFD700;">{n1}</div>
+                <div class="player-score">{p1} pts</div>
+            </div>
 
-        <h1 class="pos-number">
-            {pos}°
-        </h1>
-
-        <p class="hero-points">
-            {pts} puntos
-        </p>
-
-        <p class="hero-diff">
-            {dif_msg}
-        </p>
-
+            <!-- Tercero -->
+            <div>
+                <div class="avatar-frame">
+                    <div class="badge bronze">3</div>
+                    <img src="{f3}" class="img-circ">
+                </div>
+                <div class="player-name">{n3}</div>
+                <div class="player-score">{p3} pts</div>
+            </div>
+        </div>
     </div>
+    """
 
-    <div class="podium-section">
+    st.markdown(html_hero, unsafe_allow_html=True)
 
-        <!-- Segundo -->
-        <div>
-
-            <div class="avatar-frame">
-                <div class="badge silver">2</div>
-
-                <img src="{f2}" class="img-circ">
-            </div>
-
-            <div class="player-name">{n2}</div>
-            <div class="player-score">131 pts</div>
-
-        </div>
-
-        <!-- Primero -->
-        <div style="margin-top:-25px;">
-
-            <div class="avatar-frame">
-                <div class="badge gold">1</div>
-
-                <img src="{f1}" class="img-circ first-place">
-            </div>
-
-            <div class="player-name" style="font-weight:bold;color:#FFD700;">
-                {n1}
-            </div>
-
-            <div class="player-score">133 pts</div>
-
-        </div>
-
-        <!-- Tercero -->
-        <div>
-
-            <div class="avatar-frame">
-                <div class="badge bronze">3</div>
-
-                <img src="{f3}" class="img-circ">
-            </div>
-
-            <div class="player-name">{n3}</div>
-            <div class="player-score">128 pts</div>
-
-        </div>
-
-    </div>
-
-</div>
-"""
-
-# IMPORTANTE:
-# usar st.markdown(..., unsafe_allow_html=True)
-
-st.markdown(html_hero, unsafe_allow_html=True)
 
 
     # --- 3. CUERPO (GRID 2x2) ---
