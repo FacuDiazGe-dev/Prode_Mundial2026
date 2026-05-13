@@ -1195,32 +1195,32 @@ elif menu == "🧪 Laboratorio":
 </div>
 
 <div class="content-row">
-    <div class="left-block">
-        <p style="font-size:14px; opacity:0.6; margin:0;">Tu Posición Actual:</p>
-        <h1 class="pos-big">{pos_num}°</h1>
-        <p class="pts-big">{pts_usr} Pts.</p>
-        <p style="font-size:13px; opacity:0.6; margin-top:10px;">{dif_ref}</p>
-    </div>
+<div class="left-block">
+    <p style="font-size:14px; opacity:0.6; margin:0;">Tu Posición Actual:</p>
+    <h1 class="pos-big">{pos_num}°</h1>
+    <p class="pts-big">{pts_usr} Pts.</p>
+    <p style="font-size:13px; opacity:0.6; margin-top:10px;">{dif_ref}</p>
+</div>
 
-    <div class="podium-wrap">
-        <div class="p-item">
-            <div class="badge-v silver">2</div>
-            <img src="{f2}" class="avatar-img" style="width:85px; height:85px;">
-            <div style="font-weight:700; font-size:22px; margin-top:15px;">{n2}</div>
-            <div style="font-size:15px; opacity:0.7;">{p2} Pts.</div>
-        </div>
-        <div class="p-item" style="margin-bottom: 25px;">
-            <div class="badge-v gold">1</div>
-            <img src="{f1}" class="avatar-img" style="width:115px; height:115px; border-color:#F4C542;">
-            <div style="font-weight:700; font-size:22px; margin-top:15px; color:#F4C542;">{n1}</div>
-            <div style="font-size:15px; color:#F4C542;">{p1} Pts.</div>
-        </div>
-        <div class="p-item">
-            <div class="badge-v bronze">3</div>
-            <img src="{f3}" class="avatar-img" style="width:85px; height:85px;">
-            <div style="font-weight:700; font-size:22px; margin-top:15px;">{n3}</div>
-            <div style="font-size:15px; opacity:0.7;">{p3} Pts.</div>
-        </div>
+<div class="podium-wrap">
+    <div class="p-item">
+        <div class="badge-v silver">2</div>
+        <img src="{f2}" class="avatar-img" style="width:85px; height:85px;">
+        <div style="font-weight:700; font-size:22px; margin-top:15px;">{n2}</div>
+        <div style="font-size:15px; opacity:0.7;">{p2} Pts.</div>
+    </div>
+    <div class="p-item" style="margin-bottom: 25px;">
+        <div class="badge-v gold">1</div>
+        <img src="{f1}" class="avatar-img" style="width:115px; height:115px; border-color:#F4C542;">
+        <div style="font-weight:700; font-size:22px; margin-top:15px; color:#F4C542;">{n1}</div>
+        <div style="font-size:15px; color:#F4C542;">{p1} Pts.</div>
+    </div>
+    <div class="p-item">
+        <div class="badge-v bronze">3</div>
+        <img src="{f3}" class="avatar-img" style="width:85px; height:85px;">
+        <div style="font-weight:700; font-size:22px; margin-top:15px;">{n3}</div>
+        <div style="font-size:15px; opacity:0.7;">{p3} Pts.</div>
+    </div>
     </div>
 </div>
 </div>
