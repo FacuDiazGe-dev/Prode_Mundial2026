@@ -1559,7 +1559,7 @@ elif menu == "🧪 Laboratorio":
             padding: 18px 20px 14px 20px;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
             border-bottom: none;
-            margin-top: 5px;
+            margin-top: -10px;
         }
         
         .evol-user-name {
