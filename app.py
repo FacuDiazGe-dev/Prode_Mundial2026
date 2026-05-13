@@ -1121,46 +1121,155 @@ elif menu == "🧪 Laboratorio":
     except:
         pos_actual, pts_actual, dif_msg = "-", 0, "Calculando..."
 
-# --- 2. HERO HTML (CSS Y ESTRUCTURA) ---
-    # Usamos f-string pero aplicamos dedent al final
     html_hero = textwrap.dedent(f"""
     <style>
-    .hero-card {{
-        background-image: linear-gradient(to right, rgba(0,0,0,0.88), rgba(0,0,0,0.45)),
-            url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1920');
-        background-size: cover;
-        background-position: center;
-        border-radius: 24px;
-        padding: 35px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        color: white;
-        font-family: sans-serif;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.08);
-        margin-bottom: 30px;
-        gap: 30px;
-        min-height: 240px;
-    }}
-    /* ... el resto de tu CSS con doble llave {{ }} ... */
-    
-    @media (max-width: 768px) {{
-        .hero-card {{ flex-direction: column; text-align: center; gap: 20px; }}
-        .stat-section {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding-right: 0; padding-bottom: 20px; }}
-        .podium-section {{ width: 100%; }}
-    }}
+        @import url('https://googleapis.com');
+
+        .hero-card {{
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(20,20,20,0.6) 100%),
+                        url('https://unsplash.com');
+            background-size: cover;
+            background-position: center;
+            border-radius: 28px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }}
+
+        /* Brillo neón detrás de la posición */
+        .stat-section {{
+            position: relative;
+            z-index: 1;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding-right: 40px;
+        }}
+
+        .pos-number {{
+            font-size: 82px;
+            font-weight: 900;
+            line-height: 0.9;
+            margin: 0;
+            background: linear-gradient(180deg, #F4C542 0%, #B8860B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(244, 197, 66, 0.3));
+        }}
+
+        .podium-section {{
+            display: flex;
+            gap: 30px;
+            align-items: flex-end;
+            justify-content: center;
+            flex-grow: 1;
+        }}
+
+        /* Efecto de levitación en los avatares */
+        .avatar-frame {{
+            position: relative;
+            transition: transform 0.3s ease;
+        }}
+        .avatar-frame:hover {{ transform: translateY(-5px); }}
+
+        .img-circ {{
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }}
+
+        .first-place {{
+            width: 110px; height: 110px;
+            border-color: #F4C542;
+            box-shadow: 0 0 25px rgba(244, 197, 66, 0.2);
+        }}
+
+        .badge {{
+            position: absolute;
+            top: -12px; left: 50%; transform: translateX(-50%);
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 900;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }}
+
+        .gold {{ background: #F4C542; color: #000; }}
+        .silver {{ background: #E5E7EB; color: #000; }}
+        .bronze {{ background: #D97706; color: #fff; }}
+
+        .player-name {{
+            font-weight: 700;
+            font-size: 15px;
+            margin-top: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }}
+
+        .player-score {{
+            font-size: 13px;
+            opacity: 0.6;
+            font-weight: 400;
+        }}
+
+        /* Badge de "Líder" o "Diferencia" con estilo píldora */
+        .diff-pill {{
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }}
     </style>
 
     <div class="hero-card">
         <div class="stat-section">
-            <p class="hero-title">Tu posición actual</p>
-            <h1 class="pos-number">{pos_actual}°</h1>
-            <p class="hero-points">{pts_actual} puntos</p>
-            <p class="hero-diff">{dif_msg}</p>
+            <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin: 0;">RANGO</p>
+            <h1 class="pos-number">{pos_usr}°</h1>
+            <p style="font-size: 24px; font-weight: 700; margin: 5px 0 0 0;">{pts_usr} <span style="font-size: 14px; opacity:0.5;">PTS</span></p>
+            <div class="diff-pill">{dif_msg}</div>
         </div>
+
         <div class="podium-section">
-            <!-- El resto de tu HTML -->
+            <!-- Puesto 2 -->
+            <div>
+                <div class="avatar-frame">
+                    <div class="badge silver">2</div>
+                    <img src="{f2}" class="img-circ">
+                </div>
+                <div class="player-name">{n2}</div>
+                <div class="player-score">{p2} PTS</div>
+            </div>
+
+            <!-- Puesto 1 -->
+            <div style="margin-top: -30px;">
+                <div class="avatar-frame">
+                    <div class="badge gold">1</div>
+                    <img src="{f1}" class="img-circ first-place">
+                </div>
+                <div class="player-name" style="color: #F4C542; font-size: 18px;">{n1}</div>
+                <div class="player-score" style="color: #F4C542; opacity: 1;">{p1} PTS</div>
+            </div>
+
+            <!-- Puesto 3 -->
+            <div>
+                <div class="avatar-frame">
+                    <div class="badge bronze">3</div>
+                    <img src="{f3}" class="img-circ">
+                </div>
+                <div class="player-name">{n3}</div>
+                <div class="player-score">{p3} PTS</div>
+            </div>
         </div>
     </div>
     """)
