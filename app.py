@@ -1092,13 +1092,17 @@ elif menu == "⚙️ Panel Control":
 
 
 elif menu == "🧪 Laboratorio":
-    # --- 1. PREPARACIÓN DE DATOS (Se mantiene igual) ---
+    # --- 1. PREPARACIÓN DE DATOS (CORREGIDA) ---
+    
+    # Obtenemos el Top 3 para el Podio Visual
     top_3 = df_ranking.head(3)
+    
     def get_podium_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
             foto = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
+            # Tomamos el primer nombre y quitamos emojis para el podio
             nombre_limpio = str(row['JUGADOR']).split(' ')[0]
             return nombre_limpio, int(row['PUNTOS']), foto
         return "-", 0, AVATAR_GENERICO
@@ -1107,14 +1111,28 @@ elif menu == "🧪 Laboratorio":
     n2, p2, f2 = get_podium_data(1)
     n3, p3, f3 = get_podium_data(2)
 
+    # --- LÓGICA DE POSICIÓN DEL USUARIO ACTUAL ---
     try:
+        # Buscamos la fila del usuario logueado en el ranking
         user_row = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
-        pos_usr = user_row.index[0] + 1
+        
+        # Obtenemos la posición numérica real (basada en el orden de los puntos)
+        # Usamos reset_index para tener números puros y sumamos 1
+        pos_usr_numerica = df_ranking.index[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']][0]
+        
+        # Mostramos la corona si es el 1, sino el número
+        pos_display = "👑" if pos_usr_numerica == 1 else f"{pos_usr_numerica}°"
+        
         pts_usr = int(user_row['PUNTOS'].iloc[0])
         dif = int(p1 - pts_usr)
-        dif_msg = "🏆 LÍDER" if dif <= 0 else f"A {dif} PTS DEL 1°"
-    except:
-        pos_usr, pts_usr, dif_msg = "-", 0, "---"
+        
+        if pos_usr_numerica == 1:
+            dif_msg = "⭐ LÍDER DEL TORNEO"
+        else:
+            dif_msg = f"🚩 A {dif} PTS DEL LÍDER"
+            
+    except Exception as e:
+        pos_display, pts_usr, dif_msg = "-", 0, "Calculando..."
 
     # --- 2. HTML SIN INDENTACIÓN (PEGA ESTO ASÍ AL RAS DEL BORDE IZQUIERDO) ---
     html_hero = f"""
@@ -1156,7 +1174,7 @@ elif menu == "🧪 Laboratorio":
 <div class="hero-card">
     <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 40px; min-width: 180px;">
         <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin: 0;">POSICIÓN</p>
-        <h1 class="pos-number">{pos_usr}°</h1>
+        <h1 class="pos-number">{pos_display}</h1>
         <p style="font-size: 24px; font-weight: 700; margin: 5px 0 0 0;">{pts_usr} PTS</p>
         <div style="display:inline-block; padding:4px 12px; background:rgba(255,255,255,0.1); border-radius:20px; font-size:11px; margin-top:10px;">{dif_msg}</div>
     </div>
