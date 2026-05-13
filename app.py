@@ -1279,62 +1279,45 @@ elif menu == "🧪 Laboratorio":
 
     st.markdown(html_hero, unsafe_allow_html=True)
     
-# =============================================================================
-    # 3. CUERPO INTERACTIVO (DISEÑO PREMIUM UNIFICADO)
+    # =============================================================================
+    # REFUERZO VISUAL: COHERENCIA CON EL HEADER (Basado en image_58b775.png)
     # =============================================================================
 
-    # Inyección de estilos con escape de llaves {{ }} y alineación limpia
     st.markdown(f"""
 <style>
-    /* Títulos con degradado sutil para coherencia con el Header */
+    /* Títulos de sección: Menos 'estridencia', más elegancia */
     .dash-title {{
-        font-family: 'Inter', sans-serif;
-        font-size: 1.15rem;
+        font-family: 'Inter', -apple-system, sans-serif;
+        font-size: 1.35rem; /* Aumentamos tamaño para jerarquía */
         font-weight: 800;
-        background: linear-gradient(90deg, #1d4ed8 0%, #3b82f6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 18px;
+        color: #0f172a; /* Azul noche casi negro, muy profesional */
+        letter-spacing: -0.025em;
+        margin-bottom: 28px; /* Más aire entre el título y el contenido */
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding-left: 2px;
-        border-left: 5px solid #1d4ed8;
-        padding-left: 15px;
+        gap: 15px;
+        padding: 12px 20px;
+        
+        /* Solución a las "manchas": fondo sólido sutil o glassmorphism real */
+        background: #ffffff; 
+        border-radius: 14px;
+        
+        /* Cambiamos el azul brillante por el azul marino del Prode */
+        border-left: 6px solid #1e3a8a; 
+        
+        /* Sombra muy suave para que "flote" sobre el dibujo de fondo sin ensuciar */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }}
 
-    /* Tarjetas de Score tipo 'Glass' */
+    /* Ajuste de tipografía general para que coincida con el header */
+    body, p, div {{
+        font-family: 'Inter', -apple-system, sans-serif;
+    }}
+
+    /* Unificar las tarjetas de score con el mismo radio de borde */
     .score-card {{
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(229, 231, 235, 0.5);
-        border-radius: 16px;
-        padding: 15px;
-        margin-bottom: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s ease;
-    }}
-    .score-card:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }}
-
-    /* Burbujas de Chat estilizadas */
-    .chat-bubble {{
-        padding: 12px 16px;
-        border-radius: 18px;
-        max-width: 85%;
-        margin-bottom: 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.9rem;
-        line-height: 1.4;
-    }}
-
-    /* Ajuste para que los Dataframes de Streamlit se vean más limpios */
-    [data-testid="stDataFrame"] {{
-        border-radius: 16px;
-        overflow: hidden;
-        border: 1px solid #f0f2f6;
+        border-radius: 14px !important;
+        border: 1px solid #e2e8f0 !important;
     }}
 </style>
     """, unsafe_allow_html=True)
