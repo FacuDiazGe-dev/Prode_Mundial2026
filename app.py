@@ -11,6 +11,7 @@ from ranking_logic import obtener_ranking_global, calcular_detalle
 from styles_config import aplicar_estilos_globales, dibujar_banner, mostrar_decalogo, AVATAR_GENERICO
 from tools import get_flag_img_cached, upload_profile_picture, registrar_usuario
 from io import BytesIO
+import textwrap
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
@@ -1089,7 +1090,7 @@ elif menu == "⚙️ Panel Control":
         # Este else ahora sí corresponde al IF inicial de ROL == 'admin'
         st.error("⛔ No tienes permisos para acceder a esta sección.")
 
-import textwrap
+
 elif menu == "🧪 Laboratorio":
 
     # --- 1. PREPARACIÓN DE DATOS REALES ---
