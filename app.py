@@ -1113,147 +1113,144 @@ elif menu == "🧪 Laboratorio":
         pos_index = row_user.index[0] 
         pos_display = pos_index + 1
         pts_usr = int(row_user['PUNTOS'].values[0])
-        
-        # Cálculo de diferencia
         dif = int(p1 - pts_usr)
-        
-        # NUEVA LÓGICA: Si la diferencia es 0, eres líder (aunque estés 2° por desempate)
-        if dif <= 0:
-            dif_ref = "¡Eres el Líder! 🏆"
-        else:
-            dif_ref = f"↑ a {dif} Pts. del Líder"
-            
+        dif_ref = "¡Eres el Líder! 🏆" if dif <= 0 else f"↑ a {dif} Pts. del Líder"
     except:
         pos_display, pts_usr, dif_ref = "-", 0, "..."
 
-    # --- 2. HTML INTEGRADO COMPRIMIDO ---
+    # --- 2. HTML INTEGRADO (ESTILO IMAGE_64985D.JPG) ---
+    
     html_hero = textwrap.dedent(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap');
-    
+
     .hero-card {{
         font-family: 'Inter', sans-serif;
         background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.85) 100%), 
                     url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1920');
         background-size: cover; background-position: center 20%;
-        border-radius: 25px; 
-        padding: 20px 25px;
-        display: flex; flex-direction: column; justify-content: center;
+        border-radius: 20px; 
+        padding: 0; /* Quitamos padding para manejar los bloques internos */
+        display: flex;
         color: white; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.9);
-        border: 1px solid rgba(255,255,255,0.08);
-        position: relative; overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.1);
+        min-height: 220px;
+        overflow: hidden;
     }}
-    
-    .main-header {{
-        text-align: center; 
-        margin-bottom: 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding-bottom: 6px;
-    }}
-    .header-title {{
-        font-family: 'Montserrat', sans-serif; 
-        font-size: 22px;
-        font-weight: 900;
-        letter-spacing: 0.5px; 
-        text-transform: uppercase; 
-        margin: 0;
-        line-height: 1.1;
-    }}
-    .header-sub {{ font-size: 11px; opacity: 0.65; margin-top: 2px; }}
-    
-    .content-row {{ display: flex; align-items: center; justify-content: space-between; gap: 15px; }}
-    
-    .left-block {{
+
+    /* LADO IZQUIERDO: TU POSICIÓN */
+    .user-sidebar {{
+        width: 25%;
+        padding: 30px 20px;
         display: flex; flex-direction: column; justify-content: center;
-        min-width: 160px; border-right: 1px solid rgba(255,255,255,0.15);
-        padding-right: 20px;
+        border-right: 2px solid rgba(255,255,255,0.8); /* La línea blanca de la imagen */
+        background: rgba(0,0,0,0.2);
     }}
-    
+
+    .sidebar-label {{
+        font-size: 11px; opacity: 0.6; text-transform: uppercase; 
+        letter-spacing: 1.5px; font-weight: 700; margin-bottom: 10px;
+    }}
+
     .pos-big {{
-        font-family: 'Montserrat', sans-serif; font-size: 58px; font-weight: 800; 
-        line-height: 0.8; margin: 4px 0; letter-spacing: -3px; color: #F4C542;
+        font-family: 'Montserrat', sans-serif; font-size: 68px; font-weight: 900; 
+        line-height: 1; margin: 0; color: white;
     }}
-    .pts-big {{ font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 800; margin: 0; }}
+
+    .pts-row {{ margin-top: 15px; }}
+    .pts-val {{ font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 800; }}
+    .pts-label {{ font-size: 14px; opacity: 0.8; font-weight: 700; }}
     
-    .podium-wrap {{ 
-        display: flex; gap: 12px; align-items: flex-end; flex-grow: 1; justify-content: center;
-        min-width: 0;
+    .status-msg {{ font-size: 12px; margin-top: 10px; font-weight: 600; opacity: 0.9; }}
+
+    /* LADO DERECHO: TÍTULO Y PODIO */
+    .main-content {{
+        width: 75%;
+        padding: 20px 30px;
+        display: flex; flex-direction: column; justify-content: space-between;
     }}
-    .p-item {{ position: relative; text-align: center; flex: 1; min-width: 0; }}
+
+    .header-group {{ text-align: center; margin-bottom: 10px; }}
+    .header-title {{
+        font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 900;
+        text-transform: uppercase; margin: 0; letter-spacing: 1px;
+    }}
+    .header-sub {{ font-size: 11px; opacity: 0.5; letter-spacing: 1px; margin-top: 4px; }}
+
+    .podium-row {{
+        display: flex; justify-content: space-around; align-items: flex-end;
+        gap: 10px; padding-bottom: 10px;
+    }}
+
+    .p-item {{ text-align: center; position: relative; }}
     .avatar-img {{ 
-        border-radius: 50%; object-fit: cover; border: 2.5px solid rgba(255,255,255,0.2); 
-        box-shadow: 0 8px 20px rgba(0,0,0,0.5); background: #111;
-        max-width: 100%; height: auto; aspect-ratio: 1/1;
+        border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.3); 
+        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
     }}
-    
-    .p-name {{ 
-        font-weight: 700; font-size: 14px; margin-top: 8px; 
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-    }}
-    .p-score {{ font-size: 12px; opacity: 0.7; }}
-    
+    .p-name {{ font-weight: 700; font-size: 14px; margin-top: 8px; }}
+    .p-score {{ font-size: 11px; opacity: 0.6; }}
+
     .badge-v {{
-        position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
-        width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; 
-        justify-content: center; font-size: 11px; font-weight: 800; z-index: 10;
+        position: absolute; top: -5px; right: -5px;
+        width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; 
+        justify-content: center; font-size: 11px; font-weight: 900;
     }}
-    .gold {{ background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }}
-    .silver {{ background: #C0C0C0; color: black; }}
-    .bronze {{ background: #CD7F32; color: white; }}
-    
-    @media (max-width: 800px) {{
-        .hero-card {{ padding: 15px; }}
-        .header-title {{ font-size: 19px; }}
-        .content-row {{ flex-direction: column; gap: 12px; }}
-        .left-block {{ 
-            border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); 
-            padding: 0 0 10px 0; width: 100%; text-align: center;
-        }}
-        .pos-big {{ font-size: 50px; }}
-        .podium-wrap {{ width: 100%; gap: 8px; }}
+
+    @media (max-width: 850px) {{
+        .hero-card {{ flex-direction: column; min-height: auto; }}
+        .user-sidebar {{ width: 100%; border-right: none; border-bottom: 2px solid white; }}
+        .main-content {{ width: 100%; }}
+        .header-title {{ font-size: 22px; }}
     }}
     </style>
-    
-    <div class="hero-card">
-    <div class="main-header">
-        <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
-        <div class="header-sub">¡La gloria está en tus predicciones!</div>
-    </div>
-    
-    <div class="content-row">
-    <div class="left-block">
-        <p style="font-size:11px; opacity:0.6; margin:0; text-transform: uppercase;">Tu Posición</p>
+
+<div class="hero-card">
+    <!-- Panel Izquierdo -->
+    <div class="user-sidebar">
+        <div class="sidebar-label">Tu Posición</div>
         <h1 class="pos-big">{pos_display}°</h1>
-        <p class="pts-big">{pts_usr} <span style="font-size:13px;">Pts</span></p>
-        <p style="font-size:11px; font-weight:500; opacity:0.6; margin-top:3px;">{dif_ref}</p>
+        <div class="pts-row">
+            <span class="pts-val">{pts_usr}</span> <span class="pts-label">Pts</span>
+        </div>
+        <div class="status-msg">{dif_ref}</div>
     </div>
-    
-    <div class="podium-wrap">
-    <div class="p-item">
-        <div class="badge-v silver">2</div>
-        <img src="{f2}" class="avatar-img" style="width:65px;">
-        <div class="p-name">{n2}</div>
-        <div class="p-score">{p2} Pts.</div>
+
+    <!-- Panel Derecho -->
+    <div class="main-content">
+        <div class="header-group">
+            <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
+            <div class="header-sub">¡La gloria está en tus predicciones!</div>
+        </div>
+
+        <div class="podium-row">
+            <!-- 2do -->
+            <div class="p-item">
+                <div class="badge-v" style="background:#C0C0C0; color:black;">2</div>
+                <img src="{f2}" class="avatar-img" style="width:60px;">
+                <div class="p-name">{n2}</div>
+                <div class="p-score">{p2} Pts.</div>
+            </div>
+
+            <!-- 1ro -->
+            <div class="p-item">
+                <div class="badge-v" style="background:#FFD700; color:black;">1</div>
+                <img src="{f1}" class="avatar-img" style="width:85px; border-color:#FFD700;">
+                <div class="p-name" style="color:#FFD700;">{n1}</div>
+                <div class="p-score" style="color:#FFD700;">{p1} Pts.</div>
+            </div>
+
+            <!-- 3ro -->
+            <div class="p-item">
+                <div class="badge-v" style="background:#CD7F32; color:white;">3</div>
+                <img src="{f3}" class="avatar-img" style="width:60px;">
+                <div class="p-name">{n3}</div>
+                <div class="p-score">{p3} Pts.</div>
+            </div>
+        </div>
     </div>
-                    
-    <div class="p-item" style="margin-bottom: 10px;">
-        <div class="badge-v gold">1</div>
-        <img src="{f1}" class="avatar-img" style="width:85px; border-color:#F4C542;">
-        <div class="p-name" style="color:#F4C542;">{n1}</div>
-        <div class="p-score" style="color:#F4C542;">{p1} Pts.</div>
-    </div>
-    
-    <div class="p-item">
-        <div class="badge-v bronze">3</div>
-        <img src="{f3}" class="avatar-img" style="width:65px;">
-        <div class="p-name">{n3}</div>
-        <div class="p-score">{p3} Pts.</div>
-    </div>
-    </div>
-    </div>
-    </div>
+</div>
     """)
-    
+
     st.markdown(html_hero, unsafe_allow_html=True)
     
     # --- 3. CUERPO (GRID 2x2) ---
