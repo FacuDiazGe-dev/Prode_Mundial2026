@@ -1089,6 +1089,7 @@ elif menu == "⚙️ Panel Control":
         # Este else ahora sí corresponde al IF inicial de ROL == 'admin'
         st.error("⛔ No tienes permisos para acceder a esta sección.")
 
+
 elif menu == "🧪 Laboratorio":
     # --- 1. PREPARACIÓN DE DATOS ---
     top_3 = df_ranking.head(3)
@@ -1098,8 +1099,7 @@ elif menu == "🧪 Laboratorio":
             row = top_3.iloc[index]
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
             foto = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
-            # Limpiamos el nombre para que no sea excesivamente largo en el podio
-            nombre_display = row['JUGADOR'].split(' ')[0]
+            nombre_display = str(row['JUGADOR']).split(' ')[0] # Solo primer nombre para no amontonar
             return nombre_display, row['PUNTOS'], foto
         return "-", 0, AVATAR_GENERICO
 
@@ -1115,39 +1115,44 @@ elif menu == "🧪 Laboratorio":
     except:
         pos_usuario, pts_usuario, dif_lider = "-", 0, 0
 
-    # --- 2. DEFINICIÓN DEL TEMPLATE HTML/CSS (Separado para evitar errores) ---
-    html_hero = """
+    # --- 2. ESTILOS CSS (Bloque independiente para no romper el format) ---
+    st.markdown("""
     <style>
-        .hero-card {{
+        .hero-card {
             background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.4)), 
                               url("https://googleapis.com");
             background-size: cover; background-position: center;
             border-radius: 20px; padding: 25px; display: flex; align-items: center;
             justify-content: space-between; color: white; font-family: sans-serif;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;
-        }}
-        .stat-section {{ border-right: 1px solid rgba(255,255,255,0.2); padding-right: 30px; min-width: 150px; }}
-        .pos-number {{ font-size: 55px; font-weight: 900; color: #39FF14; line-height: 1; margin: 0; }}
-        .podium-section {{ display: flex; gap: 15px; align-items: flex-end; text-align: center; flex-grow: 1; justify-content: center; }}
-        .avatar-frame {{ position: relative; display: inline-block; }}
-        .badge {{ 
+        }
+        .stat-section { border-right: 1px solid rgba(255,255,255,0.2); padding-right: 30px; min-width: 150px; }
+        .pos-number { font-size: 55px; font-weight: 900; color: #39FF14; line-height: 1; margin: 0; }
+        .podium-section { display: flex; gap: 15px; align-items: flex-end; text-align: center; flex-grow: 1; justify-content: center; }
+        .avatar-frame { position: relative; display: inline-block; }
+        .badge { 
             position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
             width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; 
             justify-content: center; font-size: 12px; font-weight: bold; z-index: 10;
-        }}
-        .gold {{ background: #FFD700; color: black; }}
-        .silver {{ background: #C0C0C0; color: black; }}
-        .bronze {{ background: #CD7F32; color: white; }}
-        .img-circ {{ width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid white; }}
-        .main-trophy {{ width: 90px; filter: drop-shadow(0 0 15px gold); }}
+        }
+        .gold { background: #FFD700; color: black; }
+        .silver { background: #C0C0C0; color: black; }
+        .bronze { background: #CD7F32; color: white; }
+        .img-circ { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid white; background: #222; }
+        .main-trophy { width: 90px; filter: drop-shadow(0 0 15px gold); }
     </style>
+    """, unsafe_allow_html=True)
 
+    # --- 3. ESTRUCTURA HTML (Con f-string limpia) ---
+    dif_text = "🏆 Líder" if dif_lider <= 0 else f"🚩 A {dif_lider} pts del 1°"
+    
+    st.markdown(f"""
     <div class="hero-card">
         <div class="stat-section">
             <p style="font-size: 12px; opacity: 0.7; margin: 0;">Tu posición</p>
-            <h1 class="pos-number">{pos}°</h1>
-            <p style="font-size: 18px; font-weight: bold; margin: 0;">{pts} pts</p>
-            <p style="font-size: 11px; opacity: 0.6; margin-top: 5px;">{dif_msg}</p>
+            <h1 class="pos-number">{pos_usuario}°</h1>
+            <p style="font-size: 18px; font-weight: bold; margin: 0;">{pts_usuario} pts</p>
+            <p style="font-size: 11px; opacity: 0.6; margin-top: 5px;">{dif_text}</p>
         </div>
 
         <div class="podium-section">
@@ -1172,14 +1177,8 @@ elif menu == "🧪 Laboratorio":
             <img src="https://googleapis.com" class="main-trophy">
         </div>
     </div>
-    """
+    """, unsafe_allow_html=True)
 
-    # Inyectamos los datos en el HTML
-    dif_text = "🏆 Líder" if dif_lider <= 0 else f"🚩 A {dif_lider} pts del 1°"
-    st.markdown(html_hero.format(
-        pos=pos_usuario, pts=pts_usuario, dif_msg=dif_text,
-        n1=n1, f1=f1, n2=n2, f2=f2, n3=n3, f3=f3
-    ), unsafe_allow_html=True)
 
     # --- 3. CUERPO (GRID 2x2) ---
     c_izq, c_der = st.columns(2)
