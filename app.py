@@ -1542,18 +1542,72 @@ elif menu == "🧪 Laboratorio":
         
         st.markdown("<br>", unsafe_allow_html=True)
         # ============================================================
-        # EVOLUCIÓN DE PUNTOS - GRÁFICO ESTÁTICO LIMPIO
+        # EVOLUCIÓN DE PUNTOS - OPCIÓN C
+        # Usuario actual destacado + resto como contexto
         # ============================================================
         
         st.markdown('<div class="dash-title">📈 Evolución de Puntos</div>', unsafe_allow_html=True)
         
         st.markdown("""
         <style>
-        .evol-card {
+        .evol-summary-card {
             background: rgba(255, 255, 255, 0.94);
             border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 12px 14px 4px 14px;
+            border-radius: 18px 18px 0 0;
+            padding: 16px 18px 10px 18px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            border-bottom: none;
+        }
+        
+        .evol-user-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }
+        
+        .evol-main-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 34px;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1;
+        }
+        
+        .evol-main-number span {
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 800;
+            margin-left: 4px;
+        }
+        
+        .evol-meta {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+        }
+        
+        .evol-meta strong {
+            color: #F4C542;
+        }
+        
+        .evol-note {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        
+        .evol-chart-shell {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-top: none;
+            border-radius: 0 0 18px 18px;
+            padding: 0 10px 8px 10px;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
         }
         </style>
@@ -1572,6 +1626,7 @@ elif menu == "🧪 Laboratorio":
         
         if partidos_visibles.empty:
             st.info("Esperando el silbato inicial para mostrar estadísticas.")
+        
         else:
             evol_list = []
             usuarios_lista = df_usuarios["USUARIO"].unique()
@@ -1600,39 +1655,69 @@ elif menu == "🧪 Laboratorio":
                             )
                             pts_acc += pts_g
         
-                    evol_list.append(
-                        {
-                            "N_Partido": int(id_p),
-                            "Jugador": user,
-                            "Puntos": pts_acc
-                        }
-                    )
+                    evol_list.append({
+                        "N_Partido": int(id_p),
+                        "Jugador": user,
+                        "Puntos": pts_acc
+                    })
         
             if evol_list:
                 df_ev = pd.DataFrame(evol_list)
         
                 usuario_actual = st.session_state["user_data"]["USUARIO"]
         
+                # Datos del usuario actual
+                df_user_ev = df_ev[df_ev["Jugador"] == usuario_actual].sort_values("N_Partido")
+        
+                if not df_user_ev.empty:
+                    puntos_actuales = int(df_user_ev["Puntos"].iloc[-1])
+        
+                    if len(df_user_ev) >= 5:
+                        puntos_previos = int(df_user_ev["Puntos"].iloc[-5])
+                        variacion_reciente = puntos_actuales - puntos_previos
+                    else:
+                        puntos_previos = int(df_user_ev["Puntos"].iloc[0])
+                        variacion_reciente = puntos_actuales - puntos_previos
+                else:
+                    puntos_actuales = 0
+                    variacion_reciente = 0
+        
+                # Posición actual desde df_ranking
+                try:
+                    row_user_rank = df_ranking[df_ranking["USUARIO"] == usuario_actual]
+                    posicion_actual = int(row_user_rank.index[0])
+                except:
+                    posicion_actual = "-"
+        
+                st.markdown(
+                    f"""
+        <div class="evol-summary-card">
+            <div class="evol-user-name">{usuario_actual}</div>
+            <div class="evol-main-number">{puntos_actuales}<span>pts</span></div>
+            <div class="evol-meta">
+                Puesto actual: <strong>{posicion_actual}°</strong> · 
+                Última tendencia: <strong>+{variacion_reciente} pts</strong>
+            </div>
+            <div class="evol-note">
+                Tu línea aparece destacada. El resto de jugadores queda como referencia general.
+            </div>
+        </div>
+        """,
+                    unsafe_allow_html=True
+                )
+        
                 fig = px.line(
                     df_ev,
                     x="N_Partido",
                     y="Puntos",
                     color="Jugador",
-                    markers=True,
-                    labels={
-                        "N_Partido": "Partido",
-                        "Puntos": "Puntos",
-                        "Jugador": "Jugador"
-                    }
+                    markers=True
                 )
         
-                # ----------------------------------------------------
-                # LAYOUT VISUAL
-                # ----------------------------------------------------
                 fig.update_layout(
-                    height=315,
+                    height=260,
                     paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(248,250,252,0.95)",
+                    plot_bgcolor="rgba(255,255,255,0)",
                     font=dict(
                         family="Inter, sans-serif",
                         size=11,
@@ -1641,29 +1726,14 @@ elif menu == "🧪 Laboratorio":
                     margin=dict(
                         l=8,
                         r=8,
-                        t=18,
+                        t=8,
                         b=8
                     ),
-                    showlegend=True,
-                    legend=dict(
-                        orientation="h",
-                        yanchor="bottom",
-                        y=1.02,
-                        xanchor="center",
-                        x=0.5,
-                        font=dict(
-                            size=10,
-                            color="#64748b"
-                        ),
-                        bgcolor="rgba(255,255,255,0)"
-                    ),
+                    showlegend=False,
                     hovermode=False,
                     dragmode=False
                 )
         
-                # ----------------------------------------------------
-                # EJES LIMPIOS
-                # ----------------------------------------------------
                 fig.update_xaxes(
                     title_text="",
                     showgrid=False,
@@ -1684,16 +1754,20 @@ elif menu == "🧪 Laboratorio":
                     color="#94a3b8"
                 )
         
-                # ----------------------------------------------------
-                # LÍNEAS Y PUNTOS
-                # ----------------------------------------------------
                 for trace in fig.data:
                     if trace.name == usuario_actual:
                         trace.update(
-                            line=dict(width=5),
+                            line=dict(
+                                width=5,
+                                color="#F4C542"
+                            ),
                             marker=dict(
                                 size=8,
-                                line=dict(width=2, color="white")
+                                color="#F4C542",
+                                line=dict(
+                                    width=2,
+                                    color="white"
+                                )
                             ),
                             opacity=1,
                             hoverinfo="skip",
@@ -1701,20 +1775,22 @@ elif menu == "🧪 Laboratorio":
                         )
                     else:
                         trace.update(
-                            line=dict(width=2),
-                            marker=dict(
-                                size=5,
-                                line=dict(width=1, color="white")
+                            line=dict(
+                                width=2
                             ),
-                            opacity=0.32,
+                            marker=dict(
+                                size=4,
+                                line=dict(
+                                    width=1,
+                                    color="white"
+                                )
+                            ),
+                            opacity=0.22,
                             hoverinfo="skip",
                             hovertemplate=None
                         )
         
-                # ----------------------------------------------------
-                # CARD + GRÁFICO ESTÁTICO
-                # ----------------------------------------------------
-                st.markdown('<div class="evol-card">', unsafe_allow_html=True)
+                st.markdown('<div class="evol-chart-shell">', unsafe_allow_html=True)
         
                 st.plotly_chart(
                     fig,
