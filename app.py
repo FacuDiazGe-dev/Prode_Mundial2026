@@ -1092,16 +1092,13 @@ elif menu == "⚙️ Panel Control":
 
 
 elif menu == "🧪 Laboratorio":
-    # --- 1. PREPARACIÓN DE DATOS REALES ---
+    # --- 1. PREPARACIÓN DE DATOS (Se mantiene igual) ---
     top_3 = df_ranking.head(3)
-    
     def get_podium_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
-            # Extraemos URL de foto o genérico
             foto = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
-            # Limpiamos el nombre
             nombre_limpio = str(row['JUGADOR']).split(' ')[0]
             return nombre_limpio, int(row['PUNTOS']), foto
         return "-", 0, AVATAR_GENERICO
@@ -1110,157 +1107,81 @@ elif menu == "🧪 Laboratorio":
     n2, p2, f2 = get_podium_data(1)
     n3, p3, f3 = get_podium_data(2)
 
-    # Datos del usuario logueado
     try:
         user_row = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
-        # Cambiamos nombres aquí para que coincidan con el HTML de abajo
         pos_usr = user_row.index[0] + 1
         pts_usr = int(user_row['PUNTOS'].iloc[0])
         dif = int(p1 - pts_usr)
-        dif_msg = "🏆 ¡Eres el líder!" if dif <= 0 else f"A {dif} pts del 1°"
+        dif_msg = "🏆 LÍDER" if dif <= 0 else f"A {dif} PTS DEL 1°"
     except:
-        pos_usr, pts_usr, dif_msg = "-", 0, "Calculando..."
+        pos_usr, pts_usr, dif_msg = "-", 0, "---"
 
-    # --- 2. RENDERIZADO (Usando textwrap para evitar errores de indentación) ---
-    html_hero = textwrap.dedent(f"""
-    <style>
-        @import url('https://googleapis.com');
-
-        .hero-card {{
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(20,20,20,0.6) 100%),
-                        url('https://googleapis.com');
-            background-size: cover;
-            background-position: center;
-            border-radius: 28px;
-            padding: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: white;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(255,255,255,0.1);
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 25px;
-        }}
-
-        .stat-section {{
-            position: relative;
-            z-index: 1;
-            border-right: 1px solid rgba(255,255,255,0.1);
-            padding-right: 40px;
-        }}
-
-        .pos-number {{
-            font-size: 82px;
-            font-weight: 900;
-            line-height: 0.9;
-            margin: 0;
-            background: linear-gradient(180deg, #F4C542 0%, #B8860B 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(244, 197, 66, 0.3));
-        }}
-
-        .podium-section {{
-            display: flex;
-            gap: 30px;
-            align-items: flex-end;
-            justify-content: center;
-            flex-grow: 1;
-        }}
-
-        .avatar-frame {{ position: relative; text-align: center; }}
-
-        .img-circ {{
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid rgba(255,255,255,0.15);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-            background: #333;
-        }}
-
-        .first-place {{
-            width: 110px; height: 110px;
-            border-color: #F4C542;
-            box-shadow: 0 0 25px rgba(244, 197, 66, 0.2);
-        }}
-
-        .badge {{
-            position: absolute;
-            top: -12px; left: 50%; transform: translateX(-50%);
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: 900;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            z-index: 10;
-        }}
-
-        .gold {{ background: #F4C542; color: #000; }}
-        .silver {{ background: #E5E7EB; color: #000; }}
-        .bronze {{ background: #D97706; color: #fff; }}
-
-        .player-name {{ font-weight: 700; font-size: 15px; margin-top: 12px; }}
-        .player-score {{ font-size: 13px; opacity: 0.6; }}
-
-        .diff-pill {{
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }}
-
-        @media (max-width: 800px) {{
-            .hero-card {{ flex-direction: column; text-align: center; padding: 30px 20px; }}
-            .stat-section {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-right: 0; padding-bottom: 20px; margin-bottom: 20px; width: 100%; }}
-            .podium-section {{ gap: 15px; transform: scale(0.9); }}
-        }}
-    </style>
-
-    <div class="hero-card">
-        <div class="stat-section">
-            <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin: 0;">RANGO</p>
-            <h1 class="pos-number">{pos_usr}°</h1>
-            <p style="font-size: 24px; font-weight: 700; margin: 5px 0 0 0;">{pts_usr} <span style="font-size: 14px; opacity:0.5;">PTS</span></p>
-            <div class="diff-pill">{dif_msg}</div>
+    # --- 2. HTML SIN INDENTACIÓN (PEGA ESTO ASÍ AL RAS DEL BORDE IZQUIERDO) ---
+    html_hero = f"""
+<style>
+@import url('https://googleapis.com');
+.hero-card {{
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(30,30,30,0.7) 100%), 
+                url('https://googleapis.com');
+    background-size: cover; background-position: center;
+    border-radius: 28px; padding: 40px; display: flex; align-items: center; justify-content: space-between;
+    color: white; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 25px; overflow: hidden;
+}}
+.pos-number {{
+    font-size: 85px; font-weight: 900; line-height: 0.8; margin: 0;
+    background: linear-gradient(180deg, #F4C542 0%, #B8860B 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}}
+.podium-section {{ display: flex; gap: 30px; align-items: flex-end; flex-grow: 1; justify-content: center; }}
+.img-circ {{ 
+    width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+    border: 4px solid rgba(255,255,255,0.2); box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}}
+.first-place {{ width: 115px; height: 115px; border-color: #F4C542; box-shadow: 0 0 30px rgba(244,197,66,0.3); }}
+.badge {{ 
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; 
+    justify-content: center; font-size: 14px; font-weight: 900; z-index: 10;
+}}
+.gold {{ background: #F4C542; color: #000; }}
+.silver {{ background: #E5E7EB; color: #000; }}
+.bronze {{ background: #D97706; color: #fff; }}
+@media (max-width: 800px) {{
+    .hero-card {{ flex-direction: column; text-align: center; padding: 30px; }}
+    .podium-section {{ gap: 15px; transform: scale(0.85); }}
+}}
+</style>
+<div class="hero-card">
+    <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 40px; min-width: 180px;">
+        <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin: 0;">POSICIÓN</p>
+        <h1 class="pos-number">{pos_usr}°</h1>
+        <p style="font-size: 24px; font-weight: 700; margin: 5px 0 0 0;">{pts_usr} PTS</p>
+        <div style="display:inline-block; padding:4px 12px; background:rgba(255,255,255,0.1); border-radius:20px; font-size:11px; margin-top:10px;">{dif_msg}</div>
+    </div>
+    <div class="podium-section">
+        <div style="position:relative; text-align:center;">
+            <div class="badge silver">2</div>
+            <img src="{f2}" class="img-circ">
+            <div style="font-weight:700; font-size:14px; margin-top:10px;">{n2}</div>
+            <div style="font-size:12px; opacity:0.6;">{p2} PTS</div>
         </div>
-
-        <div class="podium-section">
-            <!-- Puesto 2 -->
-            <div class="avatar-frame">
-                <div class="badge silver">2</div>
-                <img src="{f2}" class="img-circ">
-                <div class="player-name">{n2}</div>
-                <div class="player-score">{p2} PTS</div>
-            </div>
-
-            <!-- Puesto 1 -->
-            <div class="avatar-frame" style="margin-top: -30px;">
-                <div class="badge gold">1</div>
-                <img src="{f1}" class="img-circ first-place">
-                <div class="player-name" style="color: #F4C542; font-size: 18px;">{n1}</div>
-                <div class="player-score" style="color: #F4C542; opacity: 1;">{p1} PTS</div>
-            </div>
-
-            <!-- Puesto 3 -->
-            <div class="avatar-frame">
-                <div class="badge bronze">3</div>
-                <img src="{f3}" class="img-circ">
-                <div class="player-name">{n3}</div>
-                <div class="player-score">{p3} PTS</div>
-            </div>
+        <div style="position:relative; text-align:center; margin-top:-40px;">
+            <div class="badge gold">1</div>
+            <img src="{f1}" class="img-circ first-place">
+            <div style="font-weight:700; font-size:18px; margin-top:10px; color:#F4C542;">{n1}</div>
+            <div style="font-size:14px; color:#F4C542;">{p1} PTS</div>
+        </div>
+        <div style="position:relative; text-align:center;">
+            <div class="badge bronze">3</div>
+            <img src="{f3}" class="img-circ">
+            <div style="font-weight:700; font-size:14px; margin-top:10px;">{n3}</div>
+            <div style="font-size:12px; opacity:0.6;">{p3} PTS</div>
         </div>
     </div>
-    """)
-
+</div>
+"""
     st.markdown(html_hero, unsafe_allow_html=True)
 
     # --- 3. CUERPO (GRID 2x2) ---
