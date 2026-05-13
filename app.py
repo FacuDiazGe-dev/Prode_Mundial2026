@@ -1206,45 +1206,45 @@ elif menu == "🧪 Laboratorio":
 </style>
 
 <div class="hero-card">
-<div class="main-header">
-    <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
-    <div class="header-sub">¡La gloria está en tus predicciones!</div>
-</div>
+    <div class="main-header">
+        <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
+        <div class="header-sub">¡La gloria está en tus predicciones!</div>
+    </div>
 
-<div class="content-row">
-<div class="left-block">
-    <p style="font-size:12px; opacity:0.6; margin:0; text-transform: uppercase;">Tu Posición</p>
-    <h1 class="pos-big">{pos_num}°</h1>
-    <p class="pts-big">{pts_usr} <span style="font-size:14px;">Pts</span></p>
-    <p style="font-size:12px; font-weight:500; opacity:0.6; margin-top:5px;">{dif_ref}</p>
-</div>
+    <div class="content-row">
+        <div class="left-block">
+            <p style="font-size:12px; opacity:0.6; margin:0; text-transform: uppercase;">Tu Posición</p>
+            <h1 class="pos-big">{pos_num}°</h1>
+            <p class="pts-big">{pts_usr} <span style="font-size:14px;">Pts</span></p>
+            <p style="font-size:12px; font-weight:500; opacity:0.6; margin-top:5px;">{dif_ref}</p>
+        </div>
 
-<div class="podium-wrap">
-<!-- Segundo -->
-<div class="p-item">
-    <div class="badge-v silver">2</div>
-    <img src="{f2}" class="avatar-img" style="width:70px;">
-    <div class="p-name">{n2}</div>
-    <div class="p-score">{p2} Pts.</div>
-</div>
-        
-<!-- Primero -->
-<div class="p-item" style="margin-bottom: 15px;">
-    <div class="badge-v gold">1</div>
-    <img src="{f1}" class="avatar-img" style="width:95px; border-color:#F4C542;">
-    <div class="p-name" style="color:#F4C542;">{n1}</div>
-    <div class="p-score" style="color:#F4C542;">{p1} Pts.</div>
-</div>
+        <div class="podium-wrap">
+            <!-- Segundo -->
+            <div class="p-item">
+                <div class="badge-v silver">2</div>
+                <img src="{f2}" class="avatar-img" style="width:70px;">
+                <div class="p-name">{n2}</div>
+                <div class="p-score">{p2} Pts.</div>
+            </div>
+            
+            <!-- Primero -->
+            <div class="p-item" style="margin-bottom: 15px;">
+                <div class="badge-v gold">1</div>
+                <img src="{f1}" class="avatar-img" style="width:95px; border-color:#F4C542;">
+                <div class="p-name" style="color:#F4C542;">{n1}</div>
+                <div class="p-score" style="color:#F4C542;">{p1} Pts.</div>
+            </div>
 
-<!-- Tercero -->
-<div class="p-item">
-    <div class="badge-v bronze">3</div>
-    <img src="{f3}" class="avatar-img" style="width:70px;">
-    <div class="p-name">{n3}</div>
-    <div class="p-score">{p3} Pts.</div>
-</div>
-</div>
-</div>
+            <!-- Tercero -->
+            <div class="p-item">
+                <div class="badge-v bronze">3</div>
+                <img src="{f3}" class="avatar-img" style="width:70px;">
+                <div class="p-name">{n3}</div>
+                <div class="p-score">{p3} Pts.</div>
+            </div>
+        </div>
+    </div>
 </div>
 """
 
