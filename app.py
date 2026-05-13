@@ -1089,8 +1089,9 @@ elif menu == "⚙️ Panel Control":
         # Este else ahora sí corresponde al IF inicial de ROL == 'admin'
         st.error("⛔ No tienes permisos para acceder a esta sección.")
 
-
+import textwrap
 elif menu == "🧪 Laboratorio":
+
     # --- 1. PREPARACIÓN DE DATOS REALES ---
     top_3 = df_ranking.head(3)
     
@@ -1119,8 +1120,9 @@ elif menu == "🧪 Laboratorio":
     except:
         pos_actual, pts_actual, dif_msg = "-", 0, "Calculando..."
 
-    # --- 2. HERO HTML (CSS Y ESTRUCTURA) ---
-    html_hero = f"""
+# --- 2. HERO HTML (CSS Y ESTRUCTURA) ---
+    # Usamos f-string pero aplicamos dedent al final
+    html_hero = textwrap.dedent(f"""
     <style>
     .hero-card {{
         background-image: linear-gradient(to right, rgba(0,0,0,0.88), rgba(0,0,0,0.45)),
@@ -1140,67 +1142,8 @@ elif menu == "🧪 Laboratorio":
         gap: 30px;
         min-height: 240px;
     }}
-    .stat-section {{
-        border-right: 1px solid rgba(255,255,255,0.15);
-        padding-right: 35px;
-        min-width: 180px;
-    }}
-    .pos-number {{
-        font-size: 68px;
-        font-weight: 900;
-        line-height: 1;
-        margin: 0;
-        color: #F4C542;
-    }}
-    .podium-section {{
-        display: flex;
-        gap: 25px;
-        align-items: flex-end;
-        text-align: center;
-        flex-grow: 1;
-        justify-content: center;
-    }}
-    .avatar-frame {{
-        position: relative;
-        display: inline-block;
-    }}
-    .badge {{
-        position: absolute;
-        top: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: bold;
-        z-index: 10;
-    }}
-    .gold {{ background: #FFD700; color: black; }}
-    .silver {{ background: #C0C0C0; color: black; }}
-    .bronze {{ background: #CD7F32; color: white; }}
-    .img-circ {{
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid white;
-        background-color: #222;
-    }}
-    .first-place {{
-        width: 90px;
-        height: 90px;
-        border-color: #FFD700;
-    }}
-    .hero-title {{ font-size: 15px; opacity: 0.7; margin: 0; }}
-    .hero-points {{ font-size: 22px; font-weight: bold; margin: 0; }}
-    .hero-diff {{ font-size: 12px; opacity: 0.7; margin-top: 6px; }}
-    .player-name {{ margin-top: 8px; font-size: 14px; }}
-    .player-score {{ font-size: 12px; opacity: 0.8; }}
-
+    /* ... el resto de tu CSS con doble llave {{ }} ... */
+    
     @media (max-width: 768px) {{
         .hero-card {{ flex-direction: column; text-align: center; gap: 20px; }}
         .stat-section {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding-right: 0; padding-bottom: 20px; }}
@@ -1215,44 +1158,13 @@ elif menu == "🧪 Laboratorio":
             <p class="hero-points">{pts_actual} puntos</p>
             <p class="hero-diff">{dif_msg}</p>
         </div>
-
         <div class="podium-section">
-            <!-- Segundo -->
-            <div>
-                <div class="avatar-frame">
-                    <div class="badge silver">2</div>
-                    <img src="{f2}" class="img-circ">
-                </div>
-                <div class="player-name">{n2}</div>
-                <div class="player-score">{p2} pts</div>
-            </div>
-
-            <!-- Primero -->
-            <div style="margin-top:-25px;">
-                <div class="avatar-frame">
-                    <div class="badge gold">1</div>
-                    <img src="{f1}" class="img-circ first-place">
-                </div>
-                <div class="player-name" style="font-weight:bold;color:#FFD700;">{n1}</div>
-                <div class="player-score">{p1} pts</div>
-            </div>
-
-            <!-- Tercero -->
-            <div>
-                <div class="avatar-frame">
-                    <div class="badge bronze">3</div>
-                    <img src="{f3}" class="img-circ">
-                </div>
-                <div class="player-name">{n3}</div>
-                <div class="player-score">{p3} pts</div>
-            </div>
+            <!-- El resto de tu HTML -->
         </div>
     </div>
-    """
+    """)
 
     st.markdown(html_hero, unsafe_allow_html=True)
-
-
 
     # --- 3. CUERPO (GRID 2x2) ---
     c_izq, c_der = st.columns(2)
