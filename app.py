@@ -1110,7 +1110,7 @@ elif menu == "🧪 Laboratorio":
 
     try:
         row_user = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
-        pos_display = row_user.index[0] + 1
+        pos_display = row_user.index[0]
         pts_usr = int(row_user['PUNTOS'].values[0])
         dif = int(p1 - pts_usr)
         dif_ref = "¡Eres el Líder! 🏆" if dif <= 0 else f"↑ a {dif} Pts. del Líder"
