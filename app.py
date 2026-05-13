@@ -1247,7 +1247,7 @@ elif menu == "🧪 Laboratorio":
     </div>
 </div>
 """
-
+st.markdown(html_hero, unsafe_allow_html=True)
 
     
     # --- 3. CUERPO (GRID 2x2) ---
