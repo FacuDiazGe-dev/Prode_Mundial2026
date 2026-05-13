@@ -1117,7 +1117,7 @@ elif menu == "🧪 Laboratorio":
     except:
         pos_display, pts_usr, dif_ref = "-", 0, "..."
 
-    # --- 2. HTML Y CSS (ESTRUCTURA IMAGE_6422E8.PNG) ---
+    # --- 2. HTML Y CSS (CON LLAVES ESCAPADAS PARA STREAMLIT) ---
     import textwrap
     html_hero = textwrap.dedent(f"""
     <style>
@@ -1129,27 +1129,25 @@ elif menu == "🧪 Laboratorio":
                     url('https://www.transparenttextures.com/patterns/stardust.png'), #0a0a0a;
         border-radius: 15px;
         color: white;
-        padding: 0;
         display: flex;
         flex-direction: column;
         border: 1px solid rgba(255,255,255,0.08);
         overflow: hidden;
     }}
 
-    /* SECCIÓN SUPERIOR (1/4 del Alto) */
+    /* SECCIÓN SUPERIOR (1/4) */
     .header-top {{
-        flex: 0 0 25%;
         padding: 20px 10px 10px 10px;
         text-align: center;
     }}
     .title-main {{
         font-family: 'Montserrat', sans-serif;
-        font-size: 22px; font-weight: 900;
+        font-size: 24px; font-weight: 900;
         text-transform: uppercase; margin: 0;
         letter-spacing: 1px;
     }}
     .title-sub {{
-        font-size: 12px; opacity: 0.4; letter-spacing: 1px;
+        font-size: 9px; opacity: 0.4; letter-spacing: 1px;
         margin-top: 5px; text-transform: uppercase;
     }}
     .divider-h {{
@@ -1158,54 +1156,48 @@ elif menu == "🧪 Laboratorio":
         margin: 15px 40px 0 40px;
     }}
 
-    /* SECCIÓN INFERIOR */
+    /* SECCIÓN INFERIOR RESPONSIVA */
     .content-bottom {{
-        flex: 0 0 75%;
         display: flex;
+        flex-direction: row;
         align-items: stretch;
     }}
 
-    /* Panel Posición (1/4 del Ancho) */
+    /* Panel Posición (1/4 PC) */
     .pos-section {{
         flex: 0 0 25%;
-        padding: 20px;
+        padding: 25px 15px;
         display: flex; flex-direction: column; justify-content: center;
-        border-right: 1px solid rgba(255,255,255,0.15);
+        border-right: 1px solid rgba(255,255,255,0.12);
         text-align: center;
     }}
-    .label-pos {{ font-size: 12px; opacity: 0.5; font-weight: 700; text-transform: uppercase; }}
-    .val-pos {{ font-family: 'Montserrat', sans-serif; font-size: 53px; font-weight: 900; margin: 5px 0; }}
-    .pts-box {{ font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; }}
-    .msg-status {{ font-size: 12px; margin-top: 8px; opacity: 0.7; font-weight: 600; }}
+    .label-pos {{ font-size: 9px; opacity: 0.5; font-weight: 700; text-transform: uppercase; }}
+    .val-pos {{ font-family: 'Montserrat', sans-serif; font-size: 52px; font-weight: 900; margin: 5px 0; }}
+    .pts-box {{ font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; }}
+    .msg-status {{ font-size: 10px; margin-top: 10px; opacity: 0.7; font-weight: 600; }}
 
-    /* Panel Podio (3/4 del Ancho) */
+    /* Panel Podio (3/4 PC) REFORZADO */
     .podium-section {{
         flex: 0 0 75%;
         display: flex;
-        justify-content: center; 
+        justify-content: center;
         align-items: flex-end;
-        padding: 20px;
-        gap: 10px; 
+        padding: 25px;
+        gap: 12px;
     }}
 
-    .pod-item {{ 
-        text-align: center; 
-        position: relative; 
-        width: 120px;
-    }}    
+    .pod-item {{ text-align: center; position: relative; width: 125px; }}
     
     .av-wrap {{ position: relative; display: inline-block; }}
-    
     .av-img {{ 
         border-radius: 50% !important; object-fit: cover !important; aspect-ratio: 1/1 !important;
         border: 2px solid rgba(255,255,255,0.2);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
-        display: block;
-        margin: 0 auto;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+        display: block; margin: 0 auto;
     }}
     
     .pod-name {{ font-weight: 800; font-size: 13px; margin-top: 12px; text-transform: uppercase; letter-spacing: 0.5px; }}
-    .pod-pts {{ font-size: 12px; opacity: 0.6; font-weight: 700; }}
+    .pod-pts {{ font-size: 11px; opacity: 0.6; font-weight: 700; }}
 
     .b-rank {{
         position: absolute; top: 2px; right: 2px;
@@ -1215,10 +1207,23 @@ elif menu == "🧪 Laboratorio":
         box-shadow: 0 4px 8px rgba(0,0,0,0.5);
     }}
 
-    @media (max-width: 600px) {{
-        .title-main {{ font-size: 18px; }}
-        .val-pos {{ font-size: 35px; }}
-        .av-img {{ width: 50px !important; height: 50px !important; }}
+    /* MOBILE BREAKPOINT */
+    @media (max-width: 768px) {{
+        .content-bottom {{
+            flex-direction: column;
+        }}
+        .pos-section {{
+            flex: 1 0 auto; width: 100%;
+            border-right: none;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }}
+        .podium-section {{
+            flex: 1 0 auto; width: 100%;
+            padding: 30px 10px;
+            gap: 5px;
+        }}
+        .pod-item {{ width: 33%; }}
+        .title-main {{ font-size: 20px; }}
     }}
     </style>
 
