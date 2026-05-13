@@ -1542,11 +1542,22 @@ elif menu == "🧪 Laboratorio":
         
         st.markdown("<br>", unsafe_allow_html=True)
         # ============================================================
-        # EVOLUCIÓN DE PUNTOS - GRÁFICO PREMIUM
-        # Reemplaza el bloque actual de Evolución de Puntos
+        # EVOLUCIÓN DE PUNTOS - GRÁFICO ESTÁTICO LIMPIO
         # ============================================================
         
         st.markdown('<div class="dash-title">📈 Evolución de Puntos</div>', unsafe_allow_html=True)
+        
+        st.markdown("""
+        <style>
+        .evol-card {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 18px;
+            padding: 12px 14px 4px 14px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        }
+        </style>
+        """, unsafe_allow_html=True)
         
         df_res["VIZ_CHECK"] = df_res["VIZ"].astype(str).str.strip().str.upper()
         
@@ -1616,115 +1627,108 @@ elif menu == "🧪 Laboratorio":
                 )
         
                 # ----------------------------------------------------
-                # ESTILO GENERAL
+                # LAYOUT VISUAL
                 # ----------------------------------------------------
                 fig.update_layout(
                     height=315,
                     paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(255,255,255,0.55)",
+                    plot_bgcolor="rgba(248,250,252,0.95)",
                     font=dict(
                         family="Inter, sans-serif",
                         size=11,
                         color="#64748b"
                     ),
                     margin=dict(
-                        l=10,
-                        r=10,
-                        t=35,
-                        b=10
+                        l=8,
+                        r=8,
+                        t=18,
+                        b=8
                     ),
+                    showlegend=True,
                     legend=dict(
                         orientation="h",
                         yanchor="bottom",
-                        y=1.05,
+                        y=1.02,
                         xanchor="center",
                         x=0.5,
                         font=dict(
                             size=10,
-                            color="#475569"
+                            color="#64748b"
                         ),
                         bgcolor="rgba(255,255,255,0)"
                     ),
-                    hovermode="x unified"
+                    hovermode=False,
+                    dragmode=False
                 )
         
                 # ----------------------------------------------------
-                # EJES
+                # EJES LIMPIOS
                 # ----------------------------------------------------
                 fig.update_xaxes(
-                    title_text="Partido",
+                    title_text="",
                     showgrid=False,
                     showline=False,
                     zeroline=False,
                     tickmode="linear",
                     dtick=1,
-                    color="#94a3b8",
-                    title_font=dict(
-                        size=11,
-                        color="#64748b"
-                    )
+                    fixedrange=True,
+                    color="#94a3b8"
                 )
         
                 fig.update_yaxes(
-                    title_text="Puntos",
-                    gridcolor="rgba(148,163,184,0.18)",
+                    title_text="",
+                    gridcolor="rgba(148,163,184,0.16)",
                     showline=False,
                     zeroline=False,
-                    color="#94a3b8",
-                    title_font=dict(
-                        size=11,
-                        color="#64748b"
-                    )
+                    fixedrange=True,
+                    color="#94a3b8"
                 )
         
                 # ----------------------------------------------------
-                # LÍNEAS
+                # LÍNEAS Y PUNTOS
                 # ----------------------------------------------------
                 for trace in fig.data:
                     if trace.name == usuario_actual:
                         trace.update(
-                            line=dict(
-                                width=5
-                            ),
+                            line=dict(width=5),
                             marker=dict(
-                                size=9,
-                                line=dict(
-                                    width=2,
-                                    color="white"
-                                )
+                                size=8,
+                                line=dict(width=2, color="white")
                             ),
-                            opacity=1
+                            opacity=1,
+                            hoverinfo="skip",
+                            hovertemplate=None
                         )
                     else:
                         trace.update(
-                            line=dict(
-                                width=2
-                            ),
+                            line=dict(width=2),
                             marker=dict(
-                                size=6,
-                                line=dict(
-                                    width=1,
-                                    color="white"
-                                )
+                                size=5,
+                                line=dict(width=1, color="white")
                             ),
-                            opacity=0.55
+                            opacity=0.32,
+                            hoverinfo="skip",
+                            hovertemplate=None
                         )
         
                 # ----------------------------------------------------
-                # TOOLTIP
+                # CARD + GRÁFICO ESTÁTICO
                 # ----------------------------------------------------
-                fig.update_traces(
-                    hovertemplate="<b>%{fullData.name}</b><br>Partido %{x}<br>%{y} pts<extra></extra>"
-                )
+                st.markdown('<div class="evol-card">', unsafe_allow_html=True)
         
                 st.plotly_chart(
                     fig,
                     use_container_width=True,
                     config={
                         "displayModeBar": False,
+                        "staticPlot": True,
+                        "scrollZoom": False,
                         "responsive": True
                     }
                 )
+        
+                st.markdown('</div>', unsafe_allow_html=True)
+        
             else:
                 st.info("Todavía no hay datos suficientes para mostrar la evolución.")
         
