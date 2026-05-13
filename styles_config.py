@@ -1,60 +1,186 @@
-import streamlit as st
+# ============================================================
+# CONSTANTES GLOBALES
+# ============================================================
 
-# --- CONSTANTES ---
 AVATAR_GENERICO = "https://storage.googleapis.com/foto-prode2026/perfiles/images.png"
 
+ICONO_APP = "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png"
+
+FONDO_BASE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO%20BASE.jpg"
+
+SIDEBAR_BANNER = "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20VERTICAL_V3.jpg"
+
+BANNERS_PAGINA = {
+    "inicio": "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg",
+    "ranking": "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg",
+    "resultados": "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg",
+    "perfil": "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg",
+}
+
+
+# ============================================================
+# ESTILOS GLOBALES
+# ============================================================
+
 def aplicar_estilos_globales():
-    """Inyecta el CSS para fondos, sidebar y banners."""
+    """
+    Aplica estilos globales:
+    - fondo general de la app
+    - fondo del sidebar
+    - tipografías base
+    - estilos reutilizables para banners
+    """
+
     st.markdown(f"""
-        <style>
-        /* 1. Fondo base del sitio */
-        .stApp {{
-            background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/FONDO%20BASE.jpg");
-            background-attachment: fixed;
-            background-size: cover;
-        }}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Montserrat:wght@700;800;900&display=swap');
 
-        /* 2. Banner Vertical en el Sidebar y contraste de letras */
-        [data-testid="stSidebar"] {{
-            background-image: url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20VERTICAL_V3.jpg");
-            background-size: cover;
-            background-position: center;
-        }}
+html, body, [class*="css"] {{
+    font-family: 'Inter', sans-serif;
+}}
 
-        /* Estilo de letras en Sidebar para fondo oscuro */
-        [data-testid="stSidebar"] .stMarkdown, 
-        [data-testid="stSidebar"] label, 
-        [data-testid="stSidebar"] .stRadio p,
-        [data-testid="stSidebar"] h3 {{
-            color: #FFFFFF !important;
-            font-weight: 800 !important;
-            text-shadow: 2px 2px 8px #000000, 0px 0px 10px #000000 !important;
-        }}
+.stApp {{
+    background-image:
+        linear-gradient(rgba(255,255,255,0.80), rgba(255,255,255,0.80)),
+        url("{FONDO_BASE}");
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+}}
 
-        /* 3. Banner Superior Horizontal */
-        .banner-superior {{
-            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), 
-                              url("https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg");
-            background-size: cover;
-            background-position: center 10%;
-            padding: 50px;
-            border-radius: 15px;
-            text-align: center;
-            color: white;
-            margin-bottom: 25px;
-            box-shadow: 0px 4px 15px rgba(0,0,0,0.5);
-        }}
-        </style>
-    """, unsafe_allow_html=True)
+[data-testid="stSidebar"] {{
+    background-image:
+        linear-gradient(rgba(0,0,0,0.70), rgba(0,0,0,0.82)),
+        url("{SIDEBAR_BANNER}");
+    background-size: cover;
+    background-position: center;
+}}
+
+[data-testid="stSidebar"] .stMarkdown,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .stRadio p,
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] p {{
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.85) !important;
+}}
+
+.app-section-banner {{
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    padding: 34px 38px;
+    min-height: 150px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    color: white;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 18px 45px rgba(15,23,42,0.22);
+}}
+
+.app-section-banner::before {{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(0,0,0,0.86), rgba(0,0,0,0.38)),
+        radial-gradient(circle at right, rgba(244,197,66,0.18), transparent 38%);
+    z-index: 0;
+}}
+
+.app-section-banner-content {{
+    position: relative;
+    z-index: 1;
+}}
+
+.app-section-title {{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+}}
+
+.app-section-subtitle {{
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.72);
+}}
+
+@media (max-width: 768px) {{
+    .app-section-banner {{
+        padding: 26px 22px;
+        min-height: 120px;
+        border-radius: 16px;
+    }}
+
+    .app-section-title {{
+        font-size: 22px;
+    }}
+
+    .app-section-subtitle {{
+        font-size: 12px;
+    }}
+}}
+</style>
+""", unsafe_allow_html=True)
+
+
+# ============================================================
+# BANNER REUTILIZABLE POR PÁGINA
+# ============================================================
+
+def dibujar_banner_pagina(
+    titulo="PRODE MUNDIAL 2026",
+    subtitulo="La gloria está en tus predicciones",
+    banner_key="inicio"
+):
+    """
+    Renderiza un banner horizontal reutilizable por pestaña.
+    """
+
+    imagen = BANNERS_PAGINA.get(
+        banner_key,
+        BANNERS_PAGINA["inicio"]
+    )
+
+    st.markdown(f"""
+<div class="app-section-banner" style="background-image: url('{imagen}');">
+    <div class="app-section-banner-content">
+        <h1 class="app-section-title">{titulo}</h1>
+        <div class="app-section-subtitle">{subtitulo}</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+
+# ============================================================
+# BANNER ANTIGUO - COMPATIBILIDAD
+# ============================================================
 
 def dibujar_banner():
-    """Renderiza el banner superior horizontal."""
-    st.markdown("""
-        <div class="banner-superior">
-            <h1 style="font-size: 2.8em; text-shadow: 3px 3px 6px black; margin: 0;">🏆 PRODE MUNDIAL 2026 - Fase de Grupos</h1>
-            <p style="font-size: 1.2em; text-shadow: 2px 2px 4px black; margin: 0;">¡La gloria está en tus predicciones!</p>
-        </div>
-    """, unsafe_allow_html=True)
+    """
+    Banner antiguo.
+    Se conserva para no romper imports viejos, pero idealmente no usarlo.
+    """
+
+    dibujar_banner_pagina(
+        titulo="🏆 PRODE MUNDIAL 2026",
+        subtitulo="¡La gloria está en tus predicciones!",
+        banner_key="inicio"
+    )
 
 def mostrar_decalogo():
     """Renderiza el decálogo azul profundo con tus frases personalizadas."""
