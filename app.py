@@ -1196,35 +1196,35 @@ elif menu == "🧪 Laboratorio":
 </style>
 
 <div class="hero-card">
-    <div class="bg-title">PRODE MUNDIAL 2026</div>
-    
-    <div class="left-block">
-        <p style="font-size:15px; opacity:0.6; margin:0;">Tu Posición Actual:</p>
-        <h1 class="pos-big">{pos_num}°</h1>
-        <p class="pts-big">{pts_usr} Pts.</p>
-        <p style="font-size:14px; opacity:0.65; margin-top:12px;">{dif_ref}</p>
-    </div>
+<div class="bg-title">PRODE MUNDIAL 2026</div>
 
-    <div class="podium-wrap">
-        <div style="position:relative; text-align:center;">
-            <div class="badge-v silver">2</div>
-            <img src="{f2}" class="avatar-img" style="width:85px; height:85px;">
-            <div style="font-weight:700; font-size:23px; margin-top:18px;">{n2}</div>
-            <div style="font-size:16px; opacity:0.7;">{p2} Pts.</div>
-        </div>
-        <div style="position:relative; text-align:center; margin-bottom: 30px;">
-            <div class="badge-v gold">1</div>
-            <img src="{f1}" class="avatar-img" style="width:115px; height:115px; border-color:#F4C542;">
-            <div style="font-weight:700; font-size:23px; margin-top:18px; color:#F4C542;">{n1}</div>
-            <div style="font-size:16px; opacity:1; color:#F4C542;">{p1} Pts.</div>
-        </div>
-        <div style="position:relative; text-align:center;">
-            <div class="badge-v bronze">3</div>
-            <img src="{f3}" class="avatar-img" style="width:85px; height:85px;">
-            <div style="font-weight:700; font-size:23px; margin-top:18px;">{n3}</div>
-            <div style="font-size:16px; opacity:0.7;">{p3} Pts.</div>
-        </div>
+<div class="left-block">
+    <p style="font-size:15px; opacity:0.6; margin:0;">Tu Posición Actual:</p>
+    <h1 class="pos-big">{pos_num}°</h1>
+    <p class="pts-big">{pts_usr} Pts.</p>
+    <p style="font-size:14px; opacity:0.65; margin-top:12px;">{dif_ref}</p>
+</div>
+
+<div class="podium-wrap">
+    <div style="position:relative; text-align:center;">
+        <div class="badge-v silver">2</div>
+        <img src="{f2}" class="avatar-img" style="width:85px; height:85px;">
+        <div style="font-weight:700; font-size:23px; margin-top:18px;">{n2}</div>
+        <div style="font-size:16px; opacity:0.7;">{p2} Pts.</div>
     </div>
+    <div style="position:relative; text-align:center; margin-bottom: 30px;">
+        <div class="badge-v gold">1</div>
+        <img src="{f1}" class="avatar-img" style="width:115px; height:115px; border-color:#F4C542;">
+        <div style="font-weight:700; font-size:23px; margin-top:18px; color:#F4C542;">{n1}</div>
+        <div style="font-size:16px; opacity:1; color:#F4C542;">{p1} Pts.</div>
+    </div>
+    <div style="position:relative; text-align:center;">
+        <div class="badge-v bronze">3</div>
+        <img src="{f3}" class="avatar-img" style="width:85px; height:85px;">
+        <div style="font-weight:700; font-size:23px; margin-top:18px;">{n3}</div>
+        <div style="font-size:16px; opacity:0.7;">{p3} Pts.</div>
+    </div>
+</div>
 </div>
 """
     st.markdown(html_hero, unsafe_allow_html=True)
