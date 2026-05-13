@@ -2042,7 +2042,7 @@ elif menu == "🧪 Laboratorio":
         # ============================================================
         
         st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-        st.markdown('<div class="dash-title">💬 Foro en Vivo</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-title">💬 En los Pasillos de la Villa se Comenta...</div>', unsafe_allow_html=True)
         
         st.markdown("""
         <style>
