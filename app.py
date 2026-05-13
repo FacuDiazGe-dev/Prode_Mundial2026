@@ -1123,9 +1123,9 @@ elif menu == "🧪 Laboratorio":
 
     # --- 2. HTML INTEGRADO (CON DEDENT PARA EVITAR QUE SE ROMPA) ---
 
-html_hero = textwrap.dedent(f"""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap');
+    html_hero = textwrap.dedent(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap');
 
 .hero-card {{
     font-family: 'Inter', sans-serif;
