@@ -1220,26 +1220,26 @@ elif menu == "🧪 Laboratorio":
     </div>
 
 <div class="podium-wrap">
-    <div class="p-item">
-        <div class="badge-v silver">2</div>
-        <img src="{f2}" class="avatar-img" style="width:70px;">
-        <div class="p-name">{n2}</div>
-        <div class="p-score">{p2} Pts.</div>
-    </div>
-    
-    <div class="p-item" style="margin-bottom: 15px;">
-        <div class="badge-v gold">1</div>
-        <img src="{f1}" class="avatar-img" style="width:95px; border-color:#F4C542;">
-        <div class="p-name" style="color:#F4C542;">{n1}</div>
-        <div class="p-score" style="color:#F4C542;">{p1} Pts.</div>
-    </div>
+<div class="p-item">
+    <div class="badge-v silver">2</div>
+    <img src="{f2}" class="avatar-img" style="width:70px;">
+    <div class="p-name">{n2}</div>
+    <div class="p-score">{p2} Pts.</div>
+</div>
 
-    <div class="p-item">
-        <div class="badge-v bronze">3</div>
-        <img src="{f3}" class="avatar-img" style="width:70px;">
-        <div class="p-name">{n3}</div>
-        <div class="p-score">{p3} Pts.</div>
-    </div>
+<div class="p-item" style="margin-bottom: 15px;">
+    <div class="badge-v gold">1</div>
+    <img src="{f1}" class="avatar-img" style="width:95px; border-color:#F4C542;">
+    <div class="p-name" style="color:#F4C542;">{n1}</div>
+    <div class="p-score" style="color:#F4C542;">{p1} Pts.</div>
+</div>
+
+<div class="p-item">
+    <div class="badge-v bronze">3</div>
+    <img src="{f3}" class="avatar-img" style="width:70px;">
+    <div class="p-name">{n3}</div>
+    <div class="p-score">{p3} Pts.</div>
+</div>
 </div>
 </div>
 </div>
