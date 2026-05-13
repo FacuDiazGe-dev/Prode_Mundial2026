@@ -1223,7 +1223,6 @@ elif menu == "🧪 Laboratorio":
     <div class="divider-h"></div>
 </div>
 
-    <!-- Fila 2: Posición + Podio -->
 <div class="content-bottom">
 <div class="pos-section">
     <div class="label-pos">Tu Posición</div>
