@@ -1128,7 +1128,7 @@ elif menu == "🧪 Laboratorio":
     background-size: cover; background-position: center 20%;
     border-radius: 30px; 
     padding: 50px 60px;
-    min-height: 350px;
+    min-height: 250px;
     display: flex; flex-direction: column; justify-content: center;
     color: white; box-shadow: 0 35px 70px -15px rgba(0,0,0,0.95);
     border: 1px solid rgba(255,255,255,0.08);
