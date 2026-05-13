@@ -1600,40 +1600,238 @@ elif menu == "🧪 Laboratorio":
 
 # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
     with c_der:
+# ============================================================
+# RESULTADOS / PARTIDOS VISUALES CON SCROLL
+# Reemplaza el bloque actual de Resultados de la Fecha
+# ============================================================
+
         st.markdown('<div class="dash-title">🏟️ Resultados de la Fecha</div>', unsafe_allow_html=True)
         
-        # Filtro de visibilidad maestro
-        df_mostrar_partidos = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO', ascending=False)
-
-        with st.container(height=315): 
-            if df_mostrar_partidos.empty:
-                st.info("⚽ No hay resultados confirmados.")
-            else:
-                for i, row in df_mostrar_partidos.iterrows():
-                    r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
-                    r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
-                    f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
-                    f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
-                    
-                    st.markdown(f"""
-<div class="score-card">
-    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #9ca3af; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;">
-        <span>Match #{int(row['N_PARTIDO'])}</span>
-        <span>{row['DIA']} | {row['HORA']}</span>
-    </div>
-    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-        <div style="flex: 1; text-align: right; font-weight: 700; font-size: 0.9rem; color: #1f2937;">{row['Equipo_1']}</div>
-        <img src="{f1}" width="28" style="border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <div style="background: #1e293b; color: #f8fafc; padding: 5px 12px; border-radius: 8px; font-family: monospace; font-weight: 800; font-size: 1.1rem; min-width: 60px; text-align: center;">
-            {r1} : {r2}
-        </div>
-        <img src="{f2}" width="28" style="border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <div style="flex: 1; text-align: left; font-weight: 700; font-size: 0.9rem; color: #1f2937;">{row['Equipo_2']}</div>
-    </div>
-</div>""", unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown('<div class="dash-title">💬 Foro en Vivo</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <style>
+        .matches-card {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 18px;
+            padding: 12px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        }
+        
+        .matches-scroll {
+            height: 315px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+        
+        .matches-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .matches-scroll::-webkit-scrollbar-track {
+            background: rgba(226, 232, 240, 0.5);
+            border-radius: 999px;
+        }
+        
+        .matches-scroll::-webkit-scrollbar-thumb {
+            background: rgba(30, 58, 138, 0.45);
+            border-radius: 999px;
+        }
+        
+        .match-row {
+            padding: 12px;
+            margin-bottom: 9px;
+            border-radius: 15px;
+            background: rgba(248, 250, 252, 0.92);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+            transition: all 0.18s ease;
+        }
+        
+        .match-row:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        }
+        
+        .match-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 10px;
+            font-weight: 900;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        
+        .match-body {
+            display: grid;
+            grid-template-columns: 1fr 76px 1fr;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .team {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+        
+        .team.left {
+            justify-content: flex-end;
+            text-align: right;
+        }
+        
+        .team.right {
+            justify-content: flex-start;
+            text-align: left;
+        }
+        
+        .team-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .flag-img {
+            width: 28px;
+            height: 20px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.15);
+            flex-shrink: 0;
+        }
+        
+        .flag-fallback {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .score-box {
+            background: #0f172a;
+            color: #f8fafc;
+            border-radius: 10px;
+            padding: 7px 8px;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        
+        .score-box.pending {
+            background: rgba(15, 23, 42, 0.08);
+            color: #64748b;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: none;
+        }
+        
+        .match-note {
+            margin-top: 9px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+        
+        @media (max-width: 768px) {
+            .matches-card {
+                padding: 10px;
+            }
+        
+            .matches-scroll {
+                height: 315px;
+            }
+        
+            .match-body {
+                grid-template-columns: 1fr 64px 1fr;
+                gap: 8px;
+            }
+        
+            .team-name {
+                font-size: 12px;
+            }
+        
+            .flag-img {
+                width: 24px;
+                height: 17px;
+            }
+        
+            .score-box {
+                font-size: 14px;
+                padding: 7px 6px;
+            }
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        from html import escape
+        
+        def flag_html(flag_value):
+            flag_value = str(flag_value)
+            if flag_value.startswith("data:image"):
+                return f'<img src="{flag_value}" class="flag-img">'
+            return f'<span class="flag-fallback">{escape(flag_value)}</span>'
+        
+        df_res["VIZ_CHECK"] = df_res["VIZ"].astype(str).str.strip().str.upper()
+        
+        df_mostrar_partidos = (
+            df_res[
+                df_res["VIZ_CHECK"].isin(
+                    ["TRUE", "1", "1.0", "VERDADERO", "T"]
+                )
+            ]
+            .sort_values("N_PARTIDO", ascending=False)
+        )
+        
+        matches_html = '<div class="matches-card"><div class="matches-scroll">'
+        
+        if df_mostrar_partidos.empty:
+            matches_html += '<div class="match-row"><div class="match-note">Todavía no hay partidos visibles.</div></div>'
+        else:
+            for _, row in df_mostrar_partidos.iterrows():
+                equipo_1 = escape(str(row.get("Equipo_1", "")))
+                equipo_2 = escape(str(row.get("Equipo_2", "")))
+        
+                r1_raw = row.get("R1")
+                r2_raw = row.get("R2")
+        
+                resultado_cargado = pd.notna(r1_raw) and pd.notna(r2_raw)
+        
+                if resultado_cargado:
+                    r1 = int(r1_raw)
+                    r2 = int(r2_raw)
+                    score_text = f"{r1} : {r2}"
+                    score_class = "score-box"
+                    note_html = ""
+                else:
+                    score_text = "VS"
+                    score_class = "score-box pending"
+                    note_html = '<div class="match-note">Resultado aún no cargado</div>'
+        
+                flag_1 = mapa_banderas.get(row.get("Equipo_1"), "⚽")
+                flag_2 = mapa_banderas.get(row.get("Equipo_2"), "⚽")
+        
+                partido = int(row.get("N_PARTIDO", 0))
+                dia = escape(str(row.get("DIA", "")))
+                hora = escape(str(row.get("HORA", "")))
+        
+                matches_html += f'<div class="match-row">'
+                matches_html += f'<div class="match-meta"><span>Match #{partido}</span><span>{dia} | {hora}</span></div>'
+                matches_html += f'<div class="match-body">'
+                matches_html += f'<div class="team left"><span class="team-name">{equipo_1}</span>{flag_html(flag_1)}</div>'
+                matches_html += f'<div class="{score_class}">{score_text}</div>'
+                matches_html += f'<div class="team right">{flag_html(flag_2)}<span class="team-name">{equipo_2}</span></div>'
+                matches_html += f'</div>{note_html}</div>'
+        
+        matches_html += '</div></div>'
+        
+        st.markdown(matches_html, unsafe_allow_html=True)
         
         # --- LÍNEA CRÍTICA: Lectura del foro para evitar el NameError ---
         df_foro = conn.read(worksheet="FORO", ttl=10)
