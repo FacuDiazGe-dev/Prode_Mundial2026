@@ -1092,13 +1092,19 @@ elif menu == "⚙️ Panel Control":
 
 
 elif menu == "🧪 Laboratorio":
-    # --- 1. PREPARACIÓN DE DATOS (CORREGIDA) ---
+    # --- 1. PREPARACIÓN DE DATOS REALES ---
     top_3 = df_ranking.head(3)
+    
     def get_podium_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
-            foto = u_info['AVATAR_URL'].iloc if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc) else AVATAR_GENERICO
+            # Extraemos la URL de forma segura como texto plano
+            if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]):
+                foto = str(u_info['AVATAR_URL'].values[0])
+            else:
+                foto = AVATAR_GENERICO
+            
             nombre_limpio = str(row['JUGADOR']).split(' ')[0]
             return nombre_limpio, int(row['PUNTOS']), foto
         return "-", 0, AVATAR_GENERICO
@@ -1108,24 +1114,23 @@ elif menu == "🧪 Laboratorio":
     n3, p3, f3 = get_podium_data(2)
 
     try:
-        # Buscamos la posición numérica pura (el índice de pandas + 1)
-        # Esto ignora si hay un emoji de corona en la columna visual
-        pos_num_real = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']].index[0]
+        # Buscamos la posición numérica real
+        row_usuario = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
+        # Obtenemos el índice del ranking (que ya empieza en 1)
+        pos_num_real = int(row_usuario.index[0])
         pos_display = f"{pos_num_real}°"
         
-        pts_usr = int(df_ranking.loc[pos_num_real, 'PUNTOS'])
+        pts_usr = int(row_usuario['PUNTOS'].values[0])
         dif = int(p1 - pts_usr)
         
-        # Referencia dinámica según posición
         if pos_num_real == 1:
             dif_ref = "Eres el Líder 🏆"
         else:
             dif_ref = f"↑ a {dif} Pts. del Líder"
-            
     except:
         pos_display, pts_usr, dif_ref = "-", 0, "Cargando..."
 
-    # --- 2. HTML SIN INDENTACIÓN ---
+    # --- 2. HTML SIN INDENTACIÓN (PEGADO AL BORDE IZQUIERDO) ---
     html_hero = f"""
 <style>
 @import url('https://googleapis.com');
@@ -1147,6 +1152,7 @@ elif menu == "🧪 Laboratorio":
 .img-circ {{ 
     width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
     border: 4px solid rgba(255,255,255,0.2); box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    background-color: #222;
 }}
 .first-place {{ width: 110px; height: 110px; border-color: #F4C542; box-shadow: 0 0 30px rgba(244,197,66,0.3); }}
 .badge {{ 
@@ -1155,23 +1161,20 @@ elif menu == "🧪 Laboratorio":
     justify-content: center; font-size: 13px; font-weight: 900; z-index: 10;
 }}
 .gold {{ background: #F4C542; color: #000; }}
-.silver {{ background: #E5E7EB; color: #000; }}
-.bronze {{ background: #D97706; color: #fff; }}
+.silver {{ background: #C0C0C0; color: #000; }}
+.bronze {{ background: #CD7F32; color: #fff; }}
 @media (max-width: 800px) {{
     .hero-card {{ flex-direction: column; text-align: center; padding: 30px; }}
     .podium-section {{ gap: 15px; transform: scale(0.85); margin-top: 20px; }}
 }}
 </style>
 <div class="hero-card">
-    <!-- Bloque de Posición Personalizado -->
-    <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 40px; min-width: 220px;">
-        <p style="font-size: 14px; opacity: 0.8; margin: 0; font-weight: 400;">Tu Posición Actual:</p>
+    <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 40px; min-width: 240px;">
+        <p style="font-size: 14px; opacity: 0.8; margin: 0;">Tu Posición Actual:</p>
         <h1 class="pos-number">{pos_display}</h1>
         <p style="font-size: 26px; font-weight: 700; margin: 0;">{pts_usr} Pts.</p>
-        <p style="font-size: 14px; opacity: 0.8; margin-top: 8px; font-weight: 400;">{dif_ref}</p>
+        <p style="font-size: 14px; opacity: 0.8; margin-top: 8px;">{dif_ref}</p>
     </div>
-
-    <!-- Podio Visual -->
     <div class="podium-section">
         <div style="position:relative; text-align:center;">
             <div class="badge silver">2</div>
