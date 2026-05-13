@@ -1092,7 +1092,6 @@ elif menu == "⚙️ Panel Control":
 
 
 elif menu == "🧪 Laboratorio":
-
     # --- 1. PREPARACIÓN DE DATOS REALES ---
     top_3 = df_ranking.head(3)
     
@@ -1102,7 +1101,7 @@ elif menu == "🧪 Laboratorio":
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
             # Extraemos URL de foto o genérico
             foto = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
-            # Limpiamos el nombre (tomamos el primer nombre antes de cualquier emoji)
+            # Limpiamos el nombre
             nombre_limpio = str(row['JUGADOR']).split(' ')[0]
             return nombre_limpio, int(row['PUNTOS']), foto
         return "-", 0, AVATAR_GENERICO
@@ -1114,13 +1113,15 @@ elif menu == "🧪 Laboratorio":
     # Datos del usuario logueado
     try:
         user_row = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
-        pos_actual = user_row.index[0] + 1
-        pts_actual = int(user_row['PUNTOS'].iloc[0])
-        dif = int(p1 - pts_actual)
-        dif_msg = "🏆 ¡Eres el líder!" if dif <= 0 else f"A {dif} puntos del líder"
+        # Cambiamos nombres aquí para que coincidan con el HTML de abajo
+        pos_usr = user_row.index[0] + 1
+        pts_usr = int(user_row['PUNTOS'].iloc[0])
+        dif = int(p1 - pts_usr)
+        dif_msg = "🏆 ¡Eres el líder!" if dif <= 0 else f"A {dif} pts del 1°"
     except:
-        pos_actual, pts_actual, dif_msg = "-", 0, "Calculando..."
+        pos_usr, pts_usr, dif_msg = "-", 0, "Calculando..."
 
+    # --- 2. RENDERIZADO (Usando textwrap para evitar errores de indentación) ---
     html_hero = textwrap.dedent(f"""
     <style>
         @import url('https://googleapis.com');
@@ -1128,7 +1129,7 @@ elif menu == "🧪 Laboratorio":
         .hero-card {{
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, rgba(0,0,0,0.92) 0%, rgba(20,20,20,0.6) 100%),
-                        url('https://unsplash.com');
+                        url('https://googleapis.com');
             background-size: cover;
             background-position: center;
             border-radius: 28px;
@@ -1141,9 +1142,9 @@ elif menu == "🧪 Laboratorio":
             border: 1px solid rgba(255,255,255,0.1);
             position: relative;
             overflow: hidden;
+            margin-bottom: 25px;
         }}
 
-        /* Brillo neón detrás de la posición */
         .stat-section {{
             position: relative;
             z-index: 1;
@@ -1170,12 +1171,7 @@ elif menu == "🧪 Laboratorio":
             flex-grow: 1;
         }}
 
-        /* Efecto de levitación en los avatares */
-        .avatar-frame {{
-            position: relative;
-            transition: transform 0.3s ease;
-        }}
-        .avatar-frame:hover {{ transform: translateY(-5px); }}
+        .avatar-frame {{ position: relative; text-align: center; }}
 
         .img-circ {{
             width: 80px; height: 80px;
@@ -1183,6 +1179,7 @@ elif menu == "🧪 Laboratorio":
             object-fit: cover;
             border: 4px solid rgba(255,255,255,0.15);
             box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            background: #333;
         }}
 
         .first-place {{
@@ -1199,26 +1196,16 @@ elif menu == "🧪 Laboratorio":
             display: flex; align-items: center; justify-content: center;
             font-size: 14px; font-weight: 900;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 10;
         }}
 
         .gold {{ background: #F4C542; color: #000; }}
         .silver {{ background: #E5E7EB; color: #000; }}
         .bronze {{ background: #D97706; color: #fff; }}
 
-        .player-name {{
-            font-weight: 700;
-            font-size: 15px;
-            margin-top: 12px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }}
+        .player-name {{ font-weight: 700; font-size: 15px; margin-top: 12px; }}
+        .player-score {{ font-size: 13px; opacity: 0.6; }}
 
-        .player-score {{
-            font-size: 13px;
-            opacity: 0.6;
-            font-weight: 400;
-        }}
-
-        /* Badge de "Líder" o "Diferencia" con estilo píldora */
         .diff-pill {{
             display: inline-block;
             padding: 4px 12px;
@@ -1229,6 +1216,12 @@ elif menu == "🧪 Laboratorio":
             letter-spacing: 1px;
             margin-top: 10px;
             border: 1px solid rgba(255,255,255,0.05);
+        }}
+
+        @media (max-width: 800px) {{
+            .hero-card {{ flex-direction: column; text-align: center; padding: 30px 20px; }}
+            .stat-section {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-right: 0; padding-bottom: 20px; margin-bottom: 20px; width: 100%; }}
+            .podium-section {{ gap: 15px; transform: scale(0.9); }}
         }}
     </style>
 
@@ -1242,31 +1235,25 @@ elif menu == "🧪 Laboratorio":
 
         <div class="podium-section">
             <!-- Puesto 2 -->
-            <div>
-                <div class="avatar-frame">
-                    <div class="badge silver">2</div>
-                    <img src="{f2}" class="img-circ">
-                </div>
+            <div class="avatar-frame">
+                <div class="badge silver">2</div>
+                <img src="{f2}" class="img-circ">
                 <div class="player-name">{n2}</div>
                 <div class="player-score">{p2} PTS</div>
             </div>
 
             <!-- Puesto 1 -->
-            <div style="margin-top: -30px;">
-                <div class="avatar-frame">
-                    <div class="badge gold">1</div>
-                    <img src="{f1}" class="img-circ first-place">
-                </div>
+            <div class="avatar-frame" style="margin-top: -30px;">
+                <div class="badge gold">1</div>
+                <img src="{f1}" class="img-circ first-place">
                 <div class="player-name" style="color: #F4C542; font-size: 18px;">{n1}</div>
                 <div class="player-score" style="color: #F4C542; opacity: 1;">{p1} PTS</div>
             </div>
 
             <!-- Puesto 3 -->
-            <div>
-                <div class="avatar-frame">
-                    <div class="badge bronze">3</div>
-                    <img src="{f3}" class="img-circ">
-                </div>
+            <div class="avatar-frame">
+                <div class="badge bronze">3</div>
+                <img src="{f3}" class="img-circ">
                 <div class="player-name">{n3}</div>
                 <div class="player-score">{p3} PTS</div>
             </div>
