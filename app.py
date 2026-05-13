@@ -1416,10 +1416,11 @@ elif menu == "🧪 Laboratorio":
         else:
             st.info("Esperando el silbato inicial para mostrar estadísticas.")
 
-    # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
+# ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
     with c_der:
         st.markdown('<div class="dash-title">🏟️ Resultados de la Fecha</div>', unsafe_allow_html=True)
         
+        # Filtro de visibilidad maestro
         df_mostrar_partidos = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO', ascending=False)
 
         with st.container(height=315): 
@@ -1441,7 +1442,7 @@ elif menu == "🧪 Laboratorio":
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
         <div style="flex: 1; text-align: right; font-weight: 700; font-size: 0.9rem; color: #1f2937;">{row['Equipo_1']}</div>
         <img src="{f1}" width="28" style="border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <div style="background: #1e293b; color: #f8fafc; padding: 5px 12px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 1.1rem; min-width: 60px; text-align: center;">
+        <div style="background: #1e293b; color: #f8fafc; padding: 5px 12px; border-radius: 8px; font-family: monospace; font-weight: 800; font-size: 1.1rem; min-width: 60px; text-align: center;">
             {r1} : {r2}
         </div>
         <img src="{f2}" width="28" style="border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -1451,6 +1452,9 @@ elif menu == "🧪 Laboratorio":
 
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="dash-title">💬 Foro en Vivo</div>', unsafe_allow_html=True)
+        
+        # --- LÍNEA CRÍTICA: Lectura del foro para evitar el NameError ---
+        df_foro = conn.read(worksheet="FORO", ttl=10)
         
         with st.container(height=265):
             if df_foro.empty:
@@ -1472,47 +1476,17 @@ elif menu == "🧪 Laboratorio":
     </div>
 </div>""", unsafe_allow_html=True)
 
-# 1. CSS adicional para "tunear" el botón del formulario (añadir al bloque de <style> arriba)
-    st.markdown(f"""
-<style>
-    /* Estilo para el botón de enviar del formulario */
-    .stForm [data-testid="stFormSubmitButton"] button {{
-        background: linear-gradient(90deg, #1d4ed8 0%, #3b82f6 100%);
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 10px;
-        transition: all 0.3s ease;
-        width: 100%;
-    }}
-    .stForm [data-testid="stFormSubmitButton"] button:hover {{
-        transform: scale(1.05);
-        box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4);
-    }}
-</style>
-    """, unsafe_allow_html=True)
-
-    # 2. El bloque del formulario con micro-ajustes
-    with st.form("form_foro_premium", clear_on_submit=True):
-        c_txt, c_btn = st.columns([0.88, 0.12]) # Un poco más de aire al texto
-        with c_txt:
-            nuevo_msg = st.text_input(
-                "Escribe...", 
-                label_visibility="collapsed", 
-                placeholder="Escribe un mensaje en el foro..."
-            )
-        with c_btn:
-            # Quitamos el label del botón para que el emoji sea el protagonista
-            enviar = st.form_submit_button("🚀", use_container_width=True)
-            
-        if enviar and nuevo_msg.strip():
-            nuevo_reg = {
-                "USUARIO": st.session_state['user_data']['USUARIO'],
-                "MENSAJE": nuevo_msg.strip(),
-                "HORA": datetime.now().strftime("%H:%M")
-            }
-            # Lógica de actualización (Tu código actual está perfecto aquí)
-            df_nuevo = pd.concat([df_foro, pd.DataFrame([nuevo_reg])], ignore_index=True)
-            conn.update(worksheet="FORO", data=df_nuevo)
-            st.cache_data.clear()
-            st.rerun()
+        # Formulario de Chat
+        with st.form("form_foro_premium", clear_on_submit=True):
+            c_txt, c_btn = st.columns([0.88, 0.12])
+            nuevo_msg = c_txt.text_input("Escribe...", label_visibility="collapsed", placeholder="¿Qué opinas del partido?")
+            if c_btn.form_submit_button("🚀", use_container_width=True) and nuevo_msg.strip():
+                nuevo_reg = {
+                    "USUARIO": st.session_state['user_data']['USUARIO'],
+                    "MENSAJE": nuevo_msg.strip(),
+                    "HORA": datetime.now().strftime("%H:%M")
+                }
+                df_nuevo = pd.concat([df_foro, pd.DataFrame([nuevo_reg])], ignore_index=True)
+                conn.update(worksheet="FORO", data=df_nuevo)
+                st.cache_data.clear()
+                st.rerun()
