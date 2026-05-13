@@ -1326,206 +1326,189 @@ elif menu == "🧪 Laboratorio":
 
 # ------------------ COLUMNA IZQUIERDA: LÍDERES Y TENDENCIAS ------------------
     with c_izq:
-        # ============================================================
-        # RANKING VISUAL PREMIUM CON SCROLL
-        # Usa df_ranking ya procesado por obtener_ranking_global()
-        # ============================================================
-        
         st.markdown('<div class="dash-title">🥇 Ranking General</div>', unsafe_allow_html=True)
-        
-        st.markdown("""
-        <style>
+    
+        st.markdown(textwrap.dedent("""
+    <style>
+    .ranking-card {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 18px;
+        padding: 12px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+    
+    .ranking-scroll {
+        height: 315px;
+        overflow-y: auto;
+        padding-right: 6px;
+    }
+    
+    .ranking-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .ranking-scroll::-webkit-scrollbar-track {
+        background: rgba(226, 232, 240, 0.5);
+        border-radius: 999px;
+    }
+    
+    .ranking-scroll::-webkit-scrollbar-thumb {
+        background: rgba(30, 58, 138, 0.45);
+        border-radius: 999px;
+    }
+    
+    .ranking-row {
+        display: grid;
+        grid-template-columns: 42px 1fr 76px 54px 54px;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        border-radius: 14px;
+        background: rgba(248, 250, 252, 0.92);
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        transition: all 0.18s ease;
+    }
+    
+    .ranking-row:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+    
+    .ranking-row.me {
+        background: linear-gradient(90deg, rgba(244, 197, 66, 0.22), rgba(255,255,255,0.96));
+        border: 1px solid rgba(244, 197, 66, 0.7);
+        box-shadow: 0 10px 25px rgba(244, 197, 66, 0.14);
+    }
+    
+    .rank-pos {
+        width: 31px;
+        height: 31px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 13px;
+        font-weight: 900;
+        color: #0f172a;
+        background: #e5e7eb;
+    }
+    
+    .rank-pos.gold {
+        background: linear-gradient(135deg, #FFD700, #F4A900);
+        color: #111827;
+    }
+    
+    .rank-pos.silver {
+        background: linear-gradient(135deg, #d1d5db, #9ca3af);
+        color: #111827;
+    }
+    
+    .rank-pos.bronze {
+        background: linear-gradient(135deg, #CD7F32, #9A5A22);
+        color: white;
+    }
+    
+    .player-info {
+        min-width: 0;
+    }
+    
+    .player-name {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 800;
+        color: #0f172a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .player-sub {
+        font-size: 10px;
+        font-weight: 600;
+        color: #64748b;
+        margin-top: 2px;
+    }
+    
+    .rank-points {
+        text-align: right;
+    }
+    
+    .points-main {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 17px;
+        font-weight: 900;
+        color: #0f172a;
+        line-height: 1;
+    }
+    
+    .points-label {
+        font-size: 9px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        margin-top: 2px;
+    }
+    
+    .rank-stat {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 800;
+        color: #334155;
+    }
+    
+    .rank-stat span {
+        display: block;
+        font-size: 9px;
+        font-weight: 700;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
+    
+    .ranking-footer {
+        margin-top: 10px;
+        padding: 9px 12px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 800;
+        color: #1e3a8a;
+        background: rgba(30, 58, 138, 0.06);
+        border: 1px solid rgba(30, 58, 138, 0.08);
+    }
+    
+    @media (max-width: 768px) {
         .ranking-card {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 12px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            padding: 10px;
         }
-        
+    
         .ranking-scroll {
             height: 315px;
-            overflow-y: auto;
-            padding-right: 6px;
         }
-        
-        .ranking-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .ranking-scroll::-webkit-scrollbar-track {
-            background: rgba(226, 232, 240, 0.5);
-            border-radius: 999px;
-        }
-        
-        .ranking-scroll::-webkit-scrollbar-thumb {
-            background: rgba(30, 58, 138, 0.45);
-            border-radius: 999px;
-        }
-        
+    
         .ranking-row {
-            display: grid;
-            grid-template-columns: 42px 1fr 76px 54px 54px;
-            align-items: center;
-            gap: 10px;
-        
-            padding: 10px 12px;
-            margin-bottom: 8px;
-        
-            border-radius: 14px;
-            background: rgba(248, 250, 252, 0.92);
-            border: 1px solid rgba(226, 232, 240, 0.85);
-        
-            transition: all 0.18s ease;
+            grid-template-columns: 38px 1fr 58px;
+            gap: 8px;
+            padding: 10px;
         }
-        
-        .ranking-row:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-        }
-        
-        .ranking-row.me {
-            background:
-                linear-gradient(90deg, rgba(244, 197, 66, 0.22), rgba(255,255,255,0.96));
-            border: 1px solid rgba(244, 197, 66, 0.7);
-            box-shadow: 0 10px 25px rgba(244, 197, 66, 0.14);
-        }
-        
-        .rank-pos {
-            width: 31px;
-            height: 31px;
-            border-radius: 50%;
-        
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        
-            font-family: 'Montserrat', sans-serif;
-            font-size: 13px;
-            font-weight: 900;
-        
-            color: #0f172a;
-            background: #e5e7eb;
-        }
-        
-        .rank-pos.gold {
-            background: linear-gradient(135deg, #FFD700, #F4A900);
-            color: #111827;
-        }
-        
-        .rank-pos.silver {
-            background: linear-gradient(135deg, #d1d5db, #9ca3af);
-            color: #111827;
-        }
-        
-        .rank-pos.bronze {
-            background: linear-gradient(135deg, #CD7F32, #9A5A22);
-            color: white;
-        }
-        
-        .player-info {
-            min-width: 0;
-        }
-        
-        .player-name {
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 800;
-            color: #0f172a;
-        
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .player-sub {
-            font-size: 10px;
-            font-weight: 600;
-            color: #64748b;
-            margin-top: 2px;
-        }
-        
-        .rank-points {
-            text-align: right;
-        }
-        
-        .points-main {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 17px;
-            font-weight: 900;
-            color: #0f172a;
-            line-height: 1;
-        }
-        
-        .points-label {
-            font-size: 9px;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-        
+    
         .rank-stat {
-            text-align: center;
-            font-size: 12px;
-            font-weight: 800;
-            color: #334155;
+            display: none;
         }
-        
-        .rank-stat span {
-            display: block;
-            font-size: 9px;
-            font-weight: 700;
-            color: #94a3b8;
-            margin-top: 2px;
+    
+        .player-name {
+            font-size: 13px;
         }
-        
-        .ranking-footer {
-            margin-top: 10px;
-            padding: 9px 12px;
-            border-radius: 12px;
-        
-            text-align: center;
-            font-size: 12px;
-            font-weight: 800;
-        
-            color: #1e3a8a;
-            background: rgba(30, 58, 138, 0.06);
-            border: 1px solid rgba(30, 58, 138, 0.08);
+    
+        .points-main {
+            font-size: 16px;
         }
-        
-        /* MOBILE */
-        @media (max-width: 768px) {
-            .ranking-card {
-                padding: 10px;
-            }
-        
-            .ranking-scroll {
-                height: 315px;
-            }
-        
-            .ranking-row {
-                grid-template-columns: 38px 1fr 58px;
-                gap: 8px;
-                padding: 10px;
-            }
-        
-            .rank-stat {
-                display: none;
-            }
-        
-            .player-name {
-                font-size: 13px;
-            }
-        
-            .points-main {
-                font-size: 16px;
-            }
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        
+    }
+    </style>
+    """), unsafe_allow_html=True)
+    
         def clase_medalla(posicion_num):
             if posicion_num == 1:
                 return "gold"
@@ -1534,72 +1517,71 @@ elif menu == "🧪 Laboratorio":
             elif posicion_num == 3:
                 return "bronze"
             return ""
-        
-        
+    
         usuario_actual = st.session_state["user_data"]["USUARIO"]
-        
-        ranking_html = """
-        <div class="ranking-card">
-            <div class="ranking-scroll">
-        """
-        
+    
+        ranking_html = textwrap.dedent("""
+    <div class="ranking-card">
+    <div class="ranking-scroll">
+    """)
+    
         for i, row in df_ranking.reset_index(drop=True).iterrows():
             posicion_num = i + 1
-        
+    
             pos_label = row.get("Nº", posicion_num)
             jugador = str(row.get("JUGADOR", "Jugador"))
             usuario = str(row.get("USUARIO", ""))
-        
+    
             puntos = int(row.get("PUNTOS", 0))
             exactos = int(row.get("EXACTOS", 0))
             generales = int(row.get("GENERALES", 0))
-        
+    
             es_usuario_actual = usuario == usuario_actual
-        
+    
             clase_usuario = "me" if es_usuario_actual else ""
             medalla = clase_medalla(posicion_num)
-        
-            ranking_html += f"""
-<div class="ranking-row {clase_usuario}">
-    <div class="rank-pos {medalla}">
-        {pos_label}
+    
+            ranking_html += textwrap.dedent(f"""
+    <div class="ranking-row {clase_usuario}">
+        <div class="rank-pos {medalla}">
+            {pos_label}
+        </div>
+    
+        <div class="player-info">
+            <div class="player-name">
+                {jugador}
+            </div>
+            <div class="player-sub">
+                {"Tu posición actual" if es_usuario_actual else "Participante"}
+            </div>
+        </div>
+    
+        <div class="rank-points">
+            <div class="points-main">{puntos}</div>
+            <div class="points-label">pts</div>
+        </div>
+    
+        <div class="rank-stat">
+            🎯 {exactos}
+            <span>exactos</span>
+        </div>
+    
+        <div class="rank-stat">
+            ✅ {generales}
+            <span>generales</span>
+        </div>
     </div>
-
-<div class="player-info">
-    <div class="player-name">
-        {jugador}
+    """)
+    
+        ranking_html += textwrap.dedent("""
     </div>
-    <div class="player-sub">
-        {"Tu posición actual" if es_usuario_actual else "Participante"}
+    
+    <div class="ranking-footer">
+        Ranking actualizado automáticamente
     </div>
-</div>
-
-<div class="rank-points">
-    <div class="points-main">{puntos}</div>
-    <div class="points-label">pts</div>
-</div>
-
-<div class="rank-stat">
-    🎯 {exactos}
-    <span>exactos</span>
-</div>
-
-<div class="rank-stat">
-    ✅ {generales}
-    <span>generales</span>
-</div>
-</div>
-"""
-
-ranking_html += """
-</div>
-
-<div class="ranking-footer">
-    Ranking actualizado automáticamente
-</div>
-</div>
-"""
-
+    </div>
+    """)
+    
         st.markdown(ranking_html, unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
