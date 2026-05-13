@@ -1144,12 +1144,12 @@ elif menu == "🧪 Laboratorio":
     }}
     .title-main {{
         font-family: 'Montserrat', sans-serif;
-        font-size: 24px; font-weight: 900;
+        font-size: 22px; font-weight: 900;
         text-transform: uppercase; margin: 0;
         letter-spacing: 1px;
     }}
     .title-sub {{
-        font-size: 9px; opacity: 0.4; letter-spacing: 1px;
+        font-size: 12px; opacity: 0.4; letter-spacing: 1px;
         margin-top: 5px; text-transform: uppercase;
     }}
     .divider-h {{
@@ -1173,10 +1173,10 @@ elif menu == "🧪 Laboratorio":
         border-right: 1px solid rgba(255,255,255,0.15);
         text-align: center;
     }}
-    .label-pos {{ font-size: 9px; opacity: 0.5; font-weight: 700; text-transform: uppercase; }}
-    .val-pos {{ font-family: 'Montserrat', sans-serif; font-size: 50px; font-weight: 900; margin: 5px 0; }}
-    .pts-box {{ font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; }}
-    .msg-status {{ font-size: 10px; margin-top: 8px; opacity: 0.7; font-weight: 600; }}
+    .label-pos {{ font-size: 12px; opacity: 0.5; font-weight: 700; text-transform: uppercase; }}
+    .val-pos {{ font-family: 'Montserrat', sans-serif; font-size: 53px; font-weight: 900; margin: 5px 0; }}
+    .pts-box {{ font-family: 'Montserrat', sans-serif; font-size: 30px; font-weight: 800; }}
+    .msg-status {{ font-size: 12px; margin-top: 8px; opacity: 0.7; font-weight: 600; }}
 
     /* Panel Podio (3/4 del Ancho) */
     .podium-section {{
