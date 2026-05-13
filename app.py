@@ -1540,6 +1540,8 @@ elif menu == "🧪 Laboratorio":
     
         st.markdown(ranking_html, unsafe_allow_html=True)
         
+        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)        
+        
         # ============================================================
         # EVOLUCIÓN DE PUNTOS - OPCIÓN C
         # Usuario actual destacado + resto como contexto
@@ -1550,55 +1552,50 @@ elif menu == "🧪 Laboratorio":
         st.markdown("""
         <style>
         .evol-summary-card {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            background:
+                linear-gradient(135deg, rgba(10,10,10,0.96), rgba(28,28,28,0.92));
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 18px 18px 0 0;
-            padding: 16px 18px 10px 18px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            padding: 18px 20px 14px 20px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
             border-bottom: none;
+            margin-top: 18px;
         }
         
         .evol-user-name {
             font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 800;
-            color: #64748b;
+            font-size: 12px;
+            font-weight: 900;
+            color: rgba(255,255,255,0.55);
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-bottom: 4px;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
         }
         
         .evol-main-number {
             font-family: 'Montserrat', sans-serif;
-            font-size: 34px;
+            font-size: 38px;
             font-weight: 900;
-            color: #0f172a;
+            color: #ffffff;
             line-height: 1;
         }
         
         .evol-main-number span {
             font-size: 14px;
-            color: #94a3b8;
+            color: rgba(255,255,255,0.55);
             font-weight: 800;
             margin-left: 4px;
         }
         
         .evol-meta {
-            margin-top: 8px;
+            margin-top: 10px;
             font-size: 12px;
             font-weight: 700;
-            color: #64748b;
+            color: rgba(255,255,255,0.65);
         }
         
         .evol-meta strong {
             color: #F4C542;
-        }
-        
-        .evol-note {
-            margin-top: 10px;
-            font-size: 11px;
-            color: #94a3b8;
-            font-weight: 600;
         }
         
         .evol-chart-shell {
@@ -1608,6 +1605,7 @@ elif menu == "🧪 Laboratorio":
             border-radius: 0 0 18px 18px;
             padding: 0 10px 8px 10px;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            margin-top: 0;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -1697,9 +1695,6 @@ elif menu == "🧪 Laboratorio":
                 Puesto actual: <strong>{posicion_actual}°</strong> · 
                 Última tendencia: <strong>+{variacion_reciente} pts</strong>
             </div>
-            <div class="evol-note">
-                Tu línea aparece destacada. El resto de jugadores queda como referencia general.
-            </div>
         </div>
         """,
                     unsafe_allow_html=True
@@ -1725,7 +1720,7 @@ elif menu == "🧪 Laboratorio":
                     margin=dict(
                         l=8,
                         r=8,
-                        t=8,
+                        t=0,
                         b=8
                     ),
                     showlegend=False,
