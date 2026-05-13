@@ -1092,7 +1092,7 @@ elif menu == "⚙️ Panel Control":
 
 
 elif menu == "🧪 Laboratorio":
-    # --- 1. PREPARACIÓN DE DATOS ---
+    # --- 1. DATOS ---
     top_3 = df_ranking.head(3)
     
     def get_pod_data(index):
@@ -1117,163 +1117,150 @@ elif menu == "🧪 Laboratorio":
     except:
         pos_display, pts_usr, dif_ref = "-", 0, "..."
 
-    # --- 2. HTML Y CSS REFINADO ---
-
+    # --- 2. HTML Y CSS (ESTRUCTURA IMAGE_6422E8.PNG) ---
+    import textwrap
     html_hero = textwrap.dedent(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap');
 
-    .hero-card {{
+    .hero-container {{
         font-family: 'Inter', sans-serif;
-        /* Recuperamos el fondo con imagen y el degradado sutil */
-        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
-                    url('https://www.transparenttextures.com/patterns/dark-matter.png'),
-                    #111;
-        background-size: cover;
-        border-radius: 12px;
-        display: flex;
+        background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), 
+                    url('https://www.transparenttextures.com/patterns/stardust.png'), #0a0a0a;
+        border-radius: 15px;
         color: white;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        border: 1px solid rgba(255,255,255,0.05);
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(255,255,255,0.08);
         overflow: hidden;
-        margin-bottom: 20px;
     }}
 
-    /* LATERAL IZQUIERDO SUTIL */
-    .user-sidebar {{
-        width: 22%;
-        padding: 30px 20px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        border-right: 1px solid rgba(255,255,255,0.1); /* Línea muy suave */
-        background: rgba(255, 255, 255, 0.02);
-    }}
-
-    .sidebar-label {{ font-size: 9px; opacity: 0.5; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }}
-    .pos-big {{ font-family: 'Montserrat', sans-serif; font-size: 52px; font-weight: 900; line-height: 1; margin: 8px 0; }}
-    .pts-row {{ font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; }}
-    .status-msg {{ font-size: 11px; margin-top: 12px; opacity: 0.6; font-weight: 600; }}
-
-    /* CONTENIDO PRINCIPAL */
-    .main-content {{
-        width: 78%;
-        display: flex;
-        flex-direction: column;
-    }}
-
-    .header-area {{
+    /* SECCIÓN SUPERIOR (1/4 del Alto) */
+    .header-top {{
+        flex: 0 0 25%;
+        padding: 20px 10px 10px 10px;
         text-align: center;
-        padding: 15px 0 10px 0;
-        margin: 0 40px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Línea horizontal sutil */
     }}
-    .header-title {{
+    .title-main {{
         font-family: 'Montserrat', sans-serif;
-        font-size: 20px; /* Título más pequeño y elegante */
-        font-weight: 800;
-        text-transform: uppercase;
+        font-size: 24px; font-weight: 900;
+        text-transform: uppercase; margin: 0;
         letter-spacing: 1px;
-        margin: 0;
     }}
-    .header-sub {{ font-size: 9px; opacity: 0.4; margin-top: 4px; }}
+    .title-sub {{
+        font-size: 9px; opacity: 0.4; letter-spacing: 1px;
+        margin-top: 5px; text-transform: uppercase;
+    }}
+    .divider-h {{
+        height: 1px;
+        background: rgba(255,255,255,0.15);
+        margin: 15px 40px 0 40px;
+    }}
 
-    /* PODIO CORREGIDO */
-    .podium-container {{
+    /* SECCIÓN INFERIOR */
+    .content-bottom {{
+        flex: 0 0 75%;
         display: flex;
-        justify-content: center;
+        align-items: stretch;
+    }}
+
+    /* Panel Posición (1/4 del Ancho) */
+    .pos-section {{
+        flex: 0 0 25%;
+        padding: 20px;
+        display: flex; flex-direction: column; justify-content: center;
+        border-right: 1px solid rgba(255,255,255,0.15);
+        text-align: center;
+    }}
+    .label-pos {{ font-size: 9px; opacity: 0.5; font-weight: 700; text-transform: uppercase; }}
+    .val-pos {{ font-family: 'Montserrat', sans-serif; font-size: 50px; font-weight: 900; margin: 5px 0; }}
+    .pts-box {{ font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; }}
+    .msg-status {{ font-size: 10px; margin-top: 8px; opacity: 0.7; font-weight: 600; }}
+
+    /* Panel Podio (3/4 del Ancho) */
+    .podium-section {{
+        flex: 0 0 75%;
+        display: flex;
+        justify-content: space-around;
         align-items: flex-end;
-        gap: 35px; /* Más juntos */
-        padding: 20px 0;
-        flex-grow: 1;
+        padding: 20px;
+        gap: 15px;
     }}
 
-    .p-item {{ text-align: center; position: relative; }}
+    .pod-item {{ text-align: center; position: relative; width: 100%; }}
     
-    .avatar-wrapper {{
-        position: relative;
-        width: fit-content;
-        margin: 0 auto;
+    .av-wrap {{ position: relative; display: inline-block; }}
+    .av-img {{ 
+        border-radius: 50% !important; object-fit: cover !important; aspect-ratio: 1/1 !important;
+        border: 2px solid rgba(255,255,255,0.2);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    }}
+    
+    .pod-name {{ font-weight: 700; font-size: 12px; margin-top: 10px; text-transform: uppercase; }}
+    .pod-pts {{ font-size: 10px; opacity: 0.5; font-weight: 700; }}
+
+    .b-rank {{
+        position: absolute; top: -2px; right: -2px;
+        width: 18px; height: 18px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 9px; font-weight: 900; z-index: 10;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
     }}
 
-    .avatar-img {{ 
-        border-radius: 50% !important; /* Forzamos círculo */
-        object-fit: cover !important;
-        aspect-ratio: 1 / 1 !important; /* Evita que se deforme como en la imagen anterior */
-        display: block;
-        border: 2px solid rgba(255,255,255,0.15);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.4);
-    }}
-
-    .p-name {{ font-weight: 700; font-size: 13px; margin-top: 10px; letter-spacing: 0.5px; }}
-    .p-score {{ font-size: 10px; opacity: 0.4; font-weight: 600; }}
-
-    .badge-v {{
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 9px;
-        font-weight: 900;
-        z-index: 5;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-    }}
-
-    @media (max-width: 800px) {{
-        .hero-card {{ flex-direction: column; }}
-        .user-sidebar {{ width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }}
-        .main-content {{ width: 100%; }}
+    @media (max-width: 600px) {{
+        .title-main {{ font-size: 18px; }}
+        .val-pos {{ font-size: 35px; }}
+        .av-img {{ width: 50px !important; height: 50px !important; }}
     }}
     </style>
 
-<div class="hero-card">
-<div class="user-sidebar">
-    <div class="sidebar-label">Tu Posición</div>
-    <h1 class="pos-big">{pos_display}°</h1>
-    <div class="pts-row">{pts_usr} <span style="font-size:12px; opacity:0.5;">Pts</span></div>
-    <div class="status-msg">{dif_ref}</div>
+<div class="hero-container">
+<!-- Fila 1: Título -->
+<div class="header-top">
+    <h1 class="title-main">🏆 PRODE MUNDIAL 2026</h1>
+    <div class="title-sub">La gloria está en tus predicciones</div>
+    <div class="divider-h"></div>
 </div>
 
-<div class="main-content">
-<div class="header-area">
-    <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
-    <div class="header-sub">LA GLORIA ESTÁ EN TUS PREDICCIONES</div>
+    <!-- Fila 2: Posición + Podio -->
+<div class="content-bottom">
+<div class="pos-section">
+    <div class="label-pos">Tu Posición</div>
+    <div class="val-pos">{pos_display}°</div>
+    <div class="pts-box">{pts_usr} <span style="font-size:12px; opacity:0.5;">PTS.</span></div>
+    <div class="msg-status">{dif_ref}</div>
 </div>
 
-<div class="podium-container">
+<div class="podium-section">
 <!-- 2do -->
-<div class="p-item">
-    <div class="avatar-wrapper">
-        <div class="badge-v" style="background:#b0b0b0; color:black;">2</div>
-        <img src="{f2}" class="avatar-img" style="width:65px; height:65px;">
-    </div>
-    <div class="p-name">{n2}</div>
-    <div class="p-score">{p2} PTS.</div>
+<div class="pod-item">
+<div class="av-wrap">
+    <div class="b-rank" style="background:#b0b0b0; color:black;">2</div>
+    <img src="{f2}" class="av-img" style="width:60px; height:60px;">
+</div>
+<div class="pod-name">{n2}</div>
+<div class="pod-pts">{p2} PTS.</div>
 </div>
 
 <!-- 1ro -->
-<div class="p-item">
-    <div class="avatar-wrapper">
-        <div class="badge-v" style="background:#F4C542; color:black;">1</div>
-        <img src="{f1}" class="avatar-img" style="width:90px; height:90px; border-color:#F4C542; border-width:3px;">
-    </div>
-    <div class="p-name" style="color:#F4C542;">{n1}</div>
-    <div class="p-score" style="color:#F4C542; opacity:0.8;">{p1} PTS.</div>
+<div class="pod-item">
+<div class="av-wrap">
+    <div class="b-rank" style="background:#F4C542; color:black;">1</div>
+    <img src="{f1}" class="av-img" style="width:85px; height:85px; border-color:#F4C542; border-width:3px;">
+</div>
+<div class="pod-name" style="color:#F4C542;">{n1}</div>
+<div class="pod-pts" style="color:#F4C542; opacity:0.8;">{p1} PTS.</div>
 </div>
 
 <!-- 3ro -->
-<div class="p-item">
-    <div class="avatar-wrapper">
-        <div class="badge-v" style="background:#cd7f32; color:white;">3</div>
-        <img src="{f3}" class="avatar-img" style="width:65px; height:65px;">
-    </div>
-    <div class="p-name">{n3}</div>
-    <div class="p-score">{p3} PTS.</div>
+<div class="pod-item">
+<div class="av-wrap">
+    <div class="b-rank" style="background:#cd7f32; color:white;">3</div>
+    <img src="{f3}" class="av-img" style="width:60px; height:60px;">
+</div>
+<div class="pod-name">{n3}</div>
+<div class="pod-pts">{p3} PTS.</div>
 </div>
 </div>
 </div>
