@@ -31,30 +31,30 @@ def aplicar_estilos_globales():
     - estilos reutilizables para banners
     """
 
-    st.markdown(f"""
+    css = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Montserrat:wght@700;800;900&display=swap');
 
-html, body, [class*="css"] {{
+html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
-}}
+}
 
-.stApp {{
+.stApp {
     background-image:
         linear-gradient(rgba(255,255,255,0.80), rgba(255,255,255,0.80)),
-        url("{FONDO_BASE}");
+        url("__FONDO_BASE__");
     background-attachment: fixed;
     background-size: cover;
     background-position: center;
-}}
+}
 
-[data-testid="stSidebar"] {{
+[data-testid="stSidebar"] {
     background-image:
         linear-gradient(rgba(0,0,0,0.70), rgba(0,0,0,0.82)),
-        url("{SIDEBAR_BANNER}");
+        url("__SIDEBAR_BANNER__");
     background-size: cover;
     background-position: center;
-}}
+}
 
 [data-testid="stSidebar"] .stMarkdown,
 [data-testid="stSidebar"] label,
@@ -62,13 +62,13 @@ html, body, [class*="css"] {{
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3,
-[data-testid="stSidebar"] p {{
+[data-testid="stSidebar"] p {
     color: #FFFFFF !important;
     font-weight: 800 !important;
     text-shadow: 2px 2px 8px rgba(0,0,0,0.85) !important;
-}}
+}
 
-.app-section-banner {{
+.app-section-banner {
     position: relative;
     border-radius: 18px;
     overflow: hidden;
@@ -85,9 +85,9 @@ html, body, [class*="css"] {{
     background-position: center;
     border: 1px solid rgba(255,255,255,0.10);
     box-shadow: 0 18px 45px rgba(15,23,42,0.22);
-}}
+}
 
-.app-section-banner::before {{
+.app-section-banner::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -95,14 +95,14 @@ html, body, [class*="css"] {{
         linear-gradient(90deg, rgba(0,0,0,0.86), rgba(0,0,0,0.38)),
         radial-gradient(circle at right, rgba(244,197,66,0.18), transparent 38%);
     z-index: 0;
-}}
+}
 
-.app-section-banner-content {{
+.app-section-banner-content {
     position: relative;
     z-index: 1;
-}}
+}
 
-.app-section-title {{
+.app-section-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 28px;
     font-weight: 900;
@@ -110,32 +110,37 @@ html, body, [class*="css"] {{
     margin: 0;
     letter-spacing: -0.04em;
     text-transform: uppercase;
-}}
+}
 
-.app-section-subtitle {{
+.app-section-subtitle {
     margin-top: 8px;
     font-size: 14px;
     font-weight: 600;
     color: rgba(255,255,255,0.72);
-}}
+}
 
-@media (max-width: 768px) {{
-    .app-section-banner {{
+@media (max-width: 768px) {
+    .app-section-banner {
         padding: 26px 22px;
         min-height: 120px;
         border-radius: 16px;
-    }}
+    }
 
-    .app-section-title {{
+    .app-section-title {
         font-size: 22px;
-    }}
+    }
 
-    .app-section-subtitle {{
+    .app-section-subtitle {
         font-size: 12px;
-    }}
-}}
+    }
+}
 </style>
-""", unsafe_allow_html=True)
+"""
+
+    css = css.replace("__FONDO_BASE__", FONDO_BASE)
+    css = css.replace("__SIDEBAR_BANNER__", SIDEBAR_BANNER)
+
+    st.markdown(css, unsafe_allow_html=True)
 
 
 # ============================================================
