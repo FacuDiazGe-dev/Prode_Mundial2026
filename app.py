@@ -1328,7 +1328,7 @@ elif menu == "🧪 Laboratorio":
     with c_izq:
         st.markdown('<div class="dash-title">🥇 Ranking General</div>', unsafe_allow_html=True)
     
-        st.markdown(textwrap.dedent("""
+        st.markdown("""
     <style>
     .ranking-card {
         background: rgba(255, 255, 255, 0.94);
@@ -1507,7 +1507,9 @@ elif menu == "🧪 Laboratorio":
         }
     }
     </style>
-    """), unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+    
+        from html import escape
     
         def clase_medalla(posicion_num):
             if posicion_num == 1:
@@ -1520,16 +1522,13 @@ elif menu == "🧪 Laboratorio":
     
         usuario_actual = st.session_state["user_data"]["USUARIO"]
     
-        ranking_html = textwrap.dedent("""
-    <div class="ranking-card">
-    <div class="ranking-scroll">
-    """)
+        ranking_html = '<div class="ranking-card"><div class="ranking-scroll">'
     
         for i, row in df_ranking.reset_index(drop=True).iterrows():
             posicion_num = i + 1
     
-            pos_label = row.get("Nº", posicion_num)
-            jugador = str(row.get("JUGADOR", "Jugador"))
+            pos_label = escape(str(row.get("Nº", posicion_num)))
+            jugador = escape(str(row.get("JUGADOR", "Jugador")))
             usuario = str(row.get("USUARIO", ""))
     
             puntos = int(row.get("PUNTOS", 0))
@@ -1540,47 +1539,17 @@ elif menu == "🧪 Laboratorio":
     
             clase_usuario = "me" if es_usuario_actual else ""
             medalla = clase_medalla(posicion_num)
+            subtitulo = "Tu posición actual" if es_usuario_actual else "Participante"
     
-            ranking_html += textwrap.dedent(f"""
-    <div class="ranking-row {clase_usuario}">
-        <div class="rank-pos {medalla}">
-            {pos_label}
-        </div>
+            ranking_html += f'<div class="ranking-row {clase_usuario}">'
+            ranking_html += f'<div class="rank-pos {medalla}">{pos_label}</div>'
+            ranking_html += f'<div class="player-info"><div class="player-name">{jugador}</div><div class="player-sub">{subtitulo}</div></div>'
+            ranking_html += f'<div class="rank-points"><div class="points-main">{puntos}</div><div class="points-label">pts</div></div>'
+            ranking_html += f'<div class="rank-stat">🎯 {exactos}<span>exactos</span></div>'
+            ranking_html += f'<div class="rank-stat">✅ {generales}<span>generales</span></div>'
+            ranking_html += '</div>'
     
-        <div class="player-info">
-            <div class="player-name">
-                {jugador}
-            </div>
-            <div class="player-sub">
-                {"Tu posición actual" if es_usuario_actual else "Participante"}
-            </div>
-        </div>
-    
-        <div class="rank-points">
-            <div class="points-main">{puntos}</div>
-            <div class="points-label">pts</div>
-        </div>
-    
-        <div class="rank-stat">
-            🎯 {exactos}
-            <span>exactos</span>
-        </div>
-    
-        <div class="rank-stat">
-            ✅ {generales}
-            <span>generales</span>
-        </div>
-    </div>
-    """)
-    
-        ranking_html += textwrap.dedent("""
-    </div>
-    
-    <div class="ranking-footer">
-        Ranking actualizado automáticamente
-    </div>
-    </div>
-    """)
+        ranking_html += '</div><div class="ranking-footer">Ranking actualizado automáticamente</div></div>'
     
         st.markdown(ranking_html, unsafe_allow_html=True)
         
