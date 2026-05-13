@@ -186,6 +186,9 @@ with st.sidebar:
     opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
     if st.session_state['user_data']['ROL'] == 'admin':
         opciones.append("⚙️ Panel Control")
+        opciones.append("🧪 Laboratorio") # <--- Nuestra pestaña de pruebas
+    
+    menu = st.radio("Ir a:", opciones)
  
         # --- SOLO VISIBLE PARA EL ADMIN ---
     if st.session_state['user_data']['ROL'] == 'admin':
@@ -1093,3 +1096,59 @@ elif menu == "⚙️ Panel Control":
     else:
         # Este else ahora sí corresponde al IF inicial de ROL == 'admin'
         st.error("⛔ No tienes permisos para acceder a esta sección.")
+
+elif menu == "🧪 Laboratorio":
+    # 1. HEADER / HERO (Ocupa todo el ancho arriba)
+    # Buscamos la posición del usuario actual en el ranking
+    try:
+        pos_usuario = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']].index[0]
+        pts_usuario = df_ranking.loc[pos_usuario, 'PUNTOS']
+    except:
+        pos_usuario, pts_usuario = "-", 0
+
+    st.markdown(f"""
+        <div style="background: rgba(0, 123, 255, 0.1); padding: 20px; border-radius: 15px; border-left: 5px solid #007bff; margin-bottom: 20px;">
+            <h2 style="margin:0; color: #007bff;">🏆 {st.session_state['user_data']['NOMBRE']}, estás en el puesto #{pos_usuario}</h2>
+            <p style="margin:0; font-size: 1.2em;">Tienes <b>{pts_usuario} puntos</b> acumulados. ¡A por la gloria!</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # 2. CUERPO EN DOS COLUMNAS
+    col_izq, col_der = st.columns(2)
+
+    with col_izq:
+        st.subheader("🥇 Top 5 Ranking")
+        # Mostramos una versión mini del ranking
+        st.dataframe(df_ranking.head(5), use_container_width=True, hide_index=True, 
+                     column_config={"ID_PARA_FOTO": None, "USUARIO": None})
+        
+        st.markdown("---")
+        st.subheader("📈 Mi Evolución")
+        # Aquí llamaríamos a la función del gráfico (asegúrate de tener 'import plotly.express as px' en app.py)
+        # Por ahora un placeholder para ver el espacio:
+        st.info("Aquí irá el gráfico de líneas que ya tenemos.")
+
+    with col_der:
+        st.subheader("🏟️ Últimos Resultados")
+        # Filtramos los últimos 3 partidos visibles
+        df_recientes = df_res[df_res['VIZ'].astype(str).str.upper() == "TRUE"].sort_values('N_PARTIDO', ascending=False).head(3)
+        
+        if df_recientes.empty:
+            st.write("No hay resultados recientes.")
+        else:
+            for _, row in df_recientes.iterrows():
+                st.markdown(f"""
+                <div style="background: white; padding: 10px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold;">{row['Equipo_1']}</span>
+                    <span style="background: #f8f9fa; padding: 2px 8px; border-radius: 5px;">{int(row['R1'])} - {int(row['R2'])}</span>
+                    <span style="font-weight: bold;">{row['Equipo_2']}</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+        st.markdown("---")
+        st.subheader("💬 Foro Rápido")
+        # Un contenedor con altura fija para el chat
+        with st.container(height=250):
+            st.write("Juan: ¡Qué golazo de Argentina!")
+            st.write("Ana: México me arruinó el prode...")
+            st.write("Facu: ¡Vamos puntero!")
