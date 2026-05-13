@@ -1560,46 +1560,46 @@ elif menu == "🧪 Laboratorio":
             medalla = clase_medalla(posicion_num)
         
             ranking_html += f"""
-            <div class="ranking-row {clase_usuario}">
-                <div class="rank-pos {medalla}">
-                    {pos_label}
-                </div>
-        
-                <div class="player-info">
-                    <div class="player-name">
-                        {jugador}
-                    </div>
-                    <div class="player-sub">
-                        {"Tu posición actual" if es_usuario_actual else "Participante"}
-                    </div>
-                </div>
-        
-                <div class="rank-points">
-                    <div class="points-main">{puntos}</div>
-                    <div class="points-label">pts</div>
-                </div>
-        
-                <div class="rank-stat">
-                    🎯 {exactos}
-                    <span>exactos</span>
-                </div>
-        
-                <div class="rank-stat">
-                    ✅ {generales}
-                    <span>generales</span>
-                </div>
-            </div>
-            """
-        
-        ranking_html += """
-            </div>
-        
-            <div class="ranking-footer">
-                Ranking actualizado automáticamente
-            </div>
-        </div>
-        """
-        
+<div class="ranking-row {clase_usuario}">
+    <div class="rank-pos {medalla}">
+        {pos_label}
+    </div>
+
+<div class="player-info">
+    <div class="player-name">
+        {jugador}
+    </div>
+    <div class="player-sub">
+        {"Tu posición actual" if es_usuario_actual else "Participante"}
+    </div>
+</div>
+
+<div class="rank-points">
+    <div class="points-main">{puntos}</div>
+    <div class="points-label">pts</div>
+</div>
+
+<div class="rank-stat">
+    🎯 {exactos}
+    <span>exactos</span>
+</div>
+
+<div class="rank-stat">
+    ✅ {generales}
+    <span>generales</span>
+</div>
+</div>
+"""
+
+ranking_html += """
+</div>
+
+<div class="ranking-footer">
+    Ranking actualizado automáticamente
+</div>
+</div>
+"""
+
         st.markdown(ranking_html, unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
