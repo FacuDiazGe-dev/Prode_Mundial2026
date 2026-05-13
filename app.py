@@ -1092,14 +1092,14 @@ elif menu == "⚙️ Panel Control":
 
 
 elif menu == "🧪 Laboratorio":
-    # --- 1. PREPARACIÓN DE DATOS (Misma lógica, asegurando valores limpios) ---
+    # --- 1. PREPARACIÓN DE DATOS (Misma lógica robusta) ---
     top_3 = df_ranking.head(3)
     def get_pod_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
-            foto = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
-            nombre = str(row['JUGADOR']).split(' ')[0]
+            foto = u_info['AVATAR_URL'].values if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values) else AVATAR_GENERICO
+            nombre = str(row['JUGADOR']).split(' ')
             return nombre, int(row['PUNTOS']), foto
         return "-", 0, AVATAR_GENERICO
 
@@ -1109,74 +1109,81 @@ elif menu == "🧪 Laboratorio":
 
     try:
         row_user = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
-        pos_num = int(row_user.index[0])
-        pts_usr = int(row_user['PUNTOS'].values[0])
+        pos_num = int(row_user.index)
+        pts_usr = int(row_user['PUNTOS'].values)
         dif = int(p1 - pts_usr)
         dif_ref = "Eres el Líder 🏆" if pos_num == 1 else f"↑ a {dif} Pts. del Líder"
     except:
         pos_num, pts_usr, dif_ref = "-", 0, "..."
 
-    # --- 2. HTML PREMIUM (PEGADO AL BORDE IZQUIERDO) ---
+    # --- 2. HTML ELITE (SÓLO EL HERO ACTUALIZADO) ---
     html_hero = f"""
 <style>
 @import url('https://googleapis.com');
 
 .hero-card {{
 font-family: 'Inter', sans-serif;
-background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.8) 100%), 
+background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.85) 100%), 
             url('https://googleapis.com');
 background-size: cover; background-position: center;
-border-radius: 32px; padding: 45px; min-height: 300px;
-display: flex; align-items: center; justify-content: space-between; gap: 50px;
-color: white; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9);
+border-radius: 35px; 
+padding: 45px 55px; /* Aumento de padding lateral */
+min-height: 320px;
+display: flex; align-items: center; justify-content: space-between; gap: 60px;
+color: white; box-shadow: 0 35px 70px -15px rgba(0,0,0,0.95);
 border: 1px solid rgba(255,255,255,0.08);
 position: relative; overflow: hidden;
 }}
 
-/* Título de fondo sutil en el centro */
 .bg-title {{
-position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-font-family: 'Montserrat', sans-serif; font-size: 20px; letter-spacing: 6px;
-font-weight: 700; opacity: 0.12; text-transform: uppercase; white-space: nowrap;
+position: absolute; top: 25px; left: 50%; transform: translateX(-50%);
+font-family: 'Montserrat', sans-serif; font-size: 18px; letter-spacing: 5px;
+font-weight: 700; opacity: 0.1; text-transform: uppercase; white-space: nowrap;
 }}
 
-/* Bloque Izquierdo: Posición */
+/* Bloque Izquierdo: Tu Posición */
 .left-block {{
-border-right: 1px solid rgba(255,255,255,0.12);
-padding-right: 50px; min-width: 260px;
+display: flex; flex-direction: column; justify-content: center;
+min-width: 250px;
+border-right: 1px solid rgba(255,255,255,0.08); /* Línea más sutil */
+height: 180px; /* Altura controlada para centrar la línea */
+padding-right: 50px;
 }}
-.label-pos {{ font-size: 16px; font-weight: 500; opacity: 0.7; margin: 0; }}
+.label-pos {{ font-size: 15px; font-weight: 500; opacity: 0.6; margin: 0; }}
 .pos-big {{
-font-family: 'Montserrat', sans-serif; font-size: 82px; font-weight: 800; 
-line-height: 0.9; margin: 5px 0; letter-spacing: -2px; color: #F4C542;
-text-shadow: 0 0 18px rgba(244,197,66,0.18);
+font-family: 'Montserrat', sans-serif; font-size: 88px; font-weight: 800; 
+line-height: 0.85; margin: 8px 0; letter-spacing: -3px; color: #F4C542;
+text-shadow: 0 0 20px rgba(244,197,66,0.15);
 }}
-.pts-big {{ font-size: 34px; font-weight: 700; margin: 0; }}
-.msg-dif {{ font-size: 15px; opacity: 0.75; margin-top: 10px; }}
+.pts-big {{ 
+font-family: 'Montserrat', sans-serif; font-size: 38px; font-weight: 800; 
+margin: 0; letter-spacing: -0.5px; 
+}}
+.msg-dif {{ font-size: 14px; opacity: 0.65; margin-top: 12px; font-weight: 400; }}
 
 /* Podio */
-.podium-wrap {{ display: flex; gap: 40px; align-items: flex-end; flex-grow: 1; justify-content: center; }}
+.podium-wrap {{ display: flex; gap: 45px; align-items: flex-end; flex-grow: 1; justify-content: center; }}
 .p-item {{ position: relative; text-align: center; }}
-.avatar-img {{ border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.25); box-shadow: 0 15px 30px rgba(0,0,0,0.5); background-color: #1a1a1a; }}
-.p1-img {{ width: 110px; height: 110px; border-color: #F4C542; text-shadow: 0 0 18px rgba(244,197,66,0.18); }}
-.px-img {{ width: 82px; height: 82px; }}
+.avatar-img {{ border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.6); }}
+.p1-img {{ width: 115px; height: 115px; border-color: #F4C542; filter: drop-shadow(0 0 10px rgba(244,197,66,0.1)); }}
+.px-img {{ width: 85px; height: 85px; }}
 
 .badge-v {{
-position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; 
-justify-content: center; font-size: 15px; font-weight: 800; z-index: 10; font-family: 'Montserrat', sans-serif;
+position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; 
+justify-content: center; font-size: 16px; font-weight: 800; z-index: 10; font-family: 'Montserrat', sans-serif;
 }}
 .gold {{ background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }}
 .silver {{ background: #C0C0C0; color: black; }}
 .bronze {{ background: #CD7F32; color: white; }}
 
-.p-name {{ font-weight: 700; font-size: 22px; margin-top: 15px; letter-spacing: -0.5px; }}
-.p-pts {{ font-size: 16px; opacity: 0.75; }}
+.p-name {{ font-weight: 700; font-size: 23px; margin-top: 18px; letter-spacing: -0.5px; }}
+.p-pts {{ font-size: 16px; opacity: 0.7; }}
 
-@media (max-width: 900px) {{
-.hero-card {{ flex-direction: column; text-align: center; padding: 40px 20px; gap: 30px; }}
-.left-block {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0 0 30px 0; width: 100%; }}
-.podium-wrap {{ gap: 20px; transform: scale(0.9); }}
+@media (max-width: 950px) {{
+.hero-card {{ flex-direction: column; text-align: center; padding: 40px 25px; gap: 35px; }}
+.left-block {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 0 35px 0; width: 100%; height: auto; }}
+.podium-wrap {{ gap: 25px; transform: scale(0.9); }}
 }}
 </style>
 
@@ -1197,7 +1204,7 @@ justify-content: center; font-size: 15px; font-weight: 800; z-index: 10; font-fa
         <div class="p-name">{n2}</div>
         <div class="p-pts">{p2} Pts.</div>
     </div>
-    <div class="p-item" style="margin-bottom: 25px;">
+    <div class="p-item" style="margin-bottom: 30px;">
         <div class="badge-v gold">1</div>
         <img src="{f1}" class="avatar-img p1-img">
         <div class="p-name" style="color: #F4C542;">{n1}</div>
