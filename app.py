@@ -2037,215 +2037,10 @@ elif menu == "🧪 Laboratorio":
         
         st.markdown(matches_html, unsafe_allow_html=True)
         
-        # --- LÍNEA CRÍTICA: Lectura del foro para evitar el NameError ---
-        df_foro = conn.read(worksheet="FORO", ttl=10)
-        
-        with st.container(height=265):
-            if df_foro.empty:
-                st.caption("Sé el primero en comentar la jornada...")
-            else:
-                for _, msg in df_foro.iterrows():
-                    es_propio = msg['USUARIO'] == st.session_state['user_data']['USUARIO']
-                    u_info = df_usuarios[df_usuarios['USUARIO'] == msg['USUARIO']]
-                    avatar = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
-                    
-                    st.markdown(f"""
-<div style="display: flex; justify-content: {'flex-end' if es_propio else 'flex-start'}; margin-bottom: 12px;">
-    <div class="chat-bubble" style="background: {'#dbeafe' if es_propio else '#f3f4f6'}; color: #1e293b; border: 1px solid {'#bfdbfe' if es_propio else '#e5e7eb'}; border-radius: {'18px 18px 2px 18px' if es_propio else '18px 18px 18px 2px'};">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-            <img src="{avatar}" width="18" height="18" style="border-radius: 50%; object-fit: cover;">
-            <span style="font-weight: 800; font-size: 0.7rem; color: #1d4ed8;">{msg['USUARIO']}</span>
-        </div>
-        <div>{msg['MENSAJE']}</div>
-    </div>
-</div>""", unsafe_allow_html=True)
-
         # ============================================================
         # CHAT / FORO VISUAL PREMIUM
         # Reemplaza el bloque actual de Foro en Vivo
         # ============================================================
-        
-        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-        st.markdown('<div class="dash-title">💬 Foro en Vivo</div>', unsafe_allow_html=True)
-        
-        st.markdown("""
-        <style>
-        .chat-card {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 12px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-        }
-        
-        .chat-scroll {
-            height: 265px;
-            overflow-y: auto;
-            padding: 6px 6px 2px 6px;
-        }
-        
-        .chat-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .chat-scroll::-webkit-scrollbar-track {
-            background: rgba(226, 232, 240, 0.5);
-            border-radius: 999px;
-        }
-        
-        .chat-scroll::-webkit-scrollbar-thumb {
-            background: rgba(30, 58, 138, 0.45);
-            border-radius: 999px;
-        }
-        
-        .chat-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            align-items: flex-start;
-        }
-        
-        .chat-row.me {
-            flex-direction: row-reverse;
-        }
-        
-        .chat-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-            border: 2px solid rgba(255,255,255,0.9);
-            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
-        }
-        
-        .chat-bubble-new {
-            max-width: 82%;
-            border-radius: 16px;
-            padding: 9px 11px;
-            background: rgba(248, 250, 252, 0.96);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            color: #1e293b;
-            box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
-        }
-        
-        .chat-row.me .chat-bubble-new {
-            background: linear-gradient(135deg, rgba(244,197,66,0.24), rgba(255,255,255,0.96));
-            border: 1px solid rgba(244, 197, 66, 0.45);
-        }
-        
-        .chat-head {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            margin-bottom: 4px;
-        }
-        
-        .chat-user {
-            font-size: 11px;
-            font-weight: 900;
-            color: #1e3a8a;
-            line-height: 1;
-        }
-        
-        .chat-row.me .chat-user {
-            color: #92400e;
-        }
-        
-        .chat-time {
-            font-size: 10px;
-            font-weight: 700;
-            color: #94a3b8;
-            line-height: 1;
-        }
-        
-        .chat-message {
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.35;
-            color: #334155;
-            word-break: break-word;
-        }
-        
-        .chat-empty {
-            height: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            font-size: 13px;
-            font-weight: 700;
-            text-align: center;
-        }
-        
-        .chat-input-wrap {
-            margin-top: 10px;
-        }
-        
-        /* Ajustes del form de Streamlit para que se vea más limpio */
-        div[data-testid="stForm"] {
-            border: none;
-            padding: 0;
-            background: transparent;
-        }
-        
-        @media (max-width: 768px) {
-            .chat-scroll {
-                height: 300px;
-            }
-        
-            .chat-bubble-new {
-                max-width: 86%;
-            }
-        
-            .chat-message {
-                font-size: 13px;
-            }
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        from html import escape
-        
-        # Lectura del foro
-        df_foro = conn.read(worksheet="FORO", ttl=10)
-        
-        chat_html = '<div class="chat-card"><div class="chat-scroll">'
-        
-        if df_foro.empty:
-            chat_html += '<div class="chat-empty">Todavía no hay comentarios.<br>¡Sé el primero en tirar una chicana mundialista!</div>'
-        else:
-            # Mostramos los últimos mensajes, para que no se haga eterno
-            df_foro_mostrar = df_foro.tail(20)
-        
-            for _, msg in df_foro_mostrar.iterrows():
-                usuario_msg = str(msg.get("USUARIO", "Usuario"))
-                mensaje = escape(str(msg.get("MENSAJE", "")))
-                hora = escape(str(msg.get("HORA", "")))
-        
-                es_propio = usuario_msg == st.session_state["user_data"]["USUARIO"]
-        
-                u_info = df_usuarios[df_usuarios["USUARIO"] == usuario_msg]
-        
-                if not u_info.empty and pd.notna(u_info["AVATAR_URL"].values[0]):
-                    avatar = str(u_info["AVATAR_URL"].values[0])
-                else:
-                    avatar = AVATAR_GENERICO
-        
-                clase_me = "me" if es_propio else ""
-        
-                chat_html += f'<div class="chat-row {clase_me}">'
-                chat_html += f'<img src="{avatar}" class="chat-avatar">'
-                chat_html += '<div class="chat-bubble-new">'
-                chat_html += f'<div class="chat-head"><span class="chat-user">{escape(usuario_msg)}</span><span class="chat-time">{hora}</span></div>'
-                chat_html += f'<div class="chat-message">{mensaje}</div>'
-                chat_html += '</div></div>'
-        
-        chat_html += '</div></div>'
-        
-        st.markdown(chat_html, unsafe_allow_html=True)
-        
-        # Formulario de envío
         with st.form("form_foro_premium", clear_on_submit=True):
             c_txt, c_btn = st.columns([0.86, 0.14])
         
@@ -2261,16 +2056,50 @@ elif menu == "🧪 Laboratorio":
             )
         
             if enviar and nuevo_msg.strip():
+                usuario_actual = st.session_state["user_data"]["USUARIO"]
+        
+                try:
+                    nombre_actual = st.session_state["user_data"].get("NOMBRE", usuario_actual)
+                except:
+                    nombre_actual = usuario_actual
+        
+                ahora = datetime.now()
+        
                 nuevo_reg = {
-                    "USUARIO": st.session_state["user_data"]["USUARIO"],
+                    "FECHA": ahora.strftime("%Y-%m-%d"),
+                    "USUARIO": usuario_actual,
+                    "NOMBRE": nombre_actual,
                     "MENSAJE": nuevo_msg.strip(),
-                    "HORA": datetime.now().strftime("%H:%M")
+                    "PARTIDO_ID": "",
+                    "LIKES": 0,
+                    "DISLIKES": 0,
+                    "HORA": ahora.strftime("%H:%M")
                 }
         
-                df_nuevo = pd.concat(
-                    [df_foro, pd.DataFrame([nuevo_reg])],
-                    ignore_index=True
-                )
+                columnas_foro = [
+                    "FECHA",
+                    "USUARIO",
+                    "NOMBRE",
+                    "MENSAJE",
+                    "PARTIDO_ID",
+                    "LIKES",
+                    "DISLIKES",
+                    "HORA"
+                ]
+        
+                df_nuevo_reg = pd.DataFrame([nuevo_reg], columns=columnas_foro)
+        
+                if df_foro.empty:
+                    df_nuevo = df_nuevo_reg
+                else:
+                    for col in columnas_foro:
+                        if col not in df_foro.columns:
+                            df_foro[col] = ""
+        
+                    df_nuevo = pd.concat(
+                        [df_foro[columnas_foro], df_nuevo_reg],
+                        ignore_index=True
+                    )
         
                 conn.update(
                     worksheet="FORO",
