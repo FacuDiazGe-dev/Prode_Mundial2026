@@ -1536,7 +1536,7 @@ elif menu == "🧪 Laboratorio":
             ranking_html += f'<div class="rank-stat">🎯 {exactos}<span>exactos</span></div>'
             ranking_html += f'<div class="rank-stat">✅ {generales}<span>generales</span></div>'
             ranking_html += '</div>'
-            ranking_html += '</div></div>'
+        ranking_html += '</div></div>'
     
         st.markdown(ranking_html, unsafe_allow_html=True)
         
