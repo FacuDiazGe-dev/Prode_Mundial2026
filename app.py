@@ -1141,12 +1141,12 @@ elif menu == "🧪 Laboratorio":
     padding-bottom: 20px;
 }}
 .header-title {{
-    font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 900;
+    font-family: 'Montserrat', sans-serif; font-size: 28x; font-weight: 900;
     letter-spacing: 1px; text-transform: uppercase; margin: 0;
     text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
 }}
 .header-sub {{
-    font-size: 14px; opacity: 0.6; letter-spacing: 3px; font-weight: 400; margin-top: 5px;
+    font-size: 15px; opacity: 0.65; letter-spacing: 1px; font-weight: 400; margin-top: 5px;
 }}
 
 .content-row {{
@@ -1155,7 +1155,7 @@ elif menu == "🧪 Laboratorio":
 
 .left-block {{
     display: flex; flex-direction: column; justify-content: center;
-    min-width: 240px; border-right: 1px solid rgba(255,255,255,0.08);
+    min-width: 280px; border-right: 1px solid rgba(255,255,255,0.08);
     padding-right: 40px; height: 160px;
 }}
 
@@ -1166,7 +1166,7 @@ elif menu == "🧪 Laboratorio":
 }}
 .pts-big {{ font-family: 'Montserrat', sans-serif; font-size: 34px; font-weight: 800; margin: 0; }}
 
-.podium-wrap {{ display: flex; gap: 40px; align-items: flex-end; flex-grow: 1; justify-content: center; }}
+.podium-wrap {{ display: flex; ap: clamp(20px, 4vw, 40px); align-items: flex-end; flex-grow: 1; justify-content: center; }}
 .p-item {{ position: relative; text-align: center; }}
 .avatar-img {{ border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.6); background: #111; }}
 
@@ -1190,7 +1190,7 @@ elif menu == "🧪 Laboratorio":
 
 <div class="hero-card">
 <div class="main-header">
-    <h1 class="header-title">🏆 PRODE MUNDIAL 2026 - Fase de Grupos</h1>
+    <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
     <div class="header-sub">¡La gloria está en tus predicciones!</div>
 </div>
 
@@ -1199,7 +1199,7 @@ elif menu == "🧪 Laboratorio":
     <p style="font-size:14px; opacity:0.6; margin:0;">Tu Posición Actual:</p>
     <h1 class="pos-big">{pos_num}°</h1>
     <p class="pts-big">{pts_usr} Pts.</p>
-    <p style="font-size:13px; opacity:0.6; margin-top:10px;">{dif_ref}</p>
+    <p style="font-size:13px; font-weight:500; opacity:0.6; margin-top:10px;">{dif_ref}</p>
 </div>
 
 <div class="podium-wrap">
