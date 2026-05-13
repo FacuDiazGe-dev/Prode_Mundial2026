@@ -1347,32 +1347,75 @@ with c_izq:
 with c_der:
     # Bloque 3: Resultados
     st.markdown('<div class="dash-title">🏟️ Resultados Oficiales</div>', unsafe_allow_html=True)
+    
+    # Filtro de visibilidad
     df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
     df_mostrar_partidos = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO', ascending=False)
 
-    with st.container(height=310): # Misma altura que el Ranking
+    with st.container(height=310): 
         if df_mostrar_partidos.empty:
-            st.info("⚽ Sin resultados.")
+            st.info("⚽ Sin resultados oficiales.")
         else:
             for i, row in df_mostrar_partidos.iterrows():
-                # ... (mantenemos tu HTML de las tarjetas de partidos) ...
+                r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
+                r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
+                f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
+                f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
+                color_tema = "#007bff" if r1 != "-" else "#6c757d"
+                
                 st.markdown(f"""
                 <div style="border: 1px solid #eee; border-left: 4px solid {color_tema}; border-radius: 8px; padding: 10px; margin-bottom: 8px; background-color: white;">
-                    <!-- Tu contenido de partido aquí -->
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="width: 30%; text-align: center;"><img src="{f1}" width="25"><br><span style="font-size:0.8em;">{row['Equipo_1']}</span></div>
+                        <div style="width: 30%; text-align: center; background: #f8f9fa; border-radius: 5px; font-weight: bold;">{r1} : {r2}</div>
+                        <div style="width: 30%; text-align: center;"><img src="{f2}" width="25"><br><span style="font-size:0.8em;">{row['Equipo_2']}</span></div>
+                    </div>
                 </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Bloque 4: Foro
     st.markdown('<div class="dash-title">💬 Foro de la Fecha</div>', unsafe_allow_html=True)
-    with st.container(height=300): # Altura coordinada con el gráfico
-        # ... (tu lógica de burbujas de WhatsApp aquí) ...
-        # IMPORTANTE: No cambies nada de la lógica, solo envuélvelo en este contenedor con altura
     
-    # Input del foro fuera del contenedor de scroll para que siempre esté visible
+    # Leemos el foro
+    df_foro = conn.read(worksheet="FORO", ttl=10)
+    
+    with st.container(height=300):
+        if df_foro.empty:
+            st.caption("Aún no hay comentarios.")
+        else:
+            for _, msg in df_foro.iterrows():
+                user_msg = msg['USUARIO']
+                txt_msg = msg['MENSAJE']
+                hora_msg = str(msg.get('HORA', '--:--'))
+                u_info = df_usuarios[df_usuarios['USUARIO'] == user_msg]
+                avatar_chat = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
+                es_propio = user_msg == st.session_state['user_data']['USUARIO']
+                
+                st.markdown(f"""
+                <div style="display: flex; justify-content: {'flex-end' if es_propio else 'flex-start'}; margin-bottom: 10px;">
+                    <div style="background: {'#d9fdd3' if es_propio else '#ffffff'}; padding: 8px; border-radius: 10px; max-width: 85%; box-shadow: 0 1px 1px rgba(0,0,0,0.1);">
+                        <div style="font-weight: bold; font-size: 11px; color: #128c7e;">{user_msg}</div>
+                        <div style="font-size: 13px;">{txt_msg}</div>
+                    </div>
+                </div>""", unsafe_allow_html=True)
+    
+    # Formulario (FUERA del container de scroll para que no desaparezca)
     with st.form("form_foro_dashboard", clear_on_submit=True):
         c_txt, c_btn = st.columns([0.85, 0.15])
         with c_txt:
-            nuevo_msg = st.text_input("Mensaje", label_visibility="collapsed", placeholder="Escribe aquí...")
+            nuevo_msg = st.text_input("Escribe...", label_visibility="collapsed", placeholder="Escribe un mensaje...")
         with c_btn:
-            st.form_submit_button("🚀", use_container_width=True)
+            enviar = st.form_submit_button("🚀")
+            
+        if enviar and nuevo_msg.strip():
+            # Lógica de guardado
+            nuevo_reg = {
+                "USUARIO": st.session_state['user_data']['USUARIO'],
+                "MENSAJE": nuevo_msg.strip(),
+                "HORA": datetime.now().strftime("%H:%M")
+            }
+            df_nuevo = pd.concat([df_foro, pd.DataFrame([nuevo_reg])], ignore_index=True)
+            conn.update(worksheet="FORO", data=df_nuevo)
+            st.cache_data.clear()
+            st.rerun()
