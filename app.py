@@ -1279,38 +1279,142 @@ elif menu == "🧪 Laboratorio":
 
     st.markdown(html_hero, unsafe_allow_html=True)
     
-    # --- 3. CUERPO (GRID 2x2) ---
+    # =============================================================================
+    # 3. CUERPO INTERACTIVO (GRID 2x2 - PRODUCCIÓN)
+    # =============================================================================
     c_izq, c_der = st.columns(2)
     
+    # ------------------ COLUMNA IZQUIERDA ------------------
     with c_izq:
+        # Bloque 1: Tabla compacta de posiciones
         st.subheader("🥇 Ranking Top 8")
-        st.dataframe(df_ranking.head(8), use_container_width=True, hide_index=True, 
-                     column_config={"ID_PARA_FOTO": None, "USUARIO": None})
+        st.dataframe(
+            df_ranking.head(8), 
+            use_container_width=True, 
+            hide_index=True, 
+            column_config={
+                "ID_PARA_FOTO": None, 
+                "USUARIO": None,
+                "Nº": st.column_config.TextColumn("Nº", width="small"),
+                "PUNTOS": st.column_config.NumberColumn("PTS."),
+                "EXACTOS": st.column_config.NumberColumn("🎯"),
+                "GENERALES": st.column_config.NumberColumn("✅")
+            }
+        )
         
         st.markdown("---")
-        st.subheader("📈 Evolución")
-        # Aquí puedes llamar a tu bloque de px.line del ranking
-        st.info("💡 Tip: En el celular, el Ranking se verá arriba del Foro.")
+        
+        # Bloque 2: Gráfico de evolución temporal real filtrado por VIZ
+        st.subheader("📈 Evolución Temporal")
+        
+        # Reutilizamos la lógica del módulo gráfico
+        df_res['VIZ_AUX'] = df_res['VIZ'].astype(str).str.strip().str.upper()
+        partidos_visibles = df_res[df_res['VIZ_AUX'].isin(['TRUE', '1', '1.0', 'VERDADERO'])].sort_values('N_PARTIDO')
+        
+        if not partidos_visibles.empty:
+            evol_list = []
+            usuarios_lista = df_usuarios["USUARIO"].unique()
+            ids_visibles = partidos_visibles['N_PARTIDO'].tolist()
+            
+            for user in usuarios_lista:
+                pts_acc = 0
+                user_pro = df_pro[df_pro['USUARIO'] == user]
+                
+                for id_p in ids_visibles:
+                    part = partidos_visibles[partidos_visibles['N_PARTIDO'] == id_p].iloc[0]
+                    u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
+                    
+                    if not u_p.empty:
+                        r1, r2 = part['R1'], part['R2']
+                        p1, p2 = u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
+                        
+                        if pd.notna(r1) and pd.notna(r2):
+                            # Invocamos la lógica del backend
+                            pts, _, _ = calcular_detalle(r1, r2, p1, p2)
+                            pts_acc += pts
+                    
+                    evol_list.append({
+                        "N_Partido": int(id_p), 
+                        "Jugador": user, 
+                        "Puntos": pts_acc
+                    })
+            
+            if evol_list:
+                df_ev = pd.DataFrame(evol_list)
+                df_ev_pivot = df_ev.pivot(index="N_Partido", columns="Jugador", values="Puntos").sort_index()
+                
+                # Renderizado dinámico con Plotly Express
+                fig = px.line(
+                    df_ev_pivot, 
+                    labels={"N_Partido": "Partido", "value": "Puntos", "variable": "Jugador"},
+                    markers=True
+                )
+                fig.update_layout(
+                    xaxis=dict(fixedrange=True, tickmode='linear', dtick=1),
+                    yaxis=dict(fixedrange=True),
+                    dragmode=False,
+                    hovermode="x unified",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.05, xanchor="center", x=0.5),
+                    margin=dict(l=10, r=10, t=10, b=10),
+                    height=280
+                )
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+        else:
+            st.info("La gráfica se dibujará cuando existan partidos oficiales validados.")
 
+    # ------------------ COLUMNA DERECHA ------------------
     with c_der:
+        # Bloque 3: Últimos Partidos Terminados
         st.subheader("🏟️ Últimos Resultados")
         df_recientes = df_res[df_res['VIZ'].astype(str).str.upper() == "TRUE"].sort_values('N_PARTIDO', ascending=False).head(4)
+        
         if df_recientes.empty:
-            st.write("No hay resultados visibles.")
+            st.info("No hay resultados visibles cargados en el sistema.")
         else:
             for _, row in df_recientes.iterrows():
+                # Obtenemos las banderas usando el mapa precalculado en la carga maestra
+                f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
+                f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
+                
                 st.markdown(f"""
-                <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; color: black;">
-                    <span style="font-weight: bold; width: 35%;">{row['Equipo_1']}</span>
-                    <span style="background: #007bff; color: white; padding: 3px 12px; border-radius: 20px; font-weight: 800;">{int(row['R1'])} - {int(row['R2'])}</span>
-                    <span style="font-weight: bold; width: 35%; text-align: right;">{row['Equipo_2']}</span>
+                <div style="background: rgba(255, 255, 255, 0.9); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    <div style="display: flex; align-items: center; gap: 10px; width: 40%;">
+                        <img src="{f1}" width="24" style="border-radius:2px;">
+                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13px;">{row['Equipo_1']}</span>
+                    </div>
+                    <div style="background: #007bff; color: white; padding: 2px 12px; border-radius: 20px; font-weight: 900; font-size: 13px; min-width: 55px; text-align: center;">
+                        {int(row['R1'])} - {int(row['R2'])}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-end; width: 40%; text-align: right;">
+                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13px;">{row['Equipo_2']}</span>
+                        <img src="{f2}" width="24" style="border-radius:2px;">
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
 
         st.markdown("---")
+        
+        # Bloque 4: Caja de Chat compacto e instantáneo
         st.subheader("💬 Foro Rápido")
-        with st.container(height=300):
-            st.caption("Últimos mensajes del foro...")
-            # Aquí podrías llamar a tu lógica de visualización del foro
-            st.write("💬 *Facu: ¡Qué parejo está el podio!*")
-            st.write("💬 *Pepe: México me arruinó el punto extra.*")
+        
+        # Leemos el foro directamente desde tu base en tiempo real
+        df_foro = conn.read(worksheet="FORO", ttl=10)
+        
+        with st.container(height=280):
+            if df_foro.empty:
+                st.caption("Aún no hay comentarios en esta jornada. ¡Sé el primero!")
+            else:
+                # Mostramos los últimos 15 mensajes ordenados de manera cronológica invertida
+                for _, msg in df_foro.tail(15).iterrows():
+                    user_msg = msg['USUARIO']
+                    txt_msg = msg['MENSAJE']
+                    hora_msg = str(msg.get('HORA', '--:--'))
+                    
+                    # Estilo mini-burbuja de chat compacto
+                    st.markdown(f"""
+                    <div style="margin-bottom: 8px; font-size: 12px; line-height: 1.3;">
+                        <span style="color: #007bff; font-weight: 800;">{user_msg}:</span>
+                        <span style="color: #222222;">{txt_msg}</span>
+                        <span style="font-size: 9px; color: #999999; margin-left: 5px;">{hora_msg}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
