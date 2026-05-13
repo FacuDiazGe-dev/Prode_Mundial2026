@@ -171,8 +171,8 @@ if estado_mantenimiento == "ON" and st.session_state.get('user_data', {}).get('R
         st.rerun()
     st.stop()
 
-aplicar_estilos_globales()
-dibujar_banner()
+#aplicar_estilos_globales()
+
 # --- SIDEBAR DE BIENVENIDA ---
 st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
 
