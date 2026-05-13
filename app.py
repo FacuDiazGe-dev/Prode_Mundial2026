@@ -1097,11 +1097,10 @@ elif menu == "🧪 Laboratorio":
         if len(top_3) > index:
             row = top_3.iloc[index]
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
-            # Limpieza de URL de foto por si es NaN o vacía
-            foto_val = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
-            # Limpiamos el nombre de insignias para el podio visual
-            nombre_limpio = row['JUGADOR'].split(' ')[0] # Solo el primer nombre
-            return nombre_limpio, row['PUNTOS'], foto_val
+            foto = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
+            # Limpiamos el nombre para que no sea excesivamente largo en el podio
+            nombre_display = row['JUGADOR'].split(' ')[0]
+            return nombre_display, row['PUNTOS'], foto
         return "-", 0, AVATAR_GENERICO
 
     n1, p1, f1 = get_podium_data(0)
@@ -1116,106 +1115,104 @@ elif menu == "🧪 Laboratorio":
     except:
         pos_usuario, pts_usuario, dif_lider = "-", 0, 0
 
-    # --- 2. RENDERIZADO DEL HERO ---
-    # Usamos dobles llaves {{ }} para que el CSS no rompa la f-string
-    st.markdown(f"""
+    # --- 2. DEFINICIÓN DEL TEMPLATE HTML/CSS (Separado para evitar errores) ---
+    html_hero = """
     <style>
-        .hero-container {{
-            background-image: linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.4)), 
+        .hero-card {{
+            background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.4)), 
                               url("https://googleapis.com");
             background-size: cover; background-position: center;
             border-radius: 20px; padding: 25px; display: flex; align-items: center;
             justify-content: space-between; color: white; font-family: sans-serif;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;
         }}
-        .stat-box {{ border-right: 1px solid rgba(255,255,255,0.2); padding-right: 30px; min-width: 160px; }}
-        .pos-big {{ font-size: 55px; font-weight: 900; color: #39FF14; line-height: 1; margin: 0; }}
-        .pts-med {{ font-size: 22px; font-weight: 700; margin: 5px 0; }}
-        
-        .podium {{ display: flex; gap: 15px; align-items: flex-end; text-align: center; }}
-        .avatar-wrap {{ position: relative; }}
-        .medalla {{ 
+        .stat-section {{ border-right: 1px solid rgba(255,255,255,0.2); padding-right: 30px; min-width: 150px; }}
+        .pos-number {{ font-size: 55px; font-weight: 900; color: #39FF14; line-height: 1; margin: 0; }}
+        .podium-section {{ display: flex; gap: 15px; align-items: flex-end; text-align: center; flex-grow: 1; justify-content: center; }}
+        .avatar-frame {{ position: relative; display: inline-block; }}
+        .badge {{ 
             position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; font-size: 12px; font-weight: bold; z-index: 5;
+            width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-size: 12px; font-weight: bold; z-index: 10;
         }}
-        .oro {{ background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }}
-        .plata {{ background: linear-gradient(45deg, #C0C0C0, #808080); color: white; }}
-        .bronce {{ background: linear-gradient(45deg, #CD7F32, #8B4513); color: white; }}
-        
-        .img-podium {{ 
-            width: 65px; height: 65px; border-radius: 50%; object-fit: cover;
-            border: 2px solid rgba(255,255,255,0.3); background: #222;
-        }}
-        .trofeo {{ width: 100px; filter: drop-shadow(0 0 15px rgba(255,215,0,0.4)); }}
+        .gold {{ background: #FFD700; color: black; }}
+        .silver {{ background: #C0C0C0; color: black; }}
+        .bronze {{ background: #CD7F32; color: white; }}
+        .img-circ {{ width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid white; }}
+        .main-trophy {{ width: 90px; filter: drop-shadow(0 0 15px gold); }}
     </style>
 
-    <div class="hero-container">
-        <div class="stat-box">
-            <p style="font-size: 13px; opacity: 0.7; margin: 0;">Tu posición actual</p>
-            <h1 class="pos-big">{pos_usuario}°</h1>
-            <p class="pts-med">{pts_usuario} pts</p>
-            <p style="font-size: 11px; opacity: 0.6; margin: 0;">{"✅ Líder" if dif_lider <= 0 else f"🚩 A {dif_lider} del 1°"}</p>
+    <div class="hero-card">
+        <div class="stat-section">
+            <p style="font-size: 12px; opacity: 0.7; margin: 0;">Tu posición</p>
+            <h1 class="pos-number">{pos}°</h1>
+            <p style="font-size: 18px; font-weight: bold; margin: 0;">{pts} pts</p>
+            <p style="font-size: 11px; opacity: 0.6; margin-top: 5px;">{dif_msg}</p>
         </div>
 
-        <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
-            <div class="podium">
-                <div>
-                    <div class="avatar-wrap">
-                        <div class="medalla plata">2</div>
-                        <img src="{f2}" class="img-podium">
-                    </div>
-                    <p style="margin: 5px 0 0 0; font-size: 13px; font-weight: 500;">{n2}</p>
-                    <p style="margin: 0; font-size: 11px; opacity: 0.7;">{p2} pts</p>
-                </div>
-                <div style="margin-top: -15px;">
-                    <div class="avatar-wrap">
-                        <div class="medalla oro">1</div>
-                        <img src="{f1}" class="img-podium" style="width: 85px; height: 85px; border-color: #FFD700;">
-                    </div>
-                    <p style="margin: 5px 0 0 0; font-size: 15px; font-weight: bold; color: #FFD700;">{n1}</p>
-                    <p style="margin: 0; font-size: 13px; opacity: 0.9;">{p1} pts</p>
-                </div>
-                <div>
-                    <div class="avatar-wrap">
-                        <div class="medalla bronce">3</div>
-                        <img src="{f3}" class="img-podium">
-                    </div>
-                    <p style="margin: 5px 0 0 0; font-size: 13px; font-weight: 500;">{n3}</p>
-                    <p style="margin: 0; font-size: 11px; opacity: 0.7;">{p3} pts</p>
-                </div>
+        <div class="podium-section">
+            <!-- 2do -->
+            <div>
+                <div class="avatar-frame"><div class="badge silver">2</div><img src="{f2}" class="img-circ"></div>
+                <p style="margin: 5px 0 0 0; font-size: 12px;">{n2}</p>
+            </div>
+            <!-- 1ro -->
+            <div style="margin-top: -20px;">
+                <div class="avatar-frame"><div class="badge gold">1</div><img src="{f1}" class="img-circ" style="width:85px; height:85px; border-color:#FFD700;"></div>
+                <p style="margin: 5px 0 0 0; font-size: 14px; font-weight: bold; color:#FFD700;">{n1}</p>
+            </div>
+            <!-- 3ro -->
+            <div>
+                <div class="avatar-frame"><div class="badge bronze">3</div><img src="{f3}" class="img-circ"></div>
+                <p style="margin: 5px 0 0 0; font-size: 12px;">{n3}</p>
             </div>
         </div>
 
-        <div>
-            <img src="https://googleapis.com" class="trofeo">
+        <div style="text-align: right;">
+            <img src="https://googleapis.com" class="main-trophy">
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """
+
+    # Inyectamos los datos en el HTML
+    dif_text = "🏆 Líder" if dif_lider <= 0 else f"🚩 A {dif_lider} pts del 1°"
+    st.markdown(html_hero.format(
+        pos=pos_usuario, pts=pts_usuario, dif_msg=dif_text,
+        n1=n1, f1=f1, n2=n2, f2=f2, n3=n3, f3=f3
+    ), unsafe_allow_html=True)
 
     # --- 3. CUERPO (GRID 2x2) ---
     c_izq, c_der = st.columns(2)
+    
     with c_izq:
-        st.subheader("🥇 Ranking")
+        st.subheader("🥇 Ranking Top 8")
         st.dataframe(df_ranking.head(8), use_container_width=True, hide_index=True, 
                      column_config={"ID_PARA_FOTO": None, "USUARIO": None})
+        
+        st.markdown("---")
+        st.subheader("📈 Evolución")
+        # Aquí puedes llamar a tu bloque de px.line del ranking
+        st.info("💡 Tip: En el celular, el Ranking se verá arriba del Foro.")
+
     with c_der:
         st.subheader("🏟️ Últimos Resultados")
-        df_recientes = df_res[df_res['VIZ'].astype(str).str.upper() == "TRUE"].sort_values('N_PARTIDO', ascending=False).head(3)
+        df_recientes = df_res[df_res['VIZ'].astype(str).str.upper() == "TRUE"].sort_values('N_PARTIDO', ascending=False).head(4)
         if df_recientes.empty:
-            st.info("No hay resultados visibles.")
+            st.write("No hay resultados visibles.")
         else:
             for _, row in df_recientes.iterrows():
                 st.markdown(f"""
-                <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: bold; width: 35%; color:black;">{row['Equipo_1']}</span>
+                <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; color: black;">
+                    <span style="font-weight: bold; width: 35%;">{row['Equipo_1']}</span>
                     <span style="background: #007bff; color: white; padding: 3px 12px; border-radius: 20px; font-weight: 800;">{int(row['R1'])} - {int(row['R2'])}</span>
-                    <span style="font-weight: bold; width: 35%; text-align: right; color:black;">{row['Equipo_2']}</span>
+                    <span style="font-weight: bold; width: 35%; text-align: right;">{row['Equipo_2']}</span>
                 </div>
                 """, unsafe_allow_html=True)
 
         st.markdown("---")
         st.subheader("💬 Foro Rápido")
         with st.container(height=300):
-            # Aquí puedes llamar a tu función de foro para que sea dinámico
-            st.write("⚽ *Últimos mensajes aquí...*")
+            st.caption("Últimos mensajes del foro...")
+            # Aquí podrías llamar a tu lógica de visualización del foro
+            st.write("💬 *Facu: ¡Qué parejo está el podio!*")
+            st.write("💬 *Pepe: México me arruinó el punto extra.*")
