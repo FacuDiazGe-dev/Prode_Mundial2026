@@ -1182,30 +1182,37 @@ elif menu == "🧪 Laboratorio":
     .podium-section {{
         flex: 0 0 75%;
         display: flex;
-        justify-content: space-around;
+        justify-content: center; 
         align-items: flex-end;
         padding: 20px;
-        gap: 15px;
+        gap: 10px; 
     }}
 
-    .pod-item {{ text-align: center; position: relative; width: 100%; }}
+    .pod-item {{ 
+        text-align: center; 
+        position: relative; 
+        width: 120px;
+    }}    
     
     .av-wrap {{ position: relative; display: inline-block; }}
+    
     .av-img {{ 
         border-radius: 50% !important; object-fit: cover !important; aspect-ratio: 1/1 !important;
         border: 2px solid rgba(255,255,255,0.2);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        display: block;
+        margin: 0 auto;
     }}
     
-    .pod-name {{ font-weight: 700; font-size: 12px; margin-top: 10px; text-transform: uppercase; }}
-    .pod-pts {{ font-size: 10px; opacity: 0.5; font-weight: 700; }}
+    .pod-name {{ font-weight: 800; font-size: 13px; margin-top: 12px; text-transform: uppercase; letter-spacing: 0.5px; }}
+    .pod-pts {{ font-size: 12px; opacity: 0.6; font-weight: 700; }}
 
     .b-rank {{
-        position: absolute; top: -2px; right: -2px;
-        width: 18px; height: 18px; border-radius: 50%;
+        position: absolute; top: 2px; right: 2px;
+        width: 22px; height: 22px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        font-size: 9px; font-weight: 900; z-index: 10;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+        font-size: 10px; font-weight: 900; z-index: 10;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
     }}
 
     @media (max-width: 600px) {{
@@ -1236,7 +1243,7 @@ elif menu == "🧪 Laboratorio":
 <div class="pod-item">
 <div class="av-wrap">
     <div class="b-rank" style="background:#b0b0b0; color:black;">2</div>
-    <img src="{f2}" class="av-img" style="width:60px; height:60px;">
+    <img src="{f2}" class="av-img" style="width:80px; height:80px;">
 </div>
 <div class="pod-name">{n2}</div>
 <div class="pod-pts">{p2} PTS.</div>
@@ -1246,7 +1253,7 @@ elif menu == "🧪 Laboratorio":
 <div class="pod-item">
 <div class="av-wrap">
     <div class="b-rank" style="background:#F4C542; color:black;">1</div>
-    <img src="{f1}" class="av-img" style="width:85px; height:85px; border-color:#F4C542; border-width:3px;">
+    <img src="{f1}" class="av-img" style="width:110px; height:110px; border-color:#F4C542; border-width:3px;">
 </div>
 <div class="pod-name" style="color:#F4C542;">{n1}</div>
 <div class="pod-pts" style="color:#F4C542; opacity:0.8;">{p1} PTS.</div>
@@ -1256,7 +1263,7 @@ elif menu == "🧪 Laboratorio":
 <div class="pod-item">
 <div class="av-wrap">
     <div class="b-rank" style="background:#cd7f32; color:white;">3</div>
-    <img src="{f3}" class="av-img" style="width:60px; height:60px;">
+    <img src="{f3}" class="av-img" style="width:80px; height:80px;">
 </div>
 <div class="pod-name">{n3}</div>
 <div class="pod-pts">{p3} PTS.</div>
