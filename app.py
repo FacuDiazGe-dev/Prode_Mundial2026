@@ -1090,34 +1090,34 @@ elif menu == "⚙️ Panel Control":
         st.error("⛔ No tienes permisos para acceder a esta sección.")
 
 elif menu == "🧪 Laboratorio":
-    # --- 1. PREPARACIÓN DE DATOS (Cerebro del Hero) ---
+    # --- 1. PREPARACIÓN DE DATOS ---
     top_3 = df_ranking.head(3)
     
-    # Extraemos info de los líderes (Seguro ante tablas vacías)
     def get_podium_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
-            # Buscamos su foto real en df_usuarios
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
-            foto = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and u_info['AVATAR_URL'].iloc[0] else AVATAR_GENERICO
-            return row['JUGADOR'], row['PUNTOS'], foto
+            # Limpieza de URL de foto por si es NaN o vacía
+            foto_val = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
+            # Limpiamos el nombre de insignias para el podio visual
+            nombre_limpio = row['JUGADOR'].split(' ')[0] # Solo el primer nombre
+            return nombre_limpio, row['PUNTOS'], foto_val
         return "-", 0, AVATAR_GENERICO
 
     n1, p1, f1 = get_podium_data(0)
     n2, p2, f2 = get_podium_data(1)
     n3, p3, f3 = get_podium_data(2)
 
-    # Info del usuario logueado
     try:
-        # Encontramos la posición real en el ranking
-        pos_usuario = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']].index[0] + 1
-        pts_usuario = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]['PUNTOS'].iloc[0]
-        # Diferencia con el 1ro
+        user_row = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
+        pos_usuario = user_row.index[0] + 1
+        pts_usuario = user_row['PUNTOS'].iloc[0]
         dif_lider = int(p1 - pts_usuario)
     except:
         pos_usuario, pts_usuario, dif_lider = "-", 0, 0
 
-    # --- 2. DISEÑO DEL HERO (ESTILO ELITE) ---
+    # --- 2. RENDERIZADO DEL HERO ---
+    # Usamos dobles llaves {{ }} para que el CSS no rompa la f-string
     st.markdown(f"""
     <style>
         .hero-container {{
@@ -1125,11 +1125,11 @@ elif menu == "🧪 Laboratorio":
                               url("https://googleapis.com");
             background-size: cover; background-position: center;
             border-radius: 20px; padding: 25px; display: flex; align-items: center;
-            justify-content: space-between; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            justify-content: space-between; color: white; font-family: sans-serif;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;
         }}
-        .stat-box {{ border-right: 1px solid rgba(255,255,255,0.2); padding-right: 30px; min-width: 180px; }}
-        .pos-big {{ font-size: 55px; font-weight: 900; color: #39FF14; line-height: 1; margin: 0; text-shadow: 0 0 15px rgba(57,255,20,0.4); }}
+        .stat-box {{ border-right: 1px solid rgba(255,255,255,0.2); padding-right: 30px; min-width: 160px; }}
+        .pos-big {{ font-size: 55px; font-weight: 900; color: #39FF14; line-height: 1; margin: 0; }}
         .pts-med {{ font-size: 22px; font-weight: 700; margin: 5px 0; }}
         
         .podium {{ display: flex; gap: 15px; align-items: flex-end; text-align: center; }}
@@ -1137,9 +1137,9 @@ elif menu == "🧪 Laboratorio":
         .medalla {{ 
             position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
             width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; font-size: 12px; font-weight: bold; z-index: 2;
+            justify-content: center; font-size: 12px; font-weight: bold; z-index: 5;
         }}
-        .oro {{ background: linear-gradient(45deg, #FFD700, #FFA500); color: black; box-shadow: 0 0 10px #FFD700; }}
+        .oro {{ background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }}
         .plata {{ background: linear-gradient(45deg, #C0C0C0, #808080); color: white; }}
         .bronce {{ background: linear-gradient(45deg, #CD7F32, #8B4513); color: white; }}
         
@@ -1148,24 +1148,17 @@ elif menu == "🧪 Laboratorio":
             border: 2px solid rgba(255,255,255,0.3); background: #222;
         }}
         .trofeo {{ width: 100px; filter: drop-shadow(0 0 15px rgba(255,215,0,0.4)); }}
-        
-        @media (max-width: 800px) {{
-            .hero-container {{ flex-direction: column; text-align: center; gap: 20px; }}
-            .stat-box {{ border-right: none; padding-right: 0; }}
-            .podium {{ transform: scale(0.9); }}
-        }}
     </style>
 
     <div class="hero-container">
         <div class="stat-box">
             <p style="font-size: 13px; opacity: 0.7; margin: 0;">Tu posición actual</p>
             <h1 class="pos-big">{pos_usuario}°</h1>
-            <p class="pts-med">{pts_usuario} puntos</p>
-            <p style="font-size: 11px; opacity: 0.6; margin: 0;">{"✅ Líder absoluto" if dif_lider <= 0 else f"🚩 A {dif_lider} pts del líder"}</p>
+            <p class="pts-med">{pts_usuario} pts</p>
+            <p style="font-size: 11px; opacity: 0.6; margin: 0;">{"✅ Líder" if dif_lider <= 0 else f"🚩 A {dif_lider} del 1°"}</p>
         </div>
 
         <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
-            <p style="font-size: 14px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">Podio Actual</p>
             <div class="podium">
                 <div>
                     <div class="avatar-wrap">
@@ -1194,38 +1187,30 @@ elif menu == "🧪 Laboratorio":
             </div>
         </div>
 
-        <div class="trofeo-box">
+        <div>
             <img src="https://googleapis.com" class="trofeo">
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # --- 3. CUERPO EN DOS COLUMNAS ---
-    col_izq, col_der = st.columns(2)
-
-    with col_izq:
-        st.subheader("🥇 Top 5 Ranking")
-        st.dataframe(df_ranking.head(5), use_container_width=True, hide_index=True, 
+    # --- 3. CUERPO (GRID 2x2) ---
+    c_izq, c_der = st.columns(2)
+    with c_izq:
+        st.subheader("🥇 Ranking")
+        st.dataframe(df_ranking.head(8), use_container_width=True, hide_index=True, 
                      column_config={"ID_PARA_FOTO": None, "USUARIO": None})
-        
-        st.markdown("---")
-        st.subheader("📈 Mi Evolución")
-        # Aquí puedes llamar al bloque del gráfico que ya tenemos en ranking_logic
-        st.info("💡 Consejo: En móviles, este bloque aparecerá debajo del podio.")
-
-    with col_der:
+    with c_der:
         st.subheader("🏟️ Últimos Resultados")
         df_recientes = df_res[df_res['VIZ'].astype(str).str.upper() == "TRUE"].sort_values('N_PARTIDO', ascending=False).head(3)
-        
         if df_recientes.empty:
-            st.write("No hay resultados recientes.")
+            st.info("No hay resultados visibles.")
         else:
             for _, row in df_recientes.iterrows():
                 st.markdown(f"""
-                <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                    <span style="font-weight: bold; width: 35%;">{row['Equipo_1']}</span>
+                <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold; width: 35%; color:black;">{row['Equipo_1']}</span>
                     <span style="background: #007bff; color: white; padding: 3px 12px; border-radius: 20px; font-weight: 800;">{int(row['R1'])} - {int(row['R2'])}</span>
-                    <span style="font-weight: bold; width: 35%; text-align: right;">{row['Equipo_2']}</span>
+                    <span style="font-weight: bold; width: 35%; text-align: right; color:black;">{row['Equipo_2']}</span>
                 </div>
                 """, unsafe_allow_html=True)
 
