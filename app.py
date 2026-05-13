@@ -1127,8 +1127,8 @@ elif menu == "🧪 Laboratorio":
                 url('https://googleapis.com');
     background-size: cover; background-position: center 20%;
     border-radius: 30px; 
-    padding: 50px 60px;
-    min-height: 250px;
+    padding: 30px 50px;
+    min-height: 230px;
     display: flex; flex-direction: column; justify-content: center;
     color: white; box-shadow: 0 35px 70px -15px rgba(0,0,0,0.95);
     border: 1px solid rgba(255,255,255,0.08);
@@ -1137,16 +1137,16 @@ elif menu == "🧪 Laboratorio":
 
 /* TÍTULO INTEGRADO */
 .main-header {{
-    text-align: center; margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding-bottom: 20px;
+    text-align: center; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
 }}
 .header-title {{
-    font-family: 'Montserrat', sans-serif; font-size: 28x; font-weight: 900;
+    font-family: 'Montserrat', sans-serif; font-size: 22x; font-weight: 900;
     letter-spacing: 1px; text-transform: uppercase; margin: 0;
     text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
 }}
 .header-sub {{
-    font-size: 15px; opacity: 0.65; letter-spacing: 1px; font-weight: 400; margin-top: 5px;
+    font-size: 12px; opacity: 0.65; letter-spacing: 1px; font-weight: 400; margin-top: 5px;
 }}
 
 .content-row {{
@@ -1155,7 +1155,7 @@ elif menu == "🧪 Laboratorio":
 
 .left-block {{
     display: flex; flex-direction: column; justify-content: center;
-    min-width: 280px; border-right: 1px solid rgba(255,255,255,0.08);
+    min-width: 200px; border-right: 1px solid rgba(255,255,255,0.08);
     padding-right: 40px; height: 160px;
 }}
 
