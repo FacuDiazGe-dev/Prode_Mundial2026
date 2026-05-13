@@ -1091,7 +1091,7 @@ elif menu == "⚙️ Panel Control":
 
 
 elif menu == "🧪 Laboratorio":
-    # --- 1. PREPARACIÓN DE DATOS ---
+    # --- 1. PREPARACIÓN DE DATOS REALES ---
     top_3 = df_ranking.head(3)
     
     def get_podium_data(index):
@@ -1099,7 +1099,8 @@ elif menu == "🧪 Laboratorio":
             row = top_3.iloc[index]
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
             foto = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
-            nombre_display = str(row['JUGADOR']).split(' ')[0] # Solo primer nombre para no amontonar
+            # Limpiamos el nombre (primer nombre) para el podio
+            nombre_display = str(row['JUGADOR']).split(' ')[0]
             return nombre_display, row['PUNTOS'], foto
         return "-", 0, AVATAR_GENERICO
 
@@ -1112,72 +1113,129 @@ elif menu == "🧪 Laboratorio":
         pos_usuario = user_row.index[0] + 1
         pts_usuario = user_row['PUNTOS'].iloc[0]
         dif_lider = int(p1 - pts_usuario)
+        dif_text = "🏆 Líder" if dif_lider <= 0 else f"🚩 A {dif_lider} pts del 1°"
     except:
-        pos_usuario, pts_usuario, dif_lider = "-", 0, 0
+        pos_usuario, pts_usuario, dif_text = "-", 0, "Cargando..."
 
-    # --- 2. ESTILOS CSS (Bloque independiente para no romper el format) ---
-    st.markdown("""
+    # --- 2. HERO HTML CON LLAVES ESCAPEADAS {{ }} ---
+    html_hero = f"""
     <style>
-        .hero-card {
-            background-image: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.4)), 
-                              url("https://googleapis.com");
-            background-size: cover; background-position: center;
-            border-radius: 20px; padding: 25px; display: flex; align-items: center;
-            justify-content: space-between; color: white; font-family: sans-serif;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;
-        }
-        .stat-section { border-right: 1px solid rgba(255,255,255,0.2); padding-right: 30px; min-width: 150px; }
-        .pos-number { font-size: 55px; font-weight: 900; color: #39FF14; line-height: 1; margin: 0; }
-        .podium-section { display: flex; gap: 15px; align-items: flex-end; text-align: center; flex-grow: 1; justify-content: center; }
-        .avatar-frame { position: relative; display: inline-block; }
-        .badge { 
-            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; font-size: 12px; font-weight: bold; z-index: 10;
-        }
-        .gold { background: #FFD700; color: black; }
-        .silver { background: #C0C0C0; color: black; }
-        .bronze { background: #CD7F32; color: white; }
-        .img-circ { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid white; background: #222; }
-        .main-trophy { width: 90px; filter: drop-shadow(0 0 15px gold); }
+    .hero-card {{
+        background-image:
+            linear-gradient(to right, rgba(0,0,0,0.88), rgba(0,0,0,0.45)),
+            url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1920');
+        background-size: cover;
+        background-position: center;
+        border-radius: 24px;
+        padding: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+        font-family: sans-serif;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        margin-bottom: 30px;
+        gap: 30px;
+        min-height: 240px;
+    }}
+    .stat-section {{
+        border-right: 1px solid rgba(255,255,255,0.15);
+        padding-right: 35px;
+        min-width: 180px;
+    }}
+    .pos-number {{
+        font-size: 68px;
+        font-weight: 900;
+        line-height: 1;
+        margin: 0;
+        color: #F4C542;
+    }}
+    .podium-section {{
+        display: flex;
+        gap: 25px;
+        align-items: flex-end;
+        text-align: center;
+        flex-grow: 1;
+        justify-content: center;
+    }}
+    .avatar-frame {{
+        position: relative;
+        display: inline-block;
+    }}
+    .badge {{
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: bold;
+        z-index: 10;
+    }}
+    .gold {{ background: #FFD700; color: black; }}
+    .silver {{ background: #C0C0C0; color: black; }}
+    .bronze {{ background: #CD7F32; color: white; }}
+    .img-circ {{
+        width: 75px; height: 75px;
+        border-radius: 50%; object-fit: cover;
+        border: 3px solid white;
+    }}
+    .first-place {{ width: 95px; height: 95px; border-color: #FFD700; }}
+    @media (max-width: 768px) {{
+        .hero-card {{ flex-direction: column; text-align: center; }}
+        .stat-section {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 20px; }}
+    }}
     </style>
-    """, unsafe_allow_html=True)
 
-    # --- 3. ESTRUCTURA HTML (Con f-string limpia) ---
-    dif_text = "🏆 Líder" if dif_lider <= 0 else f"🚩 A {dif_lider} pts del 1°"
-    
-    st.markdown(f"""
     <div class="hero-card">
         <div class="stat-section">
-            <p style="font-size: 12px; opacity: 0.7; margin: 0;">Tu posición</p>
+            <p style="font-size: 15px; opacity: 0.7; margin: 0;">Tu posición actual</p>
             <h1 class="pos-number">{pos_usuario}°</h1>
-            <p style="font-size: 18px; font-weight: bold; margin: 0;">{pts_usuario} pts</p>
-            <p style="font-size: 11px; opacity: 0.6; margin-top: 5px;">{dif_text}</p>
+            <p style="font-size: 22px; font-weight: bold; margin: 0;">{pts_usuario} puntos</p>
+            <p style="font-size: 12px; opacity: 0.7; margin-top: 6px;">{dif_text}</p>
         </div>
 
         <div class="podium-section">
-            <!-- 2do -->
+            <!-- Segundo -->
             <div>
-                <div class="avatar-frame"><div class="badge silver">2</div><img src="{f2}" class="img-circ"></div>
-                <p style="margin: 5px 0 0 0; font-size: 12px;">{n2}</p>
+                <div class="avatar-frame">
+                    <div class="badge silver">2</div>
+                    <img src="{f2}" class="img-circ">
+                </div>
+                <div style="margin-top: 8px; font-size: 14px;">{n2}</div>
+                <div style="font-size: 12px; opacity: 0.8;">{p2} pts</div>
             </div>
-            <!-- 1ro -->
-            <div style="margin-top: -20px;">
-                <div class="avatar-frame"><div class="badge gold">1</div><img src="{f1}" class="img-circ" style="width:85px; height:85px; border-color:#FFD700;"></div>
-                <p style="margin: 5px 0 0 0; font-size: 14px; font-weight: bold; color:#FFD700;">{n1}</p>
-            </div>
-            <!-- 3ro -->
-            <div>
-                <div class="avatar-frame"><div class="badge bronze">3</div><img src="{f3}" class="img-circ"></div>
-                <p style="margin: 5px 0 0 0; font-size: 12px;">{n3}</p>
-            </div>
-        </div>
 
-        <div style="text-align: right;">
-            <img src="https://googleapis.com" class="main-trophy">
+            <!-- Primero -->
+            <div style="margin-top:-25px;">
+                <div class="avatar-frame">
+                    <div class="badge gold">1</div>
+                    <img src="{f1}" class="img-circ first-place">
+                </div>
+                <div style="margin-top: 8px; font-size: 16px; font-weight:bold; color:#FFD700;">{n1}</div>
+                <div style="font-size: 14px; opacity: 0.9; color:#FFD700;">{p1} pts</div>
+            </div>
+
+            <!-- Tercero -->
+            <div>
+                <div class="avatar-frame">
+                    <div class="badge bronze">3</div>
+                    <img src="{f3}" class="img-circ">
+                </div>
+                <div style="margin-top: 8px; font-size: 14px;">{n3}</div>
+                <div style="font-size: 12px; opacity: 0.8;">{p3} pts</div>
+            </div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """
+
+    st.markdown(html_hero, unsafe_allow_html=True)
 
 
     # --- 3. CUERPO (GRID 2x2) ---
