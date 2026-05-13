@@ -207,7 +207,6 @@ with st.sidebar:
 #------------------------------------------------MENU INICIO-----------------------------------------------
 
 if menu == "🏠 Inicio":
-elif menu == "🧪 Laboratorio":
     # --- 1. DATOS ---
     top_3 = df_ranking.head(3)
     
