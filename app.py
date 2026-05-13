@@ -1205,51 +1205,51 @@ elif menu == "🧪 Laboratorio":
     </style>
 
 <div class="hero-card">
-    <!-- Panel Izquierdo -->
-    <div class="user-sidebar">
-        <div class="sidebar-label">Tu Posición</div>
-        <h1 class="pos-big">{pos_display}°</h1>
-        <div class="pts-row">
-            <span class="pts-val">{pts_usr}</span> <span class="pts-label">Pts</span>
-        </div>
-        <div class="status-msg">{dif_ref}</div>
+<!-- Panel Izquierdo -->
+<div class="user-sidebar">
+    <div class="sidebar-label">Tu Posición</div>
+    <h1 class="pos-big">{pos_display}°</h1>
+    <div class="pts-row">
+        <span class="pts-val">{pts_usr}</span> <span class="pts-label">Pts</span>
     </div>
-
-    <!-- Panel Derecho -->
-    <div class="main-content">
-        <div class="header-group">
-            <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
-            <div class="header-sub">¡La gloria está en tus predicciones!</div>
-        </div>
-
-        <div class="podium-row">
-            <!-- 2do -->
-            <div class="p-item">
-                <div class="badge-v" style="background:#C0C0C0; color:black;">2</div>
-                <img src="{f2}" class="avatar-img" style="width:60px;">
-                <div class="p-name">{n2}</div>
-                <div class="p-score">{p2} Pts.</div>
-            </div>
-
-            <!-- 1ro -->
-            <div class="p-item">
-                <div class="badge-v" style="background:#FFD700; color:black;">1</div>
-                <img src="{f1}" class="avatar-img" style="width:85px; border-color:#FFD700;">
-                <div class="p-name" style="color:#FFD700;">{n1}</div>
-                <div class="p-score" style="color:#FFD700;">{p1} Pts.</div>
-            </div>
-
-            <!-- 3ro -->
-            <div class="p-item">
-                <div class="badge-v" style="background:#CD7F32; color:white;">3</div>
-                <img src="{f3}" class="avatar-img" style="width:60px;">
-                <div class="p-name">{n3}</div>
-                <div class="p-score">{p3} Pts.</div>
-            </div>
-        </div>
-    </div>
+    <div class="status-msg">{dif_ref}</div>
 </div>
-    """)
+
+<!-- Panel Derecho -->
+<div class="main-content">
+<div class="header-group">
+    <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
+    <div class="header-sub">¡La gloria está en tus predicciones!</div>
+</div>
+
+<div class="podium-row">
+<!-- 2do -->
+<div class="p-item">
+    <div class="badge-v" style="background:#C0C0C0; color:black;">2</div>
+    <img src="{f2}" class="avatar-img" style="width:60px;">
+    <div class="p-name">{n2}</div>
+    <div class="p-score">{p2} Pts.</div>
+</div>
+
+<!-- 1ro -->
+<div class="p-item">
+    <div class="badge-v" style="background:#FFD700; color:black;">1</div>
+    <img src="{f1}" class="avatar-img" style="width:85px; border-color:#FFD700;">
+    <div class="p-name" style="color:#FFD700;">{n1}</div>
+    <div class="p-score" style="color:#FFD700;">{p1} Pts.</div>
+</div>
+
+<!-- 3ro -->
+<div class="p-item">
+    <div class="badge-v" style="background:#CD7F32; color:white;">3</div>
+    <img src="{f3}" class="avatar-img" style="width:60px;">
+    <div class="p-name">{n3}</div>
+    <div class="p-score">{p3} Pts.</div>
+</div>
+</div>
+</div>
+</div>
+""")
 
     st.markdown(html_hero, unsafe_allow_html=True)
     
