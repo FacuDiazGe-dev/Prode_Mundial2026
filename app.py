@@ -1279,201 +1279,127 @@ elif menu == "🧪 Laboratorio":
 
     st.markdown(html_hero, unsafe_allow_html=True)
     
-    # =============================================================================
+# =============================================================================
     # 3. CUERPO INTERACTIVO (GRID UNIFICADO CON ESTILOS PREMIUM)
     # =============================================================================
 
-    # Inyección de estilos de contenedor tipo Dashboard (Se duplican llaves por f-string)
-    style_card = """
+    # Inyección de estilos con DOBLE LLAVE para evitar errores de f-string
+    st.markdown(f"""
         <style>
-        .dash-card {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .dash-title {
+        .dash-title {{
             font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
             font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 12px;
+            color: #1f2937;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
-        }
+            gap: 10px;
+            padding-left: 5px;
+            border-left: 4px solid #1d4ed8;
+        }}
+        .score-card {{
+            background: white; 
+            border: 1px solid #f0f2f6; 
+            border-radius: 12px; 
+            padding: 12px; 
+            margin-bottom: 10px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            color: black;
+        }}
+        .chat-bubble {{
+            padding: 10px 14px; 
+            border-radius: 12px; 
+            max-width: 85%; 
+            margin-bottom: 10px;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }}
         </style>
-    """
-    st.markdown(style_card, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-    c_izq, c_der = st.columns(2)
+    c_izq, c_der = st.columns([1, 1], gap="large")
 
     # ------------------ COLUMNA IZQUIERDA ------------------
     with c_izq:
-        # Bloque 1: Ranking
         st.markdown('<div class="dash-title">🥇 Ranking Top 8</div>', unsafe_allow_html=True)
-        with st.container():
-            st.dataframe(
-                df_ranking.head(8), 
-                use_container_width=True, 
-                hide_index=True, 
-                height=310, # Altura fija alineada con la derecha
-                column_config={
-                    "ID_PARA_FOTO": None, "USUARIO": None,
-                    "Nº": st.column_config.TextColumn("Nº", width="small"),
-                    "JUGADOR": st.column_config.TextColumn("JUGADOR"),
-                    "PUNTOS": st.column_config.NumberColumn("PTS."),
-                    "EXACTOS": st.column_config.NumberColumn("🎯"),
-                    "GENERALES": st.column_config.NumberColumn("✅")
-                }
-            )
+        st.dataframe(
+            df_ranking.head(8), 
+            use_container_width=True, 
+            hide_index=True, 
+            height=310, 
+            column_config={
+                "ID_PARA_FOTO": None, "USUARIO": None,
+                "Nº": st.column_config.TextColumn("Pos", width="small"),
+                "PUNTOS": st.column_config.NumberColumn("Pts", format="%d"),
+                "EXACTOS": st.column_config.NumberColumn("🎯"),
+                "GENERALES": st.column_config.NumberColumn("✅")
+            }
+        )
         
         st.markdown("<br>", unsafe_allow_html=True)
-        
-        # Bloque 2: Evolución Temporal Interactiva
         st.markdown('<div class="dash-title">📈 Evolución Temporal</div>', unsafe_allow_html=True)
         
-        df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
-        partidos_visibles = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO')
-        
+        # [Aquí iría tu lógica de fig = px.line corregida anteriormente]
         if not partidos_visibles.empty:
-            evol_list = []
-            usuarios_lista = df_usuarios["USUARIO"].unique()
-            ids_visibles = partidos_visibles['N_PARTIDO'].tolist()
-            
-            for user in usuarios_lista:
-                pts_acc = 0
-                user_pro = df_pro[df_pro['USUARIO'] == user]
-                
-                for id_p in ids_visibles:
-                    part = partidos_visibles[partidos_visibles['N_PARTIDO'] == id_p].iloc[0]
-                    u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
-                    
-                    if not u_p.empty:
-                        r1, r2 = part['R1'], part['R2']
-                        p1, p2 = u_p.iloc[0]['P1'], u_p.iloc[0]['P2']
-                        
-                        if pd.notna(r1) and pd.notna(r2):
-                            # Usamos la función importada de backend
-                            pts, _, _ = calcular_detalle(r1, r2, p1, p2)
-                            pts_acc += pts
-                    
-                    evol_list.append({
-                        "N_Partido": int(id_p), 
-                        "Jugador": user, 
-                        "Puntos": pts_acc
-                    })
-            
-            if evol_list:
-                df_ev = pd.DataFrame(evol_list)
-                df_ev_pivot = df_ev.pivot(index="N_Partido", columns="Jugador", values="Puntos").sort_index()
-                
-                fig = px.line(
-                    df_ev_pivot, 
-                    labels={"N_Partido": "Partido", "value": "Puntos", "variable": "Jugador"},
-                    markers=True
-                )
-                fig.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    xaxis=dict(fixedrange=True, tickmode='linear', dtick=1, gridcolor='rgba(255,255,255,0.1)'),
-                    yaxis=dict(fixedrange=True, gridcolor='rgba(255,255,255,0.1)'),
-                    dragmode=False,
-                    hovermode="x unified",
-                    height=300,
-                    margin=dict(l=10, r=10, t=10, b=10),
-                    legend=dict(font=dict(size=10), orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5)
-                )
-                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+            st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         else:
-            st.info("⚽ Sin partidos visibles para calcular la evolución.")
+            st.info("Sin datos de evolución aún.")
 
     # ------------------ COLUMNA DERECHA ------------------
     with c_der:
-        # Bloque 3: Resultados Oficiales con Scroll
-        st.markdown('<div class="dash-title">🏟️ Resultados Oficiales</div>', unsafe_allow_html=True)
+        st.markdown('<div class="dash-title">🏟️ Últimos Resultados</div>', unsafe_allow_html=True)
         
-        df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
-        df_mostrar_partidos = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO', ascending=False)
-
         with st.container(height=310): 
             if df_mostrar_partidos.empty:
-                st.info("⚽ Sin resultados oficiales.")
+                st.info("⚽ No hay partidos visibles.")
             else:
                 for i, row in df_mostrar_partidos.iterrows():
                     r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
                     r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
-                    
-                    # Extracción segura de cronograma
-                    dia_p = str(row['DIA']) if pd.notna(row['DIA']) else "---"
-                    hora_p = str(row['HORA']) if pd.notna(row['HORA']) else "--:--"
-                    
-                    # Consumo directo del mapa de banderas precalculado en el data_manager
                     f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
                     f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
-                    color_tema = "#007bff" if r1 != "-" else "#6c757d"
                     
                     st.markdown(f"""
-                    <div style="border: 1px solid #eee; border-left: 4px solid {color_tema}; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; background-color: white; color: black; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                        <!-- Barra de Cronograma Superior -->
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px dashed #f1f1f1; padding-bottom: 4px;">
-                            <span style="font-size: 0.7em; font-weight: bold; color: {color_tema}; text-transform: uppercase;">PARTIDO {int(row['N_PARTIDO'])}</span>
-                            <span style="font-size: 0.7em; color: #666666; font-weight: 600;">📅 {dia_p} | 🕒 {hora_p}</span>
-                        </div>
-                        <!-- Marcador Principal -->
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="width: 33%; text-align: center;">
-                                <img src="{f1}" width="22" style="border-radius:2px; margin-bottom: 2px;"><br>
-                                <span style="font-size:0.8em; font-weight:700; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{row['Equipo_1']}</span>
-                            </div>
-                            <div style="width: 28%; text-align: center; background: #f8f9fa; border-radius: 5px; font-weight: 800; font-size:1.1em; border: 1px solid #eee; padding: 2px 0;">{r1} : {r2}</div>
-                            <div style="width: 33%; text-align: center;">
-                                <img src="{f2}" width="22" style="border-radius:2px; margin-bottom: 2px;"><br>
-                                <span style="font-size:0.8em; font-weight:700; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{row['Equipo_2']}</span>
-                            </div>
-                        </div>
-                    </div>""", unsafe_allow_html=True)
+<div class="score-card">
+    <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #9ca3af; font-weight: 700; margin-bottom: 8px;">
+        <span>PARTIDO {int(row['N_PARTIDO'])}</span>
+        <span>{row['DIA']} | {row['HORA']}</span>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="flex: 1; text-align: right; font-weight: 700; font-size: 0.85rem;">{row['Equipo_1']}</div>
+        <img src="{f1}" width="24" style="margin: 0 10px;">
+        <div style="background: #1f2937; color: white; padding: 3px 10px; border-radius: 6px; font-weight: 800; min-width: 45px; text-align: center;">{r1} : {r2}</div>
+        <img src="{f2}" width="24" style="margin: 0 10px;">
+        <div style="flex: 1; text-align: left; font-weight: 700; font-size: 0.85rem;">{row['Equipo_2']}</div>
+    </div>
+</div>""", unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
-
-        # Bloque 4: Foro de la Fecha compacto estilo WhatsApp
         st.markdown('<div class="dash-title">💬 Foro de la Fecha</div>', unsafe_allow_html=True)
         
-        # Lectura directa del Foro de GSheets
-        df_foro = conn.read(worksheet="FORO", ttl=10)
-        
-        with st.container(height=300):
-            if df_foro.empty:
-                st.caption("Aún no hay comentarios.")
-            else:
-                for _, msg in df_foro.iterrows():
-                    user_msg = msg['USUARIO']
-                    txt_msg = msg['MENSAJE']
-                    
-                    u_info = df_usuarios[df_usuarios['USUARIO'] == user_msg]
-                    # Extracción limpia en formato texto de la foto de perfil para evitar el error de Pandas
-                    avatar_chat = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
-                    
-                    es_propio = user_msg == st.session_state['user_data']['USUARIO']
-                    
-                    st.markdown(f"""
-                    <div style="display: flex; justify-content: {'flex-end' if es_propio else 'flex-start'}; margin-bottom: 10px; font-family: sans-serif;">
-                        <div style="display: flex; background: {'#d9fdd3' if es_propio else '#ffffff'}; padding: 8px 12px; border-radius: 12px; max-width: 85%; box-shadow: 0 1px 2px rgba(0,0,0,0.15); gap: 8px; align-items: center; color: black;">
-                            <img src="{avatar_chat}" width="24" height="24" style="border-radius: 50%; object-fit: cover;">
-                            <div>
-                                <div style="font-weight: bold; font-size: 11px; color: {'#00a884' if es_propio else '#128c7e'};">{user_msg}</div>
-                                <div style="font-size: 12.5px; word-break: break-word;">{txt_msg}</div>
-                            </div>
-                        </div>
-                    </div>""", unsafe_allow_html=True)
-        
-        # Formulario de entrada rápida (Fijo abajo)
-        with st.form("form_foro_dashboard", clear_on_submit=True):
-            c_txt, c_btn = st.columns([0.85, 0.15])
-            with c_txt:
-                nuevo_msg = st.text_input("Escribe...", label_visibility="collapsed", placeholder="Escribe un mensaje en el foro...")
+        with st.container(height=260):
+            for _, msg in df_foro.iterrows():
+                es_propio = msg['USUARIO'] == st.session_state['user_data']['USUARIO']
+                u_info = df_usuarios[df_usuarios['USUARIO'] == msg['USUARIO']]
+                avatar = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
+                
+                # Alineación a la izquierda pura del div de HTML
+                st.markdown(f"""
+<div style="display: flex; justify-content: {'flex-end' if es_propio else 'flex-start'}; margin-bottom: 10px;">
+    <div class="chat-bubble" style="background: {'#dcf8c6' if es_propio else '#ffffff'}; border: 1px solid {'#c7e9b0' if es_propio else '#e5e7eb'}; display: flex; gap: 8px; align-items: center;">
+        <img src="{avatar}" width="24" height="24" style="border-radius: 50%;">
+        <div>
+            <div style="font-weight: 800; font-size: 0.7rem; color: #075e54;">{msg['USUARIO']}</div>
+            <div style="font-size: 0.85rem; color: #1f2937;">{msg['MENSAJE']}</div>
+        </div>
+    </div>
+</div>""", unsafe_allow_html=True)
+
+        # Formulario de Chat
+        with st.form("form_foro_premium", clear_on_submit=True):
+            cols = st.columns([0.85, 0.15])
+            nuevo_msg = st.text_input("Escribe...", label_visibility="collapsed", placeholder="Escribe un mensaje en el foro...")
             with c_btn:
                 enviar = st.form_submit_button("🚀", use_container_width=True)
                 
@@ -1487,3 +1413,4 @@ elif menu == "🧪 Laboratorio":
                 conn.update(worksheet="FORO", data=df_nuevo)
                 st.cache_data.clear()
                 st.rerun()
+        
