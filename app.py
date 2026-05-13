@@ -1406,36 +1406,6 @@ elif menu == "🧪 Laboratorio":
                     r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
                     r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
                     
-                    # Consumo directo del mapa de banderas precalculado en el data_manager
-                    f1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
-                    f2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
-                    color_tema = "#007bff" if r1 != "-" else "#6c757d"
-                    
-                    st.markdown(f"""
-                    <div style="border: 1px solid #eee; border-left: 4px solid {color_tema}; border-radius: 8px; padding: 10px; margin-bottom: 8px; background-color: white; color: black;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="width: 30%; text-align: center;"><img src="{f1}" width="22" style="border-radius:2px;"><br><span style="font-size:0.8em; font-weight:700;">{row['Equipo_1']}</span></div>
-                            <div style="width: 30%; text-align: center; background: #f8f9fa; border-radius: 5px; font-weight: 800; font-size:1.1em; border: 1px solid #eee;">{r1} : {r2}</div>
-                            <div style="width: 30%; text-align: center;"><img src="{f2}" width="22" style="border-radius:2px;"><br><span style="font-size:0.8em; font-weight:700;">{row['Equipo_2']}</span></div>
-                        </div>
-                    </div>""", unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        # Bloque 4: Foro de la Fecha compacto estilo WhatsApp
-        st.markdown('<div class="dash-title">💬 Foro de la Fecha</div>', unsafe_allow_html=True)
-        
-        # Lectura directa del Foro de GSheets
-        df_foro = conn.read(worksheet="FORO", ttl=10)
-        
-        with st.container(height=310): 
-            if df_mostrar_partidos.empty:
-                st.info("⚽ Sin resultados oficiales.")
-            else:
-                for i, row in df_mostrar_partidos.iterrows():
-                    r1 = int(row['R1']) if pd.notna(row['R1']) else "-"
-                    r2 = int(row['R2']) if pd.notna(row['R2']) else "-"
-                    
                     # Extracción segura de cronograma
                     dia_p = str(row['DIA']) if pd.notna(row['DIA']) else "---"
                     hora_p = str(row['HORA']) if pd.notna(row['HORA']) else "--:--"
@@ -1462,6 +1432,39 @@ elif menu == "🧪 Laboratorio":
                             <div style="width: 33%; text-align: center;">
                                 <img src="{f2}" width="22" style="border-radius:2px; margin-bottom: 2px;"><br>
                                 <span style="font-size:0.8em; font-weight:700; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{row['Equipo_2']}</span>
+                            </div>
+                        </div>
+                    </div>""", unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Bloque 4: Foro de la Fecha compacto estilo WhatsApp
+        st.markdown('<div class="dash-title">💬 Foro de la Fecha</div>', unsafe_allow_html=True)
+        
+        # Lectura directa del Foro de GSheets
+        df_foro = conn.read(worksheet="FORO", ttl=10)
+        
+        with st.container(height=300):
+            if df_foro.empty:
+                st.caption("Aún no hay comentarios.")
+            else:
+                for _, msg in df_foro.iterrows():
+                    user_msg = msg['USUARIO']
+                    txt_msg = msg['MENSAJE']
+                    
+                    u_info = df_usuarios[df_usuarios['USUARIO'] == user_msg]
+                    # Extracción limpia en formato texto de la foto de perfil para evitar el error de Pandas
+                    avatar_chat = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
+                    
+                    es_propio = user_msg == st.session_state['user_data']['USUARIO']
+                    
+                    st.markdown(f"""
+                    <div style="display: flex; justify-content: {'flex-end' if es_propio else 'flex-start'}; margin-bottom: 10px; font-family: sans-serif;">
+                        <div style="display: flex; background: {'#d9fdd3' if es_propio else '#ffffff'}; padding: 8px 12px; border-radius: 12px; max-width: 85%; box-shadow: 0 1px 2px rgba(0,0,0,0.15); gap: 8px; align-items: center; color: black;">
+                            <img src="{avatar_chat}" width="24" height="24" style="border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <div style="font-weight: bold; font-size: 11px; color: {'#00a884' if es_propio else '#128c7e'};">{user_msg}</div>
+                                <div style="font-size: 12.5px; word-break: break-word;">{txt_msg}</div>
                             </div>
                         </div>
                     </div>""", unsafe_allow_html=True)
