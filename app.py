@@ -1118,131 +1118,104 @@ elif menu == "🧪 Laboratorio":
     except:
         pos_display, pts_usr, dif_ref = "-", 0, "..."
 
-    # --- 2. HTML INTEGRADO (ESTILO IMAGE_64985D.JPG) ---
-    
+    # --- 2. HTML INTEGRADO (ESTILO COMPRIMIDO Y SUTIL) ---
+    import textwrap
     html_hero = textwrap.dedent(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap');
 
     .hero-card {{
         font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.85) 100%), 
-                    url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1920');
-        background-size: cover; background-position: center 20%;
+        background: linear-gradient(135deg, rgba(0,0,0,0.98) 0%, rgba(30,30,30,0.9) 100%);
         border-radius: 20px; 
-        padding: 0; /* Quitamos padding para manejar los bloques internos */
+        padding: 0;
         display: flex;
-        color: white; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.9);
-        border: 1px solid rgba(255,255,255,0.1);
-        min-height: 220px;
+        color: white; 
+        border: 1px solid rgba(255,255,255,0.05);
+        min-height: 200px;
         overflow: hidden;
     }}
 
     /* LADO IZQUIERDO: TU POSICIÓN */
     .user-sidebar {{
         width: 25%;
-        padding: 30px 20px;
+        padding: 20px;
         display: flex; flex-direction: column; justify-content: center;
-        border-right: 2px solid rgba(255,255,255,0.8); /* La línea blanca de la imagen */
-        background: rgba(0,0,0,0.2);
+        border-right: 1px solid rgba(255,255,255,0.15);
     }}
-
-    .sidebar-label {{
-        font-size: 11px; opacity: 0.6; text-transform: uppercase; 
-        letter-spacing: 1.5px; font-weight: 700; margin-bottom: 10px;
-    }}
-
-    .pos-big {{
-        font-family: 'Montserrat', sans-serif; font-size: 68px; font-weight: 900; 
-        line-height: 1; margin: 0; color: white;
-    }}
-
-    .pts-row {{ margin-top: 15px; }}
-    .pts-val {{ font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 800; }}
-    .pts-label {{ font-size: 14px; opacity: 0.8; font-weight: 700; }}
-    
-    .status-msg {{ font-size: 12px; margin-top: 10px; font-weight: 600; opacity: 0.9; }}
+    .sidebar-label {{ font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }}
+    .pos-big {{ font-family: 'Montserrat', sans-serif; font-size: 60px; font-weight: 900; line-height: 1; margin: 5px 0; }}
+    .pts-val {{ font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 800; }}
+    .status-msg {{ font-size: 11px; margin-top: 5px; opacity: 0.8; }}
 
     /* LADO DERECHO: TÍTULO Y PODIO */
     .main-content {{
         width: 75%;
-        padding: 20px 30px;
-        display: flex; flex-direction: column; justify-content: space-between;
+        padding: 15px 20px 5px 20px;
+        display: flex; flex-direction: column;
     }}
-
     .header-group {{ text-align: center; margin-bottom: 10px; }}
-    .header-title {{
-        font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 900;
-        text-transform: uppercase; margin: 0; letter-spacing: 1px;
-    }}
-    .header-sub {{ font-size: 11px; opacity: 0.5; letter-spacing: 1px; margin-top: 4px; }}
+    .header-title {{ font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 900; text-transform: uppercase; margin: 0; }}
+    .header-sub {{ font-size: 10px; opacity: 0.4; letter-spacing: 1px; }}
+    .divider-line {{ height: 1px; background: rgba(255,255,255,0.15); margin: 5px 0 15px 0; }}
 
+    /* PODIO */
     .podium-row {{
-        display: flex; justify-content: space-around; align-items: flex-end;
-        gap: 10px; padding-bottom: 10px;
+        display: flex; justify-content: center; align-items: flex-end;
+        gap: 25px; /* Más juntos */
+        flex-grow: 1;
     }}
-
-    .p-item {{ text-align: center; position: relative; }}
+    .p-item {{ text-align: center; position: relative; width: 80px; }}
     .avatar-img {{ 
-        border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.3); 
-        box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.15); 
     }}
-    .p-name {{ font-weight: 700; font-size: 14px; margin-top: 8px; }}
-    .p-score {{ font-size: 11px; opacity: 0.6; }}
-
+    .p-name {{ font-weight: 700; font-size: 13px; margin-top: 5px; white-space: nowrap; }}
+    .p-score {{ font-size: 11px; opacity: 0.5; }}
     .badge-v {{
-        position: absolute; top: -5px; right: -5px;
-        width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; 
-        justify-content: center; font-size: 11px; font-weight: 900;
+        position: absolute; top: -5px; right: 0;
+        width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; 
+        justify-content: center; font-size: 10px; font-weight: 900;
     }}
 
     @media (max-width: 850px) {{
-        .hero-card {{ flex-direction: column; min-height: auto; }}
-        .user-sidebar {{ width: 100%; border-right: none; border-bottom: 2px solid white; }}
+        .hero-card {{ flex-direction: column; }}
+        .user-sidebar {{ width: 100%; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); }}
         .main-content {{ width: 100%; }}
-        .header-title {{ font-size: 22px; }}
+        .header-title {{ font-size: 20px; }}
     }}
     </style>
 
 <div class="hero-card">
-<!-- Panel Izquierdo -->
 <div class="user-sidebar">
     <div class="sidebar-label">Tu Posición</div>
     <h1 class="pos-big">{pos_display}°</h1>
-    <div class="pts-row">
-        <span class="pts-val">{pts_usr}</span> <span class="pts-label">Pts</span>
-    </div>
+    <div class="pts-val">{pts_usr} <span style="font-size:12px; font-weight:400;">Pts</span></div>
     <div class="status-msg">{dif_ref}</div>
 </div>
 
-<!-- Panel Derecho -->
 <div class="main-content">
-<div class="header-group">
-    <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
-    <div class="header-sub">¡La gloria está en tus predicciones!</div>
-</div>
+    <div class="header-group">
+        <h1 class="header-title">🏆 PRODE MUNDIAL 2026</h1>
+        <div class="header-sub">¡La gloria está en tus predicciones!</div>
+    </div>
+    <div class="divider-line"></div>
 
 <div class="podium-row">
-<!-- 2do -->
-<div class="p-item">
-    <div class="badge-v" style="background:#C0C0C0; color:black;">2</div>
-    <img src="{f2}" class="avatar-img" style="width:60px;">
-    <div class="p-name">{n2}</div>
-    <div class="p-score">{p2} Pts.</div>
-</div>
-
-<!-- 1ro -->
-<div class="p-item">
+    <div class="p-item">
+        <div class="badge-v" style="background:#C0C0C0; color:black;">2</div>
+        <img src="{f2}" class="avatar-img" style="width:70px;">
+        <div class="p-name">{n2}</div>
+        <div class="p-score">{p2} Pts.</div>
+    </div>
+<div class="p-item" style="margin-bottom: 10px;">
     <div class="badge-v" style="background:#FFD700; color:black;">1</div>
-    <img src="{f1}" class="avatar-img" style="width:85px; border-color:#FFD700;">
+    <img src="{f1}" class="avatar-img" style="width:95px; border-color:#FFD700;">
     <div class="p-name" style="color:#FFD700;">{n1}</div>
     <div class="p-score" style="color:#FFD700;">{p1} Pts.</div>
 </div>
-
-<!-- 3ro -->
 <div class="p-item">
     <div class="badge-v" style="background:#CD7F32; color:white;">3</div>
-    <img src="{f3}" class="avatar-img" style="width:60px;">
+    <img src="{f3}" class="avatar-img" style="width:70px;">
     <div class="p-name">{n3}</div>
     <div class="p-score">{p3} Pts.</div>
 </div>
