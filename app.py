@@ -2060,17 +2060,222 @@ elif menu == "🧪 Laboratorio":
     </div>
 </div>""", unsafe_allow_html=True)
 
-        # Formulario de Chat
+        # ============================================================
+        # CHAT / FORO VISUAL PREMIUM
+        # Reemplaza el bloque actual de Foro en Vivo
+        # ============================================================
+        
+        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+        st.markdown('<div class="dash-title">💬 Foro en Vivo</div>', unsafe_allow_html=True)
+        
+        st.markdown("""
+        <style>
+        .chat-card {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 18px;
+            padding: 12px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        }
+        
+        .chat-scroll {
+            height: 265px;
+            overflow-y: auto;
+            padding: 6px 6px 2px 6px;
+        }
+        
+        .chat-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-scroll::-webkit-scrollbar-track {
+            background: rgba(226, 232, 240, 0.5);
+            border-radius: 999px;
+        }
+        
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background: rgba(30, 58, 138, 0.45);
+            border-radius: 999px;
+        }
+        
+        .chat-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+        
+        .chat-row.me {
+            flex-direction: row-reverse;
+        }
+        
+        .chat-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.9);
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
+        }
+        
+        .chat-bubble-new {
+            max-width: 82%;
+            border-radius: 16px;
+            padding: 9px 11px;
+            background: rgba(248, 250, 252, 0.96);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            color: #1e293b;
+            box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
+        }
+        
+        .chat-row.me .chat-bubble-new {
+            background: linear-gradient(135deg, rgba(244,197,66,0.24), rgba(255,255,255,0.96));
+            border: 1px solid rgba(244, 197, 66, 0.45);
+        }
+        
+        .chat-head {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 4px;
+        }
+        
+        .chat-user {
+            font-size: 11px;
+            font-weight: 900;
+            color: #1e3a8a;
+            line-height: 1;
+        }
+        
+        .chat-row.me .chat-user {
+            color: #92400e;
+        }
+        
+        .chat-time {
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            line-height: 1;
+        }
+        
+        .chat-message {
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.35;
+            color: #334155;
+            word-break: break-word;
+        }
+        
+        .chat-empty {
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .chat-input-wrap {
+            margin-top: 10px;
+        }
+        
+        /* Ajustes del form de Streamlit para que se vea más limpio */
+        div[data-testid="stForm"] {
+            border: none;
+            padding: 0;
+            background: transparent;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-scroll {
+                height: 300px;
+            }
+        
+            .chat-bubble-new {
+                max-width: 86%;
+            }
+        
+            .chat-message {
+                font-size: 13px;
+            }
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        from html import escape
+        
+        # Lectura del foro
+        df_foro = conn.read(worksheet="FORO", ttl=10)
+        
+        chat_html = '<div class="chat-card"><div class="chat-scroll">'
+        
+        if df_foro.empty:
+            chat_html += '<div class="chat-empty">Todavía no hay comentarios.<br>¡Sé el primero en tirar una chicana mundialista!</div>'
+        else:
+            # Mostramos los últimos mensajes, para que no se haga eterno
+            df_foro_mostrar = df_foro.tail(20)
+        
+            for _, msg in df_foro_mostrar.iterrows():
+                usuario_msg = str(msg.get("USUARIO", "Usuario"))
+                mensaje = escape(str(msg.get("MENSAJE", "")))
+                hora = escape(str(msg.get("HORA", "")))
+        
+                es_propio = usuario_msg == st.session_state["user_data"]["USUARIO"]
+        
+                u_info = df_usuarios[df_usuarios["USUARIO"] == usuario_msg]
+        
+                if not u_info.empty and pd.notna(u_info["AVATAR_URL"].values[0]):
+                    avatar = str(u_info["AVATAR_URL"].values[0])
+                else:
+                    avatar = AVATAR_GENERICO
+        
+                clase_me = "me" if es_propio else ""
+        
+                chat_html += f'<div class="chat-row {clase_me}">'
+                chat_html += f'<img src="{avatar}" class="chat-avatar">'
+                chat_html += '<div class="chat-bubble-new">'
+                chat_html += f'<div class="chat-head"><span class="chat-user">{escape(usuario_msg)}</span><span class="chat-time">{hora}</span></div>'
+                chat_html += f'<div class="chat-message">{mensaje}</div>'
+                chat_html += '</div></div>'
+        
+        chat_html += '</div></div>'
+        
+        st.markdown(chat_html, unsafe_allow_html=True)
+        
+        # Formulario de envío
         with st.form("form_foro_premium", clear_on_submit=True):
-            c_txt, c_btn = st.columns([0.88, 0.12])
-            nuevo_msg = c_txt.text_input("Escribe...", label_visibility="collapsed", placeholder="¿Qué opinas del partido?")
-            if c_btn.form_submit_button("🚀", use_container_width=True) and nuevo_msg.strip():
+            c_txt, c_btn = st.columns([0.86, 0.14])
+        
+            nuevo_msg = c_txt.text_input(
+                "Escribe...",
+                label_visibility="collapsed",
+                placeholder="¿Qué opinas del partido?"
+            )
+        
+            enviar = c_btn.form_submit_button(
+                "🚀",
+                use_container_width=True
+            )
+        
+            if enviar and nuevo_msg.strip():
                 nuevo_reg = {
-                    "USUARIO": st.session_state['user_data']['USUARIO'],
+                    "USUARIO": st.session_state["user_data"]["USUARIO"],
                     "MENSAJE": nuevo_msg.strip(),
                     "HORA": datetime.now().strftime("%H:%M")
                 }
-                df_nuevo = pd.concat([df_foro, pd.DataFrame([nuevo_reg])], ignore_index=True)
-                conn.update(worksheet="FORO", data=df_nuevo)
+        
+                df_nuevo = pd.concat(
+                    [df_foro, pd.DataFrame([nuevo_reg])],
+                    ignore_index=True
+                )
+        
+                conn.update(
+                    worksheet="FORO",
+                    data=df_nuevo
+                )
+        
                 st.cache_data.clear()
                 st.rerun()
