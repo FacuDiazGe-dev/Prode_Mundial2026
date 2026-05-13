@@ -1122,42 +1122,42 @@ elif menu == "🧪 Laboratorio":
 @import url('https://googleapis.com');
 
 .hero-card {{
-font-family: 'Inter', sans-serif;
-background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.85) 100%), 
-            url('https://googleapis.com');
-background-size: cover; background-position: center;
-border-radius: 35px; 
-padding: 45px 55px; /* Aumento de padding lateral */
-min-height: 320px;
-display: flex; align-items: center; justify-content: space-between; gap: 60px;
-color: white; box-shadow: 0 35px 70px -15px rgba(0,0,0,0.95);
-border: 1px solid rgba(255,255,255,0.08);
-position: relative; overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.85) 100%), 
+                url('https://googleapis.com');
+    background-size: cover; background-position: center;
+    border-radius: 35px; 
+    padding: 45px 55px; /* Aumento de padding lateral */
+    min-height: 320px;
+    display: flex; align-items: center; justify-content: space-between; gap: 60px;
+    color: white; box-shadow: 0 35px 70px -15px rgba(0,0,0,0.95);
+    border: 1px solid rgba(255,255,255,0.08);
+    position: relative; overflow: hidden;
 }}
 
 .bg-title {{
-position: absolute; top: 25px; left: 50%; transform: translateX(-50%);
-font-family: 'Montserrat', sans-serif; font-size: 18px; letter-spacing: 5px;
-font-weight: 700; opacity: 0.1; text-transform: uppercase; white-space: nowrap;
+    position: absolute; top: 25px; left: 50%; transform: translateX(-50%);
+    font-family: 'Montserrat', sans-serif; font-size: 18px; letter-spacing: 5px;
+    font-weight: 700; opacity: 0.1; text-transform: uppercase; white-space: nowrap;
 }}
 
 /* Bloque Izquierdo: Tu Posición */
 .left-block {{
-display: flex; flex-direction: column; justify-content: center;
-min-width: 250px;
-border-right: 1px solid rgba(255,255,255,0.08); /* Línea más sutil */
-height: 180px; /* Altura controlada para centrar la línea */
-padding-right: 50px;
+    display: flex; flex-direction: column; justify-content: center;
+    min-width: 250px;
+    border-right: 1px solid rgba(255,255,255,0.08); /* Línea más sutil */
+    height: 180px; /* Altura controlada para centrar la línea */
+    padding-right: 50px;
 }}
 .label-pos {{ font-size: 15px; font-weight: 500; opacity: 0.6; margin: 0; }}
 .pos-big {{
-font-family: 'Montserrat', sans-serif; font-size: 88px; font-weight: 800; 
-line-height: 0.85; margin: 8px 0; letter-spacing: -3px; color: #F4C542;
-text-shadow: 0 0 20px rgba(244,197,66,0.15);
+    font-family: 'Montserrat', sans-serif; font-size: 88px; font-weight: 800; 
+    line-height: 0.85; margin: 8px 0; letter-spacing: -3px; color: #F4C542;
+    text-shadow: 0 0 20px rgba(244,197,66,0.15);
 }}
 .pts-big {{ 
-font-family: 'Montserrat', sans-serif; font-size: 38px; font-weight: 800; 
-margin: 0; letter-spacing: -0.5px; 
+    font-family: 'Montserrat', sans-serif; font-size: 38px; font-weight: 800; 
+    margin: 0; letter-spacing: -0.5px; 
 }}
 .msg-dif {{ font-size: 14px; opacity: 0.65; margin-top: 12px; font-weight: 400; }}
 
@@ -1169,9 +1169,9 @@ margin: 0; letter-spacing: -0.5px;
 .px-img {{ width: 85px; height: 85px; }}
 
 .badge-v {{
-position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; 
-justify-content: center; font-size: 16px; font-weight: 800; z-index: 10; font-family: 'Montserrat', sans-serif;
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; 
+    justify-content: center; font-size: 16px; font-weight: 800; z-index: 10; font-family: 'Montserrat', sans-serif;
 }}
 .gold {{ background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }}
 .silver {{ background: #C0C0C0; color: black; }}
@@ -1181,42 +1181,42 @@ justify-content: center; font-size: 16px; font-weight: 800; z-index: 10; font-fa
 .p-pts {{ font-size: 16px; opacity: 0.7; }}
 
 @media (max-width: 950px) {{
-.hero-card {{ flex-direction: column; text-align: center; padding: 40px 25px; gap: 35px; }}
-.left-block {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 0 35px 0; width: 100%; height: auto; }}
-.podium-wrap {{ gap: 25px; transform: scale(0.9); }}
+    .hero-card {{ flex-direction: column; text-align: center; padding: 40px 25px; gap: 35px; }}
+    .left-block {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 0 35px 0; width: 100%; height: auto; }}
+    .podium-wrap {{ gap: 25px; transform: scale(0.9); }}
 }}
 </style>
 
 <div class="hero-card">
-<div class="bg-title">PRODE MUNDIAL 2026</div>
+    <div class="bg-title">PRODE MUNDIAL 2026</div>
+    
+    <div class="left-block">
+        <p class="label-pos">Tu Posición Actual:</p>
+        <h1 class="pos-big">{pos_num}°</h1>
+        <p class="pts-big">{pts_usr} Pts.</p>
+        <p class="msg-dif">{dif_ref}</p>
+    </div>
 
-<div class="left-block">
-    <p class="label-pos">Tu Posición Actual:</p>
-    <h1 class="pos-big">{pos_num}°</h1>
-    <p class="pts-big">{pts_usr} Pts.</p>
-    <p class="msg-dif">{dif_ref}</p>
-</div>
-
-<div class="podium-wrap">
-    <div class="p-item">
-        <div class="badge-v silver">2</div>
-        <img src="{f2}" class="avatar-img px-img">
-        <div class="p-name">{n2}</div>
-        <div class="p-pts">{p2} Pts.</div>
+    <div class="podium-wrap">
+        <div class="p-item">
+            <div class="badge-v silver">2</div>
+            <img src="{f2}" class="avatar-img px-img">
+            <div class="p-name">{n2}</div>
+            <div class="p-pts">{p2} Pts.</div>
+        </div>
+        <div class="p-item" style="margin-bottom: 30px;">
+            <div class="badge-v gold">1</div>
+            <img src="{f1}" class="avatar-img p1-img">
+            <div class="p-name" style="color: #F4C542;">{n1}</div>
+            <div class="p-pts" style="color: #F4C542; opacity: 1;">{p1} Pts.</div>
+        </div>
+        <div class="p-item">
+            <div class="badge-v bronze">3</div>
+            <img src="{f3}" class="avatar-img px-img">
+            <div class="p-name">{n3}</div>
+            <div class="p-pts">{p3} Pts.</div>
+        </div>
     </div>
-    <div class="p-item" style="margin-bottom: 30px;">
-        <div class="badge-v gold">1</div>
-        <img src="{f1}" class="avatar-img p1-img">
-        <div class="p-name" style="color: #F4C542;">{n1}</div>
-        <div class="p-pts" style="color: #F4C542; opacity: 1;">{p1} Pts.</div>
-    </div>
-    <div class="p-item">
-        <div class="badge-v bronze">3</div>
-        <img src="{f3}" class="avatar-img px-img">
-        <div class="p-name">{n3}</div>
-        <div class="p-pts">{p3} Pts.</div>
-    </div>
-</div>
 </div>
 """
     st.markdown(html_hero, unsafe_allow_html=True)
