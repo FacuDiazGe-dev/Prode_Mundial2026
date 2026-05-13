@@ -12,11 +12,17 @@ FONDO_BASE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO%20BASE
 
 SIDEBAR_BANNER = "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20VERTICAL_V3.jpg"
 
+HEADER_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/headder-background.png"
+
+HEADER_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/headder-background.png"
+
 BANNERS_PAGINA = {
-    "inicio": "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg",
-    "ranking": "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg",
-    "resultados": "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg",
-    "perfil": "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20HORIZONTAL.jpg",
+    "inicio": HEADER_BACKGROUND,
+    "mis_pronosticos": HEADER_BACKGROUND,
+    "jugadores": HEADER_BACKGROUND,
+    "foro": HEADER_BACKGROUND,
+    "panel_control": HEADER_BACKGROUND,
+    "laboratorio": HEADER_BACKGROUND,
 }
 
 
