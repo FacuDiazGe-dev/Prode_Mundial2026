@@ -1093,16 +1093,12 @@ elif menu == "⚙️ Panel Control":
 
 elif menu == "🧪 Laboratorio":
     # --- 1. PREPARACIÓN DE DATOS (CORREGIDA) ---
-    
-    # Obtenemos el Top 3 para el Podio Visual
     top_3 = df_ranking.head(3)
-    
     def get_podium_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
             u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
-            foto = u_info['AVATAR_URL'].iloc[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc[0]) else AVATAR_GENERICO
-            # Tomamos el primer nombre y quitamos emojis para el podio
+            foto = u_info['AVATAR_URL'].iloc if not u_info.empty and pd.notna(u_info['AVATAR_URL'].iloc) else AVATAR_GENERICO
             nombre_limpio = str(row['JUGADOR']).split(' ')[0]
             return nombre_limpio, int(row['PUNTOS']), foto
         return "-", 0, AVATAR_GENERICO
@@ -1111,30 +1107,25 @@ elif menu == "🧪 Laboratorio":
     n2, p2, f2 = get_podium_data(1)
     n3, p3, f3 = get_podium_data(2)
 
-    # --- LÓGICA DE POSICIÓN DEL USUARIO ACTUAL ---
     try:
-        # Buscamos la fila del usuario logueado en el ranking
-        user_row = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
+        # Buscamos la posición numérica pura (el índice de pandas + 1)
+        # Esto ignora si hay un emoji de corona en la columna visual
+        pos_num_real = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']].index[0]
+        pos_display = f"{pos_num_real}°"
         
-        # Obtenemos la posición numérica real (basada en el orden de los puntos)
-        # Usamos reset_index para tener números puros y sumamos 1
-        pos_usr_numerica = df_ranking.index[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']][0]
-        
-        # Mostramos la corona si es el 1, sino el número
-        pos_display = "👑" if pos_usr_numerica == 1 else f"{pos_usr_numerica}°"
-        
-        pts_usr = int(user_row['PUNTOS'].iloc[0])
+        pts_usr = int(df_ranking.loc[pos_num_real, 'PUNTOS'])
         dif = int(p1 - pts_usr)
         
-        if pos_usr_numerica == 1:
-            dif_msg = "⭐ LÍDER DEL TORNEO"
+        # Referencia dinámica según posición
+        if pos_num_real == 1:
+            dif_ref = "Eres el Líder 🏆"
         else:
-            dif_msg = f"🚩 A {dif} PTS DEL LÍDER"
+            dif_ref = f"↑ a {dif} Pts. del Líder"
             
-    except Exception as e:
-        pos_display, pts_usr, dif_msg = "-", 0, "Calculando..."
+    except:
+        pos_display, pts_usr, dif_ref = "-", 0, "Cargando..."
 
-    # --- 2. HTML SIN INDENTACIÓN (PEGA ESTO ASÍ AL RAS DEL BORDE IZQUIERDO) ---
+    # --- 2. HTML SIN INDENTACIÓN ---
     html_hero = f"""
 <style>
 @import url('https://googleapis.com');
@@ -1148,7 +1139,7 @@ elif menu == "🧪 Laboratorio":
     margin-bottom: 25px; overflow: hidden;
 }}
 .pos-number {{
-    font-size: 85px; font-weight: 900; line-height: 0.8; margin: 0;
+    font-size: 75px; font-weight: 900; line-height: 1; margin: 5px 0;
     background: linear-gradient(180deg, #F4C542 0%, #B8860B 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }}
@@ -1157,51 +1148,54 @@ elif menu == "🧪 Laboratorio":
     width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
     border: 4px solid rgba(255,255,255,0.2); box-shadow: 0 10px 20px rgba(0,0,0,0.5);
 }}
-.first-place {{ width: 115px; height: 115px; border-color: #F4C542; box-shadow: 0 0 30px rgba(244,197,66,0.3); }}
+.first-place {{ width: 110px; height: 110px; border-color: #F4C542; box-shadow: 0 0 30px rgba(244,197,66,0.3); }}
 .badge {{ 
     position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-    width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; 
-    justify-content: center; font-size: 14px; font-weight: 900; z-index: 10;
+    width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; 
+    justify-content: center; font-size: 13px; font-weight: 900; z-index: 10;
 }}
 .gold {{ background: #F4C542; color: #000; }}
 .silver {{ background: #E5E7EB; color: #000; }}
 .bronze {{ background: #D97706; color: #fff; }}
 @media (max-width: 800px) {{
     .hero-card {{ flex-direction: column; text-align: center; padding: 30px; }}
-    .podium-section {{ gap: 15px; transform: scale(0.85); }}
+    .podium-section {{ gap: 15px; transform: scale(0.85); margin-top: 20px; }}
 }}
 </style>
 <div class="hero-card">
-    <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 40px; min-width: 180px;">
-        <p style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; margin: 0;">POSICIÓN</p>
+    <!-- Bloque de Posición Personalizado -->
+    <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 40px; min-width: 220px;">
+        <p style="font-size: 14px; opacity: 0.8; margin: 0; font-weight: 400;">Tu Posición Actual:</p>
         <h1 class="pos-number">{pos_display}</h1>
-        <p style="font-size: 24px; font-weight: 700; margin: 5px 0 0 0;">{pts_usr} PTS</p>
-        <div style="display:inline-block; padding:4px 12px; background:rgba(255,255,255,0.1); border-radius:20px; font-size:11px; margin-top:10px;">{dif_msg}</div>
+        <p style="font-size: 26px; font-weight: 700; margin: 0;">{pts_usr} Pts.</p>
+        <p style="font-size: 14px; opacity: 0.8; margin-top: 8px; font-weight: 400;">{dif_ref}</p>
     </div>
+
+    <!-- Podio Visual -->
     <div class="podium-section">
         <div style="position:relative; text-align:center;">
             <div class="badge silver">2</div>
             <img src="{f2}" class="img-circ">
             <div style="font-weight:700; font-size:14px; margin-top:10px;">{n2}</div>
-            <div style="font-size:12px; opacity:0.6;">{p2} PTS</div>
+            <div style="font-size:12px; opacity:0.6;">{p2} Pts.</div>
         </div>
         <div style="position:relative; text-align:center; margin-top:-40px;">
             <div class="badge gold">1</div>
             <img src="{f1}" class="img-circ first-place">
             <div style="font-weight:700; font-size:18px; margin-top:10px; color:#F4C542;">{n1}</div>
-            <div style="font-size:14px; color:#F4C542;">{p1} PTS</div>
+            <div style="font-size:14px; color:#F4C542;">{p1} Pts.</div>
         </div>
         <div style="position:relative; text-align:center;">
             <div class="badge bronze">3</div>
             <img src="{f3}" class="img-circ">
             <div style="font-weight:700; font-size:14px; margin-top:10px;">{n3}</div>
-            <div style="font-size:12px; opacity:0.6;">{p3} PTS</div>
+            <div style="font-size:12px; opacity:0.6;">{p3} Pts.</div>
         </div>
     </div>
 </div>
 """
     st.markdown(html_hero, unsafe_allow_html=True)
-
+    
     # --- 3. CUERPO (GRID 2x2) ---
     c_izq, c_der = st.columns(2)
     
