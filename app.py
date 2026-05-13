@@ -1122,34 +1122,34 @@ elif menu == "🧪 Laboratorio":
 @import url('https://googleapis.com');
 
 .hero-card {{
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.8) 100%), 
-                url('https://googleapis.com');
-    background-size: cover; background-position: center;
-    border-radius: 32px; padding: 45px; min-height: 300px;
-    display: flex; align-items: center; justify-content: space-between; gap: 50px;
-    color: white; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9);
-    border: 1px solid rgba(255,255,255,0.08);
-    position: relative; overflow: hidden;
+font-family: 'Inter', sans-serif;
+background: linear-gradient(135deg, rgba(0,0,0,0.96) 0%, rgba(20,20,20,0.8) 100%), 
+            url('https://googleapis.com');
+background-size: cover; background-position: center;
+border-radius: 32px; padding: 45px; min-height: 300px;
+display: flex; align-items: center; justify-content: space-between; gap: 50px;
+color: white; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.9);
+border: 1px solid rgba(255,255,255,0.08);
+position: relative; overflow: hidden;
 }}
 
 /* Título de fondo sutil en el centro */
 .bg-title {{
-    position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-    font-family: 'Montserrat', sans-serif; font-size: 20px; letter-spacing: 6px;
-    font-weight: 700; opacity: 0.12; text-transform: uppercase; white-space: nowrap;
+position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+font-family: 'Montserrat', sans-serif; font-size: 20px; letter-spacing: 6px;
+font-weight: 700; opacity: 0.12; text-transform: uppercase; white-space: nowrap;
 }}
 
 /* Bloque Izquierdo: Posición */
 .left-block {{
-    border-right: 1px solid rgba(255,255,255,0.12);
-    padding-right: 50px; min-width: 260px;
+border-right: 1px solid rgba(255,255,255,0.12);
+padding-right: 50px; min-width: 260px;
 }}
 .label-pos {{ font-size: 16px; font-weight: 500; opacity: 0.7; margin: 0; }}
 .pos-big {{
-    font-family: 'Montserrat', sans-serif; font-size: 82px; font-weight: 800; 
-    line-height: 0.9; margin: 5px 0; letter-spacing: -2px; color: #F4C542;
-    text-shadow: 0 0 18px rgba(244,197,66,0.18);
+font-family: 'Montserrat', sans-serif; font-size: 82px; font-weight: 800; 
+line-height: 0.9; margin: 5px 0; letter-spacing: -2px; color: #F4C542;
+text-shadow: 0 0 18px rgba(244,197,66,0.18);
 }}
 .pts-big {{ font-size: 34px; font-weight: 700; margin: 0; }}
 .msg-dif {{ font-size: 15px; opacity: 0.75; margin-top: 10px; }}
@@ -1162,9 +1162,9 @@ elif menu == "🧪 Laboratorio":
 .px-img {{ width: 82px; height: 82px; }}
 
 .badge-v {{
-    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-    width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; 
-    justify-content: center; font-size: 15px; font-weight: 800; z-index: 10; font-family: 'Montserrat', sans-serif;
+position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; 
+justify-content: center; font-size: 15px; font-weight: 800; z-index: 10; font-family: 'Montserrat', sans-serif;
 }}
 .gold {{ background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }}
 .silver {{ background: #C0C0C0; color: black; }}
@@ -1174,42 +1174,42 @@ elif menu == "🧪 Laboratorio":
 .p-pts {{ font-size: 16px; opacity: 0.75; }}
 
 @media (max-width: 900px) {{
-    .hero-card {{ flex-direction: column; text-align: center; padding: 40px 20px; gap: 30px; }}
-    .left-block {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0 0 30px 0; width: 100%; }}
-    .podium-wrap {{ gap: 20px; transform: scale(0.9); }}
+.hero-card {{ flex-direction: column; text-align: center; padding: 40px 20px; gap: 30px; }}
+.left-block {{ border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0 0 30px 0; width: 100%; }}
+.podium-wrap {{ gap: 20px; transform: scale(0.9); }}
 }}
 </style>
 
 <div class="hero-card">
-    <div class="bg-title">PRODE MUNDIAL 2026</div>
-    
-    <div class="left-block">
-        <p class="label-pos">Tu Posición Actual:</p>
-        <h1 class="pos-big">{pos_num}°</h1>
-        <p class="pts-big">{pts_usr} Pts.</p>
-        <p class="msg-dif">{dif_ref}</p>
-    </div>
+<div class="bg-title">PRODE MUNDIAL 2026</div>
 
-    <div class="podium-wrap">
-        <div class="p-item">
-            <div class="badge-v silver">2</div>
-            <img src="{f2}" class="avatar-img px-img">
-            <div class="p-name">{n2}</div>
-            <div class="p-pts">{p2} Pts.</div>
-        </div>
-        <div class="p-item" style="margin-bottom: 25px;">
-            <div class="badge-v gold">1</div>
-            <img src="{f1}" class="avatar-img p1-img">
-            <div class="p-name" style="color: #F4C542;">{n1}</div>
-            <div class="p-pts" style="color: #F4C542; opacity: 1;">{p1} Pts.</div>
-        </div>
-        <div class="p-item">
-            <div class="badge-v bronze">3</div>
-            <img src="{f3}" class="avatar-img px-img">
-            <div class="p-name">{n3}</div>
-            <div class="p-pts">{p3} Pts.</div>
-        </div>
+<div class="left-block">
+    <p class="label-pos">Tu Posición Actual:</p>
+    <h1 class="pos-big">{pos_num}°</h1>
+    <p class="pts-big">{pts_usr} Pts.</p>
+    <p class="msg-dif">{dif_ref}</p>
+</div>
+
+<div class="podium-wrap">
+    <div class="p-item">
+        <div class="badge-v silver">2</div>
+        <img src="{f2}" class="avatar-img px-img">
+        <div class="p-name">{n2}</div>
+        <div class="p-pts">{p2} Pts.</div>
     </div>
+    <div class="p-item" style="margin-bottom: 25px;">
+        <div class="badge-v gold">1</div>
+        <img src="{f1}" class="avatar-img p1-img">
+        <div class="p-name" style="color: #F4C542;">{n1}</div>
+        <div class="p-pts" style="color: #F4C542; opacity: 1;">{p1} Pts.</div>
+    </div>
+    <div class="p-item">
+        <div class="badge-v bronze">3</div>
+        <img src="{f3}" class="avatar-img px-img">
+        <div class="p-name">{n3}</div>
+        <div class="p-pts">{p3} Pts.</div>
+    </div>
+</div>
 </div>
 """
     st.markdown(html_hero, unsafe_allow_html=True)
