@@ -1467,18 +1467,6 @@ elif menu == "🧪 Laboratorio":
         margin-top: 2px;
     }
     
-    .ranking-footer {
-        margin-top: 10px;
-        padding: 9px 12px;
-        border-radius: 12px;
-        text-align: center;
-        font-size: 12px;
-        font-weight: 800;
-        color: #1e3a8a;
-        background: rgba(30, 58, 138, 0.06);
-        border: 1px solid rgba(30, 58, 138, 0.08);
-    }
-    
     @media (max-width: 768px) {
         .ranking-card {
             padding: 10px;
@@ -1548,8 +1536,7 @@ elif menu == "🧪 Laboratorio":
             ranking_html += f'<div class="rank-stat">🎯 {exactos}<span>exactos</span></div>'
             ranking_html += f'<div class="rank-stat">✅ {generales}<span>generales</span></div>'
             ranking_html += '</div>'
-    
-        ranking_html += '</div><div class="ranking-footer">Ranking actualizado automáticamente</div></div>'
+            ranking_html += '</div></div>'
     
         st.markdown(ranking_html, unsafe_allow_html=True)
         
