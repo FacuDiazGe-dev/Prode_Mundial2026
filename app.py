@@ -1345,6 +1345,7 @@ elif menu == "🧪 Laboratorio":
         df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
         partidos_visibles = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])].sort_values('N_PARTIDO')
         
+        # --- CORRECCIÓN DE INDEXACIÓN EN GRÁFICO (REMPLAZAR ESTE BLOQUE) ---
         if not partidos_visibles.empty:
             evol_list = []
             usuarios_lista = df_usuarios["USUARIO"].unique()
@@ -1355,12 +1356,16 @@ elif menu == "🧪 Laboratorio":
                 user_pro = df_pro[df_pro['USUARIO'] == user]
                 
                 for id_p in ids_visibles:
-                    part = partidos_visibles[partidos_visibles['N_PARTIDO'] == id_p].iloc
+                    # Filtramos la fila del partido correspondiente como un DataFrame
+                    part_row = partidos_visibles[partidos_visibles['N_PARTIDO'] == id_p]
                     u_p = user_pro[user_pro['N_PARTIDO'] == id_p]
                     
-                    if not u_p.empty:
-                        r1_g, r2_g = part['R1'], part['R2']
-                        p1_g, p2_g = u_p.iloc['P1'], u_p.iloc['P2']
+                    if not part_row.empty and not u_p.empty:
+                        # Usamos .iloc[0] para extraer los valores fila por fila de forma segura
+                        r1_g = part_row['R1'].iloc[0]
+                        r2_g = part_row['R2'].iloc[0]
+                        p1_g = u_p['P1'].iloc[0]
+                        p2_g = u_p['P2'].iloc[0]
                         
                         if pd.notna(r1_g) and pd.notna(r2_g):
                             pts_g, _, _ = calcular_detalle(r1_g, r2_g, p1_g, p2_g)
