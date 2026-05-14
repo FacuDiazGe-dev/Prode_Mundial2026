@@ -219,16 +219,7 @@ div[data-testid="stNumberInput"] button {
 
 @media (max-width: 768px) {
 
-    html, body {
-        overflow-x: hidden !important;
-    }
-
-    div[data-testid="stForm"] {
-        overflow-x: hidden !important;
-        padding: 12px !important;
-    }
-
-    .page-section-title h1 {
+       .page-section-title h1 {
         font-size: 27px;
         line-height: 1.05;
     }
@@ -262,44 +253,7 @@ div[data-testid="stNumberInput"] button {
         margin-bottom: 7px !important;
     }
 
-    
-    /* Fuerza horizontal SOLO en filas que contienen cards de equipo */
-    div[data-testid="stHorizontalBlock"]:has(.pred-team-card) {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        gap: 3px !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* Columnas principales: CARD1 | RESULTADO | CARD2 */
-    div[data-testid="stHorizontalBlock"]:has(.pred-team-card) > div[data-testid="column"] {
-        min-width: 0 !important;
-        flex: 1 1 0 !important;
-        overflow: hidden !important;
-    }
-    
-    /* La columna central del resultado un poco más compacta */
-    div[data-testid="stHorizontalBlock"]:has(.pred-score-sep) {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        gap: 1px !important;
-        max-width: 100% !important;
-        overflow: hidden !important;
-    }
-    
-    div[data-testid="stHorizontalBlock"]:has(.pred-score-sep) > div[data-testid="column"] {
-        min-width: 0 !important;
-        flex: 1 1 0 !important;
-        overflow: hidden !important;
-    }
 
-    
     .pred-team-card {
         min-height: 48px !important;
         padding: 6px 5px !important;
