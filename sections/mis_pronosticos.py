@@ -390,43 +390,134 @@ div[data-testid="stTextInput"] input:disabled {
     }
 }
 
+/* ============================================================
+   MI PERFIL — CARD PREMIUM
+   ============================================================ */
+
+.profile-panel {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
+
+.profile-hero {
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            rgba(244,197,66,0.22),
+            rgba(255,255,255,0.00) 42%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(248,250,252,0.96),
+            rgba(255,255,255,0.96)
+        );
+    border: 1px solid rgba(226,232,240,0.85);
+    border-radius: 16px;
+    padding: 18px 14px 14px 14px;
+    text-align: center;
+}
+
 .profile-avatar {
-    width: 128px;
-    height: 128px;
+    width: 124px;
+    height: 124px;
     object-fit: cover;
     border-radius: 50%;
     border: 5px solid #F4C542;
     box-shadow:
-        0 12px 34px rgba(0,0,0,0.18),
-        0 0 22px rgba(244,197,66,0.28);
+        0 14px 34px rgba(15,23,42,0.18),
+        0 0 26px rgba(244,197,66,0.30),
+        inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
 .profile-name {
     font-family: 'Montserrat', sans-serif;
-    font-size: 26px;
+    font-size: 25px;
     font-weight: 900;
     color: #0f172a;
-    margin-top: 14px;
+    margin-top: 13px;
+    line-height: 1.05;
 }
 
 .profile-user {
     color: #64748b;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 18px;
+    font-size: 13px;
+    font-weight: 800;
+    margin-top: 4px;
+}
+
+.profile-rank-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    margin-top: 12px;
+    padding: 7px 12px;
+
+    background: rgba(7,17,31,0.96);
+    border: 1px solid rgba(244,197,66,0.24);
+    border-radius: 999px;
+
+    color: #F8FAFC;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.profile-rank-pill strong {
+    color: #F4C542;
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin: 14px 0 14px 0;
+}
+
+.profile-stat {
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 14px;
+    padding: 10px 6px;
+    background: rgba(248,250,252,0.78);
+    text-align: center;
+    min-width: 0;
+}
+
+.profile-stat-icon {
+    font-size: 17px;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.profile-stat-number {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1;
+}
+
+.profile-stat-label {
+    margin-top: 4px;
+    font-size: 9px;
+    color: #64748b;
+    font-weight: 900;
+    text-transform: uppercase;
 }
 
 .profile-info {
-    text-align: left;
     border-top: 1px solid rgba(226,232,240,0.85);
-    margin-top: 18px;
-    padding-top: 12px;
+    margin-top: 12px;
+    padding-top: 10px;
 }
 
 .profile-info-row {
     display: grid;
-    grid-template-columns: 120px 1fr;
-    gap: 12px;
+    grid-template-columns: 108px 1fr;
+    gap: 10px;
     padding: 9px 0;
     border-bottom: 1px solid rgba(226,232,240,0.65);
     font-size: 13px;
@@ -434,44 +525,26 @@ div[data-testid="stTextInput"] input:disabled {
 
 .profile-info-label {
     color: #64748b;
-    font-weight: 800;
+    font-weight: 900;
 }
 
 .profile-info-value {
     color: #0f172a;
     font-weight: 800;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
-.profile-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin: 18px 0;
-}
-
-.profile-stat {
-    border: 1px solid rgba(226,232,240,0.9);
+.profile-bio {
+    margin-top: 12px;
+    padding: 12px;
     border-radius: 14px;
-    padding: 10px 6px;
-    background: rgba(248,250,252,0.75);
-}
-
-.profile-stat-icon {
-    font-size: 18px;
-}
-
-.profile-stat-number {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    color: #0f172a;
-    line-height: 1.1;
-}
-
-.profile-stat-label {
-    font-size: 10px;
-    color: #64748b;
-    font-weight: 800;
+    background: rgba(248,250,252,0.82);
+    border: 1px solid rgba(226,232,240,0.85);
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
 }
 
 .profile-edit-box {
@@ -480,80 +553,60 @@ div[data-testid="stTextInput"] input:disabled {
     border-radius: 15px;
     padding: 14px;
 }
-.pred-summary-footer {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(7,17,31,0.98),
-            rgba(15,23,42,0.94)
-        );
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
 
-    padding: 14px 14px;
-    margin: 10px 10px 2px 10px;
+/* Botón normal de Streamlit usado en Editar Perfil */
+div[data-testid="stButton"] button {
+    border-radius: 13px !important;
+    min-height: 42px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+
+    background: linear-gradient(
+        135deg,
+        rgba(244,197,66,0.95),
+        rgba(255,220,105,0.95)
+    ) !important;
+
+    color: #07111F !important;
+    border: 1px solid rgba(180,130,20,0.28) !important;
 
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.05),
-        0 10px 24px rgba(15,23,42,0.08);
+        0 8px 18px rgba(244,197,66,0.16),
+        inset 0 1px 0 rgba(255,255,255,0.38) !important;
 }
 
-.pred-summary-kicker {
-    font-size: 10px;
-    font-weight: 900;
-    color: rgba(255,255,255,0.55);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 9px;
-}
+@media (max-width: 768px) {
+    .profile-avatar {
+        width: 108px;
+        height: 108px;
+    }
 
-.pred-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
-}
+    .profile-name {
+        font-size: 22px;
+    }
 
-.pred-summary-item {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 9px 6px;
-    text-align: center;
-    min-width: 0;
-}
+    .profile-stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+    }
 
-.pred-summary-icon {
-    font-size: 16px;
-    line-height: 1;
-    margin-bottom: 4px;
-}
+    .profile-stat {
+        padding: 8px 4px;
+    }
 
-.pred-summary-number {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 17px;
-    font-weight: 900;
-    color: #F8FAFC;
-    line-height: 1;
-}
+    .profile-stat-number {
+        font-size: 15px;
+    }
 
-.pred-summary-label {
-    margin-top: 4px;
-    font-size: 9px;
-    font-weight: 800;
-    color: rgba(255,255,255,0.55);
-    text-transform: uppercase;
-}
+    .profile-stat-label {
+        font-size: 7px;
+    }
 
-.pred-summary-style {
-    margin-top: 10px;
-    color: rgba(255,255,255,0.72);
-    font-size: 11px;
-    font-weight: 800;
-    text-align: center;
-}
-
-.pred-summary-style strong {
-    color: #F4C542;
+    .profile-info-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -973,56 +1026,73 @@ div[data-testid="stTextInput"] input:disabled {
             edad = escape(str(u_data.get("EDAD", "-")))
             bio = escape(str(u_data.get("DESCRIPCION", "")))
 
+            pts = stats["pts"]
+            exactos = stats["exactos"]
+            generales = stats["generales"]
+            posicion = stats["pos"]
+
+            if bio.strip() == "" or bio.strip().lower() == "nan":
+                bio = "Todavía no cargaste una bio. Contanos tu estilo de juego, tus cábalas o a quién ves campeón."
+
             st.markdown(
                 f"""
 <div class="profile-panel">
 <div class="panel-header">
-    <div class="panel-icon">👤</div>
-    <div class="panel-title">Mi Perfil</div>
+<div class="panel-icon">👤</div>
+<div class="panel-title">Mi Perfil</div>
 </div>
 
-<div class="profile-card">
-    <img src="{foto}" class="profile-avatar">
-    <div class="profile-name">{nombre}</div>
-    <div class="profile-user">@{usuario}</div>
-</div>
+<div class="profile-hero">
+<img src="{foto}" class="profile-avatar">
+<div class="profile-name">{nombre}</div>
+<div class="profile-user">@{usuario}</div>
 
-<div class="profile-info">
-<div class="profile-info-row">
-    <div class="profile-info-label">⚽ Equipo</div>
-    <div class="profile-info-value">{equipo}</div>
-</div>
-<div class="profile-info-row">
-    <div class="profile-info-label">🎂 Edad</div>
-    <div class="profile-info-value">{edad} años</div>
-</div>
-<div class="profile-info-row">
-    <div class="profile-info-label">📝 Bio</div>
-    <div class="profile-info-value">{bio}</div>
+<div class="profile-rank-pill">
+<span>📊 Posición actual</span>
+<strong>{posicion}°</strong>
 </div>
 </div>
 
 <div class="profile-stats">
 <div class="profile-stat">
-    <div class="profile-stat-icon">🏆</div>
-    <div class="profile-stat-number">{stats["pts"]}</div>
-    <div class="profile-stat-label">Puntos</div>
+<div class="profile-stat-icon">🏆</div>
+<div class="profile-stat-number">{pts}</div>
+<div class="profile-stat-label">Puntos</div>
 </div>
+
 <div class="profile-stat">
-    <div class="profile-stat-icon">🎯</div>
-    <div class="profile-stat-number">{stats["exactos"]}</div>
-    <div class="profile-stat-label">Exactos</div>
+<div class="profile-stat-icon">🎯</div>
+<div class="profile-stat-number">{exactos}</div>
+<div class="profile-stat-label">Exactos</div>
 </div>
+
 <div class="profile-stat">
-    <div class="profile-stat-icon">✅</div>
-    <div class="profile-stat-number">{stats["generales"]}</div>
-    <div class="profile-stat-label">Generales</div>
+<div class="profile-stat-icon">✅</div>
+<div class="profile-stat-number">{generales}</div>
+<div class="profile-stat-label">Generales</div>
 </div>
+
 <div class="profile-stat">
-    <div class="profile-stat-icon">📊</div>
-    <div class="profile-stat-number">{stats["pos"]}°</div>
-    <div class="profile-stat-label">Posición</div>
+<div class="profile-stat-icon">⚽</div>
+<div class="profile-stat-number">{equipo[:3].upper()}</div>
+<div class="profile-stat-label">Equipo</div>
 </div>
+</div>
+
+<div class="profile-info">
+<div class="profile-info-row">
+<div class="profile-info-label">⚽ Equipo favorito</div>
+<div class="profile-info-value">{equipo}</div>
+</div>
+
+<div class="profile-info-row">
+<div class="profile-info-label">🎂 Edad</div>
+<div class="profile-info-value">{edad} años</div>
+</div>
+</div>
+
+<div class="profile-bio">
+{bio}
 </div>
 </div>
 """,
