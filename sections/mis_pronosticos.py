@@ -20,7 +20,6 @@ def render_mis_pronosticos(
     # ESTILOS — MIS PRONÓSTICOS / MI PERFIL
     # ============================================================
 
-    #st.markdown("""
     css_mis_pronosticos = """
 <style>
 .page-section-title {
@@ -713,13 +712,13 @@ div[data-testid="stButton"] button {
 </style>
 """
 
-css_mis_pronosticos = (
-    css_mis_pronosticos
-    .replace("__SIDEBAR_BANNER__", SIDEBAR_BANNER)
-    .replace("__HEADER_BACKGROUND__", HEADER_BACKGROUND)
-)
+    css_mis_pronosticos = (
+        css_mis_pronosticos
+        .replace("__SIDEBAR_BANNER__", SIDEBAR_BANNER)
+        .replace("__HEADER_BACKGROUND__", HEADER_BACKGROUND)
+    )
 
-st.markdown(css_mis_pronosticos, unsafe_allow_html=True)
+    st.markdown(css_mis_pronosticos, unsafe_allow_html=True)
 
     # ============================================================
     # HELPERS
