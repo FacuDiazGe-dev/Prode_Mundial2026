@@ -308,6 +308,7 @@ div[data-testid="stFormSubmitButton"] button:disabled {
     font-size: 11px;
     font-weight: 800;
 }
+}
 
 .pred-summary-style strong {
     color: #F4C542;
@@ -414,12 +415,6 @@ div[data-testid="stFormSubmitButton"] button:disabled {
         margin-bottom: 6px !important;
     }
 
-    .pred-summary-footer {
-        margin: 10px 6px 4px 6px !important;
-        padding: 12px !important;
-        border-radius: 14px !important;
-    }
-
     .pred-summary-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 7px;
@@ -442,7 +437,7 @@ div[data-testid="stFormSubmitButton"] button:disabled {
         font-size: 10px;
         text-align: center;
     }
-}
+.profile-card {
     text-align: center;
 }
 
@@ -554,21 +549,6 @@ div[data-testid="stFormSubmitButton"] button:disabled {
         0 10px 24px rgba(15,23,42,0.08);
 }
 
-.pred-summary-kicker {
-    font-size: 10px;
-    font-weight: 900;
-    color: rgba(255,255,255,0.55);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 9px;
-}
-
-.pred-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-}
-
 .pred-summary-item {
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.08);
@@ -609,7 +589,8 @@ div[data-testid="stFormSubmitButton"] button:disabled {
 .pred-summary-style strong {
     color: #F4C542;
 }
-
+</style>
+""", unsafe_allow_html=True)
 
     # ============================================================
     # HELPERS
