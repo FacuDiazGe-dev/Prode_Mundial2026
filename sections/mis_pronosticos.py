@@ -417,8 +417,10 @@ div[data-testid="stForm"] button {
         );
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 16px;
-    padding: 15px 16px;
-    margin-top: 16px;
+
+    padding: 14px 14px;
+    margin: 10px 10px 2px 10px;
+
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.05),
         0 10px 24px rgba(15,23,42,0.08);
