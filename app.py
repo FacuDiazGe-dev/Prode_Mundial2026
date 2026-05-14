@@ -1740,7 +1740,7 @@ if menu == "🏠 Inicio":
         
         @media (max-width: 768px) {
             .chat-panel {
-                padding: 12px;
+                padding: 12px 12px 0 12px;
             }
         
             .chat-panel-title {
@@ -1789,6 +1789,7 @@ if menu == "🏠 Inicio":
         if df_foro.empty:
             chat_html += '<div class="chat-empty">Todavía no hay comentarios.<br>¡Sé el primero en tirar una chicana mundialista!</div>'
         else:
+            # Últimos mensajes primero
             df_foro_mostrar = df_foro.tail(20).iloc[::-1]
         
             for _, msg in df_foro_mostrar.iterrows():
@@ -1840,7 +1841,9 @@ if menu == "🏠 Inicio":
         
         chat_html += '</div></div>'  # cierra chat-scroll y chat-panel
         
+        st.markdown(chat_html, unsafe_allow_html=True)
         
+        # Formulario de envío
         with st.form("form_foro_premium", clear_on_submit=True):
             c_txt, c_btn = st.columns([0.86, 0.14])
         
@@ -1893,8 +1896,6 @@ if menu == "🏠 Inicio":
         
                 st.cache_data.clear()
                 st.rerun()
-        
-        st.markdown('</div></div>', unsafe_allow_html=True)
 #---------- MENU MIS PRONOSTICOS (CÓDIGO CORREGIDO Y COMPLETO) ----------------------------------
 
 elif menu == "📝 Mis Pronósticos":
