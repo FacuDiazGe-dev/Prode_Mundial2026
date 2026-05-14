@@ -253,39 +253,6 @@ div[data-testid="stNumberInput"] input {
    FOOTER OSCURO — ACCIONES DE PRONÓSTICOS
    ============================================================ */
 
-.pred-actions-footer {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(7,17,31,0.98),
-            rgba(15,23,42,0.94)
-        );
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 0 0 16px 16px;
-
-    padding: 18px 14px 26px 14px;
-    margin: 18px -16px -16px -16px;
-
-    min-height: 92px;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.05),
-        0 -6px 18px rgba(15,23,42,0.04);
-}
-.pred-actions-footer + div {
-    margin-top: -100px;
-    padding: 0 14px 18px 14px;
-}
-
-.pred-actions-label {
-    font-size: 11px;
-    font-weight: 900;
-    color: rgba(255,255,255,0.58);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin-bottom: 10px;
-}
-
 div[data-testid="stFormSubmitButton"] button {
     border-radius: 12px !important;
     font-weight: 900 !important;
@@ -551,48 +518,48 @@ div[data-testid="stForm"] button {
         }
 
     def calcular_stats_pronosticos(lista_pronosticos):
-    total_partidos = len(lista_pronosticos)
+        total_partidos = len(lista_pronosticos)
 
-    if total_partidos == 0:
-        return {
-            "con_ganador": 0,
-            "empates": 0,
-            "goles": 0,
-            "promedio_goles": 0,
-            "estilo": "Sin datos"
-        }
+        if total_partidos == 0:
+            return {
+                "con_ganador": 0,
+                "empates": 0,
+                "goles": 0,
+                "promedio_goles": 0,
+                "estilo": "Sin datos"
+            }
 
-    con_ganador = 0
-    empates = 0
-    goles = 0
-
-    for p in lista_pronosticos:
-        p1 = int(p.get("P1", 0))
-        p2 = int(p.get("P2", 0))
-
-        goles += p1 + p2
-
-        if p1 == p2:
-            empates += 1
+        con_ganador = 0
+        empates = 0
+        goles = 0
+    
+        for p in lista_pronosticos:
+            p1 = int(p.get("P1", 0))
+            p2 = int(p.get("P2", 0))
+    
+            goles += p1 + p2
+    
+            if p1 == p2:
+                empates += 1
+            else:
+                con_ganador += 1
+    
+        promedio_goles = goles / total_partidos
+    
+        if promedio_goles >= 3:
+            estilo = "Optimista del gol"
+        elif promedio_goles <= 1.8:
+            estilo = "Bilardista táctico"
         else:
-            con_ganador += 1
-
-    promedio_goles = goles / total_partidos
-
-    if promedio_goles >= 3:
-        estilo = "Optimista del gol"
-    elif promedio_goles <= 1.8:
-        estilo = "Bilardista táctico"
-    else:
-        estilo = "Equilibrado"
-
-    return {
-        "con_ganador": con_ganador,
-        "empates": empates,
-        "goles": goles,
-        "promedio_goles": round(promedio_goles, 1),
-        "estilo": estilo
-    }
+            estilo = "Equilibrado"
+    
+        return {
+            "con_ganador": con_ganador,
+            "empates": empates,
+            "goles": goles,
+            "promedio_goles": round(promedio_goles, 1),
+            "estilo": estilo
+        }
     # ============================================================
     # DATOS BASE
     # ============================================================
@@ -774,44 +741,23 @@ div[data-testid="stForm"] button {
             # ------------------------------------------------------------
 
             if not es_tiempo_valido:
-                st.markdown("""
-            <div class="pred-actions-footer">
-            <div class="pred-actions-label">Modo lectura</div>
-            """, unsafe_allow_html=True)
-            
                 submit = st.form_submit_button(
                     "Lectura — edición deshabilitada",
                     use_container_width=True,
                     disabled=True
                 )
-            
-                st.markdown("</div>", unsafe_allow_html=True)
-            
                 cancelar = False
                 editar = False
             
             elif not modo_edicion:
-                st.markdown("""
-            <div class="pred-actions-footer">
-            <div class="pred-actions-label">Tus pronósticos están protegidos</div>
-            """, unsafe_allow_html=True)
-            
                 editar = st.form_submit_button(
                     "✏️ Editar pronósticos",
                     use_container_width=True
                 )
-            
-                st.markdown("</div>", unsafe_allow_html=True)
-            
                 submit = False
                 cancelar = False
             
             else:
-                st.markdown("""
-            <div class="pred-actions-footer">
-            <div class="pred-actions-label">Modo edición activo</div>
-            """, unsafe_allow_html=True)
-            
                 c_cancelar, c_guardar = st.columns([0.35, 0.65])
             
                 cancelar = c_cancelar.form_submit_button(
@@ -823,8 +769,6 @@ div[data-testid="stForm"] button {
                     "💾 Guardar pronósticos",
                     use_container_width=True
                 )
-            
-                st.markdown("</div>", unsafe_allow_html=True)
             
                 editar = False
 
@@ -865,6 +809,7 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 </div>
                 """,
                     unsafe_allow_html=True
+                )
             # ------------------------------------------------------------
             # EVENTOS
             # ------------------------------------------------------------
