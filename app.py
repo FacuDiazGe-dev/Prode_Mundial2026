@@ -1556,8 +1556,9 @@ if menu == "🏠 Inicio":
         .chat-panel {
             background: rgba(255, 255, 255, 0.94);
             border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 14px;
+            border-bottom: none;
+            border-radius: 18px 18px 0 0;
+            padding: 14px 14px 0 14px;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
             overflow: hidden;
         }
@@ -1695,29 +1696,23 @@ if menu == "🏠 Inicio":
             text-align: center;
         }
         
-        /* FOOTER OSCURO */
-        .chat-footer-dark {
+        /* FORMULARIO COMO FOOTER OSCURO */
+        div[data-testid="stForm"] {
             background:
                 linear-gradient(
                     135deg,
                     rgba(7,17,31,0.98),
                     rgba(15,23,42,0.94)
-                );
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 0 0 15px 15px;
-            padding: 12px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+                ) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 0 0 18px 18px !important;
+            padding: 12px !important;
+            margin-top: -16px !important;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06) !important;
         }
         
-        /* Form dentro del footer */
-        .chat-footer-dark div[data-testid="stForm"] {
-            border: none;
-            padding: 0;
-            background: transparent;
-        }
-        
-        /* Input del chat */
-        .chat-footer-dark input {
+        /* Input */
+        div[data-testid="stForm"] input {
             background: rgba(255,255,255,0.94) !important;
             color: #0f172a !important;
             border: 1px solid rgba(226,232,240,0.85) !important;
@@ -1725,12 +1720,12 @@ if menu == "🏠 Inicio":
             font-size: 13px !important;
         }
         
-        .chat-footer-dark input::placeholder {
+        div[data-testid="stForm"] input::placeholder {
             color: #94a3b8 !important;
         }
         
-        /* Botón enviar */
-        .chat-footer-dark button {
+        /* Botón */
+        div[data-testid="stForm"] button {
             background: rgba(244,197,66,0.16) !important;
             border: 1px solid rgba(244,197,66,0.38) !important;
             border-radius: 12px !important;
@@ -1738,7 +1733,7 @@ if menu == "🏠 Inicio":
             font-weight: 900 !important;
         }
         
-        .chat-footer-dark button:hover {
+        div[data-testid="stForm"] button:hover {
             background: rgba(244,197,66,0.26) !important;
             border-color: rgba(244,197,66,0.55) !important;
         }
