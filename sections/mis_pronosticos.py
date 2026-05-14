@@ -95,102 +95,19 @@ def render_mis_pronosticos(
     color: #64748b;
 }
 
-.pred-match-card {
-    background: rgba(248,250,252,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 15px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-}
+/* ============================================================
+   CARDS HORIZONTALES DE PRONÓSTICOS
+   Desktop + Mobile compacto
+   ============================================================ */
 
-.pred-match-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #94a3b8;
-    font-size: 10px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 8px;
-}
-
-.pred-team {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #0f172a;
-    font-size: 13px;
-    font-weight: 900;
-    min-height: 38px;
-}
-
-.pred-team.right {
-    justify-content: flex-end;
-    text-align: right;
-}
-
-.pred-flag {
-    width: 28px;
-    height: 20px;
-    object-fit: cover;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(15,23,42,0.16);
-}
-
-.pred-vs {
-    text-align: center;
-    color: #0f172a;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    padding-top: 8px;
-}
-
-div[data-testid="stForm"] {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
-}
-
-.pred-panel-header-v2 {
-    padding: 4px 4px 14px 4px;
-    margin-bottom: 14px;
-    border-bottom: 1px solid rgba(226,232,240,0.75);
-}
-
-.pred-panel-title-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.pred-panel-subtitle {
-    margin-top: 3px;
-    font-size: 12px;
-    font-weight: 800;
-    color: #64748b;
-}
-
-.pred-panel-subtitle.open {
-    color: #92400e;
-}
-
-.pred-panel-subtitle.locked {
-    color: #64748b;
-}
-
+.pred-match-card,
 .pred-match-card-v2 {
     background: rgba(248,250,252,0.94);
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 15px;
-    padding: 10px 12px 10px 12px;
-    margin-bottom: 10px;
-}
-
-.pred-match-gap {
-    height: 2px;
+    padding: 10px 12px 8px 12px;
+    margin-bottom: 4px;
+    overflow: hidden;
 }
 
 .pred-match-meta {
@@ -202,24 +119,41 @@ div[data-testid="stForm"] {
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    margin-bottom: 10px;
+    margin-bottom: 0;
 }
 
 .pred-team {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
+    min-height: 38px;
     color: #0f172a;
     font-size: 13px;
     font-weight: 900;
-    min-height: 38px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.pred-team-left {
+    justify-content: flex-end;
     text-align: right;
 }
 
-.pred-team.right {
+.pred-team-right {
     justify-content: flex-start;
     text-align: left;
+}
+
+.pred-team span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pred-flag-wrap {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .pred-flag {
@@ -232,14 +166,23 @@ div[data-testid="stForm"] {
 }
 
 .pred-vs {
-    text-align: center;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #0f172a;
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
-    padding-top: 8px;
+    padding: 0;
 }
 
-/* Inputs de marcador */
+.pred-match-gap {
+    height: 10px;
+    border-bottom: 1px solid rgba(226,232,240,0.65);
+    margin-bottom: 8px;
+}
+
+/* Inputs como casilleros de marcador */
 div[data-testid="stNumberInput"] input {
     text-align: center;
     font-family: 'Montserrat', sans-serif;
@@ -249,18 +192,14 @@ div[data-testid="stNumberInput"] input {
     background: rgba(255,255,255,0.96) !important;
 }
 
-/* ============================================================
-   FOOTER OSCURO — ACCIONES DE PRONÓSTICOS
-   ============================================================ */
-
+/* Botones de edición / guardado */
 div[data-testid="stFormSubmitButton"] button {
     border-radius: 13px !important;
     min-height: 44px !important;
     font-family: 'Inter', sans-serif !important;
     font-size: 14px !important;
     font-weight: 900 !important;
-    margin-top: 8px;
-    margin-bottom: 0 !important;
+
     background: linear-gradient(
         135deg,
         rgba(244,197,66,0.95),
@@ -291,31 +230,219 @@ div[data-testid="stFormSubmitButton"] button:hover {
         inset 0 1px 0 rgba(255,255,255,0.45) !important;
 }
 
-div[data-testid="stFormSubmitButton"] button:not(:disabled):hover {
-    background: rgba(244,197,66,0.26) !important;
-    border-color: rgba(244,197,66,0.55) !important;
-}
-
 div[data-testid="stFormSubmitButton"] button:disabled {
     background: rgba(248,250,252,0.95) !important;
     color: #94a3b8 !important;
     border: 1px solid rgba(226,232,240,0.95) !important;
     box-shadow: none !important;
 }
-/* Botones dentro del form */
-div[data-testid="stForm"] button {
-    border-radius: 12px !important;
-    font-weight: 900 !important;
+
+/* ============================================================
+   RESUMEN OSCURO — ESTADÍSTICAS DE PRONÓSTICOS
+   ============================================================ */
+
+.pred-summary-footer {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.94)
+        );
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 15px 16px;
+    margin: 12px 10px 4px 10px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 10px 24px rgba(15,23,42,0.08);
 }
 
-.pred-save-footer {
-    background: linear-gradient(135deg, rgba(7,17,31,0.98), rgba(15,23,42,0.94));
-    border-radius: 0 0 16px 16px;
-    padding: 14px;
-    margin-top: 14px;
+.pred-summary-kicker {
+    font-size: 10px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 9px;
 }
 
-.profile-card {
+.pred-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.pred-summary-item {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 9px 6px;
+    text-align: center;
+}
+
+.pred-summary-icon {
+    font-size: 16px;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.pred-summary-number {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: #F8FAFC;
+    line-height: 1;
+}
+
+.pred-summary-label {
+    margin-top: 4px;
+    font-size: 9px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+}
+
+.pred-summary-style {
+    margin-top: 10px;
+    color: rgba(255,255,255,0.72);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.pred-summary-style strong {
+    color: #F4C542;
+}
+
+/* ============================================================
+   MOBILE — UNA SOLA LÍNEA POR PARTIDO
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    html, body {
+        overflow-x: hidden !important;
+    }
+
+    div[data-testid="stForm"] {
+        overflow-x: hidden !important;
+        padding: 12px !important;
+    }
+
+    .page-section-title h1 {
+        font-size: 27px;
+        line-height: 1.05;
+    }
+
+    .page-section-title p {
+        font-size: 12px;
+    }
+
+    .pred-panel-header-v2 {
+        padding: 2px 2px 12px 2px;
+        margin-bottom: 10px;
+    }
+
+    .panel-title {
+        font-size: 17px;
+    }
+
+    .pred-panel-subtitle {
+        font-size: 10px;
+    }
+
+    .pred-match-card-v2 {
+        padding: 8px 8px 7px 8px !important;
+        margin-bottom: 3px !important;
+        border-radius: 13px !important;
+    }
+
+    .pred-match-meta {
+        font-size: 8px !important;
+        letter-spacing: 0.03em !important;
+    }
+
+    .pred-team {
+        min-height: 32px !important;
+        font-size: 9px !important;
+        line-height: 1 !important;
+    }
+
+    .pred-team span {
+        max-width: 54px !important;
+    }
+
+    .pred-flag-wrap {
+        min-height: 32px !important;
+    }
+
+    .pred-flag {
+        width: 18px !important;
+        height: 13px !important;
+        border-radius: 3px !important;
+    }
+
+    .pred-vs {
+        min-height: 32px !important;
+        font-size: 13px !important;
+        padding: 0 !important;
+    }
+
+    div[data-testid="stNumberInput"] {
+        min-width: 30px !important;
+        max-width: 34px !important;
+    }
+
+    div[data-testid="stNumberInput"] input {
+        height: 32px !important;
+        min-height: 32px !important;
+        max-height: 32px !important;
+        width: 32px !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
+    }
+
+    /* Oculta + / - en celular para conservar la fila horizontal */
+    div[data-testid="stNumberInput"] button {
+        display: none !important;
+    }
+
+    .pred-match-gap {
+        height: 6px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .pred-summary-footer {
+        margin: 10px 6px 4px 6px !important;
+        padding: 12px !important;
+        border-radius: 14px !important;
+    }
+
+    .pred-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 7px;
+    }
+
+    .pred-summary-item {
+        padding: 8px 6px;
+    }
+
+    .pred-summary-number {
+        font-size: 16px;
+    }
+
+    .pred-summary-label {
+        font-size: 8px;
+    }
+
+    .pred-summary-style {
+        margin-top: 8px;
+        font-size: 10px;
+        text-align: center;
+    }
+}
     text-align: center;
 }
 
@@ -483,100 +610,6 @@ div[data-testid="stForm"] button {
     color: #F4C542;
 }
 
-# /* ============================================================
-#    MOBILE — MANTENER PARTIDOS HORIZONTALES
-#    ============================================================ */
-
-# @media (max-width: 768px) {
-
-#     html, body {
-#         overflow-x: hidden !important;
-#     }
-
-#     div[data-testid="stForm"] {
-#         overflow-x: hidden !important;
-#     }
-
-#     .pred-match-card-v2 {
-#         padding: 8px 9px !important;
-#         margin-bottom: 6px !important;
-#         border-radius: 13px !important;
-#         overflow: hidden !important;
-#     }
-
-#     .pred-match-meta {
-#         font-size: 8px !important;
-#         letter-spacing: 0.03em !important;
-#         margin-bottom: 6px !important;
-#     }
-
-#     .pred-team,
-#     .pred-team.right {
-#         font-size: 9px !important;
-#         line-height: 1.05 !important;
-#         min-height: 30px !important;
-#         gap: 3px !important;
-#         white-space: nowrap !important;
-#         overflow: hidden !important;
-#     }
-
-#     .pred-team span,
-#     .pred-team.right span {
-#         max-width: 46px !important;
-#         display: inline-block !important;
-#         overflow: hidden !important;
-#         text-overflow: ellipsis !important;
-#         white-space: nowrap !important;
-#     }
-
-#     .pred-flag {
-#         width: 18px !important;
-#         height: 13px !important;
-#         border-radius: 3px !important;
-#         flex-shrink: 0 !important;
-#     }
-
-#     div[data-testid="stNumberInput"] {
-#         width: 32px !important;
-#         min-width: 32px !important;
-#         max-width: 32px !important;
-#     }
-
-#     div[data-testid="stNumberInput"] input {
-#         width: 32px !important;
-#         min-width: 32px !important;
-#         max-width: 32px !important;
-#         height: 32px !important;
-#         min-height: 32px !important;
-#         padding: 0 !important;
-#         text-align: center !important;
-#         font-size: 14px !important;
-#         font-weight: 900 !important;
-#         border-radius: 8px !important;
-#     }
-
-#     div[data-testid="stNumberInput"] button {
-#         display: none !important;
-#     }
-
-#     .pred-vs {
-#         font-size: 14px !important;
-#         padding-top: 6px !important;
-#         line-height: 1 !important;
-#         text-align: center !important;
-#     }
-
-#     .pred-match-gap {
-#         height: 4px !important;
-#     }
-
-#     .pred-summary-footer {
-#         margin: 10px 6px 4px 6px !important;
-#         padding: 12px !important;
-#     }
-# }
-</style>
-""", unsafe_allow_html=True)
 
     # ============================================================
     # HELPERS
