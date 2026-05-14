@@ -1075,6 +1075,7 @@ if menu == "🏠 Inicio":
                     fixedrange=True,
                     color="#94a3b8",
                     tickfont=dict(size=10)
+                )    
         
                 for trace in fig.data:
                     if trace.name == usuario_actual:
