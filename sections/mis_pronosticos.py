@@ -95,171 +95,200 @@ def render_mis_pronosticos(
     color: #64748b;
 }
 
-    /* ============================================================
-       CARDS HORIZONTALES — MIS PRONÓSTICOS
-       ============================================================ */
-    
+/* ============================================================
+   FUERZA HORIZONTAL — SOLO MIS PRONÓSTICOS
+   ============================================================ */
+
+.pred-match-row {
+    margin-bottom: 10px;
+}
+
+/* Card superior */
+.pred-match-card-v2 {
+    background: rgba(248,250,252,0.96);
+    border: 1px solid rgba(226,232,240,0.95);
+    border-radius: 15px;
+    padding: 10px 12px 8px 12px;
+    margin-bottom: 4px;
+    overflow: hidden;
+}
+
+.pred-match-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Equipos */
+.pred-team-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 38px;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 900;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.pred-team-line.left {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.pred-team-line.right {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.pred-team-line span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pred-team-line img,
+.pred-flag {
+    width: 26px;
+    height: 18px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(15,23,42,0.16);
+}
+
+.pred-score-sep {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+/* Inputs */
+div[data-testid="stNumberInput"] {
+    width: 54px !important;
+    min-width: 54px !important;
+    max-width: 54px !important;
+}
+
+div[data-testid="stNumberInput"] label {
+    display: none !important;
+}
+
+div[data-testid="stNumberInput"] input {
+    text-align: center !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 900 !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(244,197,66,0.42) !important;
+    background: rgba(255,255,255,0.96) !important;
+    padding: 4px !important;
+}
+
+/* Ocultar botones + / - */
+div[data-testid="stNumberInput"] button {
+    display: none !important;
+}
+
+/* ============================================================
+   MOBILE — FORZAR UNA FILA
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    html, body {
+        overflow-x: hidden !important;
+    }
+
+    div[data-testid="stForm"] {
+        overflow-x: hidden !important;
+        padding: 12px !important;
+    }
+
+    /*
+    Fuerza los st.columns a no apilarse.
+    OJO: afecta columnas dentro del form de Mis Pronósticos.
+    */
+    div[data-testid="stForm"] [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 3px !important;
+        width: 100% !important;
+    }
+
+    div[data-testid="stForm"] [data-testid="column"] {
+        width: auto !important;
+        min-width: 0 !important;
+        flex: 1 1 0 !important;
+    }
+
     .pred-match-card-v2 {
-        background: rgba(248,250,252,0.96);
-        border: 1px solid rgba(226,232,240,0.95);
-        border-radius: 15px;
-        padding: 10px 12px 8px 12px;
-        margin-bottom: 8px;
-        overflow: hidden;
+        padding: 8px 8px 7px 8px !important;
+        border-radius: 13px !important;
+        margin-bottom: 3px !important;
     }
-    
+
     .pred-match-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: #94a3b8;
-        font-size: 10px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        margin-bottom: 8px;
+        font-size: 8px !important;
+        letter-spacing: 0.03em !important;
     }
-    
+
     .pred-team-line {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        min-height: 38px;
-        color: #0f172a;
-        font-size: 13px;
-        font-weight: 900;
-        overflow: hidden;
-        white-space: nowrap;
+        min-height: 32px !important;
+        font-size: 9px !important;
+        gap: 4px !important;
+        line-height: 1 !important;
     }
-    
-    .pred-team-line.left {
-        justify-content: flex-end;
-        text-align: right;
-    }
-    
-    .pred-team-line.right {
-        justify-content: flex-start;
-        text-align: left;
-    }
-    
+
     .pred-team-line span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        max-width: 58px !important;
     }
-    
+
     .pred-team-line img,
     .pred-flag {
-        width: 28px;
-        height: 20px;
-        object-fit: cover;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(15,23,42,0.16);
-        flex-shrink: 0;
+        width: 18px !important;
+        height: 13px !important;
+        border-radius: 3px !important;
     }
-    
-    .pred-score-center {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 38px;
-        gap: 4px;
-    }
-    
+
     .pred-score-sep {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 900;
-        color: #0f172a;
-        padding-top: 4px;
+        min-height: 32px !important;
+        font-size: 13px !important;
     }
-    
-    /* Inputs compactos */
+
     div[data-testid="stNumberInput"] {
-        min-width: 46px !important;
-        max-width: 52px !important;
+        width: 32px !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
     }
-    
+
     div[data-testid="stNumberInput"] input {
-        text-align: center !important;
-        font-family: 'Montserrat', sans-serif !important;
-        font-weight: 900 !important;
-        border-radius: 10px !important;
-        border: 1px solid rgba(244,197,66,0.42) !important;
-        background: rgba(255,255,255,0.96) !important;
-        padding: 4px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+        max-height: 32px !important;
+        width: 32px !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
     }
-    
-    /* Ocultar botones + / - */
-    div[data-testid="stNumberInput"] button {
-        display: none !important;
-    }
-    
+
     .pred-match-gap {
-        height: 6px;
+        height: 7px !important;
     }
-    
-    /* MOBILE */
-    @media (max-width: 768px) {
-        .pred-match-card-v2 {
-            padding: 8px 8px 7px 8px !important;
-            border-radius: 13px !important;
-            margin-bottom: 7px !important;
-        }
-    
-        .pred-match-meta {
-            font-size: 8px !important;
-            letter-spacing: 0.03em !important;
-            margin-bottom: 6px !important;
-        }
-    
-        .pred-team-line {
-            min-height: 32px !important;
-            font-size: 9px !important;
-            gap: 4px !important;
-            line-height: 1 !important;
-        }
-    
-        .pred-team-line span {
-            max-width: 62px !important;
-        }
-    
-        .pred-team-line img,
-        .pred-flag {
-            width: 18px !important;
-            height: 13px !important;
-            border-radius: 3px !important;
-        }
-    
-        .pred-score-center {
-            min-height: 32px !important;
-            gap: 2px !important;
-        }
-    
-        .pred-score-sep {
-            font-size: 13px !important;
-            padding-top: 3px !important;
-        }
-    
-        div[data-testid="stNumberInput"] {
-            min-width: 32px !important;
-            max-width: 34px !important;
-        }
-    
-        div[data-testid="stNumberInput"] input {
-            height: 32px !important;
-            min-height: 32px !important;
-            max-height: 32px !important;
-            width: 32px !important;
-            min-width: 32px !important;
-            max-width: 32px !important;
-            padding: 0 !important;
-            font-size: 14px !important;
-            border-radius: 8px !important;
-        }
-    }
-    .profile-card {
-        text-align: center;
-    }
+}
 
 .profile-avatar {
     width: 128px;
@@ -562,9 +591,6 @@ def render_mis_pronosticos(
 """, unsafe_allow_html=True)
 
             lista_nuevos_pro = []
-            # ------------------------------------------------------------
-            # LISTADO DE PARTIDOS — CARD HORIZONTAL COMPACTA
-            # ------------------------------------------------------------
 
             with st.container(height=520):
 
@@ -593,69 +619,72 @@ def render_mis_pronosticos(
                     dia = str(row.get("DIA", ""))
                     hora = str(row.get("HORA", ""))
 
-                    st.markdown(f"""
+                    st.markdown(
+                        f"""
 <div class="pred-match-card-v2">
 <div class="pred-match-meta">
 <span>Partido #{id_p}</span>
 <span>{escape(dia)} | {escape(hora)}</span>
 </div>
 </div>
-""", unsafe_allow_html=True)
+""",
+                        unsafe_allow_html=True
+                    )
 
-                    c_left, c_score, c_right = st.columns(
-                        [1.35, 0.72, 1.35],
+                    c_eq1, c_g1, c_vs, c_g2, c_eq2 = st.columns(
+                        [2.4, 0.55, 0.22, 0.55, 2.4],
                         gap="small"
                     )
 
-                    with c_left:
-                        st.markdown(f"""
+                    with c_eq1:
+                        st.markdown(
+                            f"""
 <div class="pred-team-line left">
 <span>{escape(equipo_1)}</span>
 {flag_html(bandera1)}
 </div>
-""", unsafe_allow_html=True)
-
-                    with c_score:
-                        s1, s_sep, s2 = st.columns(
-                            [0.45, 0.10, 0.45],
-                            gap="small"
+""",
+                            unsafe_allow_html=True
                         )
 
-                        with s1:
-                            p1_val = st.number_input(
-                                f"G1_{id_p}",
-                                min_value=0,
-                                max_value=15,
-                                value=v1,
-                                key=f"mispron_f1_{id_p}",
-                                label_visibility="collapsed",
-                                disabled=esta_bloqueado
-                            )
+                    with c_g1:
+                        p1_val = st.number_input(
+                            f"G1_{id_p}",
+                            min_value=0,
+                            max_value=15,
+                            value=v1,
+                            key=f"mispron_f1_{id_p}",
+                            label_visibility="collapsed",
+                            disabled=esta_bloqueado
+                        )
 
-                        with s_sep:
-                            st.markdown(
-                                '<div class="pred-score-sep">:</div>',
-                                unsafe_allow_html=True
-                            )
+                    with c_vs:
+                        st.markdown(
+                            '<div class="pred-score-sep">:</div>',
+                            unsafe_allow_html=True
+                        )
 
-                        with s2:
-                            p2_val = st.number_input(
-                                f"G2_{id_p}",
-                                min_value=0,
-                                max_value=15,
-                                value=v2,
-                                key=f"mispron_f2_{id_p}",
-                                label_visibility="collapsed",
-                                disabled=esta_bloqueado
-                            )
+                    with c_g2:
+                        p2_val = st.number_input(
+                            f"G2_{id_p}",
+                            min_value=0,
+                            max_value=15,
+                            value=v2,
+                            key=f"mispron_f2_{id_p}",
+                            label_visibility="collapsed",
+                            disabled=esta_bloqueado
+                        )
 
-                    with c_right:
-                        st.markdown(f"""
+                    with c_eq2:
+                        st.markdown(
+                            f"""
 <div class="pred-team-line right">
 {flag_html(bandera2)}
 <span>{escape(equipo_2)}</span>
 </div>
-""", unsafe_allow_html=True)
+""",
+                            unsafe_allow_html=True
+                        )
 
                     lista_nuevos_pro.append(
                         {
