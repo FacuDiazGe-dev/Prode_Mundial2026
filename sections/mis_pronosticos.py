@@ -483,110 +483,95 @@ div[data-testid="stForm"] button {
     color: #F4C542;
 }
 
+/* ============================================================
+   MOBILE — MANTENER PARTIDOS HORIZONTALES
+   ============================================================ */
+
 @media (max-width: 768px) {
 
-    .page-section-title h1 {
-        font-size: 28px;
-        line-height: 1.05;
+    /* Fuerza las columnas del formulario a mantenerse en fila */
+    div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 4px !important;
+        width: 100% !important;
     }
 
-    .page-section-title p {
-        font-size: 13px;
+    div[data-testid="stForm"] div[data-testid="column"] {
+        min-width: 0 !important;
+        flex: 1 1 0 !important;
     }
 
-    .pred-panel-header-v2 {
-        padding: 2px 2px 12px 2px;
-        margin-bottom: 10px;
-    }
-
-    .panel-title {
-        font-size: 17px;
-    }
-
-    .pred-panel-subtitle {
-        font-size: 11px;
-    }
-
+    /* Card de partido más compacta */
     .pred-match-card-v2 {
-        padding: 8px 10px 8px 10px;
-        margin-bottom: 8px;
-        border-radius: 13px;
+        padding: 8px 10px !important;
+        margin-bottom: 6px !important;
+        border-radius: 13px !important;
     }
 
     .pred-match-meta {
-        font-size: 9px;
-        letter-spacing: 0.04em;
+        font-size: 8px !important;
+        letter-spacing: 0.03em !important;
+        margin-bottom: 6px !important;
     }
 
-    .pred-team {
-        font-size: 11px;
-        gap: 6px;
-        min-height: 28px;
-        line-height: 1.1;
-    }
-
+    /* Equipos en una sola línea */
+    .pred-team,
     .pred-team.right {
-        font-size: 11px;
-        gap: 6px;
-        min-height: 28px;
-        line-height: 1.1;
+        font-size: 10px !important;
+        line-height: 1 !important;
+        min-height: 30px !important;
+        gap: 4px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+    }
+
+    .pred-team span,
+    .pred-team.right span {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 68px !important;
+        display: inline-block !important;
     }
 
     .pred-flag {
-        width: 22px;
-        height: 16px;
-        border-radius: 3px;
+        width: 21px !important;
+        height: 15px !important;
+        border-radius: 3px !important;
+        flex-shrink: 0 !important;
     }
 
-    .pred-vs {
-        font-size: 18px;
-        padding-top: 6px;
+    /* Inputs más chicos tipo marcador */
+    div[data-testid="stNumberInput"] {
+        min-width: 34px !important;
     }
 
     div[data-testid="stNumberInput"] input {
-        min-height: 38px !important;
-        font-size: 18px !important;
-        padding: 4px 2px !important;
-        border-radius: 10px !important;
+        min-height: 34px !important;
+        height: 34px !important;
+        padding: 2px !important;
+        font-size: 15px !important;
+        font-weight: 900 !important;
+        text-align: center !important;
+        border-radius: 9px !important;
     }
 
-    /* Oculta los + / - en móvil para ganar espacio */
+    /* Oculta botones + / - para ganar espacio */
     div[data-testid="stNumberInput"] button {
         display: none !important;
     }
 
-    .pred-summary-footer {
-        margin: 10px 8px 4px 8px;
-        padding: 12px 12px;
-        border-radius: 14px;
+    .pred-vs {
+        font-size: 16px !important;
+        padding-top: 5px !important;
+        line-height: 1 !important;
     }
 
-    .pred-summary-kicker {
-        font-size: 9px;
-        margin-bottom: 8px;
-    }
-
-    .pred-summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 7px;
-    }
-
-    .pred-summary-item {
-        padding: 8px 6px;
-    }
-
-    .pred-summary-number {
-        font-size: 16px;
-    }
-
-    .pred-summary-label {
-        font-size: 8px;
-    }
-
-    .pred-summary-style {
-        margin-top: 8px;
-        font-size: 10px;
-        text-align: center;
+    .pred-match-gap {
+        height: 4px !important;
     }
 }
 </style>
@@ -784,7 +769,7 @@ div[data-testid="stForm"] button {
 """, unsafe_allow_html=True)
 
                     c_eq1, c_g1, c_vs, c_g2, c_eq2 = st.columns(
-                        [1.35, 0.42, 0.14, 0.42, 1.35],
+                        [1.25, 0.34, 0.10, 0.34, 1.25],
                         gap="small"
                     )
 
