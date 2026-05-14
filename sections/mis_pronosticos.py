@@ -95,351 +95,171 @@ def render_mis_pronosticos(
     color: #64748b;
 }
 
-/* ============================================================
-   CARDS HORIZONTALES DE PRONÓSTICOS
-   Desktop + Mobile compacto
-   ============================================================ */
-
-.pred-match-card,
-.pred-match-card-v2 {
-    background: rgba(248,250,252,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 15px;
-    padding: 10px 12px 8px 12px;
-    margin-bottom: 4px;
-    overflow: hidden;
-}
-
-.pred-match-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #94a3b8;
-    font-size: 10px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 0;
-}
-
-.pred-team {
-    display: flex;
-    align-items: center;
-    min-height: 38px;
-    color: #0f172a;
-    font-size: 13px;
-    font-weight: 900;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.pred-team-left {
-    justify-content: flex-end;
-    text-align: right;
-}
-
-.pred-team-right {
-    justify-content: flex-start;
-    text-align: left;
-}
-
-.pred-team span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.pred-flag-wrap {
-    min-height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.pred-flag {
-    width: 28px;
-    height: 20px;
-    object-fit: cover;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(15,23,42,0.16);
-    flex-shrink: 0;
-}
-
-.pred-vs {
-    min-height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #0f172a;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    padding: 0;
-}
-
-.pred-match-gap {
-    height: 10px;
-    border-bottom: 1px solid rgba(226,232,240,0.65);
-    margin-bottom: 8px;
-}
-
-/* Inputs como casilleros de marcador */
-div[data-testid="stNumberInput"] input {
-    text-align: center;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    border-radius: 10px !important;
-    border: 1px solid rgba(244,197,66,0.42) !important;
-    background: rgba(255,255,255,0.96) !important;
-}
-
-/* Botones de edición / guardado */
-div[data-testid="stFormSubmitButton"] button {
-    border-radius: 13px !important;
-    min-height: 44px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-size: 14px !important;
-    font-weight: 900 !important;
-
-    background: linear-gradient(
-        135deg,
-        rgba(244,197,66,0.95),
-        rgba(255,220,105,0.95)
-    ) !important;
-
-    color: #07111F !important;
-    border: 1px solid rgba(180,130,20,0.28) !important;
-
-    box-shadow:
-        0 8px 18px rgba(244,197,66,0.18),
-        inset 0 1px 0 rgba(255,255,255,0.38) !important;
-
-    transition: all 0.18s ease !important;
-}
-
-div[data-testid="stFormSubmitButton"] button:hover {
-    transform: translateY(-1px);
-    background: linear-gradient(
-        135deg,
-        rgba(255,214,80,1),
-        rgba(255,230,135,1)
-    ) !important;
-
-    border-color: rgba(180,130,20,0.45) !important;
-    box-shadow:
-        0 10px 22px rgba(244,197,66,0.24),
-        inset 0 1px 0 rgba(255,255,255,0.45) !important;
-}
-
-div[data-testid="stFormSubmitButton"] button:disabled {
-    background: rgba(248,250,252,0.95) !important;
-    color: #94a3b8 !important;
-    border: 1px solid rgba(226,232,240,0.95) !important;
-    box-shadow: none !important;
-}
-
-/* ============================================================
-   RESUMEN OSCURO — ESTADÍSTICAS DE PRONÓSTICOS
-   ============================================================ */
-
-.pred-summary-footer {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(7,17,31,0.98),
-            rgba(15,23,42,0.94)
-        );
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 15px 16px;
-    margin: 12px 10px 4px 10px;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.05),
-        0 10px 24px rgba(15,23,42,0.08);
-}
-
-.pred-summary-kicker {
-    font-size: 10px;
-    font-weight: 900;
-    color: rgba(255,255,255,0.55);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 9px;
-}
-
-.pred-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-}
-
-.pred-summary-item {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    padding: 9px 6px;
-    text-align: center;
-}
-
-.pred-summary-icon {
-    font-size: 16px;
-    line-height: 1;
-    margin-bottom: 4px;
-}
-
-.pred-summary-number {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 17px;
-    font-weight: 900;
-    color: #F8FAFC;
-    line-height: 1;
-}
-
-.pred-summary-label {
-    margin-top: 4px;
-    font-size: 9px;
-    font-weight: 800;
-    color: rgba(255,255,255,0.55);
-    text-transform: uppercase;
-}
-
-.pred-summary-style {
-    margin-top: 10px;
-    color: rgba(255,255,255,0.72);
-    font-size: 11px;
-    font-weight: 800;
-}
-}
-
-.pred-summary-style strong {
-    color: #F4C542;
-}
-
-/* ============================================================
-   MOBILE — UNA SOLA LÍNEA POR PARTIDO
-   ============================================================ */
-
-@media (max-width: 768px) {
-
-    html, body {
-        overflow-x: hidden !important;
-    }
-
-    div[data-testid="stForm"] {
-        overflow-x: hidden !important;
-        padding: 12px !important;
-    }
-
-    .page-section-title h1 {
-        font-size: 27px;
-        line-height: 1.05;
-    }
-
-    .page-section-title p {
-        font-size: 12px;
-    }
-
-    .pred-panel-header-v2 {
-        padding: 2px 2px 12px 2px;
-        margin-bottom: 10px;
-    }
-
-    .panel-title {
-        font-size: 17px;
-    }
-
-    .pred-panel-subtitle {
-        font-size: 10px;
-    }
-
+    /* ============================================================
+       CARDS HORIZONTALES — MIS PRONÓSTICOS
+       ============================================================ */
+    
     .pred-match-card-v2 {
-        padding: 8px 8px 7px 8px !important;
-        margin-bottom: 3px !important;
-        border-radius: 13px !important;
+        background: rgba(248,250,252,0.96);
+        border: 1px solid rgba(226,232,240,0.95);
+        border-radius: 15px;
+        padding: 10px 12px 8px 12px;
+        margin-bottom: 8px;
+        overflow: hidden;
     }
-
+    
     .pred-match-meta {
-        font-size: 8px !important;
-        letter-spacing: 0.03em !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #94a3b8;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 8px;
     }
-
-    .pred-team {
-        min-height: 32px !important;
-        font-size: 9px !important;
-        line-height: 1 !important;
+    
+    .pred-team-line {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 38px;
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 900;
+        overflow: hidden;
+        white-space: nowrap;
     }
-
-    .pred-team span {
-        max-width: 54px !important;
+    
+    .pred-team-line.left {
+        justify-content: flex-end;
+        text-align: right;
     }
-
-    .pred-flag-wrap {
-        min-height: 32px !important;
+    
+    .pred-team-line.right {
+        justify-content: flex-start;
+        text-align: left;
     }
-
+    
+    .pred-team-line span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .pred-team-line img,
     .pred-flag {
-        width: 18px !important;
-        height: 13px !important;
-        border-radius: 3px !important;
+        width: 28px;
+        height: 20px;
+        object-fit: cover;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(15,23,42,0.16);
+        flex-shrink: 0;
     }
-
-    .pred-vs {
-        min-height: 32px !important;
-        font-size: 13px !important;
-        padding: 0 !important;
+    
+    .pred-score-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        gap: 4px;
     }
-
+    
+    .pred-score-sep {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 900;
+        color: #0f172a;
+        padding-top: 4px;
+    }
+    
+    /* Inputs compactos */
     div[data-testid="stNumberInput"] {
-        min-width: 30px !important;
-        max-width: 34px !important;
+        min-width: 46px !important;
+        max-width: 52px !important;
     }
-
+    
     div[data-testid="stNumberInput"] input {
-        height: 32px !important;
-        min-height: 32px !important;
-        max-height: 32px !important;
-        width: 32px !important;
-        min-width: 32px !important;
-        max-width: 32px !important;
-        padding: 0 !important;
-        font-size: 14px !important;
-        border-radius: 8px !important;
+        text-align: center !important;
+        font-family: 'Montserrat', sans-serif !important;
+        font-weight: 900 !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(244,197,66,0.42) !important;
+        background: rgba(255,255,255,0.96) !important;
+        padding: 4px !important;
     }
-
-    /* Oculta + / - en celular para conservar la fila horizontal */
+    
+    /* Ocultar botones + / - */
     div[data-testid="stNumberInput"] button {
         display: none !important;
     }
-
+    
     .pred-match-gap {
-        height: 6px !important;
-        margin-bottom: 6px !important;
+        height: 6px;
     }
-
-    .pred-summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 7px;
+    
+    /* MOBILE */
+    @media (max-width: 768px) {
+        .pred-match-card-v2 {
+            padding: 8px 8px 7px 8px !important;
+            border-radius: 13px !important;
+            margin-bottom: 7px !important;
+        }
+    
+        .pred-match-meta {
+            font-size: 8px !important;
+            letter-spacing: 0.03em !important;
+            margin-bottom: 6px !important;
+        }
+    
+        .pred-team-line {
+            min-height: 32px !important;
+            font-size: 9px !important;
+            gap: 4px !important;
+            line-height: 1 !important;
+        }
+    
+        .pred-team-line span {
+            max-width: 62px !important;
+        }
+    
+        .pred-team-line img,
+        .pred-flag {
+            width: 18px !important;
+            height: 13px !important;
+            border-radius: 3px !important;
+        }
+    
+        .pred-score-center {
+            min-height: 32px !important;
+            gap: 2px !important;
+        }
+    
+        .pred-score-sep {
+            font-size: 13px !important;
+            padding-top: 3px !important;
+        }
+    
+        div[data-testid="stNumberInput"] {
+            min-width: 32px !important;
+            max-width: 34px !important;
+        }
+    
+        div[data-testid="stNumberInput"] input {
+            height: 32px !important;
+            min-height: 32px !important;
+            max-height: 32px !important;
+            width: 32px !important;
+            min-width: 32px !important;
+            max-width: 32px !important;
+            padding: 0 !important;
+            font-size: 14px !important;
+            border-radius: 8px !important;
+        }
     }
-
-    .pred-summary-item {
-        padding: 8px 6px;
-    }
-
-    .pred-summary-number {
-        font-size: 16px;
-    }
-
-    .pred-summary-label {
-        font-size: 8px;
-    }
-
-    .pred-summary-style {
-        margin-top: 8px;
-        font-size: 10px;
+    .profile-card {
         text-align: center;
     }
-.profile-card {
-    text-align: center;
-}
 
 .profile-avatar {
     width: 128px;
@@ -746,8 +566,6 @@ div[data-testid="stFormSubmitButton"] button:disabled {
             # LISTADO DE PARTIDOS — CARD HORIZONTAL COMPACTA
             # ------------------------------------------------------------
 
-            lista_nuevos_pro = []
-
             with st.container(height=520):
 
                 for _, row in df_res.sort_values("N_PARTIDO").iterrows():
@@ -775,7 +593,6 @@ div[data-testid="stFormSubmitButton"] button:disabled {
                     dia = str(row.get("DIA", ""))
                     hora = str(row.get("HORA", ""))
 
-                    # Header de la card
                     st.markdown(f"""
 <div class="pred-match-card-v2">
 <div class="pred-match-meta">
@@ -785,65 +602,57 @@ div[data-testid="stFormSubmitButton"] button:disabled {
 </div>
 """, unsafe_allow_html=True)
 
-                    # Fila horizontal compacta:
-                    # Eq1 - Flag1 - R1 - : - R2 - Flag2 - Eq2
-                    c_eq1, c_flag1, c_g1, c_vs, c_g2, c_flag2, c_eq2 = st.columns(
-                        [1.05, 0.22, 0.28, 0.08, 0.28, 0.22, 1.05],
+                    c_left, c_score, c_right = st.columns(
+                        [1.35, 0.72, 1.35],
                         gap="small"
                     )
 
-                    with c_eq1:
+                    with c_left:
                         st.markdown(f"""
-<div class="pred-team pred-team-left">
+<div class="pred-team-line left">
 <span>{escape(equipo_1)}</span>
-</div>
-""", unsafe_allow_html=True)
-
-                    with c_flag1:
-                        st.markdown(f"""
-<div class="pred-flag-wrap">
 {flag_html(bandera1)}
 </div>
 """, unsafe_allow_html=True)
 
-                    with c_g1:
-                        p1_val = st.number_input(
-                            f"G1_{id_p}",
-                            min_value=0,
-                            max_value=15,
-                            value=v1,
-                            key=f"mispron_f1_{id_p}",
-                            label_visibility="collapsed",
-                            disabled=esta_bloqueado
+                    with c_score:
+                        s1, s_sep, s2 = st.columns(
+                            [0.45, 0.10, 0.45],
+                            gap="small"
                         )
 
-                    with c_vs:
-                        st.markdown(
-                            '<div class="pred-vs">:</div>',
-                            unsafe_allow_html=True
-                        )
+                        with s1:
+                            p1_val = st.number_input(
+                                f"G1_{id_p}",
+                                min_value=0,
+                                max_value=15,
+                                value=v1,
+                                key=f"mispron_f1_{id_p}",
+                                label_visibility="collapsed",
+                                disabled=esta_bloqueado
+                            )
 
-                    with c_g2:
-                        p2_val = st.number_input(
-                            f"G2_{id_p}",
-                            min_value=0,
-                            max_value=15,
-                            value=v2,
-                            key=f"mispron_f2_{id_p}",
-                            label_visibility="collapsed",
-                            disabled=esta_bloqueado
-                        )
+                        with s_sep:
+                            st.markdown(
+                                '<div class="pred-score-sep">:</div>',
+                                unsafe_allow_html=True
+                            )
 
-                    with c_flag2:
+                        with s2:
+                            p2_val = st.number_input(
+                                f"G2_{id_p}",
+                                min_value=0,
+                                max_value=15,
+                                value=v2,
+                                key=f"mispron_f2_{id_p}",
+                                label_visibility="collapsed",
+                                disabled=esta_bloqueado
+                            )
+
+                    with c_right:
                         st.markdown(f"""
-<div class="pred-flag-wrap">
+<div class="pred-team-line right">
 {flag_html(bandera2)}
-</div>
-""", unsafe_allow_html=True)
-
-                    with c_eq2:
-                        st.markdown(f"""
-<div class="pred-team pred-team-right">
 <span>{escape(equipo_2)}</span>
 </div>
 """, unsafe_allow_html=True)
