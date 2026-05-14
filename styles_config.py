@@ -10,9 +10,7 @@ ICONO_APP = "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png"
 
 FONDO_BASE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO%20BASE.jpg"
 
-SIDEBAR_BANNER = "https://storage.googleapis.com/foto-prode2026/Banners/BANNER%20VERTICAL_V3.jpg"
-
-HEADER_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/headder-background.png"
+SIDEBAR_BANNER = "https://storage.googleapis.com/foto-prode2026/Banners/SIDEBAR_NEWV1.png"
 
 HEADER_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/headder-background.png"
 
@@ -57,7 +55,7 @@ html, body, [class*="css"] {
 
 .stApp {
     background-image:
-        linear-gradient(rgba(255,255,255,0.80), rgba(255,255,255,0.80)),
+        linear-gradient(rgba(255,255,255,0.50), rgba(255,255,255,0.50)),
         url("__FONDO_BASE__");
     background-attachment: fixed;
     background-size: cover;
