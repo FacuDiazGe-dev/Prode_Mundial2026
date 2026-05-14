@@ -1548,27 +1548,56 @@ if menu == "🏠 Inicio":
         
         st.markdown(matches_html, unsafe_allow_html=True)
         # ============================================================
-        # CHAT / FORO VISUAL PREMIUM
+        # CHAT / FORO — CARD INTEGRADA
         # ============================================================
-        
-        st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-        st.markdown('<div class="dash-title">💬 En los Pasillos de la Villa se Comenta...</div>', unsafe_allow_html=True)
         
         st.markdown("""
         <style>
-        .chat-card {
+        .chat-panel {
             background: rgba(255, 255, 255, 0.94);
             border: 1px solid rgba(226, 232, 240, 0.9);
             border-radius: 18px;
-            padding: 12px;
+            padding: 14px;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-            margin-top: -10px;
         }
-                
+        
+        .chat-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 4px 14px 4px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+        }
+        
+        .chat-panel-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(244, 197, 66, 0.16);
+            color: #0f172a;
+            font-size: 16px;
+        }
+        
+        .chat-panel-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 17px;
+            font-weight: 900;
+            color: #0f172a;
+            text-transform: none;
+            letter-spacing: -0.01em;
+        }
+        
         .chat-scroll {
             height: 265px;
             overflow-y: auto;
             padding: 6px 6px 2px 6px;
+            border-radius: 15px;
+            background: rgba(248, 250, 252, 0.72);
+            border: 1px solid rgba(226, 232, 240, 0.75);
         }
         
         .chat-scroll::-webkit-scrollbar {
@@ -1576,12 +1605,12 @@ if menu == "🏠 Inicio":
         }
         
         .chat-scroll::-webkit-scrollbar-track {
-            background: rgba(226, 232, 240, 0.5);
+            background: rgba(226, 232, 240, 0.55);
             border-radius: 999px;
         }
         
         .chat-scroll::-webkit-scrollbar-thumb {
-            background: rgba(30, 58, 138, 0.45);
+            background: rgba(15, 23, 42, 0.22);
             border-radius: 999px;
         }
         
@@ -1602,23 +1631,23 @@ if menu == "🏠 Inicio":
             border-radius: 50%;
             object-fit: cover;
             flex-shrink: 0;
-            border: 2px solid rgba(255,255,255,0.9);
-            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
+            border: 2px solid rgba(255,255,255,0.95);
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.16);
         }
         
         .chat-bubble-new {
             max-width: 82%;
             border-radius: 16px;
             padding: 9px 11px;
-            background: rgba(248, 250, 252, 0.96);
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(226, 232, 240, 0.95);
             color: #1e293b;
             box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
         }
         
         .chat-row.me .chat-bubble-new {
-            background: linear-gradient(135deg, rgba(244,197,66,0.24), rgba(255,255,255,0.96));
-            border: 1px solid rgba(244, 197, 66, 0.45);
+            background: linear-gradient(135deg, rgba(244,197,66,0.22), rgba(255,255,255,0.96));
+            border: 1px solid rgba(244, 197, 66, 0.48);
         }
         
         .chat-head {
@@ -1665,6 +1694,10 @@ if menu == "🏠 Inicio":
             text-align: center;
         }
         
+        .chat-form-spacer {
+            height: 10px;
+        }
+        
         div[data-testid="stForm"] {
             border: none;
             padding: 0;
@@ -1672,6 +1705,14 @@ if menu == "🏠 Inicio":
         }
         
         @media (max-width: 768px) {
+            .chat-panel {
+                padding: 12px;
+            }
+        
+            .chat-panel-title {
+                font-size: 15px;
+            }
+        
             .chat-scroll {
                 height: 300px;
             }
@@ -1707,18 +1748,26 @@ if menu == "🏠 Inicio":
             if col not in df_foro.columns:
                 df_foro[col] = ""
         
-        chat_html = '<div class="chat-card"><div class="chat-scroll">'
+        chat_html = '<div class="chat-panel">'
+        chat_html += '<div class="chat-panel-header"><div class="chat-panel-icon">💬</div><div class="chat-panel-title">En los pasillos de la Villa se Comenta...</div></div>'
+        chat_html += '<div class="chat-scroll">'
         
         if df_foro.empty:
             chat_html += '<div class="chat-empty">Todavía no hay comentarios.<br>¡Sé el primero en tirar una chicana mundialista!</div>'
         else:
+            # Últimos mensajes primero
             df_foro_mostrar = df_foro.tail(20).iloc[::-1]
         
             for _, msg in df_foro_mostrar.iterrows():
                 usuario_msg = str(msg.get("USUARIO", "Usuario"))
-                nombre_msg = str(msg.get("NOMBRE", usuario_msg))
-                mensaje = escape(str(msg.get("MENSAJE", "")))
-                hora = escape(str(msg.get("HORA", "")))
+        
+                nombre_raw = msg.get("NOMBRE", "")
+                hora_raw = msg.get("HORA", "")
+                mensaje_raw = msg.get("MENSAJE", "")
+        
+                nombre_msg = str(nombre_raw) if pd.notna(nombre_raw) and str(nombre_raw).lower() != "nan" and str(nombre_raw).strip() else usuario_msg
+                hora = str(hora_raw) if pd.notna(hora_raw) and str(hora_raw).lower() != "nan" else ""
+                mensaje = escape(str(mensaje_raw)) if pd.notna(mensaje_raw) else ""
         
                 es_propio = usuario_msg == st.session_state["user_data"]["USUARIO"]
         
@@ -1734,13 +1783,20 @@ if menu == "🏠 Inicio":
                 chat_html += f'<div class="chat-row {clase_me}">'
                 chat_html += f'<img src="{avatar}" class="chat-avatar">'
                 chat_html += '<div class="chat-bubble-new">'
-                chat_html += f'<div class="chat-head"><span class="chat-user">{escape(nombre_msg)}</span><span class="chat-time">{hora}</span></div>'
+                chat_html += f'<div class="chat-head"><span class="chat-user">{escape(nombre_msg)}</span>'
+        
+                if hora:
+                    chat_html += f'<span class="chat-time">{escape(hora)}</span>'
+        
+                chat_html += '</div>'
                 chat_html += f'<div class="chat-message">{mensaje}</div>'
                 chat_html += '</div></div>'
         
         chat_html += '</div></div>'
         
         st.markdown(chat_html, unsafe_allow_html=True)
+        
+        st.markdown('<div class="chat-form-spacer"></div>', unsafe_allow_html=True)
         
         # Formulario de envío
         with st.form("form_foro_premium", clear_on_submit=True):
