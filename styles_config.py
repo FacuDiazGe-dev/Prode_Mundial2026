@@ -70,8 +70,8 @@ html, body, [class*="css"] {
     background-color: #07111F;
     background-image:
         linear-gradient(
-            rgba(7,17,31,0.67),
-            rgba(7,17,31,0.76)
+            rgba(7,17,31,0.57),
+            rgba(7,17,31,0.66)
         ),
         url("__SIDEBAR_BANNER__");
     background-size: cover;
