@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from html import escape
 import re
 
-from styles_config import AVATAR_GENERICO
+from styles_config import (AVATAR_GENERICO, HEADER_BACKGROUND, SIDEBAR_BANNER)
 from tools import upload_profile_picture
 
 
@@ -20,7 +20,9 @@ def render_mis_pronosticos(
     # ESTILOS — MIS PRONÓSTICOS / MI PERFIL
     # ============================================================
 
-    st.markdown("""
+    #st.markdown("""
+    css_mis_pronosticos = """
+<style>
 <style>
 .page-section-title {
     margin-bottom: 22px;
@@ -343,10 +345,24 @@ div[data-testid="stTextInput"] input:disabled {
         padding: 12px !important;
     }
 
-    .pred-panel-header-v2 {
-        padding: 2px 2px 12px 2px;
-        margin-bottom: 10px;
-    }
+.pred-panel-header-v2 {
+    padding: 12px 14px 14px 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(226,232,240,0.75);
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.96) 0%,
+            rgba(255,255,255,0.88) 45%,
+            rgba(255,255,255,0.70) 100%
+        ),
+        url("__SIDEBAR_BANNER__");
+
+    background-size: cover;
+    background-position: center;
+    border-radius: 14px;
+}
 
     .panel-title {
         font-size: 17px;
@@ -482,17 +498,21 @@ div[data-testid="stTextInput"] input:disabled {
 }
 
 .profile-hero {
-    background:
+    background-image:
         radial-gradient(
             circle at 50% 0%,
-            rgba(244,197,66,0.22),
+            rgba(244,197,66,0.28),
             rgba(255,255,255,0.00) 42%
         ),
         linear-gradient(
             180deg,
-            rgba(248,250,252,0.96),
+            rgba(255,255,255,0.78),
             rgba(255,255,255,0.96)
-        );
+        ),
+        url("__HEADER_BACKGROUND__");
+
+    background-size: cover;
+    background-position: center;
     border: 1px solid rgba(226,232,240,0.85);
     border-radius: 16px;
     padding: 18px 14px 14px 14px;
@@ -688,7 +708,15 @@ div[data-testid="stButton"] button {
     }
 }
 </style>
-""", unsafe_allow_html=True)
+"""
+
+css_mis_pronosticos = (
+    css_mis_pronosticos
+    .replace("__PRONOSTICOS_HEADER_BACKGROUND__", PRONOSTICOS_HEADER_BACKGROUND)
+    .replace("__PROFILE_HEADER_BACKGROUND__", PROFILE_HEADER_BACKGROUND)
+)
+
+st.markdown(css_mis_pronosticos, unsafe_allow_html=True)
 
     # ============================================================
     # HELPERS
