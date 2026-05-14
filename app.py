@@ -679,7 +679,7 @@ if menu == "🏠 Inicio":
         </div>
     
     </div>
-    """
+    """)
     
     st.markdown(html_hero, unsafe_allow_html=True)
     
