@@ -10,7 +10,7 @@ ICONO_APP = "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png"
 
 FONDO_BASE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO%20BASE.jpg"
 
-SIDEBAR_BANNER = "https://storage.googleapis.com/foto-prode2026/Banners/SIDEBAR_NEWV1.png"
+SIDEBAR_BANNER = "https://storage.googleapis.com/foto-prode2026/Banners/SIDEBAR_NEWV2.png"
 
 HEADER_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/headder-background.png"
 
