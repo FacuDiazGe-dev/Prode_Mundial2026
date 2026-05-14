@@ -626,6 +626,9 @@ if menu == "🏠 Inicio":
             font-size: 10px;
             font-weight: 700;
             color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .player-sub strong {
@@ -731,11 +734,15 @@ if menu == "🏠 Inicio":
             medalla = clase_medalla(posicion_num)
         
             subtitulo = "Tu posición actual" if es_usuario_actual else "Participante"
-            detalle = f"{exactos} exactos · {generales} generales"
         
             ranking_html += f'<div class="ranking-row {clase_usuario}">'
             ranking_html += f'<div class="rank-pos {medalla}">{pos_label}</div>'
-            ranking_html += f'<div class="player-info"><div class="player-name">{jugador}</div><div class="player-sub">{subtitulo} · <strong>{detalle}</strong></div></div>'
+            ranking_html += (
+                f'<div class="player-info">'
+                f'<div class="player-name">{jugador}</div>'
+                f'<div class="player-sub">{subtitulo} · 🎯 {exactos} · ✅ {generales}</div>'
+                f'</div>'
+            )
             ranking_html += f'<div class="rank-points"><div class="points-main">{puntos}</div><div class="points-label">pts</div></div>'
             ranking_html += '</div>'
         
