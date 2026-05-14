@@ -1048,7 +1048,7 @@ if menu == "🏠 Inicio":
                         l=38,
                         r=14,
                         t=10,
-                        b=34
+                        b=24
                     ),
                     showlegend=False,
                     hovermode=False,
@@ -1255,7 +1255,7 @@ if menu == "🏠 Inicio":
                 
                 components.html(
                     evol_full_html,
-                    height=430,
+                    height=470,
                     scrolling=False
                 )
                         
