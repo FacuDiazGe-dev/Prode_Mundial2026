@@ -299,7 +299,7 @@ if menu == "🏠 Inicio":
     .header-top {{
         padding: 0 10px 5px 10px;
         margin-top: -10px;
-        text-align: center;
+
     }}
     .title-main {{
         font-family: 'Montserrat', sans-serif;
