@@ -1593,7 +1593,7 @@ if menu == "🏠 Inicio":
         }
         
         .chat-scroll {
-            height: 315px;
+            height: 300px;
             overflow-y: auto;
             padding: 8px 8px 4px 8px;
             border-radius: 15px 15px 0 0;
@@ -1706,7 +1706,7 @@ if menu == "🏠 Inicio":
                 ) !important;
             border: 1px solid rgba(255,255,255,0.08) !important;
             border-radius: 0 0 18px 18px !important;
-            padding: 12px !important;
+            padding: 20x 12px !important;
             margin-top: -1px !important;
             width: 100% !important;
             box-sizing: border-box !important;
