@@ -484,27 +484,109 @@ div[data-testid="stForm"] button {
 }
 
 @media (max-width: 768px) {
-    .pred-summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
 
-@media (max-width: 768px) {
     .page-section-title h1 {
-        font-size: 27px;
+        font-size: 28px;
+        line-height: 1.05;
     }
 
-    .profile-stats {
-        grid-template-columns: repeat(2, 1fr);
+    .page-section-title p {
+        font-size: 13px;
     }
 
-    .profile-info-row {
-        grid-template-columns: 1fr;
-        gap: 2px;
+    .pred-panel-header-v2 {
+        padding: 2px 2px 12px 2px;
+        margin-bottom: 10px;
+    }
+
+    .panel-title {
+        font-size: 17px;
+    }
+
+    .pred-panel-subtitle {
+        font-size: 11px;
+    }
+
+    .pred-match-card-v2 {
+        padding: 8px 10px 8px 10px;
+        margin-bottom: 8px;
+        border-radius: 13px;
+    }
+
+    .pred-match-meta {
+        font-size: 9px;
+        letter-spacing: 0.04em;
     }
 
     .pred-team {
-        font-size: 12px;
+        font-size: 11px;
+        gap: 6px;
+        min-height: 28px;
+        line-height: 1.1;
+    }
+
+    .pred-team.right {
+        font-size: 11px;
+        gap: 6px;
+        min-height: 28px;
+        line-height: 1.1;
+    }
+
+    .pred-flag {
+        width: 22px;
+        height: 16px;
+        border-radius: 3px;
+    }
+
+    .pred-vs {
+        font-size: 18px;
+        padding-top: 6px;
+    }
+
+    div[data-testid="stNumberInput"] input {
+        min-height: 38px !important;
+        font-size: 18px !important;
+        padding: 4px 2px !important;
+        border-radius: 10px !important;
+    }
+
+    /* Oculta los + / - en móvil para ganar espacio */
+    div[data-testid="stNumberInput"] button {
+        display: none !important;
+    }
+
+    .pred-summary-footer {
+        margin: 10px 8px 4px 8px;
+        padding: 12px 12px;
+        border-radius: 14px;
+    }
+
+    .pred-summary-kicker {
+        font-size: 9px;
+        margin-bottom: 8px;
+    }
+
+    .pred-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 7px;
+    }
+
+    .pred-summary-item {
+        padding: 8px 6px;
+    }
+
+    .pred-summary-number {
+        font-size: 16px;
+    }
+
+    .pred-summary-label {
+        font-size: 8px;
+    }
+
+    .pred-summary-style {
+        margin-top: 8px;
+        font-size: 10px;
+        text-align: center;
     }
 }
 </style>
