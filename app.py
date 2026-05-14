@@ -295,7 +295,7 @@ if menu == "🏠 Inicio":
 
     /* SECCIÓN SUPERIOR COMPACTA */
     .header-top {{
-        padding: 10px 10px 5px 10px; /* Reducido drásticamente */
+        padding: -10px 10px 5px 10px; /* Reducido drásticamente */
         text-align: center;
     }}
     .title-main {{
@@ -1017,16 +1017,48 @@ if menu == "🏠 Inicio":
 # Reemplaza el bloque actual de Resultados de la Fecha
 # ============================================================
 
-        st.markdown('<div class="dash-title">🏟️ Resultados de la Fecha</div>', unsafe_allow_html=True)
-        
+# ============================================================
+# RESULTADOS DE LA FECHA — CARD INTEGRADA
+# ============================================================
+
         st.markdown("""
         <style>
-        .matches-card {
+        .matches-panel {
             background: rgba(255, 255, 255, 0.94);
             border: 1px solid rgba(226, 232, 240, 0.9);
             border-radius: 18px;
-            padding: 12px;
+            padding: 14px;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        }
+        
+        .matches-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 4px 14px 4px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+        }
+        
+        .matches-panel-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30, 64, 175, 0.10);
+            color: #0f172a;
+            font-size: 16px;
+        }
+        
+        .matches-panel-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 17px;
+            font-weight: 900;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
         }
         
         .matches-scroll {
@@ -1040,17 +1072,17 @@ if menu == "🏠 Inicio":
         }
         
         .matches-scroll::-webkit-scrollbar-track {
-            background: rgba(226, 232, 240, 0.5);
+            background: rgba(226, 232, 240, 0.55);
             border-radius: 999px;
         }
         
         .matches-scroll::-webkit-scrollbar-thumb {
-            background: rgba(30, 58, 138, 0.45);
+            background: rgba(15, 23, 42, 0.22);
             border-radius: 999px;
         }
         
-        .match-row {
-            padding: 12px;
+        .match-card {
+            padding: 12px 13px;
             margin-bottom: 9px;
             border-radius: 15px;
             background: rgba(248, 250, 252, 0.92);
@@ -1058,7 +1090,7 @@ if menu == "🏠 Inicio":
             transition: all 0.18s ease;
         }
         
-        .match-row:hover {
+        .match-card:hover {
             transform: translateY(-1px);
             box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
         }
@@ -1067,7 +1099,7 @@ if menu == "🏠 Inicio":
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 11px;
             font-size: 10px;
             font-weight: 900;
             color: #94a3b8;
@@ -1077,24 +1109,24 @@ if menu == "🏠 Inicio":
         
         .match-body {
             display: grid;
-            grid-template-columns: 1fr 76px 1fr;
+            grid-template-columns: 1fr 72px 1fr;
             align-items: center;
             gap: 12px;
         }
         
-        .team {
+        .team-side {
             display: flex;
             align-items: center;
             gap: 8px;
             min-width: 0;
         }
         
-        .team.left {
+        .team-side.left {
             justify-content: flex-end;
             text-align: right;
         }
         
-        .team.right {
+        .team-side.right {
             justify-content: flex-start;
             text-align: left;
         }
@@ -1102,7 +1134,7 @@ if menu == "🏠 Inicio":
         .team-name {
             font-family: 'Inter', sans-serif;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 900;
             color: #0f172a;
             white-space: nowrap;
             overflow: hidden;
@@ -1114,7 +1146,7 @@ if menu == "🏠 Inicio":
             height: 20px;
             object-fit: cover;
             border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.15);
+            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.16);
             flex-shrink: 0;
         }
         
@@ -1123,8 +1155,8 @@ if menu == "🏠 Inicio":
             flex-shrink: 0;
         }
         
-        .score-box {
-            background: #0f172a;
+        .score-pill {
+            background: #07111F;
             color: #f8fafc;
             border-radius: 10px;
             padding: 7px 8px;
@@ -1132,28 +1164,37 @@ if menu == "🏠 Inicio":
             font-family: 'Montserrat', sans-serif;
             font-size: 16px;
             font-weight: 900;
-            letter-spacing: 1px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+            letter-spacing: 0.08em;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 6px 16px rgba(7,17,31,0.16);
         }
         
-        .score-box.pending {
-            background: rgba(15, 23, 42, 0.08);
+        .score-pill.pending {
+            background: rgba(7,17,31,0.08);
             color: #64748b;
             border: 1px solid rgba(148, 163, 184, 0.35);
             box-shadow: none;
         }
         
-        .match-note {
-            margin-top: 9px;
+        .matches-empty {
+            height: 245px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            font-size: 11px;
-            font-weight: 700;
             color: #94a3b8;
+            font-size: 13px;
+            font-weight: 800;
         }
         
         @media (max-width: 768px) {
-            .matches-card {
-                padding: 10px;
+            .matches-panel {
+                padding: 12px;
+            }
+        
+            .matches-panel-title {
+                font-size: 15px;
             }
         
             .matches-scroll {
@@ -1161,7 +1202,7 @@ if menu == "🏠 Inicio":
             }
         
             .match-body {
-                grid-template-columns: 1fr 64px 1fr;
+                grid-template-columns: 1fr 62px 1fr;
                 gap: 8px;
             }
         
@@ -1174,9 +1215,13 @@ if menu == "🏠 Inicio":
                 height: 17px;
             }
         
-            .score-box {
+            .score-pill {
                 font-size: 14px;
                 padding: 7px 6px;
+            }
+        
+            .match-meta {
+                font-size: 9px;
             }
         }
         </style>
@@ -1186,9 +1231,12 @@ if menu == "🏠 Inicio":
         
         def flag_html(flag_value):
             flag_value = str(flag_value)
+        
             if flag_value.startswith("data:image"):
                 return f'<img src="{flag_value}" class="flag-img">'
+        
             return f'<span class="flag-fallback">{escape(flag_value)}</span>'
+        
         
         df_res["VIZ_CHECK"] = df_res["VIZ"].astype(str).str.strip().str.upper()
         
@@ -1201,14 +1249,19 @@ if menu == "🏠 Inicio":
             .sort_values("N_PARTIDO", ascending=False)
         )
         
-        matches_html = '<div class="matches-card"><div class="matches-scroll">'
+        matches_html = '<div class="matches-panel">'
+        matches_html += '<div class="matches-panel-header"><div class="matches-panel-icon">🏟️</div><div class="matches-panel-title">Resultados de la Fecha</div></div>'
+        matches_html += '<div class="matches-scroll">'
         
         if df_mostrar_partidos.empty:
-            matches_html += '<div class="match-row"><div class="match-note">Todavía no hay partidos visibles.</div></div>'
+            matches_html += '<div class="matches-empty">No hay partidos visibles por ahora.</div>'
         else:
             for _, row in df_mostrar_partidos.iterrows():
-                equipo_1 = escape(str(row.get("Equipo_1", "")))
-                equipo_2 = escape(str(row.get("Equipo_2", "")))
+                equipo_1_raw = row.get("Equipo_1", "")
+                equipo_2_raw = row.get("Equipo_2", "")
+        
+                equipo_1 = escape(str(equipo_1_raw))
+                equipo_2 = escape(str(equipo_2_raw))
         
                 r1_raw = row.get("R1")
                 r2_raw = row.get("R2")
@@ -1216,35 +1269,35 @@ if menu == "🏠 Inicio":
                 resultado_cargado = pd.notna(r1_raw) and pd.notna(r2_raw)
         
                 if resultado_cargado:
-                    r1 = int(r1_raw)
-                    r2 = int(r2_raw)
-                    score_text = f"{r1} : {r2}"
-                    score_class = "score-box"
-                    note_html = ""
+                    score_text = f"{int(r1_raw)} : {int(r2_raw)}"
+                    score_class = "score-pill"
                 else:
                     score_text = "VS"
-                    score_class = "score-box pending"
-                    note_html = '<div class="match-note">Resultado aún no cargado</div>'
+                    score_class = "score-pill pending"
         
-                flag_1 = mapa_banderas.get(row.get("Equipo_1"), "⚽")
-                flag_2 = mapa_banderas.get(row.get("Equipo_2"), "⚽")
+                flag_1 = mapa_banderas.get(equipo_1_raw, "⚽")
+                flag_2 = mapa_banderas.get(equipo_2_raw, "⚽")
         
-                partido = int(row.get("N_PARTIDO", 0))
+                try:
+                    partido = int(row.get("N_PARTIDO", 0))
+                except:
+                    partido = row.get("N_PARTIDO", "")
+        
                 dia = escape(str(row.get("DIA", "")))
                 hora = escape(str(row.get("HORA", "")))
         
-                matches_html += f'<div class="match-row">'
+                matches_html += '<div class="match-card">'
                 matches_html += f'<div class="match-meta"><span>Match #{partido}</span><span>{dia} | {hora}</span></div>'
-                matches_html += f'<div class="match-body">'
-                matches_html += f'<div class="team left"><span class="team-name">{equipo_1}</span>{flag_html(flag_1)}</div>'
+                matches_html += '<div class="match-body">'
+                matches_html += f'<div class="team-side left"><span class="team-name">{equipo_1}</span>{flag_html(flag_1)}</div>'
                 matches_html += f'<div class="{score_class}">{score_text}</div>'
-                matches_html += f'<div class="team right">{flag_html(flag_2)}<span class="team-name">{equipo_2}</span></div>'
-                matches_html += f'</div>{note_html}</div>'
+                matches_html += f'<div class="team-side right">{flag_html(flag_2)}<span class="team-name">{equipo_2}</span></div>'
+                matches_html += '</div>'
+                matches_html += '</div>'
         
         matches_html += '</div></div>'
         
         st.markdown(matches_html, unsafe_allow_html=True)
-
         # ============================================================
         # CHAT / FORO VISUAL PREMIUM
         # ============================================================
