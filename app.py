@@ -1840,10 +1840,6 @@ if menu == "🏠 Inicio":
         
         chat_html += '</div></div>'  # cierra chat-scroll y chat-panel
         
-        st.markdown(chat_html, unsafe_allow_html=True)
-        
-        # Footer oscuro + formulario
-        st.markdown('<div class="chat-footer-dark">', unsafe_allow_html=True)
         
         with st.form("form_foro_premium", clear_on_submit=True):
             c_txt, c_btn = st.columns([0.86, 0.14])
