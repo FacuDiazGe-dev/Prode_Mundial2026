@@ -6,6 +6,7 @@ import textwrap
 from html import escape
 from datetime import datetime
 import streamlit.components.v1 as components
+from ranking_logic import calcular_detalle
 
 from styles_config import (
     AVATAR_GENERICO,
@@ -30,8 +31,6 @@ def render_inicio(
     - Evolución de puntos
     - Foro / chat
     """
-  
-from ranking_logic import calcular_detalle
 
     top_3 = df_ranking.head(3)
     
