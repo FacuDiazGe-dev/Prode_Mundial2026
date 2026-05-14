@@ -996,39 +996,39 @@ div[data-testid="stButton"] button {
             
             st.markdown(
                 f"""
-            <div class="pred-summary-footer">
-            <div class="pred-summary-kicker">Tus pronósticos</div>
-            
-            <div class="pred-summary-grid">
-            <div class="pred-summary-item">
-                <div class="pred-summary-icon">🏆</div>
-                <div class="pred-summary-number">{stats_pronosticos["con_ganador"]}</div>
-                <div class="pred-summary-label">Con ganador</div>
-            </div>
-            
-            <div class="pred-summary-item">
-                <div class="pred-summary-icon">🤝</div>
-                <div class="pred-summary-number">{stats_pronosticos["empates"]}</div>
-                <div class="pred-summary-label">Empates</div>
-            </div>
-            
-            <div class="pred-summary-item">
-                <div class="pred-summary-icon">⚽</div>
-                <div class="pred-summary-number">{stats_pronosticos["goles"]}</div>
-                <div class="pred-summary-label">Goles</div>
-            </div>
-            
-            <div class="pred-summary-item">
-                <div class="pred-summary-icon">📊</div>
-                <div class="pred-summary-number">{stats_pronosticos["promedio_goles"]}</div>
-                <div class="pred-summary-label">Promedio</div>
-            </div>
-            </div>
-            
-            <div class="pred-summary-style">
-            Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
-            </div>
-            </div>
+<div class="pred-summary-footer">
+<div class="pred-summary-kicker">Tus pronósticos</div>
+
+<div class="pred-summary-grid">
+<div class="pred-summary-item">
+<div class="pred-summary-icon">🏆</div>
+<div class="pred-summary-number">{stats_pronosticos["con_ganador"]}</div>
+<div class="pred-summary-label">Con ganador</div>
+</div>
+
+<div class="pred-summary-item">
+<div class="pred-summary-icon">🤝</div>
+<div class="pred-summary-number">{stats_pronosticos["empates"]}</div>
+<div class="pred-summary-label">Empates</div>
+</div>
+
+<div class="pred-summary-item">
+<div class="pred-summary-icon">⚽</div>
+<div class="pred-summary-number">{stats_pronosticos["goles"]}</div>
+<div class="pred-summary-label">Goles</div>
+</div>
+
+<div class="pred-summary-item">
+<div class="pred-summary-icon">📊</div>
+<div class="pred-summary-number">{stats_pronosticos["promedio_goles"]}</div>
+<div class="pred-summary-label">Promedio</div>
+</div>
+</div>
+
+<div class="pred-summary-style">
+Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
+</div>
+</div>
             """,
                 unsafe_allow_html=True
             )
@@ -1181,11 +1181,11 @@ div[data-testid="stButton"] button {
         else:
             st.markdown("""
 <div class="profile-panel">
-    <div class="panel-header">
-        <div class="panel-icon">✏️</div>
-        <div class="panel-title">Editar Perfil</div>
-    </div>
-    <div class="profile-edit-box">
+<div class="panel-header">
+    <div class="panel-icon">✏️</div>
+    <div class="panel-title">Editar Perfil</div>
+</div>
+<div class="profile-edit-box">
 """, unsafe_allow_html=True)
 
             with st.form("form_edit_perfil_v4"):
