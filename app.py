@@ -1008,16 +1008,16 @@ if menu == "🏠 Inicio":
                     f'<div class="evol-chart-shell">'
                 )
         
-                plot_html = fig.to_html(
-                    full_html=False,
-                    include_plotlyjs="cdn",
-                    config={
-                        "displayModeBar": False,
-                        "staticPlot": True,
-                        "scrollZoom": False,
-                        "responsive": True
-                    }
-                )
+                    plot_html = fig.to_html(
+                        full_html=False,
+                        include_plotlyjs="cdn",
+                        config={
+                            "displayModeBar": False,
+                            "staticPlot": True,
+                            "scrollZoom": False,
+                            "responsive": True
+                        }
+                    )
                 
                 evol_full_html = evol_header_html + plot_html + "</div></div>"
                 
