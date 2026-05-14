@@ -185,8 +185,8 @@ div[data-testid="stForm"] {
     background: rgba(248,250,252,0.94);
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 15px;
-    padding: 10px 12px 8px 12px;
-    margin-bottom: -2px;
+    padding: 10px 12px 10px 12px;
+    margin-bottom: 10px;
 }
 
 .pred-match-gap {
@@ -202,15 +202,6 @@ div[data-testid="stForm"] {
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-}
-
-.pred-match-body-shell {
-    background: rgba(248,250,252,0.94);
-    border-left: 1px solid rgba(226,232,240,0.9);
-    border-right: 1px solid rgba(226,232,240,0.9);
-    border-bottom: 1px solid rgba(226,232,240,0.9);
-    border-radius: 0 0 15px 15px;
-    padding: 4px 12px 10px 12px;
     margin-bottom: 10px;
 }
 
@@ -262,14 +253,6 @@ div[data-testid="stNumberInput"] input {
 div[data-testid="stForm"] button {
     border-radius: 12px !important;
     font-weight: 900 !important;
-}
-
-div[data-testid="stNumberInput"] input {
-    text-align: center;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    border-radius: 10px !important;
-    border: 1px solid rgba(244,197,66,0.42) !important;
 }
 
 .pred-save-footer {
@@ -541,7 +524,6 @@ div[data-testid="stNumberInput"] input {
 <span>{escape(dia)} | {escape(hora)}</span>
 </div>
 </div>
-<div class="pred-match-body-shell">
 """, unsafe_allow_html=True
 
                     c_eq1, c_g1, c_vs, c_g2, c_eq2 = st.columns(
@@ -593,8 +575,7 @@ div[data-testid="stNumberInput"] input {
 </div>
 """, unsafe_allow_html=True)
 
-                    st.markdown("</div>", unsafe_allow_html=True)
-                    
+                                        
                     lista_nuevos_pro.append(
                         {
                             "N_PARTIDO": id_p,
