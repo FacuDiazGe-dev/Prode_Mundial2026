@@ -222,7 +222,6 @@ with st.sidebar:
 
     if st.session_state["user_data"]["ROL"] == "admin":
         opciones.append("⚙️ Panel Control")
-        opciones.append("🧪 Laboratorio")
 
     menu = st.radio(
         "Ir a:",
