@@ -324,6 +324,7 @@ div[data-testid="stTextInput"] input:disabled {
 .pred-summary-style strong {
     color: #F4C542;
 }
+
 .pred-panel-header-v2 {
     padding: 12px 14px 14px 14px;
     margin-bottom: 14px;
@@ -341,6 +342,33 @@ div[data-testid="stTextInput"] input:disabled {
     background-size: cover;
     background-position: center;
     border-radius: 14px;
+}
+
+.pred-panel-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pred-panel-title-row .panel-title {
+    color: #F8FAFC;
+    margin: 0;
+    line-height: 1;
+}
+
+.pred-panel-subtitle {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pred-panel-subtitle.open {
+    color: #059669;
+}
+
+.pred-panel-subtitle.locked {
+    color: #6B7280;
 }
 
 /* ============================================================
@@ -508,8 +536,8 @@ div[data-testid="stTextInput"] input:disabled {
         ),
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.78),
-            rgba(255,255,255,0.96)
+            rgba(255,255,255,0.40),
+            rgba(255,255,255,0.60)
         ),
         url("__HEADER_BACKGROUND__");
 
