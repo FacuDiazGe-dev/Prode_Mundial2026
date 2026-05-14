@@ -1838,7 +1838,7 @@ if menu == "🏠 Inicio":
                 chat_html += f'<div class="chat-message">{mensaje}</div>'
                 chat_html += '</div></div>'
         
-        chat_html += '</div>'  # cierra chat-scroll
+        chat_html += '</div></div>'  # cierra chat-scroll y chat-panel
         
         st.markdown(chat_html, unsafe_allow_html=True)
         
