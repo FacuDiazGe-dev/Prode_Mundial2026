@@ -262,11 +262,19 @@ div[data-testid="stNumberInput"] input {
         );
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 0 0 16px 16px;
-    padding: 14px;
-    margin: 16px -16px -16px -16px;
+
+    padding: 18px 14px 26px 14px;
+    margin: 18px -16px -16px -16px;
+
+    min-height: 92px;
+
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.05),
         0 -6px 18px rgba(15,23,42,0.04);
+}
+.pred-actions-footer + div {
+    margin-top: -72px;
+    padding: 0 14px 18px 14px;
 }
 
 .pred-actions-label {
