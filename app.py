@@ -604,58 +604,58 @@ if menu == "🏠 Inicio":
         }
     }
     </style>
-    
-    <div class="hero-container">
-    
-        <div class="header-top">
-            <h1 class="title-main">🏆 PRODE MUNDIAL 2026</h1>
-            <div class="title-sub">La gloria está en tus predicciones</div>
-            <div class="divider-h"></div>
-        </div>
-    
-        <div class="content-bottom">
-    
-            <div class="pos-section">
-                <div class="label-pos">Tu posición</div>
-                <div class="val-pos">__POS_DISPLAY__°</div>
-                <div class="pts-box">__PTS_USR__ <span>PTS.</span></div>
-                <div class="msg-status">__DIF_REF__</div>
-            </div>
-    
-            <div class="podium-section">
-    
-                <div class="pod-item">
-                    <div class="av-wrap">
-                        <div class="b-rank b-silver">2</div>
-                        <img src="__F2__" class="av-img av-second" style="width:82px; height:82px;">
-                    </div>
-                    <div class="pod-name">__N2__</div>
-                    <div class="pod-pts">__P2__ PTS.</div>
-                </div>
-    
-                <div class="pod-item pod-first">
-                    <div class="av-wrap">
-                        <div class="b-rank b-gold">1</div>
-                        <img src="__F1__" class="av-img av-first" style="width:112px; height:112px;">
-                    </div>
-                    <div class="pod-name">__N1__</div>
-                    <div class="pod-pts">__P1__ PTS.</div>
-                </div>
-    
-                <div class="pod-item">
-                    <div class="av-wrap">
-                        <div class="b-rank b-bronze">3</div>
-                        <img src="__F3__" class="av-img av-third" style="width:82px; height:82px;">
-                    </div>
-                    <div class="pod-name">__N3__</div>
-                    <div class="pod-pts">__P3__ PTS.</div>
-                </div>
-    
-            </div>
-    
-        </div>
-    
+
+<div class="hero-container">
+
+<div class="header-top">
+    <h1 class="title-main">🏆 PRODE MUNDIAL 2026</h1>
+    <div class="title-sub">La gloria está en tus predicciones</div>
+    <div class="divider-h"></div>
+</div>
+
+<div class="content-bottom">
+
+<div class="pos-section">
+    <div class="label-pos">Tu posición</div>
+    <div class="val-pos">__POS_DISPLAY__°</div>
+    <div class="pts-box">__PTS_USR__ <span>PTS.</span></div>
+    <div class="msg-status">__DIF_REF__</div>
+</div>
+
+<div class="podium-section">
+
+<div class="pod-item">
+    <div class="av-wrap">
+        <div class="b-rank b-silver">2</div>
+        <img src="__F2__" class="av-img av-second" style="width:82px; height:82px;">
     </div>
+    <div class="pod-name">__N2__</div>
+    <div class="pod-pts">__P2__ PTS.</div>
+</div>
+
+<div class="pod-item pod-first">
+<div class="av-wrap">
+    <div class="b-rank b-gold">1</div>
+    <img src="__F1__" class="av-img av-first" style="width:112px; height:112px;">
+</div>
+<div class="pod-name">__N1__</div>
+<div class="pod-pts">__P1__ PTS.</div>
+</div>
+
+<div class="pod-item">
+<div class="av-wrap">
+    <div class="b-rank b-bronze">3</div>
+    <img src="__F3__" class="av-img av-third" style="width:82px; height:82px;">
+</div>
+<div class="pod-name">__N3__</div>
+<div class="pod-pts">__P3__ PTS.</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
     """).strip()
     
     html_hero = (
