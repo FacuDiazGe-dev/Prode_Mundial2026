@@ -262,24 +262,44 @@ div[data-testid="stNumberInput"] button {
         margin-bottom: 7px !important;
     }
 
-    /*
-    Esta fuerza horizontal es menos riesgosa porque ahora usamos 3 bloques,
-    no 5 ni 7 columnas chicas.
-    */
-    div[data-testid="stForm"] [data-testid="stHorizontalBlock"] {
+    
+    /* Fuerza horizontal SOLO en filas que contienen cards de equipo */
+    div[data-testid="stHorizontalBlock"]:has(.pred-team-card) {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         align-items: center !important;
-        gap: 4px !important;
-        width: 100% !important;
+        gap: 3px !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
     }
-
-    div[data-testid="stForm"] [data-testid="column"] {
+    
+    /* Columnas principales: CARD1 | RESULTADO | CARD2 */
+    div[data-testid="stHorizontalBlock"]:has(.pred-team-card) > div[data-testid="column"] {
         min-width: 0 !important;
         flex: 1 1 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* La columna central del resultado un poco más compacta */
+    div[data-testid="stHorizontalBlock"]:has(.pred-score-sep) {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 1px !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+    
+    div[data-testid="stHorizontalBlock"]:has(.pred-score-sep) > div[data-testid="column"] {
+        min-width: 0 !important;
+        flex: 1 1 0 !important;
+        overflow: hidden !important;
     }
 
+    
     .pred-team-card {
         min-height: 48px !important;
         padding: 6px 5px !important;
@@ -288,8 +308,8 @@ div[data-testid="stNumberInput"] button {
     }
 
     .pred-team-card span {
-        font-size: 9px !important;
-        max-width: 50px !important;
+        font-size: 8px !important;
+        max-width: 42px !important;
     }
 
     .pred-team-card img,
@@ -310,20 +330,20 @@ div[data-testid="stNumberInput"] button {
         font-size: 13px !important;
     }
 
-    div[data-testid="stNumberInput"] {
-        width: 31px !important;
-        min-width: 31px !important;
-        max-width: 31px !important;
-    }
+    div[data-testid="stNumberInput"]  {
+        width: 28px !important;
+        min-width: 28px !important;
+        max-width: 28px !important;
+}
 
     div[data-testid="stNumberInput"] input {
-        width: 31px !important;
-        min-width: 31px !important;
-        max-width: 31px !important;
-
-        height: 31px !important;
-        min-height: 31px !important;
-        max-height: 31px !important;
+        width: 28px !important;
+        min-width: 28px !important;
+        max-width: 28px !important;
+    
+        height: 30px !important;
+        min-height: 30px !important;
+        max-height: 30px !important;
 
         padding: 0 !important;
         font-size: 14px !important;
