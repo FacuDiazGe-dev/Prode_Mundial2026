@@ -1250,7 +1250,7 @@ if menu == "🏠 Inicio":
         )
         
         matches_html = '<div class="matches-panel">'
-        matches_html += '<div class="matches-panel-header"><div class="matches-panel-icon">🏟️</div><div class="matches-panel-title">Resultados de la Fecha</div></div>'
+        matches_html += '<div class="matches-panel-header"><div class="matches-panel-icon">⚽</div><div class="matches-panel-title">Resultados Oficiales</div></div>'
         matches_html += '<div class="matches-scroll">'
         
         if df_mostrar_partidos.empty:
@@ -1287,7 +1287,7 @@ if menu == "🏠 Inicio":
                 hora = escape(str(row.get("HORA", "")))
         
                 matches_html += '<div class="match-card">'
-                matches_html += f'<div class="match-meta"><span>Match #{partido}</span><span>{dia} | {hora}</span></div>'
+                matches_html += f'<div class="match-meta"><span>Partido #{partido}</span><span>{dia} | {hora}</span></div>'
                 matches_html += '<div class="match-body">'
                 matches_html += f'<div class="team-side left"><span class="team-name">{equipo_1}</span>{flag_html(flag_1)}</div>'
                 matches_html += f'<div class="{score_class}">{score_text}</div>'
