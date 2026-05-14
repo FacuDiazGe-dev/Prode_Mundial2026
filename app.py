@@ -327,16 +327,33 @@ if menu == "🏠 Inicio":
         flex-direction: row;
         align-items: stretch;
     }}
-
+    
     .pos-section {{
-        flex: 0 0 25%;
-        padding: 20px 15px;
-        display: flex; flex-direction: column; justify-content: center;
-        border-right: 1px solid rgba(255,255,255,0.1);
-        text-align: center;
+        background: linear-gradient(
+            135deg,
+            rgba(7, 17, 31, 0.72),
+            rgba(7, 17, 31, 0.34)
+        );
+    
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 18px;
+    
+        padding: 22px 24px;
+    
+        box-shadow:
+            0 0 28px rgba(255,255,255,0.08),
+            inset 0 1px 0 rgba(255,255,255,0.08);
+    
+        backdrop-filter: blur(4px);
     }}
     .label-pos {{ font-size: 9px; opacity: 0.5; font-weight: 700; text-transform: uppercase; }}
-    .val-pos {{ font-family: 'Montserrat', sans-serif; font-size: 48px; font-weight: 900; margin: 2px 0; }}
+    .val-pos {{ 
+          font-family: 'Montserrat', sans-serif; 
+          font-size: 48px; 
+          font-weight: 900; 
+          margin: 2px 0; 
+          text-shadow: 0 0 18px rgba(255,255,255,0.35), 0 0 32px rgba(244,197,66,0.22); 
+        }}
     .pts-box {{ font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; }}
     .msg-status {{ font-size: 10px; margin-top: 5px; opacity: 0.7; font-weight: 600; }}
 
@@ -353,10 +370,34 @@ if menu == "🏠 Inicio":
     
     .av-wrap {{ position: relative; display: inline-block; }}
     .av-img {{ 
-        border-radius: 50% !important; object-fit: cover !important; aspect-ratio: 1/1 !important;
-        border: 2px solid rgba(255,255,255,0.2);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-        display: block; margin: 0 auto;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid rgba(255,255,255,0.35);
+        box-shadow:
+            0 10px 28px rgba(0,0,0,0.55),
+            0 0 0 1px rgba(255,255,255,0.08);
+    }}
+    
+    .av-first {{
+        border: 6px solid #F4C542 !important;
+        box-shadow:
+            0 12px 34px rgba(0,0,0,0.62),
+            0 0 24px rgba(244,197,66,0.42),
+            0 0 0 1px rgba(255,255,255,0.18);
+    }}
+    
+    .av-second {{
+        border: 5px solid #C0C0C0 !important;
+        box-shadow:
+            0 10px 28px rgba(0,0,0,0.55),
+            0 0 14px rgba(192,192,192,0.28);
+    }}
+    
+    .av-third {{
+        border: 5px solid #CD7F32 !important;
+        box-shadow:
+            0 10px 28px rgba(0,0,0,0.55),
+            0 0 14px rgba(205,127,50,0.28);
     }}
     
     .pod-name {{ font-weight: 800; font-size: 12px; margin-top: 8px; text-transform: uppercase; }}
@@ -407,7 +448,7 @@ if menu == "🏠 Inicio":
 <div class="pod-item">
 <div class="av-wrap">
     <div class="b-rank" style="background:#b0b0b0; color:black;">2</div>
-    <img src="{f2}" class="av-img" style="width:80px; height:80px;">
+    <img src="{f2}" class="av-img av-second" style="width:80px; height:80px;">
 </div>
 <div class="pod-name">{n2}</div>
 <div class="pod-pts">{p2} PTS.</div>
@@ -417,8 +458,7 @@ if menu == "🏠 Inicio":
 <div class="pod-item">
 <div class="av-wrap">
     <div class="b-rank" style="background:#F4C542; color:black;">1</div>
-    <img src="{f1}" class="av-img" style="width:110px; height:110px; border-color:#F4C542; border-width:3px;">
-</div>
+    <img src="{f1}" class="av-img av-first" style="width:110px; height:110px;">
 <div class="pod-name" style="color:#F4C542;">{n1}</div>
 <div class="pod-pts" style="color:#F4C542; opacity:0.8;">{p1} PTS.</div>
 </div>
@@ -427,7 +467,7 @@ if menu == "🏠 Inicio":
 <div class="pod-item">
 <div class="av-wrap">
     <div class="b-rank" style="background:#cd7f32; color:white;">3</div>
-    <img src="{f3}" class="av-img" style="width:80px; height:80px;">
+    <img src="{f3}" class="av-img av-third" style="width:80px; height:80px;">
 </div>
 <div class="pod-name">{n3}</div>
 <div class="pod-pts">{p3} PTS.</div>
