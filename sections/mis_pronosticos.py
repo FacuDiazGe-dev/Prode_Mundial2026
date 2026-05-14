@@ -23,7 +23,6 @@ def render_mis_pronosticos(
     #st.markdown("""
     css_mis_pronosticos = """
 <style>
-<style>
 .page-section-title {
     margin-bottom: 22px;
 }
@@ -326,6 +325,25 @@ div[data-testid="stTextInput"] input:disabled {
 .pred-summary-style strong {
     color: #F4C542;
 }
+.pred-panel-header-v2 {
+    padding: 12px 14px 14px 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(226,232,240,0.75);
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.96) 0%,
+            rgba(255,255,255,0.88) 45%,
+            rgba(255,255,255,0.70) 100%
+        ),
+        url("__SIDEBAR_BANNER__");
+
+    background-size: cover;
+    background-position: center;
+    border-radius: 14px;
+}
+
 /* ============================================================
    MOBILE — VERSION COMPACTA
    ============================================================ */
@@ -345,24 +363,9 @@ div[data-testid="stTextInput"] input:disabled {
         padding: 12px !important;
     }
 
-.pred-panel-header-v2 {
-    padding: 12px 14px 14px 14px;
-    margin-bottom: 14px;
-    border-bottom: 1px solid rgba(226,232,240,0.75);
-
-    background-image:
-        linear-gradient(
-            90deg,
-            rgba(255,255,255,0.96) 0%,
-            rgba(255,255,255,0.88) 45%,
-            rgba(255,255,255,0.70) 100%
-        ),
-        url("__SIDEBAR_BANNER__");
-
-    background-size: cover;
-    background-position: center;
-    border-radius: 14px;
-}
+    .pred-panel-header-v2 {
+        padding: 10px 12px 12px 12px;
+    }
 
     .panel-title {
         font-size: 17px;
@@ -712,8 +715,8 @@ div[data-testid="stButton"] button {
 
 css_mis_pronosticos = (
     css_mis_pronosticos
-    .replace("__PRONOSTICOS_HEADER_BACKGROUND__", PRONOSTICOS_HEADER_BACKGROUND)
-    .replace("__PROFILE_HEADER_BACKGROUND__", PROFILE_HEADER_BACKGROUND)
+    .replace("__SIDEBAR_BANNER__", SIDEBAR_BANNER)
+    .replace("__HEADER_BACKGROUND__", HEADER_BACKGROUND)
 )
 
 st.markdown(css_mis_pronosticos, unsafe_allow_html=True)
