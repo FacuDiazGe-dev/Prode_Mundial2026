@@ -368,27 +368,28 @@ div[data-testid="stNumberInput"] input {
 
         if es_tiempo_valido:
             st.markdown("""
-<div class="pred-status">
-    ⏳ Edición abierta hasta el 08/06/2026.
-</div>
-""", unsafe_allow_html=True)
-
-            modo_edicion = st.toggle(
-                "🔓 Editar resultados",
-                value=st.session_state.permitir_edicion
-            )
-
-            st.session_state.permitir_edicion = modo_edicion
+        <div class="pred-status">
+        ⏳ Edición abierta hasta el 08/06/2026.
+        </div>
+        """, unsafe_allow_html=True)
+        
+            modo_edicion = st.session_state.permitir_edicion
+        
+            if not modo_edicion:
+                if st.button("✏️ Editar pronósticos", use_container_width=True):
+                    st.session_state.permitir_edicion = True
+                    st.rerun()
+        
         else:
             st.markdown("""
-<div class="pred-status locked">
-    🔒 Plazo finalizado. Tus pronósticos quedan en modo lectura.
-</div>
-""", unsafe_allow_html=True)
-
+        <div class="pred-status locked">
+        🔒 Plazo finalizado. Tus pronósticos quedan en modo lectura.
+        </div>
+        """, unsafe_allow_html=True)
+        
             modo_edicion = False
             st.session_state.permitir_edicion = False
-
+        
         esta_bloqueado = not (es_tiempo_valido and modo_edicion)
 
         with st.form("form_pronosticos_v4"):
@@ -494,42 +495,55 @@ div[data-testid="stNumberInput"] input {
                     )
 
                     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-
-            texto_boton = (
-                "💾 Guardar Pronósticos"
-                if not esta_bloqueado
-                else "Lectura — edición deshabilitada"
-            )
-
-            submit = st.form_submit_button(
-                texto_boton,
-                use_container_width=True,
-                disabled=esta_bloqueado
-            )
+            
+            if modo_edicion:
+                c_cancelar, c_guardar = st.columns([0.35, 0.65])
+            
+                cancelar = c_cancelar.form_submit_button(
+                    "Cancelar",
+                    use_container_width=True
+                )
+            
+                submit = c_guardar.form_submit_button(
+                    "💾 Guardar pronósticos",
+                    use_container_width=True
+                )
+            
+            else:
+                submit = st.form_submit_button(
+                    "Lectura — edición deshabilitada",
+                    use_container_width=True,
+                    disabled=True
+                )
+            
+                cancelar = False
+            if cancelar:
+                st.session_state.permitir_edicion = False
+                st.rerun()
 
             if submit:
                 try:
                     df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=5)
-
+            
                     df_otros = df_pro_full[df_pro_full["USUARIO"] != user_actual]
-
+            
                     df_final = pd.concat(
                         [df_otros, pd.DataFrame(lista_nuevos_pro)],
                         ignore_index=True
                     )
-
+            
                     conn.update(
                         worksheet="PRONOSTICOS",
                         data=df_final
                     )
-
+            
                     st.cache_data.clear()
                     st.session_state.permitir_edicion = False
-
+            
                     st.success("✅ ¡Pronósticos guardados correctamente!")
                     st.balloons()
                     st.rerun()
-
+            
                 except Exception as e:
                     st.error(f"Error al guardar: {e}")
 
