@@ -271,13 +271,11 @@ if menu == "🏠 Inicio":
 
     # --- 2. HTML Y CSS COMPACTO ---
     import textwrap
+    
     html_hero = textwrap.dedent(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap');
-
-    # --- 2. HTML Y CSS COMPACTO ---
-    html_hero = f"""
-    <style>
+    
     .hero-container {{
         font-family: 'Inter', sans-serif;
         background-image:
@@ -297,7 +295,7 @@ if menu == "🏠 Inicio":
         box-shadow: 0 18px 45px rgba(15,23,42,0.22);
         margin-bottom: 20px;
     }}
-    
+        
     /* =========================
        HEADER SUPERIOR
        ========================= */
