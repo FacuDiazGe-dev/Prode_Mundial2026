@@ -12,7 +12,8 @@ from styles_config import (
     aplicar_estilos_globales,
     mostrar_decalogo,
     AVATAR_GENERICO,
-    HEADER_BACKGROUND
+    HEADER_BACKGROUND,
+    EVOL_HEADER_BACKGROUND
 )
 # from styles_config import dibujar_banner
 from tools import get_flag_img_cached, upload_profile_picture, registrar_usuario
@@ -1035,7 +1036,7 @@ if menu == "🏠 Inicio":
                 )
         
                 fig.update_layout(
-                    height=235,
+                    height=255,
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     font=dict(
@@ -1044,10 +1045,10 @@ if menu == "🏠 Inicio":
                         color="#64748b"
                     ),
                     margin=dict(
-                        l=8,
-                        r=8,
-                        t=4,
-                        b=6
+                        l=38,
+                        r=14,
+                        t=10,
+                        b=34
                     ),
                     showlegend=False,
                     hovermode=False,
@@ -1062,7 +1063,8 @@ if menu == "🏠 Inicio":
                     tickmode="linear",
                     dtick=1,
                     fixedrange=True,
-                    color="#94a3b8"
+                    color="#94a3b8",
+                    tickfont=dict(size=10)
                 )
         
                 fig.update_yaxes(
@@ -1071,8 +1073,8 @@ if menu == "🏠 Inicio":
                     showline=False,
                     zeroline=False,
                     fixedrange=True,
-                    color="#94a3b8"
-                )
+                    color="#94a3b8",
+                    tickfont=dict(size=10)
         
                 for trace in fig.data:
                     if trace.name == usuario_actual:
@@ -1122,13 +1124,29 @@ if menu == "🏠 Inicio":
                 )
         
                 evol_component_css = """
-                <style>
-                body {
+                  <style>
+                body {{
                     margin: 0;
                     padding: 0;
                     font-family: Inter, sans-serif;
                     background: transparent;
-                }
+                }}
+                
+                .evol-summary-dark {{
+                    background-image:
+                        linear-gradient(
+                            90deg,
+                            rgba(7,17,31,0.98) 0%,
+                            rgba(7,17,31,0.86) 48%,
+                            rgba(7,17,31,0.55) 100%
+                        ),
+                        url("{EVOL_HEADER_BACKGROUND}");
+                    background-size: cover;
+                    background-position: center right;
+                    border: 1px solid rgba(255,255,255,0.08);
+                    border-radius: 15px 15px 0 0;
+                    padding: 16px 18px 13px 18px;
+                }}
                 
                 .evol-panel {
                     background: rgba(255, 255, 255, 0.94);
