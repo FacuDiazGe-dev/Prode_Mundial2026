@@ -297,7 +297,8 @@ if menu == "🏠 Inicio":
 
     /* SECCIÓN SUPERIOR COMPACTA */
     .header-top {{
-        padding: -10px 10px 5px 10px; /* Reducido drásticamente */
+        padding: 0 10px 5px 10px;
+        margin-top: -10px;
         text-align: center;
     }}
     .title-main {{
