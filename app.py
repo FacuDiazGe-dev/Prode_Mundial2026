@@ -750,41 +750,81 @@ if menu == "🏠 Inicio":
         
         st.markdown(ranking_html, unsafe_allow_html=True)  
         
-        # ============================================================
-        # EVOLUCIÓN DE PUNTOS - OPCIÓN C
-        # Usuario actual destacado + resto como contexto
-        # ============================================================
-        
-        st.markdown('<div class="dash-title">📈 Evolución de Puntos</div>', unsafe_allow_html=True)
-        
+# ============================================================
+# EVOLUCIÓN DE PUNTOS — CARD INTEGRADA
+# ============================================================
+
         st.markdown("""
         <style>
-        .evol-summary-card {
+        .evol-panel {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+        
+        .evol-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 4px 14px 4px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+        }
+        
+        .evol-panel-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(244, 197, 66, 0.16);
+            color: #0f172a;
+            font-size: 16px;
+        }
+        
+        .evol-panel-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 17px;
+            font-weight: 900;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+        }
+        
+        .evol-summary-dark {
             background:
-                linear-gradient(135deg, rgba(10,10,10,0.96), rgba(28,28,28,0.92));
+                linear-gradient(135deg, rgba(7,17,31,0.98), rgba(15,23,42,0.94));
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 18px 18px 0 0;
-            padding: 18px 20px 14px 20px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
-            border-bottom: none;
-            margin-top: -10px;
+            border-radius: 15px 15px 0 0;
+            padding: 16px 18px 13px 18px;
         }
         
         .evol-user-name {
             font-family: 'Inter', sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 900;
-            color: rgba(255,255,255,0.55);
+            color: rgba(255,255,255,0.58);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.07em;
             margin-bottom: 6px;
+        }
+        
+        .evol-main-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 14px;
         }
         
         .evol-main-number {
             font-family: 'Montserrat', sans-serif;
-            font-size: 38px;
+            font-size: 36px;
             font-weight: 900;
-            color: #ffffff;
+            color: #F8FAFC;
             line-height: 1;
         }
         
@@ -793,6 +833,17 @@ if menu == "🏠 Inicio":
             color: rgba(255,255,255,0.55);
             font-weight: 800;
             margin-left: 4px;
+        }
+        
+        .evol-position-pill {
+            background: rgba(244,197,66,0.14);
+            border: 1px solid rgba(244,197,66,0.35);
+            color: #F4C542;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
         }
         
         .evol-meta {
@@ -807,16 +858,51 @@ if menu == "🏠 Inicio":
         }
         
         .evol-chart-shell {
-            background: rgba(255, 255, 255, 0.94);
+            background: rgba(248, 250, 252, 0.96);
             border: 1px solid rgba(226, 232, 240, 0.9);
             border-top: none;
-            border-radius: 0 0 18px 18px;
-            padding: 0 10px 8px 10px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-            margin-top: 0;
+            border-radius: 0 0 15px 15px;
+            padding: 0 8px 4px 8px;
+        }
+        
+        .evol-empty {
+            height: 315px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 800;
+        }
+        
+        @media (max-width: 768px) {
+            .evol-panel {
+                padding: 12px;
+            }
+        
+            .evol-panel-title {
+                font-size: 15px;
+            }
+        
+            .evol-summary-dark {
+                padding: 15px;
+            }
+        
+            .evol-main-number {
+                font-size: 32px;
+            }
+        
+            .evol-main-row {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 8px;
+            }
         }
         </style>
         """, unsafe_allow_html=True)
+        
+        from html import escape
         
         df_res["VIZ_CHECK"] = df_res["VIZ"].astype(str).str.strip().str.upper()
         
@@ -829,8 +915,19 @@ if menu == "🏠 Inicio":
             .sort_values("N_PARTIDO")
         )
         
+        evol_html_inicio = (
+            '<div class="evol-panel">'
+            '<div class="evol-panel-header">'
+            '<div class="evol-panel-icon">📈</div>'
+            '<div class="evol-panel-title">Evolución de Puntos</div>'
+            '</div>'
+        )
+        
         if partidos_visibles.empty:
-            st.info("Esperando el silbato inicial para mostrar estadísticas.")
+            evol_html = evol_html_inicio
+            evol_html += '<div class="evol-empty">Esperando el silbato inicial para mostrar estadísticas.</div>'
+            evol_html += '</div>'
+            st.markdown(evol_html, unsafe_allow_html=True)
         
         else:
             evol_list = []
@@ -871,8 +968,10 @@ if menu == "🏠 Inicio":
         
                 usuario_actual = st.session_state["user_data"]["USUARIO"]
         
-                # Datos del usuario actual
-                df_user_ev = df_ev[df_ev["Jugador"] == usuario_actual].sort_values("N_Partido")
+                df_user_ev = (
+                    df_ev[df_ev["Jugador"] == usuario_actual]
+                    .sort_values("N_Partido")
+                )
         
                 if not df_user_ev.empty:
                     puntos_actuales = int(df_user_ev["Puntos"].iloc[-1])
@@ -887,26 +986,28 @@ if menu == "🏠 Inicio":
                     puntos_actuales = 0
                     variacion_reciente = 0
         
-                # Posición actual desde df_ranking
                 try:
                     row_user_rank = df_ranking[df_ranking["USUARIO"] == usuario_actual]
                     posicion_actual = int(row_user_rank.index[0])
                 except:
                     posicion_actual = "-"
         
-                st.markdown(
-                    f"""
-        <div class="evol-summary-card">
-            <div class="evol-user-name">{usuario_actual}</div>
-            <div class="evol-main-number">{puntos_actuales}<span>pts</span></div>
-            <div class="evol-meta">
-                Puesto actual: <strong>{posicion_actual}°</strong> · 
-                Última tendencia: <strong>+{variacion_reciente} pts</strong>
-            </div>
-        </div>
-        """,
-                    unsafe_allow_html=True
+                usuario_safe = escape(str(usuario_actual))
+        
+                evol_header_html = evol_html_inicio
+                evol_header_html += (
+                    f'<div class="evol-summary-dark">'
+                    f'<div class="evol-user-name">{usuario_safe}</div>'
+                    f'<div class="evol-main-row">'
+                    f'<div class="evol-main-number">{puntos_actuales}<span>pts</span></div>'
+                    f'<div class="evol-position-pill">{posicion_actual}° puesto</div>'
+                    f'</div>'
+                    f'<div class="evol-meta">Última tendencia: <strong>+{variacion_reciente} pts</strong></div>'
+                    f'</div>'
+                    f'<div class="evol-chart-shell">'
                 )
+        
+                st.markdown(evol_header_html, unsafe_allow_html=True)
         
                 fig = px.line(
                     df_ev,
@@ -917,9 +1018,9 @@ if menu == "🏠 Inicio":
                 )
         
                 fig.update_layout(
-                    height=260,
+                    height=238,
                     paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(255,255,255,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
                     font=dict(
                         family="Inter, sans-serif",
                         size=11,
@@ -928,8 +1029,8 @@ if menu == "🏠 Inicio":
                     margin=dict(
                         l=8,
                         r=8,
-                        t=0,
-                        b=8
+                        t=4,
+                        b=6
                     ),
                     showlegend=False,
                     hovermode=False,
@@ -949,7 +1050,7 @@ if menu == "🏠 Inicio":
         
                 fig.update_yaxes(
                     title_text="",
-                    gridcolor="rgba(148,163,184,0.16)",
+                    gridcolor="rgba(148,163,184,0.18)",
                     showline=False,
                     zeroline=False,
                     fixedrange=True,
@@ -992,8 +1093,6 @@ if menu == "🏠 Inicio":
                             hovertemplate=None
                         )
         
-                st.markdown('<div class="evol-chart-shell">', unsafe_allow_html=True)
-        
                 st.plotly_chart(
                     fig,
                     use_container_width=True,
@@ -1005,10 +1104,13 @@ if menu == "🏠 Inicio":
                     }
                 )
         
-                st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown('</div></div>', unsafe_allow_html=True)
         
             else:
-                st.info("Todavía no hay datos suficientes para mostrar la evolución.")
+                evol_html = evol_html_inicio
+                evol_html += '<div class="evol-empty">Todavía no hay datos suficientes para mostrar la evolución.</div>'
+                evol_html += '</div>'
+                st.markdown(evol_html, unsafe_allow_html=True)
         
 # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
     with c_der:
