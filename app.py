@@ -1547,311 +1547,363 @@ if menu == "🏠 Inicio":
         matches_html += '</div></div>'
         
         st.markdown(matches_html, unsafe_allow_html=True)
-        # ============================================================
-        # CHAT / FORO — CARD INTEGRADA
-        # ============================================================
-        
-        st.markdown("""
-        <style>
-        .chat-panel {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 14px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-        }
-        
-        .chat-panel-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 4px 4px 14px 4px;
-            margin-bottom: 8px;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
-        }
-        
-        .chat-panel-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(244, 197, 66, 0.16);
-            color: #0f172a;
-            font-size: 16px;
-        }
-        
-        .chat-panel-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 17px;
-            font-weight: 900;
-            color: #0f172a;
-            text-transform: none;
-            letter-spacing: -0.01em;
-        }
-        
-        .chat-scroll {
-            height: 265px;
-            overflow-y: auto;
-            padding: 6px 6px 2px 6px;
-            border-radius: 15px;
-            background: rgba(248, 250, 252, 0.72);
-            border: 1px solid rgba(226, 232, 240, 0.75);
-        }
-        
-        .chat-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .chat-scroll::-webkit-scrollbar-track {
-            background: rgba(226, 232, 240, 0.55);
-            border-radius: 999px;
-        }
-        
-        .chat-scroll::-webkit-scrollbar-thumb {
-            background: rgba(15, 23, 42, 0.22);
-            border-radius: 999px;
-        }
-        
-        .chat-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            align-items: flex-start;
-        }
-        
-        .chat-row.me {
-            flex-direction: row-reverse;
-        }
-        
-        .chat-avatar {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-            border: 2px solid rgba(255,255,255,0.95);
-            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.16);
-        }
-        
-        .chat-bubble-new {
-            max-width: 82%;
-            border-radius: 16px;
-            padding: 9px 11px;
-            background: rgba(255, 255, 255, 0.96);
-            border: 1px solid rgba(226, 232, 240, 0.95);
-            color: #1e293b;
-            box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
-        }
-        
-        .chat-row.me .chat-bubble-new {
-            background: linear-gradient(135deg, rgba(244,197,66,0.22), rgba(255,255,255,0.96));
-            border: 1px solid rgba(244, 197, 66, 0.48);
-        }
-        
-        .chat-head {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            margin-bottom: 4px;
-        }
-        
-        .chat-user {
-            font-size: 11px;
-            font-weight: 900;
-            color: #1e3a8a;
-            line-height: 1;
-        }
-        
-        .chat-row.me .chat-user {
-            color: #92400e;
-        }
-        
-        .chat-time {
-            font-size: 10px;
-            font-weight: 700;
-            color: #94a3b8;
-            line-height: 1;
-        }
-        
-        .chat-message {
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.35;
-            color: #334155;
-            word-break: break-word;
-        }
-        
-        .chat-empty {
-            height: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            font-size: 13px;
-            font-weight: 700;
-            text-align: center;
-        }
-        
-        .chat-form-spacer {
-            height: 10px;
-        }
-        
-        div[data-testid="stForm"] {
-            border: none;
-            padding: 0;
-            background: transparent;
-        }
-        
-        @media (max-width: 768px) {
-            .chat-panel {
-                padding: 12px;
-            }
-        
-            .chat-panel-title {
-                font-size: 15px;
-            }
-        
-            .chat-scroll {
-                height: 300px;
-            }
-        
-            .chat-bubble-new {
-                max-width: 86%;
-            }
-        
-            .chat-message {
-                font-size: 13px;
-            }
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        from html import escape
-        
-        # Leer foro
-        df_foro = conn.read(worksheet="FORO", ttl=10)
-        
-        columnas_foro = [
-            "FECHA",
-            "USUARIO",
-            "NOMBRE",
-            "MENSAJE",
-            "PARTIDO_ID",
-            "LIKES",
-            "DISLIKES",
-            "HORA"
-        ]
-        
-        for col in columnas_foro:
-            if col not in df_foro.columns:
-                df_foro[col] = ""
-        
-        chat_html = '<div class="chat-panel">'
-        chat_html += '<div class="chat-panel-header"><div class="chat-panel-icon">💬</div><div class="chat-panel-title">En los pasillos de la Villa se Comenta...</div></div>'
-        chat_html += '<div class="chat-scroll">'
-        
-        if df_foro.empty:
-            chat_html += '<div class="chat-empty">Todavía no hay comentarios.<br>¡Sé el primero en tirar una chicana mundialista!</div>'
-        else:
-            # Últimos mensajes primero
-            df_foro_mostrar = df_foro.tail(20).iloc[::-1]
-        
-            for _, msg in df_foro_mostrar.iterrows():
-                usuario_msg = str(msg.get("USUARIO", "Usuario"))
-        
-                nombre_raw = msg.get("NOMBRE", "")
-                hora_raw = msg.get("HORA", "")
-                mensaje_raw = msg.get("MENSAJE", "")
-        
-                nombre_msg = str(nombre_raw) if pd.notna(nombre_raw) and str(nombre_raw).lower() != "nan" and str(nombre_raw).strip() else usuario_msg
-                hora = str(hora_raw) if pd.notna(hora_raw) and str(hora_raw).lower() != "nan" else ""
-                mensaje = escape(str(mensaje_raw)) if pd.notna(mensaje_raw) else ""
-        
-                es_propio = usuario_msg == st.session_state["user_data"]["USUARIO"]
-        
-                u_info = df_usuarios[df_usuarios["USUARIO"] == usuario_msg]
-        
-                if not u_info.empty and pd.notna(u_info["AVATAR_URL"].values[0]):
-                    avatar = str(u_info["AVATAR_URL"].values[0])
-                else:
-                    avatar = AVATAR_GENERICO
-        
-                clase_me = "me" if es_propio else ""
-        
-                chat_html += f'<div class="chat-row {clase_me}">'
-                chat_html += f'<img src="{avatar}" class="chat-avatar">'
-                chat_html += '<div class="chat-bubble-new">'
-                chat_html += f'<div class="chat-head"><span class="chat-user">{escape(nombre_msg)}</span>'
-        
-                if hora:
-                    chat_html += f'<span class="chat-time">{escape(hora)}</span>'
-        
-                chat_html += '</div>'
-                chat_html += f'<div class="chat-message">{mensaje}</div>'
-                chat_html += '</div></div>'
-        
-        chat_html += '</div></div>'
-        
-        st.markdown(chat_html, unsafe_allow_html=True)
-        
-        st.markdown('<div class="chat-form-spacer"></div>', unsafe_allow_html=True)
-        
-        # Formulario de envío
-        with st.form("form_foro_premium", clear_on_submit=True):
-            c_txt, c_btn = st.columns([0.86, 0.14])
-        
-            nuevo_msg = c_txt.text_input(
-                "Escribe...",
-                label_visibility="collapsed",
-                placeholder="¿Qué opinas del partido?"
-            )
-        
-            enviar = c_btn.form_submit_button(
-                "🚀",
-                use_container_width=True
-            )
-        
-            if enviar and nuevo_msg.strip():
-                usuario_actual = st.session_state["user_data"]["USUARIO"]
-        
-                try:
-                    nombre_actual = st.session_state["user_data"].get("NOMBRE", usuario_actual)
-                except:
-                    nombre_actual = usuario_actual
-        
-                ahora = datetime.now()
-        
-                nuevo_reg = {
-                    "FECHA": ahora.strftime("%Y-%m-%d"),
-                    "USUARIO": usuario_actual,
-                    "NOMBRE": nombre_actual,
-                    "MENSAJE": nuevo_msg.strip(),
-                    "PARTIDO_ID": "",
-                    "LIKES": 0,
-                    "DISLIKES": 0,
-                    "HORA": ahora.strftime("%H:%M")
-                }
-        
-                df_nuevo_reg = pd.DataFrame([nuevo_reg], columns=columnas_foro)
-        
-                if df_foro.empty:
-                    df_nuevo = df_nuevo_reg
-                else:
-                    df_nuevo = pd.concat(
-                        [df_foro[columnas_foro], df_nuevo_reg],
-                        ignore_index=True
-                    )
-        
-                conn.update(
-                    worksheet="FORO",
-                    data=df_nuevo
-                )
-        
-                st.cache_data.clear()
-                st.rerun()
+# ============================================================
+# CHAT / FORO — CARD INTEGRADA CON FOOTER OSCURO
+# ============================================================
 
+st.markdown("""
+<style>
+.chat-panel {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+}
+
+.chat-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 4px 14px 4px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+}
+
+.chat-panel-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(244, 197, 66, 0.16);
+    color: #0f172a;
+    font-size: 16px;
+}
+
+.chat-panel-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+}
+
+.chat-scroll {
+    height: 245px;
+    overflow-y: auto;
+    padding: 8px 8px 4px 8px;
+    border-radius: 15px 15px 0 0;
+    background: rgba(248, 250, 252, 0.72);
+    border: 1px solid rgba(226, 232, 240, 0.75);
+    border-bottom: none;
+}
+
+.chat-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-scroll::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.55);
+    border-radius: 999px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.22);
+    border-radius: 999px;
+}
+
+.chat-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+}
+
+.chat-row.me {
+    flex-direction: row-reverse;
+}
+
+.chat-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.95);
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.16);
+}
+
+.chat-bubble-new {
+    max-width: 82%;
+    border-radius: 16px;
+    padding: 9px 11px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    color: #1e293b;
+    box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
+}
+
+.chat-row.me .chat-bubble-new {
+    background: linear-gradient(135deg, rgba(244,197,66,0.22), rgba(255,255,255,0.96));
+    border: 1px solid rgba(244, 197, 66, 0.48);
+}
+
+.chat-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 4px;
+}
+
+.chat-user {
+    font-size: 11px;
+    font-weight: 900;
+    color: #1e3a8a;
+    line-height: 1;
+}
+
+.chat-row.me .chat-user {
+    color: #92400e;
+}
+
+.chat-time {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    line-height: 1;
+}
+
+.chat-message {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: #334155;
+    word-break: break-word;
+}
+
+.chat-empty {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* FOOTER OSCURO */
+.chat-footer-dark {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.94)
+        );
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0 0 15px 15px;
+    padding: 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* Form dentro del footer */
+.chat-footer-dark div[data-testid="stForm"] {
+    border: none;
+    padding: 0;
+    background: transparent;
+}
+
+/* Input del chat */
+.chat-footer-dark input {
+    background: rgba(255,255,255,0.94) !important;
+    color: #0f172a !important;
+    border: 1px solid rgba(226,232,240,0.85) !important;
+    border-radius: 12px !important;
+    font-size: 13px !important;
+}
+
+.chat-footer-dark input::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* Botón enviar */
+.chat-footer-dark button {
+    background: rgba(244,197,66,0.16) !important;
+    border: 1px solid rgba(244,197,66,0.38) !important;
+    border-radius: 12px !important;
+    color: #F8FAFC !important;
+    font-weight: 900 !important;
+}
+
+.chat-footer-dark button:hover {
+    background: rgba(244,197,66,0.26) !important;
+    border-color: rgba(244,197,66,0.55) !important;
+}
+
+@media (max-width: 768px) {
+    .chat-panel {
+        padding: 12px;
+    }
+
+    .chat-panel-title {
+        font-size: 15px;
+    }
+
+    .chat-scroll {
+        height: 300px;
+    }
+
+    .chat-bubble-new {
+        max-width: 86%;
+    }
+
+    .chat-message {
+        font-size: 13px;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
+from html import escape
+
+# Leer foro
+df_foro = conn.read(worksheet="FORO", ttl=10)
+
+columnas_foro = [
+    "FECHA",
+    "USUARIO",
+    "NOMBRE",
+    "MENSAJE",
+    "PARTIDO_ID",
+    "LIKES",
+    "DISLIKES",
+    "HORA"
+]
+
+for col in columnas_foro:
+    if col not in df_foro.columns:
+        df_foro[col] = ""
+
+chat_html = '<div class="chat-panel">'
+chat_html += '<div class="chat-panel-header"><div class="chat-panel-icon">💬</div><div class="chat-panel-title">En los pasillos de la Villa se Comenta...</div></div>'
+chat_html += '<div class="chat-scroll">'
+
+if df_foro.empty:
+    chat_html += '<div class="chat-empty">Todavía no hay comentarios.<br>¡Sé el primero en tirar una chicana mundialista!</div>'
+else:
+    df_foro_mostrar = df_foro.tail(20).iloc[::-1]
+
+    for _, msg in df_foro_mostrar.iterrows():
+        usuario_msg = str(msg.get("USUARIO", "Usuario"))
+
+        nombre_raw = msg.get("NOMBRE", "")
+        hora_raw = msg.get("HORA", "")
+        mensaje_raw = msg.get("MENSAJE", "")
+
+        nombre_msg = (
+            str(nombre_raw)
+            if pd.notna(nombre_raw)
+            and str(nombre_raw).lower() != "nan"
+            and str(nombre_raw).strip()
+            else usuario_msg
+        )
+
+        hora = (
+            str(hora_raw)
+            if pd.notna(hora_raw)
+            and str(hora_raw).lower() != "nan"
+            else ""
+        )
+
+        mensaje = escape(str(mensaje_raw)) if pd.notna(mensaje_raw) else ""
+
+        es_propio = usuario_msg == st.session_state["user_data"]["USUARIO"]
+
+        u_info = df_usuarios[df_usuarios["USUARIO"] == usuario_msg]
+
+        if not u_info.empty and pd.notna(u_info["AVATAR_URL"].values[0]):
+            avatar = str(u_info["AVATAR_URL"].values[0])
+        else:
+            avatar = AVATAR_GENERICO
+
+        clase_me = "me" if es_propio else ""
+
+        chat_html += f'<div class="chat-row {clase_me}">'
+        chat_html += f'<img src="{avatar}" class="chat-avatar">'
+        chat_html += '<div class="chat-bubble-new">'
+        chat_html += f'<div class="chat-head"><span class="chat-user">{escape(nombre_msg)}</span>'
+
+        if hora:
+            chat_html += f'<span class="chat-time">{escape(hora)}</span>'
+
+        chat_html += '</div>'
+        chat_html += f'<div class="chat-message">{mensaje}</div>'
+        chat_html += '</div></div>'
+
+chat_html += '</div>'  # cierra chat-scroll
+
+st.markdown(chat_html, unsafe_allow_html=True)
+
+# Footer oscuro + formulario
+st.markdown('<div class="chat-footer-dark">', unsafe_allow_html=True)
+
+with st.form("form_foro_premium", clear_on_submit=True):
+    c_txt, c_btn = st.columns([0.86, 0.14])
+
+    nuevo_msg = c_txt.text_input(
+        "Escribe...",
+        label_visibility="collapsed",
+        placeholder="¿Qué opinas del partido?"
+    )
+
+    enviar = c_btn.form_submit_button(
+        "🚀",
+        use_container_width=True
+    )
+
+    if enviar and nuevo_msg.strip():
+        usuario_actual = st.session_state["user_data"]["USUARIO"]
+
+        try:
+            nombre_actual = st.session_state["user_data"].get("NOMBRE", usuario_actual)
+        except:
+            nombre_actual = usuario_actual
+
+        ahora = datetime.now()
+
+        nuevo_reg = {
+            "FECHA": ahora.strftime("%Y-%m-%d"),
+            "USUARIO": usuario_actual,
+            "NOMBRE": nombre_actual,
+            "MENSAJE": nuevo_msg.strip(),
+            "PARTIDO_ID": "",
+            "LIKES": 0,
+            "DISLIKES": 0,
+            "HORA": ahora.strftime("%H:%M")
+        }
+
+        df_nuevo_reg = pd.DataFrame([nuevo_reg], columns=columnas_foro)
+
+        if df_foro.empty:
+            df_nuevo = df_nuevo_reg
+        else:
+            df_nuevo = pd.concat(
+                [df_foro[columnas_foro], df_nuevo_reg],
+                ignore_index=True
+            )
+
+        conn.update(
+            worksheet="FORO",
+            data=df_nuevo
+        )
+
+        st.cache_data.clear()
+        st.rerun()
+
+st.markdown('</div></div>', unsafe_allow_html=True)
 #---------- MENU MIS PRONOSTICOS (CÓDIGO CORREGIDO Y COMPLETO) ----------------------------------
 
 elif menu == "📝 Mis Pronósticos":
