@@ -414,6 +414,83 @@ div[data-testid="stForm"] button {
     border-radius: 15px;
     padding: 14px;
 }
+.pred-summary-footer {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.94)
+        );
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 15px 16px;
+    margin-top: 16px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 10px 24px rgba(15,23,42,0.08);
+}
+
+.pred-summary-kicker {
+    font-size: 10px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 9px;
+}
+
+.pred-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.pred-summary-item {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 9px 6px;
+    text-align: center;
+}
+
+.pred-summary-icon {
+    font-size: 16px;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.pred-summary-number {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: #F8FAFC;
+    line-height: 1;
+}
+
+.pred-summary-label {
+    margin-top: 4px;
+    font-size: 9px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.55);
+    text-transform: uppercase;
+}
+
+.pred-summary-style {
+    margin-top: 10px;
+    color: rgba(255,255,255,0.72);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.pred-summary-style strong {
+    color: #F4C542;
+}
+
+@media (max-width: 768px) {
+    .pred-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 
 @media (max-width: 768px) {
     .page-section-title h1 {
@@ -473,6 +550,49 @@ div[data-testid="stForm"] button {
             "generales": int(row.get("GENERALES", 0))
         }
 
+    def calcular_stats_pronosticos(lista_pronosticos):
+    total_partidos = len(lista_pronosticos)
+
+    if total_partidos == 0:
+        return {
+            "con_ganador": 0,
+            "empates": 0,
+            "goles": 0,
+            "promedio_goles": 0,
+            "estilo": "Sin datos"
+        }
+
+    con_ganador = 0
+    empates = 0
+    goles = 0
+
+    for p in lista_pronosticos:
+        p1 = int(p.get("P1", 0))
+        p2 = int(p.get("P2", 0))
+
+        goles += p1 + p2
+
+        if p1 == p2:
+            empates += 1
+        else:
+            con_ganador += 1
+
+    promedio_goles = goles / total_partidos
+
+    if promedio_goles >= 3:
+        estilo = "Optimista del gol"
+    elif promedio_goles <= 1.8:
+        estilo = "Bilardista táctico"
+    else:
+        estilo = "Equilibrado"
+
+    return {
+        "con_ganador": con_ganador,
+        "empates": empates,
+        "goles": goles,
+        "promedio_goles": round(promedio_goles, 1),
+        "estilo": estilo
+    }
     # ============================================================
     # DATOS BASE
     # ============================================================
@@ -647,7 +767,7 @@ div[data-testid="stForm"] button {
                         "<div class='pred-match-gap'></div>",
                         unsafe_allow_html=True
                     )
-
+            stats_pronosticos = calcular_stats_pronosticos(lista_nuevos_pro)
 
             # ------------------------------------------------------------
             # ACCIONES
@@ -707,6 +827,44 @@ div[data-testid="stForm"] button {
                 st.markdown("</div>", unsafe_allow_html=True)
             
                 editar = False
+
+                st.markdown(
+                    f"""
+<div class="pred-summary-footer">
+<div class="pred-summary-kicker">Tus pronósticos</div>
+
+<div class="pred-summary-grid">
+<div class="pred-summary-item">
+    <div class="pred-summary-icon">🏆</div>
+    <div class="pred-summary-number">{stats_pronosticos["con_ganador"]}</div>
+    <div class="pred-summary-label">Con ganador</div>
+</div>
+
+<div class="pred-summary-item">
+    <div class="pred-summary-icon">🤝</div>
+    <div class="pred-summary-number">{stats_pronosticos["empates"]}</div>
+    <div class="pred-summary-label">Empates</div>
+</div>
+
+<div class="pred-summary-item">
+    <div class="pred-summary-icon">⚽</div>
+    <div class="pred-summary-number">{stats_pronosticos["goles"]}</div>
+    <div class="pred-summary-label">Goles</div>
+</div>
+
+<div class="pred-summary-item">
+    <div class="pred-summary-icon">📊</div>
+    <div class="pred-summary-number">{stats_pronosticos["promedio_goles"]}</div>
+    <div class="pred-summary-label">Promedio</div>
+</div>
+</div>
+
+<div class="pred-summary-style">
+Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
+</div>
+</div>
+                """,
+                    unsafe_allow_html=True
             # ------------------------------------------------------------
             # EVENTOS
             # ------------------------------------------------------------
