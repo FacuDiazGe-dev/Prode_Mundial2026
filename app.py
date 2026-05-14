@@ -171,10 +171,8 @@ if estado_mantenimiento == "ON" and st.session_state.get('user_data', {}).get('R
         st.rerun()
     st.stop()
 
-#aplicar_estilos_globales()
+aplicar_estilos_globales()
 
-# --- SIDEBAR DE BIENVENIDA ---
-st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
 
 # =============================================================================
 # 3. EJECUCIÓN
@@ -182,28 +180,66 @@ st.sidebar.write(f"Hola, **{st.session_state['user_data']['NOMBRE']}**")
 # Asegúrate de que df_usuarios, df_pro y df_res estén cargados antes
 df_ranking = obtener_ranking_global(df_usuarios, df_pro, df_res)
 
-# --- NAVEGACIÓN EN SIDEBAR (OPTIMIZADO PARA MÓVILES) ---
-# --- ESTRUCTURA PRINCIPAL DE DISEÑO (PROPORCIONES 60/40) ---
-col_principal, col_derecha = st.columns([0.6, 0.4])
+# ============================================================
+# SIDEBAR PREMIUM
+# ============================================================
 
-# 1. NAVEGACIÓN EN EL SIDEBAR (Ideal para móviles y PC)
-# --- 1. NAVEGACIÓN EN EL SIDEBAR ---
 with st.sidebar:
-    st.subheader("📍 Navegación")
-    opciones = ["🏠 Inicio", "📝 Mis Pronósticos", "👥 Jugadores", "💬 Foro"]
-    if st.session_state['user_data']['ROL'] == 'admin':
-        opciones.append("⚙️ Panel Control")
-        opciones.append("🧪 Laboratorio") # <--- Nuestra pestaña de pruebas
-    
-    menu = st.radio("Ir a:", opciones)
-    
-    st.markdown("---")
-    # Botón de cerrar sesión
-    if st.button("🚪 Cerrar Sesión", use_container_width=True):
-        st.session_state['autenticado'] = False
-        st.rerun()
 
-# --- LÓGICA DE CONTENIDO SEGÚN EL MENÚ ---
+    st.markdown("""
+<div class="sidebar-brand">
+    <div class="sidebar-brand-title">
+        🏆 PRODE<br>
+        <span>MUNDIAL 2026</span>
+    </div>
+    <div class="sidebar-brand-subtitle">
+        La gloria está en tus predicciones
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+    nombre_usuario = st.session_state["user_data"].get("NOMBRE", "Jugador")
+
+    st.markdown(f"""
+<div class="sidebar-user-box">
+    <div class="sidebar-user-label">Bienvenido</div>
+    <div class="sidebar-user-name">{nombre_usuario}</div>
+</div>
+""", unsafe_allow_html=True)
+
+    st.markdown("""
+<div class="sidebar-section-label">
+    📍 Navegación
+</div>
+""", unsafe_allow_html=True)
+
+    opciones = [
+        "🏠 Inicio",
+        "📝 Mis Pronósticos",
+        "👥 Jugadores",
+        "💬 Foro"
+    ]
+
+    if st.session_state["user_data"]["ROL"] == "admin":
+        opciones.append("⚙️ Panel Control")
+        opciones.append("🧪 Laboratorio")
+
+    menu = st.radio(
+        "Ir a:",
+        opciones,
+        label_visibility="collapsed"
+    )
+
+    st.markdown("""
+<div class="sidebar-footer">
+    <strong>🏆 Prode Mundial 2026</strong><br>
+    La gloria está en tus predicciones
+</div>
+""", unsafe_allow_html=True)
+
+    if st.button("🚪 Cerrar Sesión", use_container_width=True):
+        st.session_state["autenticado"] = False
+        st.rerun()
 #------------------------------------------------MENU INICIO-----------------------------------------------
 
 if menu == "🏠 Inicio":
