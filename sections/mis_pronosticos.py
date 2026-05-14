@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from html import escape
+import re
 
 from styles_config import AVATAR_GENERICO
 from tools import upload_profile_picture
@@ -199,38 +200,46 @@ def render_mis_pronosticos(
     letter-spacing: 0.08em;
 }
 
-/* Inputs como marcador */
-div[data-testid="stNumberInput"] {
-    width: 54px !important;
-    min-width: 54px !important;
-    max-width: 54px !important;
+
+
+/* Input único de marcador 0-0 */
+div[data-testid="stTextInput"] {
+    max-width: 96px !important;
+    margin: 0 auto 9px auto !important;
 }
 
-div[data-testid="stNumberInput"] label {
-    display: none !important;
-}
-
-div[data-testid="stNumberInput"] input {
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
-
+div[data-testid="stTextInput"] input {
+    height: 44px !important;
     text-align: center !important;
+
     font-family: 'Montserrat', sans-serif !important;
-    font-size: 16px !important;
+    font-size: 22px !important;
     font-weight: 900 !important;
 
-    border-radius: 10px !important;
+    letter-spacing: 0.08em !important;
+
+    border-radius: 13px !important;
     border: 1px solid rgba(244,197,66,0.42) !important;
-    background: rgba(255,255,255,0.96) !important;
-    color: #07111F !important;
 
-    padding: 2px !important;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.95)
+        ) !important;
+
+    color: #F4C542 !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 8px 18px rgba(15,23,42,0.12) !important;
 }
 
-div[data-testid="stNumberInput"] button {
-    display: none !important;
-}
+div[data-testid="stTextInput"] input:disabled {
+    color: #F4C542 !important;
+    opacity: 0.85 !important;
+    -webkit-text-fill-color: #F4C542 !important;
+    
 
 .pred-match-gap {
     height: 6px;
@@ -336,7 +345,16 @@ div[data-testid="stNumberInput"] button {
         font-size: 14px !important;
         border-radius: 8px !important;
     }
-
+    div[data-testid="stTextInput"] {
+        max-width: 82px !important;
+        margin-bottom: 7px !important;
+    }
+    
+    div[data-testid="stTextInput"] input {
+        height: 38px !important;
+        font-size: 19px !important;
+        border-radius: 11px !important;
+    }
     .pred-match-gap {
         height: 4px !important;
     }
@@ -582,6 +600,20 @@ div[data-testid="stNumberInput"] button {
             "promedio_goles": round(promedio_goles, 1),
             "estilo": estilo
         }
+
+    def parse_score_input(valor, default_p1=0, default_p2=0):
+    """
+    Valida un marcador con formato X-X.
+    Solo permite un dígito por lado: 0-0 hasta 9-9.
+    """
+    valor = str(valor).strip()
+
+    if re.fullmatch(r"[0-9]-[0-9]", valor):
+        p1, p2 = valor.split("-")
+        return int(p1), int(p2), True
+
+    return int(default_p1), int(default_p2), False
+    
     # ============================================================
     # DATOS BASE
     # ============================================================
@@ -652,6 +684,7 @@ div[data-testid="stNumberInput"] button {
 """, unsafe_allow_html=True)
 
             lista_nuevos_pro = []
+            errores_formato = []
 
             with st.container(height=520):
 
@@ -680,6 +713,8 @@ div[data-testid="stNumberInput"] button {
                     dia = str(row.get("DIA", ""))
                     hora = str(row.get("HORA", ""))
 
+                    valor_inicial = f"{v1}-{v2}"
+
                     st.markdown(
                         f"""
 <div class="pred-match-card-v2">
@@ -691,51 +726,25 @@ div[data-testid="stNumberInput"] button {
                         unsafe_allow_html=True
                     )
 
-                    # Fila 1: marcador
-                    st.markdown(
-                        '<div class="pred-score-row">',
-                        unsafe_allow_html=True
+                    score_txt = st.text_input(
+                        f"Resultado partido {id_p}",
+                        value=valor_inicial,
+                        max_chars=3,
+                        key=f"score_{id_p}",
+                        label_visibility="collapsed",
+                        disabled=esta_bloqueado,
+                        placeholder="0-0"
                     )
 
-                    c_g1, c_vs, c_g2 = st.columns(
-                        [0.44, 0.12, 0.44],
-                        gap="small"
+                    p1_val, p2_val, score_ok = parse_score_input(
+                        score_txt,
+                        default_p1=v1,
+                        default_p2=v2
                     )
 
-                    with c_g1:
-                        p1_val = st.number_input(
-                            f"G1_{id_p}",
-                            min_value=0,
-                            max_value=15,
-                            value=v1,
-                            key=f"mispron_f1_{id_p}",
-                            label_visibility="collapsed",
-                            disabled=esta_bloqueado
-                        )
+                    if not score_ok:
+                        errores_formato.append(id_p)
 
-                    with c_vs:
-                        st.markdown(
-                            '<div class="pred-score-sep">:</div>',
-                            unsafe_allow_html=True
-                        )
-
-                    with c_g2:
-                        p2_val = st.number_input(
-                            f"G2_{id_p}",
-                            min_value=0,
-                            max_value=15,
-                            value=v2,
-                            key=f"mispron_f2_{id_p}",
-                            label_visibility="collapsed",
-                            disabled=esta_bloqueado
-                        )
-
-                    st.markdown(
-                        "</div>",
-                        unsafe_allow_html=True
-                    )
-
-                    # Fila 2: equipos
                     st.markdown(
                         f"""
 <div class="pred-teams-row">
@@ -771,6 +780,13 @@ div[data-testid="stNumberInput"] button {
                     )
 
             stats_pronosticos = calcular_stats_pronosticos(lista_nuevos_pro)
+
+            if errores_formato:
+                st.warning(
+                    "⚠️ Revisá el formato de estos partidos: "
+                    + ", ".join([str(x) for x in errores_formato])
+                    + ". Usá el formato 0-0."
+                )
             
             # ------------------------------------------------------------
             # ACCIONES
@@ -864,6 +880,10 @@ div[data-testid="stNumberInput"] button {
                 st.rerun()
             
             if submit:
+                if errores_formato:
+                    st.error("No se puede guardar. Hay resultados con formato inválido. Usá el formato 0-0.")
+                    st.stop()
+
                 try:
                     df_pro_full = conn.read(
                         worksheet="PRONOSTICOS",
