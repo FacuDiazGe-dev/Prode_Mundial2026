@@ -323,11 +323,11 @@ if menu == "🏠 Inicio":
     }}
 
     /* SECCIÓN INFERIOR RESPONSIVA */
-    .content-bottom {
+    .content-bottom {{
         display: flex;
         flex-direction: row;
         align-items: center;
-    }
+    }}
     
     .pos-section {{
         flex: 0 0 22%;
@@ -350,17 +350,7 @@ if menu == "🏠 Inicio":
     
         backdrop-filter: blur(4px);
     }}
-    .label-pos {{ font-size: 9px; opacity: 0.5; font-weight: 700; text-transform: uppercase; }}
-    .val-pos {{ 
-          font-family: 'Montserrat', sans-serif; 
-          font-size: 48px; 
-          font-weight: 900; 
-          margin: 2px 0; 
-          text-shadow: 0 0 18px rgba(255,255,255,0.35), 0 0 32px rgba(244,197,66,0.22); 
-        }}
-    .pts-box {{ font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; }}
-    .msg-status {{ font-size: 10px; margin-top: 5px; opacity: 0.7; font-weight: 600; }}
-
+    
     .podium-section {{
         flex: 0 0 78%;
         display: flex;
@@ -369,7 +359,7 @@ if menu == "🏠 Inicio":
         padding: 15px 20px;
         gap: 18px;
     }}
-
+    
     .pod-item {{
         text-align: center;
         position: relative;
@@ -379,7 +369,6 @@ if menu == "🏠 Inicio":
         align-items: center;
     }}
     
-    .av-wrap {{ position: relative; display: inline-block; }}
     .av-img {{ 
         border-radius: 50%;
         object-fit: cover;
@@ -404,14 +393,14 @@ if menu == "🏠 Inicio":
         border: 4px solid #C0C0C0 !important;
         box-shadow:
             0 10px 28px rgba(0,0,0,0.55),
-            0 0 12px rgba(192,192,192,0.28);
+            0 0 12px rgba(192,192,192,0.25);
     }}
     
     .av-third {{
         border: 4px solid #CD7F32 !important;
         box-shadow:
             0 10px 28px rgba(0,0,0,0.55),
-            0 0 12px rgba(205,127,50,0.28);
+            0 0 12px rgba(205,127,50,0.25);
     }}
     
     .pod-name {{ font-weight: 800; font-size: 12px; margin-top: 8px; text-transform: uppercase; }}
