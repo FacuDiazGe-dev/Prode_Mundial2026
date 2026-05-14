@@ -585,7 +585,7 @@ div[data-testid="stNumberInput"] input {
                             disabled=esta_bloqueado
                         )
 
-                    with c_eq2:
+                    with c_eq2:    
                         st.markdown(f"""
 <div class="pred-team right">
 {flag_html(bandera2)}
@@ -608,6 +608,7 @@ div[data-testid="stNumberInput"] input {
                         "<div class='pred-match-gap'></div>",
                         unsafe_allow_html=True
                     )
+)
 
             # ------------------------------------------------------------
             # ACCIONES
