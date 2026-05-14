@@ -34,18 +34,26 @@ def aplicar_estilos_globales():
     """
     Aplica estilos globales:
     - fondo general de la app
-    - fondo del sidebar
+    - sidebar oscuro premium
     - tipografías base
     - estilos reutilizables para banners
     """
 
     css = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&family=Montserrat:wght@700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&display=swap');
+
+/* ============================================================
+   TIPOGRAFÍA GLOBAL
+   ============================================================ */
 
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
 }
+
+/* ============================================================
+   FONDO GENERAL DE LA APP
+   ============================================================ */
 
 .stApp {
     background-image:
@@ -56,25 +64,232 @@ html, body, [class*="css"] {
     background-position: center;
 }
 
+/* ============================================================
+   SIDEBAR OSCURO PREMIUM
+   ============================================================ */
+
 [data-testid="stSidebar"] {
+    background-color: #07111F;
     background-image:
-        linear-gradient(rgba(0,0,0,0.70), rgba(0,0,0,0.82)),
+        linear-gradient(
+            rgba(7,17,31,0.88),
+            rgba(7,17,31,0.96)
+        ),
         url("__SIDEBAR_BANNER__");
     background-size: cover;
     background-position: center;
+    border-right: 1px solid rgba(255,255,255,0.08);
 }
 
+/* Contenedor interno del sidebar */
+[data-testid="stSidebar"] > div:first-child {
+    padding-top: 24px;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+/* Textos generales del sidebar */
 [data-testid="stSidebar"] .stMarkdown,
 [data-testid="stSidebar"] label,
-[data-testid="stSidebar"] .stRadio p,
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] div {
+    color: #F8FAFC;
+}
+
+/* Labels y textos secundarios */
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .stCaptionContainer {
+    color: #94A3B8 !important;
+    font-weight: 700 !important;
+}
+
+/* Títulos dentro del sidebar */
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
-[data-testid="stSidebar"] h3,
-[data-testid="stSidebar"] p {
-    color: #FFFFFF !important;
-    font-weight: 800 !important;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.85) !important;
+[data-testid="stSidebar"] h3 {
+    color: #F8FAFC !important;
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.03em;
 }
+
+/* ============================================================
+   RADIO / MENÚ DEL SIDEBAR
+   ============================================================ */
+
+/* Contenedor de opciones */
+[data-testid="stSidebar"] div[role="radiogroup"] {
+    gap: 6px;
+}
+
+/* Cada item del radio */
+[data-testid="stSidebar"] div[role="radiogroup"] label {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 9px 11px;
+    margin-bottom: 6px;
+    transition: all 0.18s ease;
+}
+
+/* Texto dentro del item */
+[data-testid="stSidebar"] div[role="radiogroup"] label p {
+    color: #CBD5E1 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+}
+
+/* Hover */
+[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+    background: rgba(255,255,255,0.075);
+    border-color: rgba(255,255,255,0.14);
+}
+
+/* Item activo */
+[data-testid="stSidebar"] div[role="radiogroup"] label[data-baseweb="radio"] {
+    position: relative;
+}
+
+/* Círculo del radio: lo ocultamos visualmente */
+[data-testid="stSidebar"] div[role="radiogroup"] label > div:first-child {
+    display: none;
+}
+
+/* Opción seleccionada */
+[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
+    background: rgba(244,197,66,0.14);
+    border: 1px solid rgba(244,197,66,0.34);
+    border-left: 4px solid #F4C542;
+    box-shadow: 0 8px 20px rgba(244,197,66,0.08);
+}
+
+/* Texto de opción seleccionada */
+[data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p {
+    color: #F8FAFC !important;
+    font-weight: 900 !important;
+}
+
+/* ============================================================
+   BOTONES DEL SIDEBAR
+   ============================================================ */
+
+[data-testid="stSidebar"] button {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    border-radius: 12px !important;
+    color: #F8FAFC !important;
+    font-weight: 800 !important;
+    transition: all 0.18s ease;
+}
+
+[data-testid="stSidebar"] button:hover {
+    background: rgba(244,197,66,0.12) !important;
+    border-color: rgba(244,197,66,0.34) !important;
+    color: #F8FAFC !important;
+}
+
+/* ============================================================
+   INPUTS / CAMPOS EN SIDEBAR
+   ============================================================ */
+
+[data-testid="stSidebar"] input,
+[data-testid="stSidebar"] textarea,
+[data-testid="stSidebar"] select {
+    background: rgba(255,255,255,0.08) !important;
+    color: #F8FAFC !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+}
+
+[data-testid="stSidebar"] input::placeholder {
+    color: #94A3B8 !important;
+}
+
+/* ============================================================
+   COMPONENTES REUTILIZABLES PARA SIDEBAR
+   Los usaremos luego desde app.py
+   ============================================================ */
+
+.sidebar-brand {
+    margin-bottom: 26px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.sidebar-brand-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 19px;
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: 0.02em;
+    color: #F8FAFC;
+    text-transform: uppercase;
+}
+
+.sidebar-brand-title span {
+    color: #F4C542;
+}
+
+.sidebar-brand-subtitle {
+    margin-top: 7px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.sidebar-user-box {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 22px;
+}
+
+.sidebar-user-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.sidebar-user-name {
+    margin-top: 3px;
+    font-size: 14px;
+    font-weight: 900;
+    color: #F8FAFC;
+}
+
+.sidebar-section-label {
+    font-size: 11px;
+    font-weight: 900;
+    color: #F4C542;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 18px 0 10px 0;
+}
+
+.sidebar-footer {
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    font-size: 11px;
+    line-height: 1.45;
+    color: #94A3B8;
+    opacity: 0.85;
+}
+
+.sidebar-footer strong {
+    color: #F8FAFC;
+    font-weight: 900;
+}
+
+/* ============================================================
+   BANNERS REUTILIZABLES DE PÁGINA
+   ============================================================ */
 
 .app-section-banner {
     position: relative;
@@ -126,6 +341,10 @@ html, body, [class*="css"] {
     font-weight: 600;
     color: rgba(255,255,255,0.72);
 }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 
 @media (max-width: 768px) {
     .app-section-banner {
