@@ -249,6 +249,56 @@ div[data-testid="stNumberInput"] input {
     background: rgba(255,255,255,0.96) !important;
 }
 
+/* ============================================================
+   FOOTER OSCURO — ACCIONES DE PRONÓSTICOS
+   ============================================================ */
+
+.pred-actions-footer {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.94)
+        );
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0 0 16px 16px;
+    padding: 14px;
+    margin: 16px -16px -16px -16px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 -6px 18px rgba(15,23,42,0.04);
+}
+
+.pred-actions-label {
+    font-size: 11px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.58);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 10px;
+}
+
+div[data-testid="stFormSubmitButton"] button {
+    border-radius: 12px !important;
+    font-weight: 900 !important;
+    border: 1px solid rgba(244,197,66,0.38) !important;
+}
+
+div[data-testid="stFormSubmitButton"] button:not(:disabled) {
+    background: rgba(244,197,66,0.16) !important;
+    color: #F8FAFC !important;
+}
+
+div[data-testid="stFormSubmitButton"] button:not(:disabled):hover {
+    background: rgba(244,197,66,0.26) !important;
+    border-color: rgba(244,197,66,0.55) !important;
+}
+
+div[data-testid="stFormSubmitButton"] button:disabled {
+    background: rgba(255,255,255,0.08) !important;
+    color: rgba(255,255,255,0.42) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+}
 /* Botones dentro del form */
 div[data-testid="stForm"] button {
     border-radius: 12px !important;
@@ -596,37 +646,59 @@ div[data-testid="stForm"] button {
             # ------------------------------------------------------------
 
             if not es_tiempo_valido:
+                st.markdown("""
+            <div class="pred-actions-footer">
+            <div class="pred-actions-label">Modo lectura</div>
+            """, unsafe_allow_html=True)
+            
                 submit = st.form_submit_button(
                     "Lectura — edición deshabilitada",
                     use_container_width=True,
                     disabled=True
                 )
+            
+                st.markdown("</div>", unsafe_allow_html=True)
+            
                 cancelar = False
                 editar = False
-
+            
             elif not modo_edicion:
+                st.markdown("""
+            <div class="pred-actions-footer">
+            <div class="pred-actions-label">Tus pronósticos están protegidos</div>
+            """, unsafe_allow_html=True)
+            
                 editar = st.form_submit_button(
                     "✏️ Editar pronósticos",
                     use_container_width=True
                 )
+            
+                st.markdown("</div>", unsafe_allow_html=True)
+            
                 submit = False
                 cancelar = False
-
+            
             else:
+                st.markdown("""
+            <div class="pred-actions-footer">
+            <div class="pred-actions-label">Modo edición activo</div>
+            """, unsafe_allow_html=True)
+            
                 c_cancelar, c_guardar = st.columns([0.35, 0.65])
-
+            
                 cancelar = c_cancelar.form_submit_button(
                     "Cancelar",
                     use_container_width=True
                 )
-
+            
                 submit = c_guardar.form_submit_button(
                     "💾 Guardar pronósticos",
                     use_container_width=True
                 )
-
+            
+                st.markdown("</div>", unsafe_allow_html=True)
+            
                 editar = False
-
             # ------------------------------------------------------------
             # EVENTOS
             # ------------------------------------------------------------
