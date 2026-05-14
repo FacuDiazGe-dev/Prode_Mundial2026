@@ -729,121 +729,126 @@ div[data-testid="stForm"] button {
 
             lista_nuevos_pro = []
             # ------------------------------------------------------------
-            # TABLA COMPACTA DE PRONÓSTICOS
-            # Reemplaza el listado visual de cards por una tabla editable
-            # más estable para celular y para carga masiva de 72 partidos.
+            # LISTADO DE PARTIDOS — CARD HORIZONTAL COMPACTA
             # ------------------------------------------------------------
-
-            filas_editor = []
-
-            for _, row in df_res.sort_values("N_PARTIDO").iterrows():
-                id_p = int(row["N_PARTIDO"])
-
-                match = df_user_pro[df_user_pro["N_PARTIDO"] == id_p]
-
-                v1 = (
-                    int(match.iloc[0]["P1"])
-                    if not match.empty and pd.notna(match.iloc[0]["P1"])
-                    else 0
-                )
-
-                v2 = (
-                    int(match.iloc[0]["P2"])
-                    if not match.empty and pd.notna(match.iloc[0]["P2"])
-                    else 0
-                )
-
-                equipo_1 = str(row.get("Equipo_1", ""))
-                equipo_2 = str(row.get("Equipo_2", ""))
-
-                dia = str(row.get("DIA", ""))
-                hora = str(row.get("HORA", ""))
-
-                filas_editor.append(
-                    {
-                        "N_PARTIDO": id_p,
-                        "FECHA": f"{dia} | {hora}",
-                        "LOCAL": equipo_1,
-                        "P1": v1,
-                        "P2": v2,
-                        "VISITANTE": equipo_2,
-                    }
-                )
-
-            df_editor = pd.DataFrame(filas_editor)
-
-            columnas_bloqueadas = [
-                "N_PARTIDO",
-                "FECHA",
-                "LOCAL",
-                "VISITANTE"
-            ]
-
-            if esta_bloqueado:
-                columnas_bloqueadas = [
-                    "N_PARTIDO",
-                    "FECHA",
-                    "LOCAL",
-                    "P1",
-                    "P2",
-                    "VISITANTE"
-                ]
-
-            df_editado = st.data_editor(
-                df_editor,
-                use_container_width=True,
-                hide_index=True,
-                height=520,
-                disabled=columnas_bloqueadas,
-                column_config={
-                    "N_PARTIDO": st.column_config.NumberColumn(
-                        "Partido",
-                        width="small"
-                    ),
-                    "FECHA": st.column_config.TextColumn(
-                        "Fecha",
-                        width="small"
-                    ),
-                    "LOCAL": st.column_config.TextColumn(
-                        "Local",
-                        width="medium"
-                    ),
-                    "P1": st.column_config.NumberColumn(
-                        "P1",
-                        min_value=0,
-                        max_value=15,
-                        step=1,
-                        width="small"
-                    ),
-                    "P2": st.column_config.NumberColumn(
-                        "P2",
-                        min_value=0,
-                        max_value=15,
-                        step=1,
-                        width="small"
-                    ),
-                    "VISITANTE": st.column_config.TextColumn(
-                        "Visitante",
-                        width="medium"
-                    ),
-                },
-                key="editor_pronosticos"
-            )
 
             lista_nuevos_pro = []
 
-            for _, row in df_editado.iterrows():
-                lista_nuevos_pro.append(
-                    {
-                        "N_PARTIDO": int(row["N_PARTIDO"]),
-                        "USUARIO": user_actual,
-                        "P1": int(row["P1"]),
-                        "P2": int(row["P2"])
-                    }
-                )
+            with st.container(height=520):
+
+                for _, row in df_res.sort_values("N_PARTIDO").iterrows():
+                    id_p = int(row["N_PARTIDO"])
+                    match = df_user_pro[df_user_pro["N_PARTIDO"] == id_p]
+
+                    v1 = (
+                        int(match.iloc[0]["P1"])
+                        if not match.empty and pd.notna(match.iloc[0]["P1"])
+                        else 0
+                    )
+
+                    v2 = (
+                        int(match.iloc[0]["P2"])
+                        if not match.empty and pd.notna(match.iloc[0]["P2"])
+                        else 0
+                    )
+
+                    equipo_1 = str(row.get("Equipo_1", ""))
+                    equipo_2 = str(row.get("Equipo_2", ""))
+
+                    bandera1 = mapa_banderas.get(equipo_1, "⚽")
+                    bandera2 = mapa_banderas.get(equipo_2, "⚽")
+
+                    dia = str(row.get("DIA", ""))
+                    hora = str(row.get("HORA", ""))
+
+                    # Header de la card
+                    st.markdown(f"""
+<div class="pred-match-card-v2">
+<div class="pred-match-meta">
+<span>Partido #{id_p}</span>
+<span>{escape(dia)} | {escape(hora)}</span>
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+                    # Fila horizontal compacta:
+                    # Eq1 - Flag1 - R1 - : - R2 - Flag2 - Eq2
+                    c_eq1, c_flag1, c_g1, c_vs, c_g2, c_flag2, c_eq2 = st.columns(
+                        [1.05, 0.22, 0.28, 0.08, 0.28, 0.22, 1.05],
+                        gap="small"
+                    )
+
+                    with c_eq1:
+                        st.markdown(f"""
+<div class="pred-team pred-team-left">
+<span>{escape(equipo_1)}</span>
+</div>
+""", unsafe_allow_html=True)
+
+                    with c_flag1:
+                        st.markdown(f"""
+<div class="pred-flag-wrap">
+{flag_html(bandera1)}
+</div>
+""", unsafe_allow_html=True)
+
+                    with c_g1:
+                        p1_val = st.number_input(
+                            f"G1_{id_p}",
+                            min_value=0,
+                            max_value=15,
+                            value=v1,
+                            key=f"mispron_f1_{id_p}",
+                            label_visibility="collapsed",
+                            disabled=esta_bloqueado
+                        )
+
+                    with c_vs:
+                        st.markdown(
+                            '<div class="pred-vs">:</div>',
+                            unsafe_allow_html=True
+                        )
+
+                    with c_g2:
+                        p2_val = st.number_input(
+                            f"G2_{id_p}",
+                            min_value=0,
+                            max_value=15,
+                            value=v2,
+                            key=f"mispron_f2_{id_p}",
+                            label_visibility="collapsed",
+                            disabled=esta_bloqueado
+                        )
+
+                    with c_flag2:
+                        st.markdown(f"""
+<div class="pred-flag-wrap">
+{flag_html(bandera2)}
+</div>
+""", unsafe_allow_html=True)
+
+                    with c_eq2:
+                        st.markdown(f"""
+<div class="pred-team pred-team-right">
+<span>{escape(equipo_2)}</span>
+</div>
+""", unsafe_allow_html=True)
+
+                    lista_nuevos_pro.append(
+                        {
+                            "N_PARTIDO": id_p,
+                            "USUARIO": user_actual,
+                            "P1": p1_val,
+                            "P2": p2_val
+                        }
+                    )
+
+                    st.markdown(
+                        "<div class='pred-match-gap'></div>",
+                        unsafe_allow_html=True
+                    )
 
             stats_pronosticos = calcular_stats_pronosticos(lista_nuevos_pro)
-
             # ------------------------------------------------------------
             # ACCIONES
             # ------------------------------------------------------------
