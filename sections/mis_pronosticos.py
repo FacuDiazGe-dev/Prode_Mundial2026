@@ -259,7 +259,8 @@ div[data-testid="stFormSubmitButton"] button {
     font-family: 'Inter', sans-serif !important;
     font-size: 14px !important;
     font-weight: 900 !important;
-
+    margin-top: 8px;
+    margin-bottom: 0 !important;
     background: linear-gradient(
         135deg,
         rgba(244,197,66,0.95),
