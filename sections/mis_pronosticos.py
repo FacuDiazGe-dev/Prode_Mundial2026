@@ -489,26 +489,19 @@ div[data-testid="stForm"] button {
 
 @media (max-width: 768px) {
 
-    /* Fuerza las columnas del formulario a mantenerse en fila */
-    div[data-testid="stForm"] div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        gap: 4px !important;
-        width: 100% !important;
+    html, body {
+        overflow-x: hidden !important;
     }
 
-    div[data-testid="stForm"] div[data-testid="column"] {
-        min-width: 0 !important;
-        flex: 1 1 0 !important;
+    div[data-testid="stForm"] {
+        overflow-x: hidden !important;
     }
 
-    /* Card de partido más compacta */
     .pred-match-card-v2 {
-        padding: 8px 10px !important;
+        padding: 8px 9px !important;
         margin-bottom: 6px !important;
         border-radius: 13px !important;
+        overflow: hidden !important;
     }
 
     .pred-match-meta {
@@ -517,61 +510,69 @@ div[data-testid="stForm"] button {
         margin-bottom: 6px !important;
     }
 
-    /* Equipos en una sola línea */
     .pred-team,
     .pred-team.right {
-        font-size: 10px !important;
-        line-height: 1 !important;
+        font-size: 9px !important;
+        line-height: 1.05 !important;
         min-height: 30px !important;
-        gap: 4px !important;
+        gap: 3px !important;
         white-space: nowrap !important;
         overflow: hidden !important;
     }
 
     .pred-team span,
     .pred-team.right span {
-        white-space: nowrap !important;
+        max-width: 46px !important;
+        display: inline-block !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        max-width: 68px !important;
-        display: inline-block !important;
+        white-space: nowrap !important;
     }
 
     .pred-flag {
-        width: 21px !important;
-        height: 15px !important;
+        width: 18px !important;
+        height: 13px !important;
         border-radius: 3px !important;
         flex-shrink: 0 !important;
     }
 
-    /* Inputs más chicos tipo marcador */
     div[data-testid="stNumberInput"] {
-        min-width: 34px !important;
+        width: 32px !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
     }
 
     div[data-testid="stNumberInput"] input {
-        min-height: 34px !important;
-        height: 34px !important;
-        padding: 2px !important;
-        font-size: 15px !important;
-        font-weight: 900 !important;
+        width: 32px !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+        padding: 0 !important;
         text-align: center !important;
-        border-radius: 9px !important;
+        font-size: 14px !important;
+        font-weight: 900 !important;
+        border-radius: 8px !important;
     }
 
-    /* Oculta botones + / - para ganar espacio */
     div[data-testid="stNumberInput"] button {
         display: none !important;
     }
 
     .pred-vs {
-        font-size: 16px !important;
-        padding-top: 5px !important;
+        font-size: 14px !important;
+        padding-top: 6px !important;
         line-height: 1 !important;
+        text-align: center !important;
     }
 
     .pred-match-gap {
         height: 4px !important;
+    }
+
+    .pred-summary-footer {
+        margin: 10px 6px 4px 6px !important;
+        padding: 12px !important;
     }
 }
 </style>
@@ -769,7 +770,7 @@ div[data-testid="stForm"] button {
 """, unsafe_allow_html=True)
 
                     c_eq1, c_g1, c_vs, c_g2, c_eq2 = st.columns(
-                        [1.25, 0.34, 0.10, 0.34, 1.25],
+                        [1.15, 0.26, 0.08, 0.26, 1.15],
                         gap="small"
                     )
 
