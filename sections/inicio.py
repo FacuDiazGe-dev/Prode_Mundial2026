@@ -57,7 +57,6 @@ def render_inicio(
         pos_display, pts_usr, dif_ref = "-", 0, "..."
       
     # --- 2. HTML Y CSS COMPACTO ---
-    import textwrap
     
     html_hero = textwrap.dedent("""
     <style>
@@ -1731,7 +1730,7 @@ def render_inicio(
                 ) !important;
             border: 1px solid rgba(255,255,255,0.08) !important;
             border-radius: 0 0 18px 18px !important;
-            padding: 20x 12px !important;
+            padding: 20px 12px !important;
             margin-top: -1px !important;
             width: 100% !important;
             box-sizing: border-box !important;
@@ -1923,4 +1922,3 @@ def render_inicio(
         
                 st.cache_data.clear()
                 st.rerun()
-  pass
