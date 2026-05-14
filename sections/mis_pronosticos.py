@@ -332,8 +332,8 @@ div[data-testid="stTextInput"] input:disabled {
     background-image:
         linear-gradient(
             90deg,
-            rgba(255,255,255,0.96) 0%,
-            rgba(255,255,255,0.88) 45%,
+            rgba(255,255,255,0.96) 100%
+            rgba(255,255,255,0.88) 100%
             rgba(255,255,255,0.70) 100%
         ),
         url("__SIDEBAR_BANNER__");
