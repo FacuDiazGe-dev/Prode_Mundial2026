@@ -751,10 +751,10 @@ if menu == "🏠 Inicio":
         
         st.markdown(ranking_html, unsafe_allow_html=True)  
         
-# ============================================================
-# EVOLUCIÓN DE PUNTOS — CARD INTEGRADA
-# ============================================================
-
+        # ============================================================
+        # EVOLUCIÓN DE PUNTOS — CARD INTEGRADA
+        # ============================================================
+        
         st.markdown("""
         <style>
         .evol-panel {
@@ -903,7 +903,6 @@ if menu == "🏠 Inicio":
         </style>
         """, unsafe_allow_html=True)
         
-        from html import escape
         
         df_res["VIZ_CHECK"] = df_res["VIZ"].astype(str).str.strip().str.upper()
         
@@ -928,6 +927,7 @@ if menu == "🏠 Inicio":
             evol_html = evol_html_inicio
             evol_html += '<div class="evol-empty">Esperando el silbato inicial para mostrar estadísticas.</div>'
             evol_html += '</div>'
+        
             st.markdown(evol_html, unsafe_allow_html=True)
         
         else:
@@ -940,8 +940,13 @@ if menu == "🏠 Inicio":
                 user_pro = df_pro[df_pro["USUARIO"] == user]
         
                 for id_p in ids_visibles:
-                    part_row = partidos_visibles[partidos_visibles["N_PARTIDO"] == id_p]
-                    u_p = user_pro[user_pro["N_PARTIDO"] == id_p]
+                    part_row = partidos_visibles[
+                        partidos_visibles["N_PARTIDO"] == id_p
+                    ]
+        
+                    u_p = user_pro[
+                        user_pro["N_PARTIDO"] == id_p
+                    ]
         
                     if not part_row.empty and not u_p.empty:
                         r1_g = part_row["R1"].iloc[0]
@@ -956,15 +961,25 @@ if menu == "🏠 Inicio":
                                 p1_g,
                                 p2_g
                             )
+        
                             pts_acc += pts_g
         
-                    evol_list.append({
-                        "N_Partido": int(id_p),
-                        "Jugador": user,
-                        "Puntos": pts_acc
-                    })
+                    evol_list.append(
+                        {
+                            "N_Partido": int(id_p),
+                            "Jugador": user,
+                            "Puntos": pts_acc
+                        }
+                    )
         
-            if evol_list:
+            if not evol_list:
+                evol_html = evol_html_inicio
+                evol_html += '<div class="evol-empty">Todavía no hay datos suficientes para mostrar la evolución.</div>'
+                evol_html += '</div>'
+        
+                st.markdown(evol_html, unsafe_allow_html=True)
+        
+            else:
                 df_ev = pd.DataFrame(evol_list)
         
                 usuario_actual = st.session_state["user_data"]["USUARIO"]
@@ -988,7 +1003,10 @@ if menu == "🏠 Inicio":
                     variacion_reciente = 0
         
                 try:
-                    row_user_rank = df_ranking[df_ranking["USUARIO"] == usuario_actual]
+                    row_user_rank = df_ranking[
+                        df_ranking["USUARIO"] == usuario_actual
+                    ]
+        
                     posicion_actual = int(row_user_rank.index[0])
                 except:
                     posicion_actual = "-"
@@ -1008,23 +1026,12 @@ if menu == "🏠 Inicio":
                     f'<div class="evol-chart-shell">'
                 )
         
-                    plot_html = fig.to_html(
-                        full_html=False,
-                        include_plotlyjs="cdn",
-                        config={
-                            "displayModeBar": False,
-                            "staticPlot": True,
-                            "scrollZoom": False,
-                            "responsive": True
-                        }
-                    )
-                
-                evol_full_html = evol_header_html + plot_html + "</div></div>"
-                
-                components.html(
-                    evol_full_html,
-                    height=430,
-                    scrolling=False
+                fig = px.line(
+                    df_ev,
+                    x="N_Partido",
+                    y="Puntos",
+                    color="Jugador",
+                    markers=True
                 )
         
                 fig.update_layout(
@@ -1103,9 +1110,9 @@ if menu == "🏠 Inicio":
                             hovertemplate=None
                         )
         
-                st.plotly_chart(
-                    fig,
-                    use_container_width=True,
+                plot_html = fig.to_html(
+                    full_html=False,
+                    include_plotlyjs="cdn",
                     config={
                         "displayModeBar": False,
                         "staticPlot": True,
@@ -1114,13 +1121,13 @@ if menu == "🏠 Inicio":
                     }
                 )
         
-                st.markdown('</div></div>', unsafe_allow_html=True)
+                evol_full_html = evol_header_html + plot_html + "</div></div>"
         
-            else:
-                evol_html = evol_html_inicio
-                evol_html += '<div class="evol-empty">Todavía no hay datos suficientes para mostrar la evolución.</div>'
-                evol_html += '</div>'
-                st.markdown(evol_html, unsafe_allow_html=True)
+                components.html(
+                    evol_full_html,
+                    height=430,
+                    scrolling=False
+                )
         
 # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
     with c_der:
