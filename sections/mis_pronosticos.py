@@ -239,7 +239,7 @@ div[data-testid="stTextInput"] input:disabled {
     color: #F4C542 !important;
     opacity: 0.85 !important;
     -webkit-text-fill-color: #F4C542 !important;
-    
+}  
 
 .pred-match-gap {
     height: 6px;
@@ -602,18 +602,18 @@ div[data-testid="stTextInput"] input:disabled {
         }
 
     def parse_score_input(valor, default_p1=0, default_p2=0):
-    """
-    Valida un marcador con formato X-X.
-    Solo permite un dígito por lado: 0-0 hasta 9-9.
-    """
-    valor = str(valor).strip()
+        """
+        Valida un marcador con formato X-X.
+        Solo permite un dígito por lado: 0-0 hasta 9-9.
+        """
+        valor = str(valor).strip()
 
-    if re.fullmatch(r"[0-9]-[0-9]", valor):
-        p1, p2 = valor.split("-")
-        return int(p1), int(p2), True
+        if re.fullmatch(r"[0-9]-[0-9]", valor):
+            p1, p2 = valor.split("-")
+            return int(p1), int(p2), True
 
-    return int(default_p1), int(default_p2), False
-    
+        return int(default_p1), int(default_p2), False
+   
     # ============================================================
     # DATOS BASE
     # ============================================================
