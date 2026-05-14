@@ -254,14 +254,40 @@ div[data-testid="stNumberInput"] input {
    ============================================================ */
 
 div[data-testid="stFormSubmitButton"] button {
-    border-radius: 12px !important;
+    border-radius: 13px !important;
+    min-height: 44px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important;
     font-weight: 900 !important;
-    border: 1px solid rgba(244,197,66,0.38) !important;
+
+    background: linear-gradient(
+        135deg,
+        rgba(244,197,66,0.95),
+        rgba(255,220,105,0.95)
+    ) !important;
+
+    color: #07111F !important;
+    border: 1px solid rgba(180,130,20,0.28) !important;
+
+    box-shadow:
+        0 8px 18px rgba(244,197,66,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.38) !important;
+
+    transition: all 0.18s ease !important;
 }
 
-div[data-testid="stFormSubmitButton"] button:not(:disabled) {
-    background: rgba(244,197,66,0.16) !important;
-    color: #F8FAFC !important;
+div[data-testid="stFormSubmitButton"] button:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(
+        135deg,
+        rgba(255,214,80,1),
+        rgba(255,230,135,1)
+    ) !important;
+
+    border-color: rgba(180,130,20,0.45) !important;
+    box-shadow:
+        0 10px 22px rgba(244,197,66,0.24),
+        inset 0 1px 0 rgba(255,255,255,0.45) !important;
 }
 
 div[data-testid="stFormSubmitButton"] button:not(:disabled):hover {
@@ -270,9 +296,10 @@ div[data-testid="stFormSubmitButton"] button:not(:disabled):hover {
 }
 
 div[data-testid="stFormSubmitButton"] button:disabled {
-    background: rgba(255,255,255,0.08) !important;
-    color: rgba(255,255,255,0.42) !important;
-    border: 1px solid rgba(255,255,255,0.10) !important;
+    background: rgba(248,250,252,0.95) !important;
+    color: #94a3b8 !important;
+    border: 1px solid rgba(226,232,240,0.95) !important;
+    box-shadow: none !important;
 }
 /* Botones dentro del form */
 div[data-testid="stForm"] button {
