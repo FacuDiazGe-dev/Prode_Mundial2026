@@ -14,6 +14,8 @@ SIDEBAR_BANNER = "https://storage.googleapis.com/foto-prode2026/Banners/SIDEBAR_
 
 HEADER_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/headder-background.png"
 
+EVOL_HEADER_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/headder-background.png"
+
 BANNERS_PAGINA = {
     "inicio": HEADER_BACKGROUND,
     "mis_pronosticos": HEADER_BACKGROUND,
