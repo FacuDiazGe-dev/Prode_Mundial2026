@@ -788,7 +788,7 @@ div[data-testid="stForm"] button {
                 c_cancelar, c_guardar = st.columns([0.35, 0.65])
             
                 cancelar = c_cancelar.form_submit_button(
-                    "Cancelar",
+                    "❌ Cancelar",
                     use_container_width=True
                 )
             
