@@ -96,16 +96,16 @@ def render_mis_pronosticos(
 }
 
 /* ============================================================
-   PARTIDO CARD — ESTRUCTURA 3 BLOQUES
-   CARD1 | RESULTADO | CARD2
+   PARTIDO CARD — VERSION 2 FILAS
+   Resultado arriba / Equipos abajo
    ============================================================ */
 
 .pred-match-card-v2 {
     background: rgba(248,250,252,0.96);
     border: 1px solid rgba(226,232,240,0.95);
     border-radius: 15px;
-    padding: 10px 12px 10px 12px;
-    margin-bottom: 8px;
+    padding: 10px 12px 12px 12px;
+    margin-bottom: 10px;
     overflow: hidden;
 }
 
@@ -121,31 +121,59 @@ def render_mis_pronosticos(
     margin-bottom: 10px;
 }
 
-.pred-team-card {
-    background: rgba(255,255,255,0.86);
-    border: 1px solid rgba(226,232,240,0.92);
-    border-radius: 13px;
-    padding: 8px 8px;
-    min-height: 54px;
-
+.pred-score-row {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
 
-    overflow: hidden;
+    background: rgba(7,17,31,0.96);
+    border: 1px solid rgba(244,197,66,0.20);
+    border-radius: 14px;
+
+    padding: 9px 10px;
+    margin-bottom: 9px;
 }
 
-.pred-team-card.left {
+.pred-score-sep {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: #F4C542;
+    line-height: 1;
+}
+
+.pred-teams-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+
+    background: rgba(255,255,255,0.76);
+    border: 1px solid rgba(226,232,240,0.8);
+    border-radius: 13px;
+
+    padding: 9px 10px;
+}
+
+.pred-team-side {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+}
+
+.pred-team-side.left {
     justify-content: flex-end;
     text-align: right;
 }
 
-.pred-team-card.right {
+.pred-team-side.right {
     justify-content: flex-start;
     text-align: left;
 }
 
-.pred-team-card span {
+.pred-team-side span {
     color: #0f172a;
     font-size: 13px;
     font-weight: 900;
@@ -154,33 +182,28 @@ def render_mis_pronosticos(
     text-overflow: ellipsis;
 }
 
-.pred-team-card img,
+.pred-team-side img,
 .pred-flag {
-    width: 30px;
-    height: 21px;
+    width: 28px;
+    height: 20px;
     object-fit: cover;
     border-radius: 4px;
     flex-shrink: 0;
     box-shadow: 0 2px 5px rgba(15,23,42,0.16);
 }
 
-.pred-score-sep {
-    min-height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
+.pred-vs-label {
+    color: #94a3b8;
+    font-size: 10px;
     font-weight: 900;
-    color: #F4C542;
+    letter-spacing: 0.08em;
 }
 
-/* Inputs */
+/* Inputs como marcador */
 div[data-testid="stNumberInput"] {
-    width: 50px !important;
-    min-width: 50px !important;
-    max-width: 50px !important;
+    width: 54px !important;
+    min-width: 54px !important;
+    max-width: 54px !important;
 }
 
 div[data-testid="stNumberInput"] label {
@@ -210,22 +233,26 @@ div[data-testid="stNumberInput"] button {
 }
 
 .pred-match-gap {
-    height: 8px;
+    height: 6px;
 }
 
 /* ============================================================
-   MOBILE — CARD1 | RESULTADO | CARD2
+   MOBILE — VERSION COMPACTA
    ============================================================ */
 
 @media (max-width: 768px) {
 
-       .page-section-title h1 {
+    .page-section-title h1 {
         font-size: 27px;
         line-height: 1.05;
     }
 
     .page-section-title p {
         font-size: 12px;
+    }
+
+    div[data-testid="stForm"] {
+        padding: 12px !important;
     }
 
     .pred-panel-header-v2 {
@@ -242,9 +269,9 @@ div[data-testid="stNumberInput"] button {
     }
 
     .pred-match-card-v2 {
-        padding: 8px 8px 8px 8px !important;
+        padding: 8px 8px 9px 8px !important;
         border-radius: 13px !important;
-        margin-bottom: 7px !important;
+        margin-bottom: 9px !important;
     }
 
     .pred-match-meta {
@@ -253,51 +280,57 @@ div[data-testid="stNumberInput"] button {
         margin-bottom: 7px !important;
     }
 
+    .pred-score-row {
+        padding: 7px 8px !important;
+        gap: 6px !important;
+        border-radius: 12px !important;
+        margin-bottom: 7px !important;
+    }
 
-    .pred-team-card {
-        min-height: 48px !important;
-        padding: 6px 5px !important;
-        gap: 4px !important;
+    .pred-score-sep {
+        font-size: 16px !important;
+    }
+
+    .pred-teams-row {
+        gap: 6px !important;
+        padding: 7px 7px !important;
         border-radius: 11px !important;
     }
 
-    .pred-team-card span {
-        font-size: 8px !important;
-        max-width: 42px !important;
+    .pred-team-side {
+        gap: 4px !important;
     }
 
-    .pred-team-card img,
+    .pred-team-side span {
+        font-size: 9px !important;
+        max-width: 92px !important;
+    }
+
+    .pred-team-side img,
     .pred-flag {
         width: 18px !important;
         height: 13px !important;
         border-radius: 3px !important;
     }
 
-    .pred-score-card {
-        min-height: 48px !important;
-        padding: 5px 3px !important;
-        border-radius: 11px !important;
+    .pred-vs-label {
+        font-size: 8px !important;
     }
 
-    .pred-score-sep {
-        min-height: 32px !important;
-        font-size: 13px !important;
+    div[data-testid="stNumberInput"] {
+        width: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
     }
-
-    div[data-testid="stNumberInput"]  {
-        width: 28px !important;
-        min-width: 28px !important;
-        max-width: 28px !important;
-}
 
     div[data-testid="stNumberInput"] input {
-        width: 28px !important;
-        min-width: 28px !important;
-        max-width: 28px !important;
-    
-        height: 30px !important;
-        min-height: 30px !important;
-        max-height: 30px !important;
+        width: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
+
+        height: 32px !important;
+        min-height: 32px !important;
+        max-height: 32px !important;
 
         padding: 0 !important;
         font-size: 14px !important;
@@ -305,7 +338,16 @@ div[data-testid="stNumberInput"] button {
     }
 
     .pred-match-gap {
-        height: 7px !important;
+        height: 4px !important;
+    }
+
+    .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .profile-info-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
     }
 }
 
@@ -649,74 +691,68 @@ div[data-testid="stNumberInput"] button {
                         unsafe_allow_html=True
                     )
 
-                    c_left, c_score, c_right = st.columns(
-                        [1.05, 0.82, 1.05],
+                    # Fila 1: marcador
+                    st.markdown(
+                        '<div class="pred-score-row">',
+                        unsafe_allow_html=True
+                    )
+
+                    c_g1, c_vs, c_g2 = st.columns(
+                        [0.44, 0.12, 0.44],
                         gap="small"
                     )
 
-                    with c_left:
+                    with c_g1:
+                        p1_val = st.number_input(
+                            f"G1_{id_p}",
+                            min_value=0,
+                            max_value=15,
+                            value=v1,
+                            key=f"mispron_f1_{id_p}",
+                            label_visibility="collapsed",
+                            disabled=esta_bloqueado
+                        )
+
+                    with c_vs:
                         st.markdown(
-                            f"""
-<div class="pred-team-card left">
-<span>{escape(equipo_1)}</span>
-{flag_html(bandera1)}
-</div>
-""",
+                            '<div class="pred-score-sep">:</div>',
                             unsafe_allow_html=True
                         )
 
-                    with c_score:
-                        s1, s_sep, s2 = st.columns(
-                            [0.45, 0.10, 0.45],
-                            gap="small"
-                        )
-                    
-                        with s1:
-                            p1_val = st.number_input(
-                                f"G1_{id_p}",
-                                min_value=0,
-                                max_value=15,
-                                value=v1,
-                                key=f"mispron_f1_{id_p}",
-                                label_visibility="collapsed",
-                                disabled=esta_bloqueado
-                            )
-                    
-                        with s_sep:
-                            st.markdown(
-                                '<div class="pred-score-sep">:</div>',
-                                unsafe_allow_html=True
-                            )
-                    
-                        with s2:
-                            p2_val = st.number_input(
-                                f"G2_{id_p}",
-                                min_value=0,
-                                max_value=15,
-                                value=v2,
-                                key=f"mispron_f2_{id_p}",
-                                label_visibility="collapsed",
-                                disabled=esta_bloqueado
-                            )
-
-                        st.markdown(
-                            "</div>",
-                            unsafe_allow_html=True
-                        )
-
-                    with c_right:
-                        st.markdown(
-                            f"""
-<div class="pred-team-card right">
-{flag_html(bandera2)}
-<span>{escape(equipo_2)}</span>
-</div>
-""",
-                            unsafe_allow_html=True
+                    with c_g2:
+                        p2_val = st.number_input(
+                            f"G2_{id_p}",
+                            min_value=0,
+                            max_value=15,
+                            value=v2,
+                            key=f"mispron_f2_{id_p}",
+                            label_visibility="collapsed",
+                            disabled=esta_bloqueado
                         )
 
                     st.markdown(
                         "</div>",
+                        unsafe_allow_html=True
+                    )
+
+                    # Fila 2: equipos
+                    st.markdown(
+                        f"""
+<div class="pred-teams-row">
+<div class="pred-team-side left">
+<span>{escape(equipo_1)}</span>
+{flag_html(bandera1)}
+</div>
+
+<div class="pred-vs-label">VS</div>
+
+<div class="pred-team-side right">
+{flag_html(bandera2)}
+<span>{escape(equipo_2)}</span>
+</div>
+</div>
+</div>
+""",
                         unsafe_allow_html=True
                     )
 
@@ -735,6 +771,7 @@ div[data-testid="stNumberInput"] button {
                     )
 
             stats_pronosticos = calcular_stats_pronosticos(lista_nuevos_pro)
+            
             # ------------------------------------------------------------
             # ACCIONES
             # ------------------------------------------------------------
