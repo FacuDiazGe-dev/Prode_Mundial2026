@@ -18,6 +18,7 @@ from styles_config import (
 from tools import get_flag_img_cached, upload_profile_picture, registrar_usuario
 from io import BytesIO
 import textwrap
+import streamlit.components.v1 as components
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
@@ -1007,14 +1008,23 @@ if menu == "🏠 Inicio":
                     f'<div class="evol-chart-shell">'
                 )
         
-                st.markdown(evol_header_html, unsafe_allow_html=True)
-        
-                fig = px.line(
-                    df_ev,
-                    x="N_Partido",
-                    y="Puntos",
-                    color="Jugador",
-                    markers=True
+                plot_html = fig.to_html(
+                    full_html=False,
+                    include_plotlyjs="cdn",
+                    config={
+                        "displayModeBar": False,
+                        "staticPlot": True,
+                        "scrollZoom": False,
+                        "responsive": True
+                    }
+                )
+                
+                evol_full_html = evol_header_html + plot_html + "</div></div>"
+                
+                components.html(
+                    evol_full_html,
+                    height=430,
+                    scrolling=False
                 )
         
                 fig.update_layout(
