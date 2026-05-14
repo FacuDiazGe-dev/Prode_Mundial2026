@@ -483,98 +483,98 @@ div[data-testid="stForm"] button {
     color: #F4C542;
 }
 
-/* ============================================================
-   MOBILE — MANTENER PARTIDOS HORIZONTALES
-   ============================================================ */
+# /* ============================================================
+#    MOBILE — MANTENER PARTIDOS HORIZONTALES
+#    ============================================================ */
 
-@media (max-width: 768px) {
+# @media (max-width: 768px) {
 
-    html, body {
-        overflow-x: hidden !important;
-    }
+#     html, body {
+#         overflow-x: hidden !important;
+#     }
 
-    div[data-testid="stForm"] {
-        overflow-x: hidden !important;
-    }
+#     div[data-testid="stForm"] {
+#         overflow-x: hidden !important;
+#     }
 
-    .pred-match-card-v2 {
-        padding: 8px 9px !important;
-        margin-bottom: 6px !important;
-        border-radius: 13px !important;
-        overflow: hidden !important;
-    }
+#     .pred-match-card-v2 {
+#         padding: 8px 9px !important;
+#         margin-bottom: 6px !important;
+#         border-radius: 13px !important;
+#         overflow: hidden !important;
+#     }
 
-    .pred-match-meta {
-        font-size: 8px !important;
-        letter-spacing: 0.03em !important;
-        margin-bottom: 6px !important;
-    }
+#     .pred-match-meta {
+#         font-size: 8px !important;
+#         letter-spacing: 0.03em !important;
+#         margin-bottom: 6px !important;
+#     }
 
-    .pred-team,
-    .pred-team.right {
-        font-size: 9px !important;
-        line-height: 1.05 !important;
-        min-height: 30px !important;
-        gap: 3px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-    }
+#     .pred-team,
+#     .pred-team.right {
+#         font-size: 9px !important;
+#         line-height: 1.05 !important;
+#         min-height: 30px !important;
+#         gap: 3px !important;
+#         white-space: nowrap !important;
+#         overflow: hidden !important;
+#     }
 
-    .pred-team span,
-    .pred-team.right span {
-        max-width: 46px !important;
-        display: inline-block !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-    }
+#     .pred-team span,
+#     .pred-team.right span {
+#         max-width: 46px !important;
+#         display: inline-block !important;
+#         overflow: hidden !important;
+#         text-overflow: ellipsis !important;
+#         white-space: nowrap !important;
+#     }
 
-    .pred-flag {
-        width: 18px !important;
-        height: 13px !important;
-        border-radius: 3px !important;
-        flex-shrink: 0 !important;
-    }
+#     .pred-flag {
+#         width: 18px !important;
+#         height: 13px !important;
+#         border-radius: 3px !important;
+#         flex-shrink: 0 !important;
+#     }
 
-    div[data-testid="stNumberInput"] {
-        width: 32px !important;
-        min-width: 32px !important;
-        max-width: 32px !important;
-    }
+#     div[data-testid="stNumberInput"] {
+#         width: 32px !important;
+#         min-width: 32px !important;
+#         max-width: 32px !important;
+#     }
 
-    div[data-testid="stNumberInput"] input {
-        width: 32px !important;
-        min-width: 32px !important;
-        max-width: 32px !important;
-        height: 32px !important;
-        min-height: 32px !important;
-        padding: 0 !important;
-        text-align: center !important;
-        font-size: 14px !important;
-        font-weight: 900 !important;
-        border-radius: 8px !important;
-    }
+#     div[data-testid="stNumberInput"] input {
+#         width: 32px !important;
+#         min-width: 32px !important;
+#         max-width: 32px !important;
+#         height: 32px !important;
+#         min-height: 32px !important;
+#         padding: 0 !important;
+#         text-align: center !important;
+#         font-size: 14px !important;
+#         font-weight: 900 !important;
+#         border-radius: 8px !important;
+#     }
 
-    div[data-testid="stNumberInput"] button {
-        display: none !important;
-    }
+#     div[data-testid="stNumberInput"] button {
+#         display: none !important;
+#     }
 
-    .pred-vs {
-        font-size: 14px !important;
-        padding-top: 6px !important;
-        line-height: 1 !important;
-        text-align: center !important;
-    }
+#     .pred-vs {
+#         font-size: 14px !important;
+#         padding-top: 6px !important;
+#         line-height: 1 !important;
+#         text-align: center !important;
+#     }
 
-    .pred-match-gap {
-        height: 4px !important;
-    }
+#     .pred-match-gap {
+#         height: 4px !important;
+#     }
 
-    .pred-summary-footer {
-        margin: 10px 6px 4px 6px !important;
-        padding: 12px !important;
-    }
-}
+#     .pred-summary-footer {
+#         margin: 10px 6px 4px 6px !important;
+#         padding: 12px !important;
+#     }
+# }
 </style>
 """, unsafe_allow_html=True)
 
