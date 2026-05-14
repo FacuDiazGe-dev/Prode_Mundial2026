@@ -275,212 +275,415 @@ if menu == "🏠 Inicio":
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap');
 
+# --- 2. HTML Y CSS COMPACTO ---
+html_hero = f"""
+<style>
+.hero-container {{
+    font-family: 'Inter', sans-serif;
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(0,0,0,0.92) 0%,
+            rgba(0,0,0,0.72) 46%,
+            rgba(0,0,0,0.36) 100%
+        ),
+        url('{HEADER_BACKGROUND}');
+    background-size: cover;
+    background-position: center;
+    border-radius: 18px;
+    color: white;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 18px 45px rgba(15,23,42,0.22);
+    margin-bottom: 20px;
+}}
+
+/* =========================
+   HEADER SUPERIOR
+   ========================= */
+
+.header-top {{
+    text-align: center;
+    padding: 18px 20px 10px 20px;
+}}
+
+.title-main {{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 34px;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin: 0;
+    line-height: 1.05;
+    letter-spacing: 1.5px;
+    color: #F8FAFC;
+    text-shadow:
+        0 3px 12px rgba(0,0,0,0.65),
+        0 0 18px rgba(255,255,255,0.08);
+}}
+
+.title-sub {{
+    font-size: 11px;
+    opacity: 0.48;
+    letter-spacing: 2px;
+    margin-top: 8px;
+    text-transform: uppercase;
+    font-weight: 700;
+}}
+
+.divider-h {{
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.18),
+        transparent
+    );
+    margin: 12px 60px 0 60px;
+}}
+
+/* =========================
+   CONTENIDO INFERIOR
+   ========================= */
+
+.content-bottom {{
+    display: grid;
+    grid-template-columns: 22% 78%;
+    align-items: center;
+    min-height: 190px;
+    padding: 8px 24px 24px 24px;
+}}
+
+/* =========================
+   TU POSICIÓN
+   ========================= */
+
+.pos-section {{
+    min-height: 138px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        rgba(7, 17, 31, 0.78),
+        rgba(7, 17, 31, 0.38)
+    );
+
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 18px;
+    padding: 20px 22px;
+
+    box-shadow:
+        0 0 28px rgba(255,255,255,0.08),
+        0 12px 26px rgba(0,0,0,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+
+    backdrop-filter: blur(4px);
+}}
+
+.label-pos {{
+    font-size: 10px;
+    opacity: 0.58;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 5px;
+}}
+
+.val-pos {{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 0.9;
+    margin: 4px 0 10px 0;
+    color: #F8FAFC;
+    letter-spacing: -2px;
+    text-shadow:
+        0 0 18px rgba(255,255,255,0.34),
+        0 0 32px rgba(244,197,66,0.22),
+        0 4px 12px rgba(0,0,0,0.55);
+}}
+
+.pts-box {{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+}}
+
+.pts-box span {{
+    font-size: 12px;
+    opacity: 0.52;
+    font-weight: 800;
+}}
+
+.msg-status {{
+    font-size: 11px;
+    margin-top: 8px;
+    opacity: 0.78;
+    font-weight: 700;
+}}
+
+/* =========================
+   PODIO
+   ========================= */
+
+.podium-section {{
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 30px;
+    padding: 12px 10px 4px 10px;
+}}
+
+.pod-item {{
+    text-align: center;
+    position: relative;
+    width: 128px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}}
+
+.pod-first {{
+    transform: translateY(-20px);
+}}
+
+.av-wrap {{
+    position: relative;
+    display: inline-block;
+}}
+
+.av-img {{
+    border-radius: 50%;
+    object-fit: cover;
+    box-sizing: border-box;
+    background: #07111F;
+
+    border: 4px solid rgba(255,255,255,0.35);
+
+    box-shadow:
+        0 10px 28px rgba(0,0,0,0.55),
+        0 0 0 1px rgba(255,255,255,0.08);
+}}
+
+.av-first {{
+    border: 5px solid #F4C542 !important;
+    box-shadow:
+        0 12px 34px rgba(0,0,0,0.62),
+        0 0 22px rgba(244,197,66,0.40),
+        0 0 0 1px rgba(255,255,255,0.18);
+}}
+
+.av-second {{
+    border: 4px solid #C0C0C0 !important;
+    box-shadow:
+        0 10px 28px rgba(0,0,0,0.55),
+        0 0 12px rgba(192,192,192,0.25);
+}}
+
+.av-third {{
+    border: 4px solid #CD7F32 !important;
+    box-shadow:
+        0 10px 28px rgba(0,0,0,0.55),
+        0 0 12px rgba(205,127,50,0.25);
+}}
+
+.b-rank {{
+    position: absolute;
+    top: 2px;
+    right: 2px;
+
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 10px;
+    font-weight: 900;
+    z-index: 10;
+
+    box-shadow:
+        0 4px 10px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+}}
+
+.b-gold {{
+    background: linear-gradient(135deg, #FFD700, #F4A900);
+    color: #111827;
+}}
+
+.b-silver {{
+    background: linear-gradient(135deg, #E5E7EB, #9CA3AF);
+    color: #111827;
+}}
+
+.b-bronze {{
+    background: linear-gradient(135deg, #CD7F32, #9A5A22);
+    color: white;
+}}
+
+.pod-name {{
+    font-weight: 900;
+    font-size: 13px;
+    margin-top: 9px;
+    text-transform: uppercase;
+    color: #F8FAFC;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.65);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}}
+
+.pod-pts {{
+    font-size: 11px;
+    opacity: 0.66;
+    font-weight: 800;
+    margin-top: 2px;
+}}
+
+.pod-first .pod-name {{
+    color: #F4C542;
+}}
+
+.pod-first .pod-pts {{
+    color: #F4C542;
+    opacity: 0.9;
+}}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 768px) {{
     .hero-container {{
-        font-family: 'Inter', sans-serif;
-        background-image:
-            linear-gradient(
-                90deg,
-                rgba(0,0,0,0.92) 0%,
-                rgba(0,0,0,0.72) 45%,
-                rgba(0,0,0,0.42) 100%
-            ),
-            url('{HEADER_BACKGROUND}');
-        background-size: cover;
-        background-position: center;
-        border-radius: 15px;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        border: 1px solid rgba(255,255,255,0.08);
-        overflow: hidden;
+        border-radius: 16px;
     }}
 
-    /* SECCIÓN SUPERIOR COMPACTA */
     .header-top {{
-        padding: 0 10px 5px 10px;
-        margin-top: -10px;
-        text-align: center;
-    }}
-    .title-main {{
-        font-family: 'Montserrat', sans-serif;
-        font-size: 20px; font-weight: 900;
-        text-transform: uppercase; 
-        margin: 0; /* Sin márgenes para apretar */
-        line-height: 1.1;
-        letter-spacing: 1px;
-    }}
-    .title-sub {{
-        font-size: 10px; 
-        opacity: 0.4; 
-        letter-spacing: 1.5px;
-        margin: -10px 0 0 0; /* Margen mínimo superior */
-        text-transform: uppercase;
-    }}
-    .divider-h {{
-        height: 1px;
-        background: rgba(255,255,255,0.12);
-        margin: 10px 60px 0 60px; /* Margen reducido */
+        padding: 18px 14px 8px 14px;
     }}
 
-    /* SECCIÓN INFERIOR RESPONSIVA */
+    .title-main {{
+        font-size: 26px;
+        line-height: 1.1;
+    }}
+
+    .title-sub {{
+        font-size: 9px;
+        letter-spacing: 1.2px;
+    }}
+
+    .divider-h {{
+        margin: 10px 28px 0 28px;
+    }}
+
     .content-bottom {{
         display: flex;
-        flex-direction: row;
-        align-items: center;
-    }}
-    
-    .pos-section {{
-        flex: 0 0 22%;
-        min-height: 145px;
-    
-        background: linear-gradient(
-            135deg,
-            rgba(7, 17, 31, 0.72),
-            rgba(7, 17, 31, 0.34)
-        );
-    
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 18px;
-    
-        padding: 20px 22px;
-    
-        box-shadow:
-            0 0 28px rgba(255,255,255,0.08),
-            inset 0 1px 0 rgba(255,255,255,0.08);
-    
-        backdrop-filter: blur(4px);
-    }}
-    
-    .podium-section {{
-        flex: 0 0 78%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 15px 20px;
+        flex-direction: column;
+        padding: 12px 14px 20px 14px;
         gap: 18px;
     }}
-    
-    .pod-item {{
+
+    .pos-section {{
+        width: 100%;
+        min-height: auto;
+        padding: 18px;
         text-align: center;
-        position: relative;
-        width: 120px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }}
-    
-    .av-img {{ 
-        border-radius: 50%;
-        object-fit: cover;
         box-sizing: border-box;
-    
-        border: 4px solid rgba(255,255,255,0.35);
-    
-        box-shadow:
-            0 10px 28px rgba(0,0,0,0.55),
-            0 0 0 1px rgba(255,255,255,0.08);
-    }}
-    
-    .av-first {{
-        border: 5px solid #F4C542 !important;
-        box-shadow:
-            0 12px 34px rgba(0,0,0,0.62),
-            0 0 22px rgba(244,197,66,0.40),
-            0 0 0 1px rgba(255,255,255,0.18);
-    }}
-    
-    .av-second {{
-        border: 4px solid #C0C0C0 !important;
-        box-shadow:
-            0 10px 28px rgba(0,0,0,0.55),
-            0 0 12px rgba(192,192,192,0.25);
-    }}
-    
-    .av-third {{
-        border: 4px solid #CD7F32 !important;
-        box-shadow:
-            0 10px 28px rgba(0,0,0,0.55),
-            0 0 12px rgba(205,127,50,0.25);
-    }}
-    
-    .pod-name {{ font-weight: 800; font-size: 12px; margin-top: 8px; text-transform: uppercase; }}
-    .pod-pts {{ font-size: 10px; opacity: 0.5; font-weight: 700; }}
-
-    .b-rank {{
-        position: absolute; top: 2px; right: 2px;
-        width: 20px; height: 20px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 9px; font-weight: 900; z-index: 10;
     }}
 
-    @media (max-width: 768px) {{
-        .content-bottom {{ flex-direction: column; }}
-        .pos-section {{
-            flex: 1 0 auto; width: 100%;
-            border-right: none;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 15px;
-        }}
-        .podium-section {{
-            flex: 1 0 auto; width: 100%;
-            padding: 20px 10px;
-            gap: 5px;
-        }}
-        .pod-item {{ width: 33%; }}
+    .val-pos {{
+        font-size: 48px;
     }}
-    </style>
+
+    .podium-section {{
+        width: 100%;
+        gap: 8px;
+        padding: 6px 0 0 0;
+        justify-content: space-between;
+    }}
+
+    .pod-item {{
+        width: 33%;
+    }}
+
+    .pod-first {{
+        transform: translateY(-10px);
+    }}
+
+    .pod-name {{
+        font-size: 11px;
+        max-width: 100%;
+    }}
+
+    .pod-pts {{
+        font-size: 10px;
+    }}
+}}
+</style>
 
 <div class="hero-container">
-<!-- Fila 1: Título -->
-<div class="header-top">
-    <h1 class="title-main">🏆 PRODE MUNDIAL 2026</h1>
-    <div class="title-sub">La gloria está en tus predicciones</div>
-    <div class="divider-h"></div>
-</div>
 
-<div class="content-bottom">
-<div class="pos-section">
-    <div class="label-pos">Tu Posición</div>
-    <div class="val-pos">{pos_display}°</div>
-    <div class="pts-box">{pts_usr} <span style="font-size:12px; opacity:0.5;">PTS.</span></div>
-    <div class="msg-status">{dif_ref}</div>
-</div>
+    <div class="header-top">
+        <h1 class="title-main">🏆 PRODE MUNDIAL 2026</h1>
+        <div class="title-sub">La gloria está en tus predicciones</div>
+        <div class="divider-h"></div>
+    </div>
 
-<div class="podium-section">
-<!-- 2do -->
-<div class="pod-item">
-<div class="av-wrap">
-    <div class="b-rank" style="background:#b0b0b0; color:black;">2</div>
-    <img src="{f2}" class="av-img av-second" style="width:80px; height:80px;">
-</div>
-<div class="pod-name">{n2}</div>
-<div class="pod-pts">{p2} PTS.</div>
-</div>
+    <div class="content-bottom">
 
-<!-- 1ro -->
-<div class="pod-item">
-<div class="av-wrap">
-    <div class="b-rank" style="background:#F4C542; color:black;">1</div>
-    <img src="{f1}" class="av-img av-first" style="width:110px; height:110px;">
-<div class="pod-name" style="color:#F4C542;">{n1}</div>
-<div class="pod-pts" style="color:#F4C542; opacity:0.8;">{p1} PTS.</div>
-</div>
+        <div class="pos-section">
+            <div class="label-pos">Tu posición</div>
+            <div class="val-pos">{pos_display}°</div>
+            <div class="pts-box">{pts_usr} <span>PTS.</span></div>
+            <div class="msg-status">{dif_ref}</div>
+        </div>
 
-<!-- 3ro -->
-<div class="pod-item">
-<div class="av-wrap">
-    <div class="b-rank" style="background:#cd7f32; color:white;">3</div>
-    <img src="{f3}" class="av-img av-third" style="width:80px; height:80px;">
-</div>
-<div class="pod-name">{n3}</div>
-<div class="pod-pts">{p3} PTS.</div>
-</div>
-</div>
-</div>
-</div>
-""")
+        <div class="podium-section">
 
-    st.markdown(html_hero, unsafe_allow_html=True)
+            <!-- 2do -->
+            <div class="pod-item">
+                <div class="av-wrap">
+                    <div class="b-rank b-silver">2</div>
+                    <img src="{f2}" class="av-img av-second" style="width:82px; height:82px;">
+                </div>
+                <div class="pod-name">{n2}</div>
+                <div class="pod-pts">{p2} PTS.</div>
+            </div>
+
+            <!-- 1ro -->
+            <div class="pod-item pod-first">
+                <div class="av-wrap">
+                    <div class="b-rank b-gold">1</div>
+                    <img src="{f1}" class="av-img av-first" style="width:112px; height:112px;">
+                </div>
+                <div class="pod-name">{n1}</div>
+                <div class="pod-pts">{p1} PTS.</div>
+            </div>
+
+            <!-- 3ro -->
+            <div class="pod-item">
+                <div class="av-wrap">
+                    <div class="b-rank b-bronze">3</div>
+                    <img src="{f3}" class="av-img av-third" style="width:82px; height:82px;">
+                </div>
+                <div class="pod-name">{n3}</div>
+                <div class="pod-pts">{p3} PTS.</div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+"""
+
+st.markdown(html_hero, unsafe_allow_html=True)
     
     # =============================================================================
     # REFUERZO VISUAL: COHERENCIA CON EL HEADER (Basado en image_58b775.png)
