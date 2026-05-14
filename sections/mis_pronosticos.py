@@ -423,10 +423,10 @@ div[data-testid="stNumberInput"] input {
                     st.markdown(
                         f"""
 <div class="pred-match-card">
-    <div class="pred-match-meta">
-        <span>Partido #{id_p}</span>
-        <span>{escape(dia)} | {escape(hora)}</span>
-    </div>
+<div class="pred-match-meta">
+    <span>Partido #{id_p}</span>
+    <span>{escape(dia)} | {escape(hora)}</span>
+</div>
 </div>
 """,
                         unsafe_allow_html=True
@@ -557,54 +557,54 @@ div[data-testid="stNumberInput"] input {
             st.markdown(
                 f"""
 <div class="profile-panel">
-    <div class="panel-header">
-        <div class="panel-icon">👤</div>
-        <div class="panel-title">Mi Perfil</div>
-    </div>
+<div class="panel-header">
+    <div class="panel-icon">👤</div>
+    <div class="panel-title">Mi Perfil</div>
+</div>
 
-    <div class="profile-card">
-        <img src="{foto}" class="profile-avatar">
-        <div class="profile-name">{nombre}</div>
-        <div class="profile-user">@{usuario}</div>
-    </div>
+<div class="profile-card">
+    <img src="{foto}" class="profile-avatar">
+    <div class="profile-name">{nombre}</div>
+    <div class="profile-user">@{usuario}</div>
+</div>
 
-    <div class="profile-info">
-        <div class="profile-info-row">
-            <div class="profile-info-label">⚽ Equipo</div>
-            <div class="profile-info-value">{equipo}</div>
-        </div>
-        <div class="profile-info-row">
-            <div class="profile-info-label">🎂 Edad</div>
-            <div class="profile-info-value">{edad} años</div>
-        </div>
-        <div class="profile-info-row">
-            <div class="profile-info-label">📝 Bio</div>
-            <div class="profile-info-value">{bio}</div>
-        </div>
-    </div>
+<div class="profile-info">
+<div class="profile-info-row">
+    <div class="profile-info-label">⚽ Equipo</div>
+    <div class="profile-info-value">{equipo}</div>
+</div>
+<div class="profile-info-row">
+    <div class="profile-info-label">🎂 Edad</div>
+    <div class="profile-info-value">{edad} años</div>
+</div>
+<div class="profile-info-row">
+    <div class="profile-info-label">📝 Bio</div>
+    <div class="profile-info-value">{bio}</div>
+</div>
+</div>
 
-    <div class="profile-stats">
-        <div class="profile-stat">
-            <div class="profile-stat-icon">🏆</div>
-            <div class="profile-stat-number">{stats["pts"]}</div>
-            <div class="profile-stat-label">Puntos</div>
-        </div>
-        <div class="profile-stat">
-            <div class="profile-stat-icon">🎯</div>
-            <div class="profile-stat-number">{stats["exactos"]}</div>
-            <div class="profile-stat-label">Exactos</div>
-        </div>
-        <div class="profile-stat">
-            <div class="profile-stat-icon">✅</div>
-            <div class="profile-stat-number">{stats["generales"]}</div>
-            <div class="profile-stat-label">Generales</div>
-        </div>
-        <div class="profile-stat">
-            <div class="profile-stat-icon">📊</div>
-            <div class="profile-stat-number">{stats["pos"]}°</div>
-            <div class="profile-stat-label">Posición</div>
-        </div>
-    </div>
+<div class="profile-stats">
+<div class="profile-stat">
+    <div class="profile-stat-icon">🏆</div>
+    <div class="profile-stat-number">{stats["pts"]}</div>
+    <div class="profile-stat-label">Puntos</div>
+</div>
+<div class="profile-stat">
+    <div class="profile-stat-icon">🎯</div>
+    <div class="profile-stat-number">{stats["exactos"]}</div>
+    <div class="profile-stat-label">Exactos</div>
+</div>
+<div class="profile-stat">
+    <div class="profile-stat-icon">✅</div>
+    <div class="profile-stat-number">{stats["generales"]}</div>
+    <div class="profile-stat-label">Generales</div>
+</div>
+<div class="profile-stat">
+    <div class="profile-stat-icon">📊</div>
+    <div class="profile-stat-number">{stats["pos"]}°</div>
+    <div class="profile-stat-label">Posición</div>
+</div>
+</div>
 </div>
 """,
                 unsafe_allow_html=True
