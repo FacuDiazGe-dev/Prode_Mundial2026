@@ -184,15 +184,13 @@ div[data-testid="stForm"] {
 .pred-match-card-v2 {
     background: rgba(248,250,252,0.94);
     border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 15px 15px 0 0;
-    padding: 10px 12px 6px 12px;
-    border-bottom: none;
+    border-radius: 15px;
+    padding: 10px 12px 8px 12px;
+    margin-bottom: -2px;
 }
 
 .pred-match-gap {
-    height: 10px;
-    border-bottom: 1px solid rgba(226,232,240,0.65);
-    margin-bottom: 8px;
+    height: 2px;
 }
 
 .pred-match-meta {
@@ -206,19 +204,31 @@ div[data-testid="stForm"] {
     letter-spacing: 0.06em;
 }
 
+.pred-match-body-shell {
+    background: rgba(248,250,252,0.94);
+    border-left: 1px solid rgba(226,232,240,0.9);
+    border-right: 1px solid rgba(226,232,240,0.9);
+    border-bottom: 1px solid rgba(226,232,240,0.9);
+    border-radius: 0 0 15px 15px;
+    padding: 4px 12px 10px 12px;
+    margin-bottom: 10px;
+}
+
 .pred-team {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
     color: #0f172a;
     font-size: 13px;
     font-weight: 900;
     min-height: 38px;
+    text-align: right;
 }
 
 .pred-team.right {
-    justify-content: flex-end;
-    text-align: right;
+    justify-content: flex-start;
+    text-align: left;
 }
 
 .pred-flag {
@@ -227,6 +237,7 @@ div[data-testid="stForm"] {
     object-fit: cover;
     border-radius: 4px;
     box-shadow: 0 2px 5px rgba(15,23,42,0.16);
+    flex-shrink: 0;
 }
 
 .pred-vs {
@@ -530,19 +541,20 @@ div[data-testid="stNumberInput"] input {
 <span>{escape(dia)} | {escape(hora)}</span>
 </div>
 </div>
-""", unsafe_allow_html=True)
+<div class="pred-match-body-shell">
+""", unsafe_allow_html=True
 
                     c_eq1, c_g1, c_vs, c_g2, c_eq2 = st.columns(
-                        [1.45, 0.42, 0.14, 0.42, 1.45],
+                        [1.35, 0.42, 0.14, 0.42, 1.35],
                         gap="small"
                     )
 
                     with c_eq1:
                         st.markdown(f"""
 <div class="pred-team">
-{flag_html(bandera1)}
 <span>{escape(equipo_1)}</span>
-</div>
+{flag_html(bandera1)}
+</div>>
 """, unsafe_allow_html=True)
 
                     with c_g1:
@@ -576,11 +588,13 @@ div[data-testid="stNumberInput"] input {
                     with c_eq2:
                         st.markdown(f"""
 <div class="pred-team right">
-<span>{escape(equipo_2)}</span>
 {flag_html(bandera2)}
+<span>{escape(equipo_2)}</span>
 </div>
 """, unsafe_allow_html=True)
 
+                    st.markdown("</div>", unsafe_allow_html=True)
+                    
                     lista_nuevos_pro.append(
                         {
                             "N_PARTIDO": id_p,
