@@ -1124,8 +1124,8 @@ if menu == "🏠 Inicio":
                     }
                 )
         
-                evol_component_css = """
-                  <style>
+                evol_component_css = f"""
+                <style>
                 body {{
                     margin: 0;
                     padding: 0;
@@ -1133,41 +1133,25 @@ if menu == "🏠 Inicio":
                     background: transparent;
                 }}
                 
-                .evol-summary-dark {{
-                    background-image:
-                        linear-gradient(
-                            90deg,
-                            rgba(7,17,31,0.98) 0%,
-                            rgba(7,17,31,0.86) 48%,
-                            rgba(7,17,31,0.55) 100%
-                        ),
-                        url("{EVOL_HEADER_BACKGROUND}");
-                    background-size: cover;
-                    background-position: center right;
-                    border: 1px solid rgba(255,255,255,0.08);
-                    border-radius: 15px 15px 0 0;
-                    padding: 16px 18px 13px 18px;
-                }}
-                
-                .evol-panel {
+                .evol-panel {{
                     background: rgba(255, 255, 255, 0.94);
                     border: 1px solid rgba(226, 232, 240, 0.9);
                     border-radius: 18px;
                     padding: 14px;
                     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
                     overflow: hidden;
-                }
+                }}
                 
-                .evol-panel-header {
+                .evol-panel-header {{
                     display: flex;
                     align-items: center;
                     gap: 10px;
                     padding: 4px 4px 14px 4px;
                     margin-bottom: 8px;
                     border-bottom: 1px solid rgba(226, 232, 240, 0.75);
-                }
+                }}
                 
-                .evol-panel-icon {
+                .evol-panel-icon {{
                     width: 30px;
                     height: 30px;
                     border-radius: 10px;
@@ -1177,56 +1161,65 @@ if menu == "🏠 Inicio":
                     background: rgba(244, 197, 66, 0.16);
                     color: #0f172a;
                     font-size: 16px;
-                }
+                }}
                 
-                .evol-panel-title {
+                .evol-panel-title {{
                     font-family: Montserrat, Inter, sans-serif;
                     font-size: 17px;
                     font-weight: 900;
                     color: #0f172a;
                     text-transform: uppercase;
                     letter-spacing: 0.01em;
-                }
+                }}
                 
-                .evol-summary-dark {
-                    background: linear-gradient(135deg, rgba(7,17,31,0.98), rgba(15,23,42,0.94));
+                .evol-summary-dark {{
+                    background-image:
+                        linear-gradient(
+                            90deg,
+                            rgba(7,17,31,0.98) 0%,
+                            rgba(7,17,31,0.86) 48%,
+                            rgba(7,17,31,0.50) 100%
+                        ),
+                        url("{EVOL_HEADER_BACKGROUND}");
+                    background-size: cover;
+                    background-position: center right;
                     border: 1px solid rgba(255,255,255,0.08);
                     border-radius: 15px 15px 0 0;
                     padding: 16px 18px 13px 18px;
-                }
+                }}
                 
-                .evol-user-name {
+                .evol-user-name {{
                     font-size: 11px;
                     font-weight: 900;
                     color: rgba(255,255,255,0.58);
                     text-transform: uppercase;
                     letter-spacing: 0.07em;
                     margin-bottom: 6px;
-                }
+                }}
                 
-                .evol-main-row {
+                .evol-main-row {{
                     display: flex;
                     justify-content: space-between;
                     align-items: flex-end;
                     gap: 14px;
-                }
+                }}
                 
-                .evol-main-number {
+                .evol-main-number {{
                     font-family: Montserrat, Inter, sans-serif;
                     font-size: 36px;
                     font-weight: 900;
                     color: #F8FAFC;
                     line-height: 1;
-                }
+                }}
                 
-                .evol-main-number span {
+                .evol-main-number span {{
                     font-size: 14px;
                     color: rgba(255,255,255,0.55);
                     font-weight: 800;
                     margin-left: 4px;
-                }
+                }}
                 
-                .evol-position-pill {
+                .evol-position-pill {{
                     background: rgba(244,197,66,0.14);
                     border: 1px solid rgba(244,197,66,0.35);
                     color: #F4C542;
@@ -1235,26 +1228,26 @@ if menu == "🏠 Inicio":
                     font-size: 11px;
                     font-weight: 900;
                     white-space: nowrap;
-                }
+                }}
                 
-                .evol-meta {
+                .evol-meta {{
                     margin-top: 10px;
                     font-size: 12px;
                     font-weight: 700;
                     color: rgba(255,255,255,0.65);
-                }
+                }}
                 
-                .evol-meta strong {
+                .evol-meta strong {{
                     color: #F4C542;
-                }
+                }}
                 
-                .evol-chart-shell {
+                .evol-chart-shell {{
                     background: rgba(248, 250, 252, 0.96);
                     border: 1px solid rgba(226, 232, 240, 0.9);
                     border-top: none;
                     border-radius: 0 0 15px 15px;
                     padding: 0 8px 4px 8px;
-                }
+                }}
                 </style>
                 """
                 
