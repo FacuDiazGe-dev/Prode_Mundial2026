@@ -370,17 +370,17 @@ if menu == "🏠 Inicio":
         gap: 18px;
     }}
 
-    .pod-item {
+    .pod-item {{
         text-align: center;
         position: relative;
         width: 120px;
         display: flex;
         flex-direction: column;
         align-items: center;
-    }
+    }}
     
     .av-wrap {{ position: relative; display: inline-block; }}
-    .av-img { 
+    .av-img {{ 
         border-radius: 50%;
         object-fit: cover;
         box-sizing: border-box;
@@ -390,15 +390,15 @@ if menu == "🏠 Inicio":
         box-shadow:
             0 10px 28px rgba(0,0,0,0.55),
             0 0 0 1px rgba(255,255,255,0.08);
-    }
+    }}
     
-    .av-first {
+    .av-first {{
         border: 5px solid #F4C542 !important;
         box-shadow:
             0 12px 34px rgba(0,0,0,0.62),
             0 0 22px rgba(244,197,66,0.40),
             0 0 0 1px rgba(255,255,255,0.18);
-    }
+    }}
     
     .av-second {{
         border: 4px solid #C0C0C0 !important;
