@@ -1035,7 +1035,7 @@ if menu == "🏠 Inicio":
                 )
         
                 fig.update_layout(
-                    height=238,
+                    height=235,
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     font=dict(
