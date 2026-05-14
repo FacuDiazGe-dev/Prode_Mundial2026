@@ -147,9 +147,110 @@ def render_mis_pronosticos(
 }
 
 div[data-testid="stForm"] {
-    border: none;
-    background: transparent;
-    padding: 0;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
+
+.pred-panel-header-v2 {
+    padding: 4px 4px 14px 4px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(226,232,240,0.75);
+}
+
+.pred-panel-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pred-panel-subtitle {
+    margin-top: 3px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+}
+
+.pred-panel-subtitle.open {
+    color: #92400e;
+}
+
+.pred-panel-subtitle.locked {
+    color: #64748b;
+}
+
+.pred-match-card-v2 {
+    background: rgba(248,250,252,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 15px 15px 0 0;
+    padding: 10px 12px 6px 12px;
+    border-bottom: none;
+}
+
+.pred-match-gap {
+    height: 10px;
+    border-bottom: 1px solid rgba(226,232,240,0.65);
+    margin-bottom: 8px;
+}
+
+.pred-match-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.pred-team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 900;
+    min-height: 38px;
+}
+
+.pred-team.right {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.pred-flag {
+    width: 28px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(15,23,42,0.16);
+}
+
+.pred-vs {
+    text-align: center;
+    color: #0f172a;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    padding-top: 8px;
+}
+
+/* Inputs de marcador */
+div[data-testid="stNumberInput"] input {
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    border-radius: 10px !important;
+    border: 1px solid rgba(244,197,66,0.42) !important;
+    background: rgba(255,255,255,0.96) !important;
+}
+
+/* Botones dentro del form */
+div[data-testid="stForm"] button {
+    border-radius: 12px !important;
+    font-weight: 900 !important;
 }
 
 div[data-testid="stNumberInput"] input {
@@ -357,45 +458,46 @@ div[data-testid="stNumberInput"] input {
     # ============================================================
 
     with c_pron:
-        st.markdown("""
-<div class="pred-panel">
-    <div class="panel-header">
-        <div class="panel-icon">📝</div>
-        <div class="panel-title">Mis Pronósticos</div>
-    </div>
+
+        modo_edicion = st.session_state.permitir_edicion
+        esta_bloqueado = not (es_tiempo_valido and modo_edicion)
+
+        if es_tiempo_valido:
+            estado_txt = "Edición abierta hasta el 08/06/2026"
+            estado_class = "open"
+        else:
+            estado_txt = "Plazo finalizado · modo lectura"
+            estado_class = "locked"
+            modo_edicion = False
+            st.session_state.permitir_edicion = False
+            esta_bloqueado = True
+
+        with st.form("form_pronosticos_v5"):
+
+            # ------------------------------------------------------------
+            # HEADER INTEGRADO DEL PANEL
+            # ------------------------------------------------------------
+
+            st.markdown(f"""
+<div class="pred-panel-header-v2">
+<div class="pred-panel-title-row">
+<div class="panel-icon">📝</div>
+<div>
+<div class="panel-title">Mis Pronósticos</div>
+<div class="pred-panel-subtitle {estado_class}">{estado_txt}</div>
+</div>
+</div>
 </div>
 """, unsafe_allow_html=True)
 
-        if es_tiempo_valido:
-            st.markdown("""
-        <div class="pred-status">
-        ⏳ Edición abierta hasta el 08/06/2026.
-        </div>
-        """, unsafe_allow_html=True)
-        
-            modo_edicion = st.session_state.permitir_edicion
-        
-            if not modo_edicion:
-                if st.button("✏️ Editar pronósticos", use_container_width=True):
-                    st.session_state.permitir_edicion = True
-                    st.rerun()
-        
-        else:
-            st.markdown("""
-        <div class="pred-status locked">
-        🔒 Plazo finalizado. Tus pronósticos quedan en modo lectura.
-        </div>
-        """, unsafe_allow_html=True)
-        
-            modo_edicion = False
-            st.session_state.permitir_edicion = False
-        
-        esta_bloqueado = not (es_tiempo_valido and modo_edicion)
-
-        with st.form("form_pronosticos_v4"):
             lista_nuevos_pro = []
 
+            # ------------------------------------------------------------
+            # LISTADO DE PARTIDOS
+            # ------------------------------------------------------------
+
             with st.container(height=520):
+
                 for _, row in df_res.sort_values("N_PARTIDO").iterrows():
                     id_p = int(row["N_PARTIDO"])
                     match = df_user_pro[df_user_pro["N_PARTIDO"] == id_p]
@@ -421,33 +523,27 @@ div[data-testid="stNumberInput"] input {
                     dia = str(row.get("DIA", ""))
                     hora = str(row.get("HORA", ""))
 
-                    st.markdown(
-                        f"""
-<div class="pred-match-card">
+                    st.markdown(f"""
+<div class="pred-match-card-v2">
 <div class="pred-match-meta">
-    <span>Partido #{id_p}</span>
-    <span>{escape(dia)} | {escape(hora)}</span>
+<span>Partido #{id_p}</span>
+<span>{escape(dia)} | {escape(hora)}</span>
 </div>
 </div>
-""",
-                        unsafe_allow_html=True
-                    )
+""", unsafe_allow_html=True)
 
                     c_eq1, c_g1, c_vs, c_g2, c_eq2 = st.columns(
-                        [1.45, 0.45, 0.16, 0.45, 1.45],
+                        [1.45, 0.42, 0.14, 0.42, 1.45],
                         gap="small"
                     )
 
                     with c_eq1:
-                        st.markdown(
-                            f"""
+                        st.markdown(f"""
 <div class="pred-team">
-    {flag_html(bandera1)}
-    <span>{escape(equipo_1)}</span>
+{flag_html(bandera1)}
+<span>{escape(equipo_1)}</span>
 </div>
-""",
-                            unsafe_allow_html=True
-                        )
+""", unsafe_allow_html=True)
 
                     with c_g1:
                         p1_val = st.number_input(
@@ -461,7 +557,10 @@ div[data-testid="stNumberInput"] input {
                         )
 
                     with c_vs:
-                        st.markdown('<div class="pred-vs">:</div>', unsafe_allow_html=True)
+                        st.markdown(
+                            '<div class="pred-vs">:</div>',
+                            unsafe_allow_html=True
+                        )
 
                     with c_g2:
                         p2_val = st.number_input(
@@ -475,15 +574,12 @@ div[data-testid="stNumberInput"] input {
                         )
 
                     with c_eq2:
-                        st.markdown(
-                            f"""
+                        st.markdown(f"""
 <div class="pred-team right">
-    <span>{escape(equipo_2)}</span>
-    {flag_html(bandera2)}
+<span>{escape(equipo_2)}</span>
+{flag_html(bandera2)}
 </div>
-""",
-                            unsafe_allow_html=True
-                        )
+""", unsafe_allow_html=True)
 
                     lista_nuevos_pro.append(
                         {
@@ -494,56 +590,87 @@ div[data-testid="stNumberInput"] input {
                         }
                     )
 
-                    st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-            
-            if modo_edicion:
-                c_cancelar, c_guardar = st.columns([0.35, 0.65])
-            
-                cancelar = c_cancelar.form_submit_button(
-                    "Cancelar",
-                    use_container_width=True
-                )
-            
-                submit = c_guardar.form_submit_button(
-                    "💾 Guardar pronósticos",
-                    use_container_width=True
-                )
-            
-            else:
+                    st.markdown(
+                        "<div class='pred-match-gap'></div>",
+                        unsafe_allow_html=True
+                    )
+
+            # ------------------------------------------------------------
+            # ACCIONES
+            # ------------------------------------------------------------
+
+            if not es_tiempo_valido:
                 submit = st.form_submit_button(
                     "Lectura — edición deshabilitada",
                     use_container_width=True,
                     disabled=True
                 )
-            
                 cancelar = False
+                editar = False
+
+            elif not modo_edicion:
+                editar = st.form_submit_button(
+                    "✏️ Editar pronósticos",
+                    use_container_width=True
+                )
+                submit = False
+                cancelar = False
+
+            else:
+                c_cancelar, c_guardar = st.columns([0.35, 0.65])
+
+                cancelar = c_cancelar.form_submit_button(
+                    "Cancelar",
+                    use_container_width=True
+                )
+
+                submit = c_guardar.form_submit_button(
+                    "💾 Guardar pronósticos",
+                    use_container_width=True
+                )
+
+                editar = False
+
+            # ------------------------------------------------------------
+            # EVENTOS
+            # ------------------------------------------------------------
+
+            if editar:
+                st.session_state.permitir_edicion = True
+                st.rerun()
+
             if cancelar:
                 st.session_state.permitir_edicion = False
                 st.rerun()
 
             if submit:
                 try:
-                    df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=5)
-            
-                    df_otros = df_pro_full[df_pro_full["USUARIO"] != user_actual]
-            
+                    df_pro_full = conn.read(
+                        worksheet="PRONOSTICOS",
+                        ttl=5
+                    )
+
+                    df_otros = df_pro_full[
+                        df_pro_full["USUARIO"] != user_actual
+                    ]
+
                     df_final = pd.concat(
                         [df_otros, pd.DataFrame(lista_nuevos_pro)],
                         ignore_index=True
                     )
-            
+
                     conn.update(
                         worksheet="PRONOSTICOS",
                         data=df_final
                     )
-            
+
                     st.cache_data.clear()
                     st.session_state.permitir_edicion = False
-            
+
                     st.success("✅ ¡Pronósticos guardados correctamente!")
                     st.balloons()
                     st.rerun()
-            
+
                 except Exception as e:
                     st.error(f"Error al guardar: {e}")
 
