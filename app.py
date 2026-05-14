@@ -299,7 +299,7 @@ if menu == "🏠 Inicio":
     .header-top {{
         padding: 0 10px 5px 10px;
         margin-top: -10px;
-
+        text-align: center;
     }}
     .title-main {{
         font-family: 'Montserrat', sans-serif;
@@ -323,13 +323,16 @@ if menu == "🏠 Inicio":
     }}
 
     /* SECCIÓN INFERIOR RESPONSIVA */
-    .content-bottom {{
+    .content-bottom {
         display: flex;
         flex-direction: row;
-        align-items: stretch;
-    }}
+        align-items: center;
+    }
     
     .pos-section {{
+        flex: 0 0 22%;
+        min-height: 145px;
+    
         background: linear-gradient(
             135deg,
             rgba(7, 17, 31, 0.72),
@@ -339,7 +342,7 @@ if menu == "🏠 Inicio":
         border: 1px solid rgba(255,255,255,0.12);
         border-radius: 18px;
     
-        padding: 22px 24px;
+        padding: 20px 22px;
     
         box-shadow:
             0 0 28px rgba(255,255,255,0.08),
@@ -359,46 +362,56 @@ if menu == "🏠 Inicio":
     .msg-status {{ font-size: 10px; margin-top: 5px; opacity: 0.7; font-weight: 600; }}
 
     .podium-section {{
-        flex: 0 0 75%;
+        flex: 0 0 78%;
         display: flex;
         justify-content: center;
-        align-items: flex-end;
-        padding: 20px;
-        gap: 12px;
+        align-items: center;
+        padding: 15px 20px;
+        gap: 18px;
     }}
 
-    .pod-item {{ text-align: center; position: relative; width: 120px; }}
+    .pod-item {
+        text-align: center;
+        position: relative;
+        width: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
     
     .av-wrap {{ position: relative; display: inline-block; }}
-    .av-img {{ 
+    .av-img { 
         border-radius: 50%;
         object-fit: cover;
-        border: 5px solid rgba(255,255,255,0.35);
+        box-sizing: border-box;
+    
+        border: 4px solid rgba(255,255,255,0.35);
+    
         box-shadow:
             0 10px 28px rgba(0,0,0,0.55),
             0 0 0 1px rgba(255,255,255,0.08);
-    }}
+    }
     
-    .av-first {{
-        border: 6px solid #F4C542 !important;
+    .av-first {
+        border: 5px solid #F4C542 !important;
         box-shadow:
             0 12px 34px rgba(0,0,0,0.62),
-            0 0 24px rgba(244,197,66,0.42),
+            0 0 22px rgba(244,197,66,0.40),
             0 0 0 1px rgba(255,255,255,0.18);
-    }}
+    }
     
     .av-second {{
-        border: 5px solid #C0C0C0 !important;
+        border: 4px solid #C0C0C0 !important;
         box-shadow:
             0 10px 28px rgba(0,0,0,0.55),
-            0 0 14px rgba(192,192,192,0.28);
+            0 0 12px rgba(192,192,192,0.28);
     }}
     
     .av-third {{
-        border: 5px solid #CD7F32 !important;
+        border: 4px solid #CD7F32 !important;
         box-shadow:
             0 10px 28px rgba(0,0,0,0.55),
-            0 0 14px rgba(205,127,50,0.28);
+            0 0 12px rgba(205,127,50,0.28);
     }}
     
     .pod-name {{ font-weight: 800; font-size: 12px; margin-top: 8px; text-transform: uppercase; }}
