@@ -164,18 +164,6 @@ def render_mis_pronosticos(
     box-shadow: 0 2px 5px rgba(15,23,42,0.16);
 }
 
-.pred-score-card {
-    background: rgba(7,17,31,0.96);
-    border: 1px solid rgba(244,197,66,0.22);
-    border-radius: 13px;
-    padding: 7px 6px;
-    min-height: 54px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .pred-score-sep {
     min-height: 38px;
     display: flex;
@@ -704,16 +692,11 @@ div[data-testid="stNumberInput"] button {
                         )
 
                     with c_score:
-                        st.markdown(
-                            '<div class="pred-score-card">',
-                            unsafe_allow_html=True
-                        )
-
                         s1, s_sep, s2 = st.columns(
                             [0.45, 0.10, 0.45],
                             gap="small"
                         )
-
+                    
                         with s1:
                             p1_val = st.number_input(
                                 f"G1_{id_p}",
@@ -724,13 +707,13 @@ div[data-testid="stNumberInput"] button {
                                 label_visibility="collapsed",
                                 disabled=esta_bloqueado
                             )
-
+                    
                         with s_sep:
                             st.markdown(
                                 '<div class="pred-score-sep">:</div>',
                                 unsafe_allow_html=True
                             )
-
+                    
                         with s2:
                             p2_val = st.number_input(
                                 f"G2_{id_p}",
