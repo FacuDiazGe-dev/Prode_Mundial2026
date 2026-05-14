@@ -524,7 +524,7 @@ div[data-testid="stForm"] button {
 <span>{escape(dia)} | {escape(hora)}</span>
 </div>
 </div>
-""", unsafe_allow_html=True
+""", unsafe_allow_html=True)
 
                     c_eq1, c_g1, c_vs, c_g2, c_eq2 = st.columns(
                         [1.35, 0.42, 0.14, 0.42, 1.35],
@@ -536,7 +536,7 @@ div[data-testid="stForm"] button {
 <div class="pred-team">
 <span>{escape(equipo_1)}</span>
 {flag_html(bandera1)}
-</div>>
+</div>
 """, unsafe_allow_html=True)
 
                     with c_g1:
@@ -589,7 +589,7 @@ div[data-testid="stForm"] button {
                         "<div class='pred-match-gap'></div>",
                         unsafe_allow_html=True
                     )
-)
+
 
             # ------------------------------------------------------------
             # ACCIONES
