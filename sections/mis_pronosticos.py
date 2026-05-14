@@ -739,7 +739,7 @@ div[data-testid="stForm"] button {
             # ------------------------------------------------------------
             # ACCIONES
             # ------------------------------------------------------------
-
+            
             if not es_tiempo_valido:
                 submit = st.form_submit_button(
                     "Lectura — edición deshabilitada",
@@ -771,85 +771,90 @@ div[data-testid="stForm"] button {
                 )
             
                 editar = False
-
-                st.markdown(
-                    f"""
-<div class="pred-summary-footer">
-<div class="pred-summary-kicker">Tus pronósticos</div>
-
-<div class="pred-summary-grid">
-<div class="pred-summary-item">
-    <div class="pred-summary-icon">🏆</div>
-    <div class="pred-summary-number">{stats_pronosticos["con_ganador"]}</div>
-    <div class="pred-summary-label">Con ganador</div>
-</div>
-
-<div class="pred-summary-item">
-    <div class="pred-summary-icon">🤝</div>
-    <div class="pred-summary-number">{stats_pronosticos["empates"]}</div>
-    <div class="pred-summary-label">Empates</div>
-</div>
-
-<div class="pred-summary-item">
-    <div class="pred-summary-icon">⚽</div>
-    <div class="pred-summary-number">{stats_pronosticos["goles"]}</div>
-    <div class="pred-summary-label">Goles</div>
-</div>
-
-<div class="pred-summary-item">
-    <div class="pred-summary-icon">📊</div>
-    <div class="pred-summary-number">{stats_pronosticos["promedio_goles"]}</div>
-    <div class="pred-summary-label">Promedio</div>
-</div>
-</div>
-
-<div class="pred-summary-style">
-Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
-</div>
-</div>
-                """,
-                    unsafe_allow_html=True
-                )
+            
+            # ------------------------------------------------------------
+            # RESUMEN OSCURO
+            # ------------------------------------------------------------
+            
+            st.markdown(
+                f"""
+            <div class="pred-summary-footer">
+            <div class="pred-summary-kicker">Tus pronósticos</div>
+            
+            <div class="pred-summary-grid">
+            <div class="pred-summary-item">
+                <div class="pred-summary-icon">🏆</div>
+                <div class="pred-summary-number">{stats_pronosticos["con_ganador"]}</div>
+                <div class="pred-summary-label">Con ganador</div>
+            </div>
+            
+            <div class="pred-summary-item">
+                <div class="pred-summary-icon">🤝</div>
+                <div class="pred-summary-number">{stats_pronosticos["empates"]}</div>
+                <div class="pred-summary-label">Empates</div>
+            </div>
+            
+            <div class="pred-summary-item">
+                <div class="pred-summary-icon">⚽</div>
+                <div class="pred-summary-number">{stats_pronosticos["goles"]}</div>
+                <div class="pred-summary-label">Goles</div>
+            </div>
+            
+            <div class="pred-summary-item">
+                <div class="pred-summary-icon">📊</div>
+                <div class="pred-summary-number">{stats_pronosticos["promedio_goles"]}</div>
+                <div class="pred-summary-label">Promedio</div>
+            </div>
+            </div>
+            
+            <div class="pred-summary-style">
+            Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
+            </div>
+            </div>
+            """,
+                unsafe_allow_html=True
+            )
+            
             # ------------------------------------------------------------
             # EVENTOS
             # ------------------------------------------------------------
-
+            
             if editar:
                 st.session_state.permitir_edicion = True
                 st.rerun()
-
+            
             if cancelar:
                 st.session_state.permitir_edicion = False
                 st.rerun()
-
+            
             if submit:
                 try:
                     df_pro_full = conn.read(
                         worksheet="PRONOSTICOS",
                         ttl=5
                     )
-
+            
                     df_otros = df_pro_full[
                         df_pro_full["USUARIO"] != user_actual
                     ]
-
+            
                     df_final = pd.concat(
                         [df_otros, pd.DataFrame(lista_nuevos_pro)],
                         ignore_index=True
                     )
-
+            
                     conn.update(
                         worksheet="PRONOSTICOS",
                         data=df_final
                     )
-
+            
                     st.cache_data.clear()
                     st.session_state.permitir_edicion = False
-
+            
                     st.success("✅ ¡Pronósticos guardados correctamente!")
                     st.balloons()
                     st.rerun()
-
+            
                 except Exception as e:
                     st.error(f"Error al guardar: {e}")
 
