@@ -20,6 +20,7 @@ from io import BytesIO
 #import textwrap
 #import streamlit.components.v1 as components
 from sections.inicio import render_inicio
+from sections.mis_pronosticos import render_mis_pronosticos
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
@@ -256,183 +257,14 @@ if menu == "🏠 Inicio":
 #---------- MENU MIS PRONOSTICOS (CÓDIGO CORREGIDO Y COMPLETO) ----------------------------------
 
 elif menu == "📝 Mis Pronósticos":
-    with col_principal:
-        st.subheader("📝 Mis Predicciones")
-        
-        # 1. Inicializamos la variable de control de edición si no existe
-        if 'permitir_edicion' not in st.session_state:
-            st.session_state.permitir_edicion = False
-        
-        user_actual = st.session_state['user_data']['USUARIO']
-        
-        # Filtramos localmente los pronósticos del usuario
-        df_user_pro = df_pro[df_pro['USUARIO'] == user_actual]
-
-        # --- Lógica de tiempo ---
-        ahora_arg = datetime.utcnow() - timedelta(hours=3)
-        fecha_limite = datetime(2026, 6, 8, 23, 59, 59)
-        es_tiempo_valido = ahora_arg < fecha_limite
-
-        if es_tiempo_valido:
-            st.success(f"⏳ Tienes tiempo hasta el 08/06.")
-            # El valor del toggle depende de la variable en session_state
-            modo_edicion = st.toggle("🔓 Editar resultados", value=st.session_state.permitir_edicion)
-            # Sincronizamos la variable con lo que el usuario mueva en el toggle
-            st.session_state.permitir_edicion = modo_edicion
-        else:
-            st.error("🔒 Plazo finalizado.")
-            modo_edicion = False
-            st.session_state.permitir_edicion = False
-        
-        # Definimos si los inputs deben estar bloqueados
-        esta_bloqueado = not (es_tiempo_valido and modo_edicion)
-
-        # Formulario de pronósticos
-        with st.form("form_pronosticos_v3"):
-            lista_nuevos_pro = []
-            
-            # Ordenamos por número de partido para mostrar en orden
-            for i, row in df_res.sort_values('N_PARTIDO').iterrows():
-                id_p = int(row['N_PARTIDO'])
-                match = df_user_pro[df_user_pro['N_PARTIDO'] == id_p]
-                
-                # Extraemos valores actuales (seguros con iloc[0])
-                v1 = int(match.iloc[0]['P1']) if not match.empty and pd.notna(match.iloc[0]['P1']) else 0
-                v2 = int(match.iloc[0]['P2']) if not match.empty and pd.notna(match.iloc[0]['P2']) else 0
-                
-                bandera1 = mapa_banderas.get(row['Equipo_1'], AVATAR_GENERICO)
-                bandera2 = mapa_banderas.get(row['Equipo_2'], AVATAR_GENERICO)
-                            
-                # Diseño de la tarjeta de partido
-                st.markdown(f"""
-                    <div style='background-color:#f8f9fa; border-radius:8px; padding:6px 12px; border-left:4px solid #007bff; margin-bottom:2px; display: flex; align-items: center; justify-content: space-between;'>
-                        <div style='display: flex; align-items: center; gap: 8px; width: 45%;'>
-                            <img src="{bandera1}" width="22">
-                            <span style='font-size: 0.9em; font-weight: bold;'>{row['Equipo_1']}</span>
-                        </div>
-                        <div style='font-size: 0.7em; color: #999; font-weight: bold; width: 10%; text-align: center;'>VS</div>
-                        <div style='display: flex; align-items: center; gap: 8px; width: 45%; justify-content: flex-end;'>
-                            <span style='font-size: 0.9em; font-weight: bold;'>{row['Equipo_2']}</span>
-                            <img src="{bandera2}" width="22">
-                        </div>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                # Inputs de goles
-                c1, c_vs, c2 = st.columns([1, 0.2, 1])
-                with c1:
-                    p1_val = st.number_input(f"G1_{id_p}", 0, 15, v1, key=f"f1_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
-                with c_vs:
-                    st.write("<div style='text-align:center; margin-top:5px; font-weight:bold;'>:</div>", unsafe_allow_html=True)
-                with c2:
-                    p2_val = st.number_input(f"G2_{id_p}", 0, 15, v2, key=f"f2_{id_p}", label_visibility="collapsed", disabled=esta_bloqueado)
-                
-                # Guardamos los valores en la lista
-                lista_nuevos_pro.append({"N_PARTIDO": id_p, "USUARIO": user_actual, "P1": p1_val, "P2": p2_val})
-
-            # Botón de envío (Siempre presente dentro del form)
-            texto_boton = "💾 GUARDAR TODO EL PRODE" if not esta_bloqueado else "LECTURA (EDICIÓN DESHABILITADA)"
-            
-            if st.form_submit_button(texto_boton, use_container_width=True, disabled=esta_bloqueado):
-                try:
-                    # 1. Leer datos actuales de la base
-                    df_pro_full = conn.read(worksheet="PRONOSTICOS", ttl=5)
-                    
-                    # 2. Filtrar para quitar lo viejo del usuario y concatenar lo nuevo
-                    df_otros = df_pro_full[df_pro_full['USUARIO'] != user_actual]
-                    df_final = pd.concat([df_otros, pd.DataFrame(lista_nuevos_pro)], ignore_index=True)
-                    
-                    # 3. Actualizar Google Sheets
-                    conn.update(worksheet="PRONOSTICOS", data=df_final)
-                    st.cache_data.clear()
-                    
-                    # 4. RESET de la edición: Apagamos el permiso en session_state
-                    st.session_state.permitir_edicion = False
-                    
-                    st.success("✅ ¡Pronósticos guardados correctamente!")
-                    st.balloons()
-                    st.rerun() 
-                    
-                except Exception as e:
-                    st.error(f"Error al guardar: {e}")
-
-    # --- COLUMNA DERECHA: PERFIL EDITABLE ---
-    with col_derecha:
-        st.subheader("👤 Mi Perfil")
-        u_data = st.session_state['user_data']
-        
-        if 'editando_perfil' not in st.session_state:
-            st.session_state.editando_perfil = False
-
-        if not st.session_state.editando_perfil:
-            # Avatar con respaldo de UI-Avatars si está vacío
-            foto_actual = u_data.get('AVATAR_URL')
-            if not foto_actual or pd.isna(foto_actual):
-                foto = f"https://ui-avatars.com/api/?name={u_data['NOMBRE']}&background=random"
-            else:
-                foto = foto_actual
-            
-            st.markdown(f"""
-                <div style="text-align: center;">
-                    <img src="{foto}" style="border-radius: 50%; width: 110px; height: 110px; object-fit: cover; border: 3px solid #007bff;">
-                    <h3 style="margin-bottom: 0;">{u_data['NOMBRE']}</h3>
-                    <p style="color: gray;">@{u_data['USUARIO']}</p>
-                </div>
-                <hr>
-                <p><b>⚽ Equipo:</b> {u_data['EQUIPO FAVORITO']}</p>
-                <p><b>🎂 Edad:</b> {u_data['EDAD']} años</p>
-                <p><b>📝 Bio:</b> <i>"{u_data['DESCRIPCION']}"</i></p>
-            """, unsafe_allow_html=True)
-            
-            if st.button("⚙️ Editar Perfil", use_container_width=True):
-                st.session_state.editando_perfil = True
-                st.rerun()
-        else:
-            with st.form("form_edit_perfil_v3"):
-                st.write("### 📝 Editar Perfil")
-                archivo_perfil = st.file_uploader("Actualizar foto de perfil", type=['jpg', 'jpeg', 'png'])
-                n_nom = st.text_input("Nombre Real", value=u_data['NOMBRE'])
-                
-                # Lógica de índice para el equipo
-                equipos = ["Argentina", "México", "España", "Brasil", "Uruguay", "Colombia", "Otro"]
-                idx_equipo = equipos.index(u_data['EQUIPO FAVORITO']) if u_data['EQUIPO FAVORITO'] in equipos else 0
-                n_equ = st.selectbox("Hincha de", equipos, index=idx_equipo)
-                
-                n_bio = st.text_area("Bio", value=u_data['DESCRIPCION'], max_chars=100)
-                
-                c_b1, c_b2 = st.columns(2)
-                
-                if c_b1.form_submit_button("✅ Guardar"):
-                    nueva_url = u_data['AVATAR_URL']
-                    if archivo_perfil:
-                        with st.spinner("Subiendo foto al servidor..."):
-                            ts = datetime.now().strftime('%H%M%S')
-                            nombre_archivo = f"perfil_{u_data['USUARIO']}_{ts}.jpg"
-                            res_url = upload_profile_picture(archivo_perfil, nombre_archivo)
-                            if res_url and "Error" not in res_url:
-                                nueva_url = res_url
-                            else:
-                                st.error(f"Error al subir: {res_url}")
-
-                    try:
-                        df_u = conn.read(worksheet="USUARIOS", ttl=10)
-                        df_u.loc[df_u['USUARIO'] == u_data['USUARIO'], ['NOMBRE', 'AVATAR_URL', 'EQUIPO FAVORITO', 'DESCRIPCION']] = [n_nom, nueva_url, n_equ, n_bio]
-                        conn.update(worksheet="USUARIOS", data=df_u)
-                        
-                        st.session_state['user_data'].update({
-                            'NOMBRE': n_nom, 'AVATAR_URL': nueva_url, 
-                            'EQUIPO FAVORITO': n_equ, 'DESCRIPCION': n_bio
-                        })
-                        st.session_state.editando_perfil = False
-                        st.cache_data.clear()
-                        st.success("¡Perfil actualizado!")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Error: {e}")
-                
-                if c_b2.form_submit_button("❌ Cancelar"):
-                    st.session_state.editando_perfil = False
-                    st.rerun()
+    render_mis_pronosticos(
+        df_res=df_res,
+        df_usuarios=df_usuarios,
+        df_pro=df_pro,
+        df_ranking=df_ranking,
+        mapa_banderas=mapa_banderas,
+        conn=conn
+    )
 
 # ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Jugadores":
