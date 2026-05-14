@@ -273,7 +273,7 @@ div[data-testid="stNumberInput"] input {
         0 -6px 18px rgba(15,23,42,0.04);
 }
 .pred-actions-footer + div {
-    margin-top: -72px;
+    margin-top: -100px;
     padding: 0 14px 18px 14px;
 }
 
