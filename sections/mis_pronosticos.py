@@ -530,7 +530,7 @@ div[data-testid="stTextInput"] input:disabled {
 .profile-hero {
     background-image:
         radial-gradient(
-            circle at 50% 0%,
+            circle at 30% 0%,
             rgba(244,197,66,0.28),
             rgba(255,255,255,0.00) 42%
         ),
