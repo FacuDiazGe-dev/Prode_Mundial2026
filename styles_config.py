@@ -55,7 +55,7 @@ html, body, [class*="css"] {
 
 .stApp {
     background-image:
-        linear-gradient(rgba(255,255,255,0.50), rgba(255,255,255,0.50)),
+        linear-gradient(rgba(255,255,255,0.30), rgba(255,255,255,0.30)),
         url("__FONDO_BASE__");
     background-attachment: fixed;
     background-size: cover;
