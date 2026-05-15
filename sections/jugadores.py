@@ -213,6 +213,59 @@ def render_jugadores(
     box-shadow: 0 6px 14px rgba(15,23,42,0.04) !important;
 }
 
+/* ============================================================
+   4B. PANEL UNIFICADO — DETALLE DEL JUGADOR
+   Contiene perfil + pronósticos dentro de un mismo recuadro.
+   ============================================================ */
+
+.player-detail-panel {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
+
+.player-detail-block {
+    background: rgba(248,250,252,0.72);
+    border: 1px solid rgba(226,232,240,0.85);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+.player-detail-block:last-child {
+    margin-bottom: 0;
+}
+
+.player-detail-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    color: #0f172a;
+
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .player-detail-panel {
+        padding: 13px;
+        border-radius: 16px;
+    }
+
+    .player-detail-block {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .player-detail-section-title {
+        font-size: 14px;
+    }
+}
 
 /* ============================================================
    5. FICHA DEL JUGADOR SELECCIONADO
@@ -1210,58 +1263,9 @@ def render_jugadores(
 
         st.markdown(
             f"""
-<div class="player-profile-panel">
-
-<div class="players-panel-header">
-<div class="players-panel-icon">👤</div>
-<div>
-<div class="players-panel-title">Ficha del jugador</div>
-<div class="players-panel-subtitle">Resumen del seleccionado</div>
-</div>
-</div>
-
-<div class="player-hero">
-<img src="{foto_perfil}" class="player-avatar">
-<div class="player-name">{nombre}</div>
-<div class="player-team">@{usuario} · {equipo}</div>
-
-<div class="player-rank-pill">
-<span>📊 Posición actual</span>
-<strong>{posicion}°</strong>
-</div>
-</div>
-
-<div class="player-stats">
-<div class="player-stat">
-<div class="player-stat-icon">🏆</div>
-<div class="player-stat-number">{pts}</div>
-<div class="player-stat-label">Puntos</div>
-</div>
-
-<div class="player-stat">
-<div class="player-stat-icon">🎯</div>
-<div class="player-stat-number">{exactos}</div>
-<div class="player-stat-label">Exactos</div>
-</div>
-
-<div class="player-stat">
-<div class="player-stat-icon">✅</div>
-<div class="player-stat-number">{generales}</div>
-<div class="player-stat-label">Generales</div>
-</div>
-</div>
-
-<div class="player-bio">
-<strong>Bio:</strong> {bio}
-</div>
-
-</div>
-""",
-            unsafe_allow_html=True
-        )
-
         # ------------------------------------------------------------
         # PRONÓSTICOS DEL JUGADOR
+        # Se preparan antes del render unificado.
         # ------------------------------------------------------------
 
         pro_user_sel = df_pro[df_pro["USUARIO"] == user_sel["USUARIO"]]
@@ -1300,20 +1304,67 @@ Sin pronósticos cargados todavía.
 
             rows_html = "\n".join(rows)
 
+        # ------------------------------------------------------------
+        # PANEL UNIFICADO — PERFIL + PRONÓSTICOS
+        # ------------------------------------------------------------
+
         st.markdown(
             f"""
-<div class="player-preds-panel">
+<div class="player-detail-panel">
 
 <div class="players-panel-header">
-<div class="players-panel-icon">🗳️</div>
+<div class="players-panel-icon">👤</div>
 <div>
-<div class="players-panel-title">Pronósticos</div>
-<div class="players-panel-subtitle">Predicciones de {nombre}</div>
+<div class="players-panel-title">Detalle del jugador</div>
+<div class="players-panel-subtitle">Perfil y pronósticos del seleccionado</div>
 </div>
 </div>
+
+<div class="player-detail-block">
+<div class="player-detail-section-title">👤 Perfil</div>
+
+<div class="player-hero">
+<img src="{foto_perfil}" class="player-avatar">
+<div class="player-name">{nombre}</div>
+<div class="player-team">@{usuario} · {equipo}</div>
+
+<div class="player-rank-pill">
+<span>📊 Posición actual</span>
+<strong>{posicion}°</strong>
+</div>
+</div>
+
+<div class="player-stats">
+<div class="player-stat">
+<div class="player-stat-icon">🏆</div>
+<div class="player-stat-number">{pts}</div>
+<div class="player-stat-label">Puntos</div>
+</div>
+
+<div class="player-stat">
+<div class="player-stat-icon">🎯</div>
+<div class="player-stat-number">{exactos}</div>
+<div class="player-stat-label">Exactos</div>
+</div>
+
+<div class="player-stat">
+<div class="player-stat-icon">✅</div>
+<div class="player-stat-number">{generales}</div>
+<div class="player-stat-label">Generales</div>
+</div>
+</div>
+
+<div class="player-bio">
+<strong>Bio:</strong> {bio}
+</div>
+</div>
+
+<div class="player-detail-block">
+<div class="player-detail-section-title">🗳️ Pronósticos</div>
 
 <div class="player-preds-scroll">
 {rows_html}
+</div>
 </div>
 
 </div>
