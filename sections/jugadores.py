@@ -58,14 +58,114 @@ def render_jugadores(
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
 }
 
-.players-panel-header {
+.players-box {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
+
+.players-box .players-panel-header {
+    padding: 0 0 14px 0;
+    margin-bottom: 12px;
+}
+
+/* Radio funcional, más compacto */
+.players-radio-wrap {
+    background: rgba(248,250,252,0.78);
+    border: 1px solid rgba(226,232,240,0.8);
+    border-radius: 14px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+}
+
+/* Oculta visualmente un poco el aspecto nativo del radio */
+.players-radio-wrap div[role="radiogroup"] {
+    gap: 2px;
+}
+
+.players-radio-wrap div[role="radiogroup"] label {
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    padding: 2px 0 !important;
+}
+
+/* Card del jugador */
+.player-list-card {
+    background: rgba(248,250,252,0.92);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 14px;
+    padding: 10px;
+    margin-bottom: 8px;
+
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 4px 4px 14px 4px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid rgba(226,232,240,0.75);
+
+    transition: all 0.16s ease;
 }
+
+.player-list-card.selected {
+    border: 1px solid rgba(244,197,66,0.85);
+    background:
+        linear-gradient(
+            90deg,
+            rgba(244,197,66,0.18),
+            rgba(248,250,252,0.96)
+        );
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.6),
+        0 8px 18px rgba(244,197,66,0.10);
+}
+
+.player-list-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(244,197,66,0.75);
+}
+
+.player-list-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.player-list-name {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-list-team {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.player-list-points {
+    background: rgba(7,17,31,0.96);
+    color: #F4C542;
+    border-radius: 999px;
+    padding: 5px 8px;
+    font-size: 11px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+# .players-panel-header {
+#     display: flex;
+#     align-items: center;
+#     gap: 10px;
+#     padding: 4px 4px 14px 4px;
+#     margin-bottom: 12px;
+#     border-bottom: 1px solid rgba(226,232,240,0.75);
+# }
 
 .players-panel-icon {
     width: 32px;
@@ -126,30 +226,6 @@ def render_jugadores(
     min-width: 0;
 }
 
-.player-list-name {
-    color: #0f172a;
-    font-size: 13px;
-    font-weight: 900;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.player-list-team {
-    color: #64748b;
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.player-list-points {
-    background: rgba(7,17,31,0.96);
-    color: #F4C542;
-    border-radius: 999px;
-    padding: 5px 8px;
-    font-size: 11px;
-    font-weight: 900;
-    white-space: nowrap;
-}
 
 .player-hero {
     background:
@@ -575,27 +651,42 @@ def render_jugadores(
 
     with c_lista:
         st.markdown("""
-<div class="players-panel-header standalone">
+<div class="players-box">
+<div class="players-panel-header">
 <div class="players-panel-icon">👥</div>
 <div>
 <div class="players-panel-title">Jugadores</div>
 <div class="players-panel-subtitle">Seleccioná a quién querés espiar</div>
 </div>
 </div>
-        """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-        nombre_elegido = st.selectbox(
-            "Seleccioná un jugador:",
+        nombres_usuarios = df_usuarios["NOMBRE"].fillna("Jugador").tolist()
+
+        if "jugador_seleccionado" not in st.session_state:
+            st.session_state.jugador_seleccionado = (
+                nombres_usuarios[0] if nombres_usuarios else None
+            )
+
+        st.markdown('<div class="players-radio-wrap">', unsafe_allow_html=True)
+
+        nombre_elegido = st.radio(
+            "Listado de jugadores",
             nombres_usuarios,
             index=nombres_usuarios.index(st.session_state.jugador_seleccionado)
             if st.session_state.jugador_seleccionado in nombres_usuarios else 0,
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            key="radio_jugador_seleccionado"
         )
+
+        st.markdown("</div>", unsafe_allow_html=True)
 
         st.session_state.jugador_seleccionado = nombre_elegido
 
         user_sel_query = df_usuarios[df_usuarios["NOMBRE"] == nombre_elegido]
         user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
+
+        st.markdown("</div>", unsafe_allow_html=True)
 
         with st.container(height=430):
             for _, u in df_usuarios.iterrows():
