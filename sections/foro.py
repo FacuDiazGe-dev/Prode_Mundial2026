@@ -190,15 +190,72 @@ def render_foro(conn, df_usuarios):
     white-space: pre-wrap;
 }
 
-.foro-message-img {
-    width: 100%;
-    max-height: 360px;
-    object-fit: cover;
-    border-radius: 14px;
+/* ============================================================
+   4B. IMÁGENES PUBLICADAS EN EL FORO
+   ============================================================ */
+
+.foro-image-wrap {
     margin-top: 10px;
-    border: 1px solid rgba(226,232,240,0.9);
+    display: flex;
+    justify-content: center;
 }
 
+.foro-message-img {
+    width: auto;
+    max-width: 520px;
+    max-height: 320px;
+
+    object-fit: contain;
+    display: block;
+
+    border-radius: 14px;
+    border: 1px solid rgba(226,232,240,0.9);
+    background: rgba(248,250,252,0.78);
+}
+
+
+/* ============================================================
+   4C. BOTONES DE REACCIÓN DEL FORO
+   Mantiene los botones compactos y evita que se vean desordenados.
+   ============================================================ */
+
+.foro-action-marker {
+    display: none;
+}
+
+div[data-testid="stHorizontalBlock"]:has(.foro-action-marker) {
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+div[data-testid="stHorizontalBlock"]:has(.foro-action-marker) button {
+    min-height: 34px !important;
+    padding: 4px 8px !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+}
+
+@media (max-width: 768px) {
+    .foro-message-img {
+        width: 100%;
+        max-width: 100%;
+        max-height: 260px;
+    }
+
+    div[data-testid="stHorizontalBlock"]:has(.foro-action-marker) {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: flex-start !important;
+    }
+
+    div[data-testid="stHorizontalBlock"]:has(.foro-action-marker) > div[data-testid="column"] {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+    }
+}
 
 /* ============================================================
    5. COMUNIDAD / STATS / REGLAS
@@ -453,7 +510,11 @@ Podés publicar texto y, si querés, una imagen opcional del partido, juntada o 
                 img_html = ""
 
                 if img_url and img_url.lower() != "nan":
-                    img_html = f'<img src="{escape(img_url, quote=True)}" class="foro-message-img">'
+                    img_html = f"""
+<div class="foro-image-wrap">
+<img src="{escape(img_url, quote=True)}" class="foro-message-img">
+</div>
+                """
 
                 own_pill = '<span class="foro-own-pill">TUYO</span>' if es_mio else ""
 
@@ -481,24 +542,29 @@ Podés publicar texto y, si querés, una imagen opcional del partido, juntada o 
                 d_count = safe_int(m.get("DISLIKES", 0))
 
                 if es_mio:
-                    _, col_del = st.columns([0.88, 0.12])
+                    col_del, _ = st.columns([0.12, 0.88], gap="small")
+                    
                     with col_del:
+                        st.markdown('<span class="foro-action-marker"></span>', unsafe_allow_html=True)
+                    
                         if st.button("🗑️", key=f"foro_del_{idx}", help="Eliminar mi mensaje"):
                             df_new = df_foro.drop(idx).reset_index(drop=True)
                             save_foro(df_new)
                 else:
                     r1, r2, r3, _ = st.columns([0.12, 0.12, 0.12, 0.64], gap="small")
-
+                    
                     with r1:
+                        st.markdown('<span class="foro-action-marker"></span>', unsafe_allow_html=True)
+                    
                         if st.button(f"👍 {l_count}", key=f"foro_lk_{idx}"):
                             df_foro.at[idx, "LIKES"] = l_count + 1
                             save_foro(df_foro)
-
+                    
                     with r2:
                         if st.button(f"👎 {d_count}", key=f"foro_ds_{idx}"):
                             df_foro.at[idx, "DISLIKES"] = d_count + 1
                             save_foro(df_foro)
-
+                    
                     with r3:
                         if rol_actual == "admin":
                             if st.button("🗑️", key=f"foro_del_admin_{idx}"):
