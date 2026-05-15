@@ -71,26 +71,28 @@ def render_jugadores(
     margin-bottom: 12px;
 }
 
-/* Radio funcional, más compacto */
-.players-radio-wrap {
-    background: rgba(248,250,252,0.78);
-    border: 1px solid rgba(226,232,240,0.8);
-    border-radius: 14px;
-    padding: 8px 10px;
-    margin-bottom: 12px;
-}
-
-/* Oculta visualmente un poco el aspecto nativo del radio */
-.players-radio-wrap div[role="radiogroup"] {
-    gap: 2px;
-}
-
-.players-radio-wrap div[role="radiogroup"] label {
+.player-select-btn button {
+    border-radius: 12px !important;
+    min-height: 38px !important;
     font-size: 12px !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
-    padding: 2px 0 !important;
+    font-weight: 900 !important;
+    border: 1px solid rgba(244,197,66,0.38) !important;
+    background: rgba(244,197,66,0.18) !important;
+    color: #07111F !important;
 }
+
+.player-select-btn button:hover {
+    background: rgba(244,197,66,0.30) !important;
+    border-color: rgba(244,197,66,0.65) !important;
+}
+
+.player-select-btn button:disabled {
+    background: rgba(7,17,31,0.92) !important;
+    color: #F4C542 !important;
+    border: 1px solid rgba(244,197,66,0.30) !important;
+}
+
+
 
 /* Card del jugador */
 .player-list-card {
@@ -659,6 +661,7 @@ def render_jugadores(
 <div class="players-panel-subtitle">Seleccioná a quién querés espiar</div>
 </div>
 </div>
+</div>
 """, unsafe_allow_html=True)
 
         nombres_usuarios = df_usuarios["NOMBRE"].fillna("Jugador").tolist()
@@ -668,26 +671,6 @@ def render_jugadores(
                 nombres_usuarios[0] if nombres_usuarios else None
             )
 
-        st.markdown('<div class="players-radio-wrap">', unsafe_allow_html=True)
-
-        nombre_elegido = st.radio(
-            "Listado de jugadores",
-            nombres_usuarios,
-            index=nombres_usuarios.index(st.session_state.jugador_seleccionado)
-            if st.session_state.jugador_seleccionado in nombres_usuarios else 0,
-            label_visibility="collapsed",
-            key="radio_jugador_seleccionado"
-        )
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        st.session_state.jugador_seleccionado = nombre_elegido
-
-        user_sel_query = df_usuarios[df_usuarios["NOMBRE"] == nombre_elegido]
-        user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
         with st.container(height=430):
             for _, u in df_usuarios.iterrows():
                 foto_mini = get_avatar(u)
@@ -695,17 +678,22 @@ def render_jugadores(
                 rank_row, idx_rank = get_ranking_row(u)
                 pts = safe_int(rank_row.get("PUNTOS", 0)) if rank_row is not None else 0
 
-                nombre = escape(str(u.get("NOMBRE", "Jugador")))
+                nombre_raw = str(u.get("NOMBRE", "Jugador"))
+                usuario_raw = str(u.get("USUARIO", nombre_raw))
+                nombre = escape(nombre_raw)
                 equipo = escape(str(u.get("EQUIPO FAVORITO", "-")))
 
-                selected_class = (
-                    "selected"
-                    if user_sel is not None and str(u.get("USUARIO")) == str(user_sel.get("USUARIO"))
-                    else ""
+                es_seleccionado = (
+                    st.session_state.jugador_seleccionado == nombre_raw
                 )
 
-                st.markdown(
-                    f"""
+                selected_class = "selected" if es_seleccionado else ""
+
+                c_card, c_action = st.columns([0.78, 0.22], gap="small")
+
+                with c_card:
+                    st.markdown(
+                        f"""
 <div class="player-list-card {selected_class}">
 <img src="{foto_mini}" class="player-list-avatar">
 <div class="player-list-main">
@@ -715,8 +703,35 @@ def render_jugadores(
 <div class="player-list-points">{pts} pts</div>
 </div>
 """,
-                    unsafe_allow_html=True
-                )
+                        unsafe_allow_html=True
+                    )
+
+                with c_action:
+                    st.markdown('<div class="player-select-btn">', unsafe_allow_html=True)
+
+                    if es_seleccionado:
+                        st.button(
+                            "Activo",
+                            key=f"jugador_activo_{usuario_raw}",
+                            use_container_width=True,
+                            disabled=True
+                        )
+                    else:
+                        if st.button(
+                            "Ver",
+                            key=f"ver_jugador_{usuario_raw}",
+                            use_container_width=True
+                        ):
+                            st.session_state.jugador_seleccionado = nombre_raw
+                            st.rerun()
+
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+        user_sel_query = df_usuarios[
+            df_usuarios["NOMBRE"] == st.session_state.jugador_seleccionado
+        ]
+
+        user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
 
     with c_ficha:
         st.markdown("""
