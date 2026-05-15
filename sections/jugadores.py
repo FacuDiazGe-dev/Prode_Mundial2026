@@ -63,11 +63,17 @@ def render_jugadores(
 
 /* Contenedores nativos de Streamlit con borde.
    Usado especialmente para el bloque Jugadores + listado. */
-div[data-testid="stVerticalBlockBorderWrapper"] {
+div[data-testid="stVerticalBlockBorderWrapper"],
+div[data-testid="stVerticalBlockBorderWrapper"] > div,
+div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"] {
     background: rgba(255,255,255,0.94) !important;
-    border: 1px solid rgba(226,232,240,0.9) !important;
     border-radius: 18px !important;
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    border: 1px solid rgba(226,232,240,0.9) !important;
     box-shadow: 0 12px 30px rgba(15,23,42,0.06) !important;
+    padding: 12px !important;
 }
 
 .players-panel-header {
