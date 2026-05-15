@@ -1214,6 +1214,44 @@ def render_jugadores(
             unsafe_allow_html=True
         )
 
+    with c_detalle:
+        if user_sel is None:
+            st.warning("Seleccioná un jugador para ver su perfil.")
+            return
+
+        datos_vivos, idx_real = get_ranking_row(user_sel)
+
+        foto_perfil = get_avatar(user_sel)
+        nombre = escape(str(user_sel.get("NOMBRE", "Jugador")))
+        usuario = escape(str(user_sel.get("USUARIO", "")))
+        equipo = escape(str(user_sel.get("EQUIPO FAVORITO", "-")))
+        bio = escape(str(user_sel.get("DESCRIPCION", "")))
+
+        if bio.strip() == "" or bio.strip().lower() == "nan":
+            bio = "Sin bio cargada todavía."
+
+        pts = (
+            safe_int(datos_vivos.get("PUNTOS", 0))
+            if datos_vivos is not None
+            else 0
+        )
+
+        exactos = (
+            safe_int(datos_vivos.get("EXACTOS", 0))
+            if datos_vivos is not None
+            else 0
+        )
+
+        generales = (
+            safe_int(datos_vivos.get("GENERALES", 0))
+            if datos_vivos is not None
+            else 0
+        )
+
+        try:
+            posicion = int(idx_real)
+        except Exception:
+            posicion = "-"
         # ------------------------------------------------------------
         # PRONÓSTICOS DEL JUGADOR
         # Se preparan antes del render unificado.
