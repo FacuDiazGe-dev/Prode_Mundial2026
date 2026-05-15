@@ -89,6 +89,118 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     object-fit: cover;
     border: 2px solid rgba(244,197,66,0.8);
 }
+.lab-card {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+    margin-bottom: 18px;
+}
+
+.lab-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 14px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(226,232,240,0.75);
+}
+
+.lab-card-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(244,197,66,0.16);
+    color: #0f172a;
+    font-size: 16px;
+}
+
+.lab-card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+.lab-card-subtitle {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.lab-selector-box {
+    background: rgba(248,250,252,0.78);
+    border: 1px solid rgba(226,232,240,0.8);
+    border-radius: 14px;
+    padding: 12px;
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.lab-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lab-preview-avatar {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #F4C542;
+    box-shadow:
+        0 10px 24px rgba(15,23,42,0.18),
+        0 0 18px rgba(244,197,66,0.22);
+}
+
+.lab-return-box {
+    margin-top: 14px;
+    background: rgba(248,250,252,0.86);
+    border: 1px solid rgba(226,232,240,0.85);
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.lab-return-label {
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.lab-return-value {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #07111F;
+}
+
+@media (max-width: 768px) {
+    .lab-card {
+        padding: 13px;
+    }
+
+    .lab-selector-box {
+        max-height: 300px;
+    }
+
+    .lab-card-title {
+        font-size: 16px;
+    }
+
+    .lab-card-subtitle {
+        font-size: 11px;
+    }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -139,6 +251,18 @@ Prueba para reemplazar el selectbox por un selector más visual. Evaluar mobile,
         col1, col2 = st.columns([1, 1], gap="large")
 
         with col1:
+            st.markdown("""
+<div class="lab-card">
+<div class="lab-card-header">
+<div class="lab-card-icon">👥</div>
+<div>
+<div class="lab-card-title">Jugadores</div>
+<div class="lab-card-subtitle">Selector Ant Design dentro de card</div>
+</div>
+</div>
+<div class="lab-selector-box">
+""", unsafe_allow_html=True)
+
             elegido = sac.buttons(
                 items=nombres,
                 index=0,
@@ -150,21 +274,49 @@ Prueba para reemplazar el selectbox por un selector más visual. Evaluar mobile,
                 key="lab_selector_vertical"
             )
 
+            st.markdown("""
+</div>
+</div>
+""", unsafe_allow_html=True)
+
         with col2:
             user = df_lab[df_lab["NOMBRE"] == elegido].iloc[0]
+
+            avatar = user.get("AVATAR_URL", "")
+            avatar_html = ""
+
+            if pd.notna(avatar) and str(avatar).strip() != "":
+                avatar_html = f'<img src="{avatar}" class="lab-preview-avatar">'
+
             st.markdown(
                 f"""
+<div class="lab-card">
+<div class="lab-card-header">
+<div class="lab-card-icon">🧾</div>
+<div>
+<div class="lab-card-title">Vista previa</div>
+<div class="lab-card-subtitle">Jugador seleccionado</div>
+</div>
+</div>
+
 <div class="lab-preview-card">
+<div class="lab-preview-row">
+{avatar_html}
+<div>
 <div class="lab-preview-name">{user["NOMBRE"]}</div>
 <div class="lab-preview-meta">@{user["USUARIO"]} · {user["EQUIPO FAVORITO"]}</div>
+</div>
+</div>
+</div>
+
+<div class="lab-return-box">
+<div class="lab-return-label">Valor devuelto por el componente</div>
+<div class="lab-return-value">{elegido}</div>
+</div>
 </div>
 """,
                 unsafe_allow_html=True
             )
-
-            st.write("Valor devuelto por el componente:")
-            st.code(str(elegido))
-
     # ============================================================
     # TAB 2 — BOTONES
     # ============================================================
