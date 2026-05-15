@@ -40,7 +40,9 @@ def render_jugadores(
 }
 
 .players-panel,
-.player-profile-panel {
+.player-profile-panel,
+.badges-wall-panel,
+.player-preds-panel {
     background: rgba(255,255,255,0.94);
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 18px;
@@ -76,16 +78,31 @@ def render_jugadores(
     color: #0f172a;
 }
 
+.players-panel-subtitle {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
 .player-list-card {
     background: rgba(248,250,252,0.92);
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 14px;
     padding: 10px;
     margin-bottom: 8px;
-
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.player-list-card.selected {
+    border: 1px solid rgba(244,197,66,0.75);
+    background: linear-gradient(
+        90deg,
+        rgba(244,197,66,0.15),
+        rgba(248,250,252,0.96)
+    );
 }
 
 .player-list-avatar {
@@ -176,14 +193,11 @@ def render_jugadores(
     align-items: center;
     justify-content: center;
     gap: 6px;
-
     margin-top: 12px;
     padding: 7px 12px;
-
     background: rgba(7,17,31,0.96);
     border: 1px solid rgba(244,197,66,0.24);
     border-radius: 999px;
-
     color: #F8FAFC;
     font-size: 12px;
     font-weight: 900;
@@ -231,34 +245,6 @@ def render_jugadores(
     text-transform: uppercase;
 }
 
-.player-badges-box {
-    background: rgba(248,250,252,0.82);
-    border: 1px solid rgba(226,232,240,0.85);
-    border-radius: 15px;
-    padding: 12px;
-    margin-top: 12px;
-}
-
-.player-badges-title {
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-}
-
-.player-badges-grid {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.player-badge {
-    font-size: 24px;
-}
-
 .player-bio {
     margin-top: 12px;
     padding: 12px;
@@ -271,12 +257,56 @@ def render_jugadores(
     line-height: 1.35;
 }
 
-.player-pred-title {
-    margin-top: 18px;
-    margin-bottom: 10px;
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.badge-card {
+    background: rgba(248,250,252,0.86);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 14px;
+    padding: 11px;
+    min-height: 86px;
+}
+
+.badge-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+}
+
+.badge-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(244,197,66,0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.badge-title {
     color: #0f172a;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 900;
+    line-height: 1.1;
+}
+
+.badge-winner {
+    color: #07111F;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.badge-detail {
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+    margin-top: 2px;
 }
 
 .player-pred-row {
@@ -284,7 +314,6 @@ def render_jugadores(
     grid-template-columns: 32px 1fr 58px 1fr;
     align-items: center;
     gap: 6px;
-
     padding: 7px 6px;
     border-bottom: 1px solid rgba(226,232,240,0.75);
     font-size: 11px;
@@ -327,8 +356,8 @@ def render_jugadores(
         font-size: 28px;
     }
 
-    .player-stats {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    .badges-grid {
+        grid-template-columns: 1fr;
     }
 
     .player-avatar {
@@ -352,6 +381,12 @@ def render_jugadores(
     # HELPERS
     # ============================================================
 
+    def safe_int(value, default=0):
+        try:
+            return int(value)
+        except Exception:
+            return default
+
     def get_avatar(row):
         avatar = row.get("AVATAR_URL", "")
         if pd.notna(avatar) and str(avatar).strip() != "":
@@ -369,12 +404,29 @@ def render_jugadores(
 
         if "JUGADOR" in df_ranking.columns:
             match = df_ranking[
-                df_ranking["JUGADOR"].astype(str).str.contains(nombre, na=False, regex=False)
+                df_ranking["JUGADOR"]
+                .astype(str)
+                .str.contains(nombre, na=False, regex=False)
             ]
             if not match.empty:
                 return match.iloc[0], match.index[0]
 
         return None, None
+
+    def get_nombre_desde_ranking(rank_row):
+        if rank_row is None:
+            return "-"
+
+        if "JUGADOR" in rank_row:
+            return str(rank_row.get("JUGADOR", "-"))
+
+        if "USUARIO" in rank_row:
+            usuario = str(rank_row.get("USUARIO", ""))
+            match = df_usuarios[df_usuarios["USUARIO"] == usuario]
+            if not match.empty:
+                return str(match.iloc[0].get("NOMBRE", usuario))
+
+        return "-"
 
     def calcular_racha_exactos(user_row):
         r_act = 0
@@ -404,48 +456,92 @@ def render_jugadores(
 
         return r_max
 
-    def calcular_badges(user_row, datos_vivos, idx_real):
-        css = {
-            k: "filter: grayscale(100%); opacity: 0.18;"
-            for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]
-        }
+    def calcular_logros_globales():
+        logros = []
 
-        if datos_vivos is None:
-            return css
+        if df_ranking.empty:
+            return logros
 
-        if "Nº" in datos_vivos and "👑" in str(datos_vivos["Nº"]):
-            css["puntero"] = ""
+        top_row = df_ranking.iloc[0]
+        top_name = get_nombre_desde_ranking(top_row)
+        top_pts = safe_int(top_row.get("PUNTOS", 0))
 
-        if int(datos_vivos.get("EXACTOS", 0)) >= 5:
-            css["master"] = ""
+        logros.append({
+            "icon": "🏆",
+            "title": "Puntero actual",
+            "winner": top_name,
+            "detail": f"{top_pts} puntos"
+        })
 
-        if (
-            "GENERALES" in df_ranking.columns
-            and int(datos_vivos.get("GENERALES", 0)) == int(df_ranking["GENERALES"].max())
-            and int(df_ranking["GENERALES"].max()) > 0
-        ):
-            css["mentalista"] = ""
+        if "EXACTOS" in df_ranking.columns:
+            idx_exactos = df_ranking["EXACTOS"].astype(int).idxmax()
+            row_exactos = df_ranking.loc[idx_exactos]
+            logros.append({
+                "icon": "🎯",
+                "title": "Más exactos",
+                "winner": get_nombre_desde_ranking(row_exactos),
+                "detail": f'{safe_int(row_exactos.get("EXACTOS", 0))} exactos'
+            })
 
-        if len(df_ranking) > 2 and idx_real == (len(df_ranking) - 1):
-            css["lento"] = ""
+        if "GENERALES" in df_ranking.columns:
+            idx_generales = df_ranking["GENERALES"].astype(int).idxmax()
+            row_generales = df_ranking.loc[idx_generales]
+            logros.append({
+                "icon": "✅",
+                "title": "Más generales",
+                "winner": get_nombre_desde_ranking(row_generales),
+                "detail": f'{safe_int(row_generales.get("GENERALES", 0))} generales'
+            })
+
+        mejor_racha = 0
+        mejor_racha_nombre = "-"
+
+        for _, u in df_usuarios.iterrows():
+            racha = calcular_racha_exactos(u)
+            if racha > mejor_racha:
+                mejor_racha = racha
+                mejor_racha_nombre = str(u.get("NOMBRE", "-"))
+
+        logros.append({
+            "icon": "🔥",
+            "title": "Mejor racha",
+            "winner": mejor_racha_nombre,
+            "detail": f"{mejor_racha} exactos seguidos"
+        })
 
         try:
-            if int(user_row.get("ID", 999)) <= 3:
-                css["fundador"] = ""
-        except:
-            pass
+            fundadores = df_usuarios[df_usuarios["ID"].astype(int) <= 3]
+            nombres_fundadores = ", ".join(
+                fundadores["NOMBRE"].astype(str).head(3).tolist()
+            )
+        except Exception:
+            nombres_fundadores = "-"
 
-        r_max = calcular_racha_exactos(user_row)
-        if r_max >= 3:
-            css["onfire"] = ""
+        logros.append({
+            "icon": "🏅",
+            "title": "Fundadores",
+            "winner": nombres_fundadores,
+            "detail": "Primeros en sumarse"
+        })
 
-        return css
+        if len(df_ranking) > 1:
+            ultimo_row = df_ranking.iloc[-1]
+            logros.append({
+                "icon": "🐌",
+                "title": "Último de la tabla",
+                "winner": get_nombre_desde_ranking(ultimo_row),
+                "detail": "Todavía hay esperanza"
+            })
 
-    def safe_int(value, default=0):
-        try:
-            return int(value)
-        except:
-            return default
+        return logros
+
+    def flag_html(flag_value):
+        flag_value = str(flag_value)
+
+        if flag_value.startswith("http") or flag_value.startswith("data:image"):
+            return f'<img src="{flag_value}" width="18">'
+
+        return escape(flag_value)
 
     # ============================================================
     # TÍTULO
@@ -454,38 +550,48 @@ def render_jugadores(
     st.markdown("""
 <div class="players-title">
 <h1>👥 Jugadores</h1>
-<p>Conocé a la banda que compite por la gloria del Prode.</p>
+<p>Plantel, logros y pronósticos de la banda del Prode.</p>
 </div>
 """, unsafe_allow_html=True)
 
-    c_lista, c_perfil = st.columns([1.1, 1], gap="large")
+    nombres_usuarios = df_usuarios["NOMBRE"].fillna("Jugador").tolist()
+
+    if "jugador_seleccionado" not in st.session_state:
+        st.session_state.jugador_seleccionado = nombres_usuarios[0] if nombres_usuarios else None
 
     # ============================================================
-    # COLUMNA IZQUIERDA — LISTA
+    # FILA SUPERIOR — JUGADORES / FICHA
     # ============================================================
+
+    c_lista, c_ficha = st.columns([1.1, 1], gap="large")
 
     with c_lista:
         st.markdown("""
 <div class="players-panel">
 <div class="players-panel-header">
 <div class="players-panel-icon">👥</div>
-<div class="players-panel-title">Lista de Participantes</div>
+<div>
+<div class="players-panel-title">Jugadores</div>
+<div class="players-panel-subtitle">Seleccioná a quién querés espiar</div>
+</div>
 </div>
 </div>
 """, unsafe_allow_html=True)
 
-        nombres_usuarios = df_usuarios["NOMBRE"].fillna("Jugador").tolist()
-
         nombre_elegido = st.selectbox(
             "Seleccioná un jugador:",
             nombres_usuarios,
+            index=nombres_usuarios.index(st.session_state.jugador_seleccionado)
+            if st.session_state.jugador_seleccionado in nombres_usuarios else 0,
             label_visibility="collapsed"
         )
+
+        st.session_state.jugador_seleccionado = nombre_elegido
 
         user_sel_query = df_usuarios[df_usuarios["NOMBRE"] == nombre_elegido]
         user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
 
-        with st.container(height=520):
+        with st.container(height=430):
             for _, u in df_usuarios.iterrows():
                 foto_mini = get_avatar(u)
 
@@ -495,9 +601,15 @@ def render_jugadores(
                 nombre = escape(str(u.get("NOMBRE", "Jugador")))
                 equipo = escape(str(u.get("EQUIPO FAVORITO", "-")))
 
+                selected_class = (
+                    "selected"
+                    if user_sel is not None and str(u.get("USUARIO")) == str(user_sel.get("USUARIO"))
+                    else ""
+                )
+
                 st.markdown(
                     f"""
-<div class="player-list-card">
+<div class="player-list-card {selected_class}">
 <img src="{foto_mini}" class="player-list-avatar">
 <div class="player-list-main">
 <div class="player-list-name">{nombre}</div>
@@ -509,16 +621,15 @@ def render_jugadores(
                     unsafe_allow_html=True
                 )
 
-    # ============================================================
-    # COLUMNA DERECHA — PERFIL SELECCIONADO
-    # ============================================================
-
-    with c_perfil:
+    with c_ficha:
         st.markdown("""
 <div class="player-profile-panel">
 <div class="players-panel-header">
 <div class="players-panel-icon">👤</div>
-<div class="players-panel-title">Perfil Seleccionado</div>
+<div>
+<div class="players-panel-title">Ficha del jugador</div>
+<div class="players-panel-subtitle">Resumen del seleccionado</div>
+</div>
 </div>
 </div>
 """, unsafe_allow_html=True)
@@ -529,12 +640,6 @@ def render_jugadores(
 
         datos_vivos, idx_real = get_ranking_row(user_sel)
 
-        if datos_vivos is None:
-            st.warning("El jugador no tiene puntos suficientes para mostrar rendimiento.")
-            return
-
-        css_badges = calcular_badges(user_sel, datos_vivos, idx_real)
-
         foto_perfil = get_avatar(user_sel)
         nombre = escape(str(user_sel.get("NOMBRE", "Jugador")))
         usuario = escape(str(user_sel.get("USUARIO", "")))
@@ -544,13 +649,13 @@ def render_jugadores(
         if bio.strip() == "" or bio.strip().lower() == "nan":
             bio = "Sin bio cargada todavía."
 
-        pts = safe_int(datos_vivos.get("PUNTOS", 0))
-        exactos = safe_int(datos_vivos.get("EXACTOS", 0))
-        generales = safe_int(datos_vivos.get("GENERALES", 0))
+        pts = safe_int(datos_vivos.get("PUNTOS", 0)) if datos_vivos is not None else 0
+        exactos = safe_int(datos_vivos.get("EXACTOS", 0)) if datos_vivos is not None else 0
+        generales = safe_int(datos_vivos.get("GENERALES", 0)) if datos_vivos is not None else 0
 
         try:
             posicion = int(idx_real)
-        except:
+        except Exception:
             posicion = "-"
 
         st.markdown(
@@ -587,18 +692,6 @@ def render_jugadores(
 </div>
 </div>
 
-<div class="player-badges-box">
-<div class="player-badges-title">Insignias</div>
-<div class="player-badges-grid">
-<span title="Puntero" class="player-badge" style="{css_badges['puntero']}">🏆</span>
-<span title="Master Exactos" class="player-badge" style="{css_badges['master']}">🎯</span>
-<span title="Mentalista" class="player-badge" style="{css_badges['mentalista']}">🧙‍♂️</span>
-<span title="Fundador" class="player-badge" style="{css_badges['fundador']}">🏅</span>
-<span title="On Fire" class="player-badge" style="{css_badges['onfire']}">🔥</span>
-<span title="El más lento" class="player-badge" style="{css_badges['lento']}">🐌</span>
-</div>
-</div>
-
 <div class="player-bio">
 <strong>Bio:</strong> {bio}
 </div>
@@ -607,12 +700,56 @@ def render_jugadores(
             unsafe_allow_html=True
         )
 
-        # ============================================================
-        # PREDICCIONES DEL USUARIO
-        # ============================================================
+    # ============================================================
+    # FILA INFERIOR — MURO DE INSIGNIAS / PRONÓSTICOS
+    # ============================================================
 
+    c_badges, c_preds = st.columns([1.1, 1], gap="large")
+
+    with c_badges:
+        st.markdown("""
+<div class="badges-wall-panel">
+<div class="players-panel-header">
+<div class="players-panel-icon">🏅</div>
+<div>
+<div class="players-panel-title">Muro de Insignias</div>
+<div class="players-panel-subtitle">Logros alternativos del Prode</div>
+</div>
+</div>
+
+<div class="badges-grid">
+""", unsafe_allow_html=True)
+
+        for logro in calcular_logros_globales():
+            st.markdown(
+                f"""
+<div class="badge-card">
+<div class="badge-top">
+<div class="badge-icon">{logro["icon"]}</div>
+<div class="badge-title">{escape(logro["title"])}</div>
+</div>
+<div class="badge-winner">{escape(logro["winner"])}</div>
+<div class="badge-detail">{escape(logro["detail"])}</div>
+</div>
+""",
+                unsafe_allow_html=True
+            )
+
+        st.markdown("</div></div>", unsafe_allow_html=True)
+
+    with c_preds:
         st.markdown(
-            f'<div class="player-pred-title">🗳️ Pronósticos de {nombre}</div>',
+            f"""
+<div class="player-preds-panel">
+<div class="players-panel-header">
+<div class="players-panel-icon">🗳️</div>
+<div>
+<div class="players-panel-title">Pronósticos</div>
+<div class="players-panel-subtitle">Predicciones de {nombre}</div>
+</div>
+</div>
+</div>
+""",
             unsafe_allow_html=True
         )
 
@@ -631,8 +768,8 @@ def render_jugadores(
                         f1 = get_flag_img_cached(p_inf["Equipo_1"])
                         f2 = get_flag_img_cached(p_inf["Equipo_2"])
 
-                        i1 = f'<img src="{f1}" width="18">' if "data" in str(f1) else str(f1)
-                        i2 = f'<img src="{f2}" width="18">' if "data" in str(f2) else str(f2)
+                        i1 = flag_html(f1)
+                        i2 = flag_html(f2)
 
                         st.markdown(
                             f"""
