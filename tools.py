@@ -5,6 +5,11 @@ import base64
 from datetime import datetime
 from google.cloud import storage
 import io 
+import time
+from pathlib import Path
+import re
+import re
+
 
 @st.cache_data(ttl=3600)
 def get_flag_img(pais):
@@ -44,35 +49,90 @@ def get_flag_img_cached(team_name):
     # Aquí va tu lógica actual de obtener la imagen (Base64 o URL)
     return get_flag_img(team_name) 
 
-#-------------------------------- CARGAR FOTO STORAGE (GCS) -----------------------------------------------------
+#-------------------------------- CARGAR IMÁGENES STORAGE (GCS) -----------------------------------------------------
 
-#Definicion variable carga de la imagen
-def upload_profile_picture(archivo, file_name):
-    from google.cloud import storage
-    import io
+def upload_image_to_gcs(archivo, file_name, carpeta="perfiles"):
+    """
+    Sube una imagen a Google Cloud Storage y devuelve la URL pública.
+
+    Parámetros:
+    - archivo: archivo subido desde st.file_uploader o bytes
+    - file_name: nombre final del archivo
+    - carpeta: carpeta dentro del bucket. Ej: perfiles, foro
+
+    Retorna:
+    - URL pública si salió bien
+    - texto "Error: ..." si falló
+    """
+
     try:
-        creds_info = st.secrets["connections"]["gsheets"] 
+        creds_info = st.secrets["connections"]["gsheets"]
         client = storage.Client.from_service_account_info(creds_info)
-        
-        bucket_name = "foto-prode2026" 
+
+        bucket_name = "foto-prode2026"
         bucket = client.bucket(bucket_name)
-        blob = bucket.blob(f"perfiles/{file_name}")
-        
+
+        # Limpieza básica de nombres para evitar caracteres raros
+        carpeta_limpia = re.sub(r"[^a-zA-Z0-9/_-]", "_", str(carpeta)).strip("/")
+        file_name_limpio = re.sub(r"[^a-zA-Z0-9._-]", "_", str(file_name))
+
+        blob_path = f"{carpeta_limpia}/{file_name_limpio}"
+        blob = bucket.blob(blob_path)
+
         if isinstance(archivo, bytes):
             objeto_archivo = io.BytesIO(archivo)
         else:
             objeto_archivo = archivo
             objeto_archivo.seek(0)
-        
-        tipo_mimo = getattr(archivo, 'type', 'image/jpeg')
 
-        blob.upload_from_file(objeto_archivo, content_type=tipo_mimo)
-        
-        return f"https://storage.googleapis.com/{bucket_name}/perfiles/{file_name}"
-        
+        tipo_mimo = getattr(archivo, "type", "image/jpeg")
+
+        blob.upload_from_file(
+            objeto_archivo,
+            content_type=tipo_mimo
+        )
+
+        return f"https://storage.googleapis.com/{bucket_name}/{blob_path}"
+
     except Exception as e:
         return f"Error: {e}"
 
+
+def upload_profile_picture(archivo, file_name):
+    """
+    Mantiene compatibilidad con la función existente para fotos de perfil.
+    Guarda en la carpeta perfiles/.
+    """
+
+    return upload_image_to_gcs(
+        archivo=archivo,
+        file_name=file_name,
+        carpeta="perfiles"
+    )
+
+
+def upload_foro_image(archivo, usuario):
+    """
+    Sube una imagen del foro al bucket.
+    Guarda en la carpeta foro/<usuario>/.
+    """
+
+    extension = Path(archivo.name).suffix.lower()
+
+    if extension not in [".jpg", ".jpeg", ".png", ".webp"]:
+        return "Error: Formato no permitido. Usá JPG, PNG o WEBP."
+
+    usuario_limpio = re.sub(r"[^a-zA-Z0-9_-]", "_", str(usuario))
+    timestamp = int(time.time())
+
+    file_name = f"{timestamp}_{usuario_limpio}{extension}"
+
+    return upload_image_to_gcs(
+        archivo=archivo,
+        file_name=file_name,
+        carpeta=f"foro/{usuario_limpio}"
+    )
+    
 # --- FUNCIÓN DE REGISTRO BLINDADA -------------------------------------------------------------------------------------
 def registrar_usuario(conn, nombre, usuario, contraseña, avatar_url, equipo):
     """
