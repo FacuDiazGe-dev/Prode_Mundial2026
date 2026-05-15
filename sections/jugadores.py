@@ -196,15 +196,17 @@ def render_jugadores(
 }
 
 .player-select-btn button:hover {
-    background: rgba(244,197,66,0.22) !important;
-    border-color: rgba(244,197,66,0.65) !important;
+    background: rgba(244,197,66,0.14) !important;
+    border-color: rgba(244,197,66,0.45) !important;
+    color: #07111F !important;
 }
 
 .player-select-btn button:disabled {
-    background: rgba(7,17,31,0.92) !important;
-    color: #F4C542 !important;
-    border: 1px solid rgba(244,197,66,0.30) !important;
+    background: rgba(255,255,255,0.88) !important;
+    color: #64748b !important;
+    border: 1px solid rgba(226,232,240,0.95) !important;
     opacity: 1 !important;
+    box-shadow: 0 6px 14px rgba(15,23,42,0.04) !important;
 }
 
 
