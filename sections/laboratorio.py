@@ -251,33 +251,27 @@ Prueba para reemplazar el selectbox por un selector más visual. Evaluar mobile,
         col1, col2 = st.columns([1, 1], gap="large")
 
         with col1:
-            st.markdown("""
-<div class="lab-card">
+            with st.container(border=True):
+                st.markdown("""
 <div class="lab-card-header">
 <div class="lab-card-icon">👥</div>
 <div>
 <div class="lab-card-title">Jugadores</div>
-<div class="lab-card-subtitle">Selector Ant Design dentro de card</div>
-</div>
-</div>
-<div class="lab-selector-box">
-""", unsafe_allow_html=True)
-
-            elegido = sac.buttons(
-                items=nombres,
-                index=0,
-                direction="vertical",
-                align="start",
-                size="middle",
-                radius="lg",
-                return_index=False,
-                key="lab_selector_vertical"
-            )
-
-            st.markdown("""
+<div class="lab-card-subtitle">Selector Ant Design dentro de contenedor nativo</div>
 </div>
 </div>
 """, unsafe_allow_html=True)
+
+                elegido = sac.buttons(
+                    items=nombres,
+                    index=0,
+                    direction="vertical",
+                    align="start",
+                    size="middle",
+                    radius="lg",
+                    return_index=False,
+                    key="lab_selector_vertical"
+                )
 
         with col2:
             user = df_lab[df_lab["NOMBRE"] == elegido].iloc[0]
@@ -288,9 +282,9 @@ Prueba para reemplazar el selectbox por un selector más visual. Evaluar mobile,
             if pd.notna(avatar) and str(avatar).strip() != "":
                 avatar_html = f'<img src="{avatar}" class="lab-preview-avatar">'
 
-            st.markdown(
-                f"""
-<div class="lab-card">
+            with st.container(border=True):
+                st.markdown(
+                    f"""
 <div class="lab-card-header">
 <div class="lab-card-icon">🧾</div>
 <div>
@@ -313,10 +307,9 @@ Prueba para reemplazar el selectbox por un selector más visual. Evaluar mobile,
 <div class="lab-return-label">Valor devuelto por el componente</div>
 <div class="lab-return-value">{elegido}</div>
 </div>
-</div>
 """,
-                unsafe_allow_html=True
-            )
+                    unsafe_allow_html=True
+                )
     # ============================================================
     # TAB 2 — BOTONES
     # ============================================================
