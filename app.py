@@ -22,6 +22,12 @@ from io import BytesIO
 from sections.inicio import render_inicio
 from sections.mis_pronosticos import render_mis_pronosticos
 from sections.jugadores import render_jugadores
+from sections.laboratorio import render_laboratorio
+
+
+
+
+
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
@@ -221,7 +227,8 @@ with st.sidebar:
         "🏠 Inicio",
         "📝 Mis Pronósticos",
         "👥 Jugadores",
-        "💬 Foro"
+        "💬 Foro",
+        "🧪 Laboratorio"
     ]
 
     if st.session_state["user_data"]["ROL"] == "admin":
@@ -574,4 +581,10 @@ elif menu == "⚙️ Panel Control":
         # Este else ahora sí corresponde al IF inicial de ROL == 'admin'
         st.error("⛔ No tienes permisos para acceder a esta sección.")
 
+
+elif menu == "🧪 Laboratorio":
+    render_laboratorio(
+        df_usuarios=df_usuarios,
+        df_ranking=df_ranking
+    )
 
