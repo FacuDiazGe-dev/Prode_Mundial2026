@@ -987,10 +987,23 @@ def render_jugadores(
         st.session_state.jugador_seleccionado = nombres_usuarios[0] if nombres_usuarios else None
 
     # ============================================================
-    # FILA SUPERIOR — JUGADORES / FICHA
+    # ESTRUCTURA PRINCIPAL
+    # Desktop:
+    # - Izquierda: lista de jugadores
+    # - Derecha: ficha + pronósticos
+    #
+    # Mobile:
+    # - Lista
+    # - Ficha
+    # - Pronósticos
+    # - Insignias
     # ============================================================
 
-    c_lista, c_ficha = st.columns([1.1, 1], gap="large")
+    c_lista, c_detalle = st.columns([1.05, 1.15], gap="large")
+
+    # ============================================================
+    # COLUMNA IZQUIERDA — LISTA DE JUGADORES
+    # ============================================================
 
     with c_lista:
         with st.container(border=True):
@@ -1047,7 +1060,7 @@ def render_jugadores(
                             )
                         else:
                             if st.button(
-                                "🔍︎",
+                                "🔍",
                                 key=f"ver_jugador_{usuario_raw}",
                                 use_container_width=True
                             ):
@@ -1079,8 +1092,11 @@ def render_jugadores(
 
             user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
 
-    with c_ficha:
+    # ============================================================
+    # COLUMNA DERECHA — PERFIL + PRONÓSTICOS DEL JUGADOR
+    # ============================================================
 
+    with c_detalle:
         if user_sel is None:
             st.warning("Seleccioná un jugador para ver su perfil.")
             return
@@ -1104,6 +1120,10 @@ def render_jugadores(
             posicion = int(idx_real)
         except Exception:
             posicion = "-"
+
+        # ------------------------------------------------------------
+        # FICHA DEL JUGADOR
+        # ------------------------------------------------------------
 
         st.markdown(
             f"""
@@ -1156,11 +1176,74 @@ def render_jugadores(
             unsafe_allow_html=True
         )
 
+        # ------------------------------------------------------------
+        # PRONÓSTICOS DEL JUGADOR
+        # ------------------------------------------------------------
+
+        pro_user_sel = df_pro[df_pro["USUARIO"] == user_sel["USUARIO"]]
+
+        if pro_user_sel.empty:
+            rows_html = """
+<div class="player-bio">
+Sin pronósticos cargados todavía.
+</div>
+"""
+        else:
+            rows = []
+
+            for _, p in pro_user_sel.sort_values("N_PARTIDO").iterrows():
+                p_match = df_res[df_res["N_PARTIDO"] == p["N_PARTIDO"]]
+
+                if not p_match.empty:
+                    p_inf = p_match.iloc[0]
+
+                    f1 = get_flag_img_cached(p_inf["Equipo_1"])
+                    f2 = get_flag_img_cached(p_inf["Equipo_2"])
+
+                    i1 = flag_html(f1)
+                    i2 = flag_html(f2)
+
+                    rows.append(
+                        f"""
+<div class="player-pred-row">
+<div class="player-pred-num">{int(p["N_PARTIDO"])}</div>
+<div class="player-pred-team-left">{escape(str(p_inf["Equipo_1"]))} {i1}</div>
+<div class="player-pred-score">{int(p["P1"])} - {int(p["P2"])}</div>
+<div class="player-pred-team-right">{i2} {escape(str(p_inf["Equipo_2"]))}</div>
+</div>
+"""
+                    )
+
+            rows_html = "\n".join(rows)
+
+        st.markdown(
+            f"""
+<div class="player-preds-panel">
+
+<div class="players-panel-header">
+<div class="players-panel-icon">🗳️</div>
+<div>
+<div class="players-panel-title">Pronósticos</div>
+<div class="players-panel-subtitle">Predicciones de {nombre}</div>
+</div>
+</div>
+
+<div class="player-preds-scroll">
+{rows_html}
+</div>
+
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
     # ============================================================
-    # FILA INFERIOR — MURO DE INSIGNIAS / PRONÓSTICOS
+    # BLOQUE INFERIOR — MURO DE INSIGNIAS
+    # En desktop queda debajo de la lista, a la izquierda.
+    # En mobile queda después de perfil y pronósticos.
     # ============================================================
 
-    c_badges, c_preds = st.columns([1.1, 1], gap="large")
+    c_badges, c_empty = st.columns([1.05, 1.15], gap="large")
 
     with c_badges:
         logros = calcular_logros_globales()
@@ -1198,6 +1281,8 @@ def render_jugadores(
             unsafe_allow_html=True
         )
 
+    with c_empty:
+        st.empty()
     with c_preds:
         pro_user_sel = df_pro[df_pro["USUARIO"] == user_sel["USUARIO"]]
 
