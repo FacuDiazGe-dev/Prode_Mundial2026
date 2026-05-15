@@ -575,10 +575,12 @@ def render_jugadores(
 
     with c_lista:
         st.markdown("""
+<div class="players-panel">
 <div class="players-panel-icon">👥</div>
 <div>
 <div class="players-panel-title">Jugadores</div>
 <div class="players-panel-subtitle">Seleccioná a quién querés espiar</div>
+</div>
 </div>
 </div>
 """, unsafe_allow_html=True)
