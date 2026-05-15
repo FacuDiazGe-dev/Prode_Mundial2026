@@ -50,7 +50,6 @@ def render_jugadores(
    Usados en ficha, muro de insignias y pronósticos.
    ============================================================ */
 
-}
 .players-panel,
 .player-profile-panel,
 .badges-wall-panel,
@@ -62,6 +61,15 @@ def render_jugadores(
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
 }
 
+/* Contenedores nativos de Streamlit con borde.
+   Usado especialmente para el bloque Jugadores + listado. */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: rgba(255,255,255,0.94) !important;
+    border: 1px solid rgba(226,232,240,0.9) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06) !important;
+}
+
 .players-panel-header {
     display: flex;
     align-items: center;
@@ -70,14 +78,6 @@ def render_jugadores(
     margin-bottom: 12px;
     border-bottom: 1px solid rgba(226,232,240,0.75);
 }
-
-/* Contenedores nativos de Streamlit con borde.
-   Usado especialmente para el bloque Jugadores + listado. */
-div[data-testid="stVerticalBlockBorderWrapper"] {
-    background: rgba(255,255,255,0.94) !important;
-    border: 1px solid rgba(226,232,240,0.9) !important;
-    border-radius: 18px !important;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06) !important;
 
 .players-panel-icon {
     width: 32px;
@@ -105,7 +105,6 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     font-weight: 700;
     margin-top: 2px;
 }
-
 
 /* ============================================================
    3. LISTADO SELECTOR DE JUGADORES
