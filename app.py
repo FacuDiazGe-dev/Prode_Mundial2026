@@ -21,6 +21,7 @@ from io import BytesIO
 #import streamlit.components.v1 as components
 from sections.inicio import render_inicio
 from sections.mis_pronosticos import render_mis_pronosticos
+from sections.jugadores import render_jugadores
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
@@ -268,123 +269,13 @@ elif menu == "📝 Mis Pronósticos":
 
 # ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Jugadores":
-    # --- COLUMNA CENTRAL ---
-    with col_principal:
-        st.subheader("👥 Lista de Jugadores")
-        
-        # 1. Creamos el selector de nombres
-        nombres_usuarios = df_usuarios['NOMBRE'].tolist()
-        nombre_elegido = st.selectbox("Selecciona un jugador para ver su perfil:", nombres_usuarios)
-        
-        # 2. Definimos user_sel buscando en el dataframe de usuarios
-        user_sel_query = df_usuarios[df_usuarios['NOMBRE'] == nombre_elegido]
-        
-        if not user_sel_query.empty:
-            user_sel = user_sel_query.iloc[0] # Aquí es donde se define para que lo vea la col_derecha
-        else:
-            user_sel = None
-
-        st.markdown("---")
-        st.write("### Lista de Participantes")
-        # Tarjetas simples de referencia
-        for _, u in df_usuarios.iterrows():
-            foto_mini = u['AVATAR_URL'] if pd.notna(u['AVATAR_URL']) and u['AVATAR_URL'] != "" else AVATAR_GENERICO
-            st.markdown(f"""
-                <div style="background: rgba(255,255,255,0.8); padding: 8px; border-radius: 10px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; border: 1px solid #ddd;">
-                    <img src="{foto_mini}" width="35" height="35" style="border-radius: 50%; object-fit: cover;">
-                    <span style="color:#333;"><b>{u['NOMBRE']}</b> — <small>{u['EQUIPO FAVORITO']}</small></span>
-                </div>
-            """, unsafe_allow_html=True)
-            
-    with col_derecha:
-        st.subheader("👤 Perfil Seleccionado")
-        
-        if user_sel is not None:
-            # Buscamos su rendimiento en el ranking
-            match_rank = df_ranking[df_ranking['JUGADOR'].str.contains(user_sel['NOMBRE'], na=False)]
-            
-            if not match_rank.empty:
-                datos_vivos = match_rank.iloc[0]
-                idx_real = match_rank.index[0]
-                
-                # --- LÓGICA DE INSIGNIAS ---
-                css = {k: "filter: grayscale(100%); opacity: 0.15;" for k in ["puntero", "master", "mentalista", "lento", "onfire", "fundador"]}
-                
-                if "👑" in str(datos_vivos['Nº']): css["puntero"] = ""
-                if int(datos_vivos['EXACTOS']) >= 5: css["master"] = ""
-                if int(datos_vivos['GENERALES']) == df_ranking['GENERALES'].max() and df_ranking['GENERALES'].max() > 0:
-                    css["mentalista"] = ""
-                if len(df_ranking) > 2 and idx_real == (len(df_ranking) - 1): css["lento"] = ""
-                if int(user_sel['ID']) <= 3: css["fundador"] = ""
-
-                # Racha (On Fire)
-                u_pro_sorted = df_pro[df_pro['USUARIO'] == user_sel['USUARIO']].sort_values('N_PARTIDO')
-                r_act, r_max = 0, 0
-                for _, p in u_pro_sorted.iterrows():
-                    p_ref = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                    if not p_ref.empty and pd.notna(p_ref.iloc[0]['R1']):
-                        pts, exa, gen = calcular_detalle(p_ref.iloc[0]['R1'], p_ref.iloc[0]['R2'], p['P1'], p['P2'])
-                        if exa == 1:
-                            r_act += 1
-                            r_max = max(r_max, r_act)
-                        else: r_act = 0
-                if r_max >= 3: css["onfire"] = ""
-                
-                # --- RENDERIZADO DE PERFIL ---
-                foto_perfil = user_sel['AVATAR_URL'] if pd.notna(user_sel['AVATAR_URL']) and user_sel['AVATAR_URL'] != "" else "https://via.placeholder.com/100"
-                
-# --- RENDERIZADO DE PERFIL ---
-                html_perfil = f"""<div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; color: #333;">
-<img src="{foto_perfil}" style="border-radius: 50%; width: 100px; height: 100px; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
-<h4 style="margin:0;">{user_sel['NOMBRE']}</h4>
-<div style="color: #007bff; font-weight: bold; margin-bottom: 15px;">{user_sel['EQUIPO FAVORITO']}</div>
-<div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; background: #f8f9fa; padding: 10px; border-radius: 10px;">
-    <span title="Puntero" style="font-size: 1.5em; {css['puntero']}">🏆</span>
-    <span title="Master Exactos" style="font-size: 1.5em; {css['master']}">🎯</span>
-    <span title="Mentalista" style="font-size: 1.5em; {css['mentalista']}">🧙‍♂️</span>
-    <span title="Fundador" style="font-size: 1.5em; {css['fundador']}">🏅</span>
-    <span title="On Fire" style="font-size: 1.5em; {css['onfire']}">🔥</span>
-    <span title="El más lento" style="font-size: 1.5em; {css['lento']}">🐌</span>
-</div>
-<div style="margin-top: 15px; text-align: left; font-size: 0.85em; line-height: 1.3;">
-    <b style="color:#333;">Bio:</b> <i style="color:#555;">"{user_sel['DESCRIPCION']}"</i>
-</div>
-</div>"""
-                st.markdown(html_perfil, unsafe_allow_html=True)
-
-            else:
-                st.warning("El jugador no tiene puntos suficientes para mostrar rendimiento.")
-
-            # --- PREDICCIONES DEL USUARIO ---
-            st.markdown("---")
-            st.write(f"🗳️ **Pronosticos de {user_sel['NOMBRE']}:**")
-            pro_user_sel = df_pro[df_pro['USUARIO'] == user_sel['USUARIO']]
-            
-            if pro_user_sel.empty:
-                st.warning("Sin pronósticos.")
-            else:
-                with st.container(height=400):
-                    for _, p in pro_user_sel.sort_values('N_PARTIDO').iterrows():
-                        p_match = df_res[df_res['N_PARTIDO'] == p['N_PARTIDO']]
-                        if not p_match.empty:
-                            p_inf = p_match.iloc[0]
-                            f1, f2 = get_flag_img_cached(p_inf['Equipo_1']), get_flag_img_cached(p_inf['Equipo_2'])
-                            i1 = f'<img src="{f1}" width="18">' if "data" in f1 else f1
-                            i2 = f'<img src="{f2}" width="18">' if "data" in f2 else f2
-                            
-                            st.markdown(f"""
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.8em;">
-                                <div style="width: 10%; color: #999; font-weight: bold;">{int(p['N_PARTIDO'])}</div>
-                                <div style="width: 35%; text-align: right;">{p_inf['Equipo_1']} {i1}</div>
-                                <div style="width: 20%; text-align: center; background: #1f3b4d; color: white; border-radius: 4px; font-weight: bold; margin: 0 5px;">
-                                    {int(p['P1'])} - {int(p['P2'])}
-                                </div>
-                                <div style="width: 35%; text-align: left;">{i2} {p_inf['Equipo_2']}</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-
-
-        
+    render_jugadores(
+        df_usuarios=df_usuarios,
+        df_ranking=df_ranking,
+        df_pro=df_pro,
+        df_res=df_res
+    )
+       
 # ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
 
 elif menu == "💬 Foro":
