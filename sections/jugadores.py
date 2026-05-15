@@ -23,6 +23,14 @@ def render_jugadores(
     margin-bottom: 22px;
 }
 
+.players-panel-header.standalone {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
 .players-title h1 {
     font-family: 'Montserrat', sans-serif;
     font-size: 34px;
@@ -567,13 +575,11 @@ def render_jugadores(
 
     with c_lista:
         st.markdown("""
-<div class="players-panel">
-<div class="players-panel-header">
+div class="players-panel">
 <div class="players-panel-icon">👥</div>
 <div>
 <div class="players-panel-title">Jugadores</div>
 <div class="players-panel-subtitle">Seleccioná a quién querés espiar</div>
-</div>
 </div>
 </div>
 """, unsafe_allow_html=True)
