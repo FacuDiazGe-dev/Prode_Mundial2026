@@ -1001,12 +1001,52 @@ def render_jugadores(
     nombres_usuarios = df_usuarios["NOMBRE"].fillna("Jugador").tolist()
 
     if "jugador_seleccionado" not in st.session_state:
-        st.session_state.jugador_seleccionado = nombres_usuarios[0] if nombres_usuarios else None
+        st.session_state.jugador_seleccionado = (
+            nombres_usuarios[0] if nombres_usuarios else None
+        )
+
+    # ============================================================
+    # HTML REUTILIZABLE — MURO DE INSIGNIAS
+    # Se renderiza en desktop dentro de la columna izquierda
+    # y en mobile después de ficha + pronósticos.
+    # ============================================================
+
+    logros = calcular_logros_globales()
+
+    badges_html = ""
+
+    for logro in logros:
+        badges_html += f"""
+<div class="badge-card">
+<div class="badge-icon">{logro["icon"]}</div>
+<div class="badge-title">{escape(str(logro["title"]))}</div>
+<div class="badge-winner">{escape(str(logro["winner"]))}</div>
+<div class="badge-detail">{escape(str(logro["detail"]))}</div>
+</div>
+"""
+
+    badges_panel_html = f"""
+<div class="badges-wall-panel">
+
+<div class="players-panel-header">
+<div class="players-panel-icon">🏅</div>
+<div>
+<div class="players-panel-title">Muro de Insignias</div>
+<div class="players-panel-subtitle">Logros alternativos del Prode</div>
+</div>
+</div>
+
+<div class="badges-grid">
+{badges_html}
+</div>
+
+</div>
+"""
 
     # ============================================================
     # ESTRUCTURA PRINCIPAL
     # Desktop:
-    # - Izquierda: lista de jugadores
+    # - Izquierda: lista de jugadores + muro de insignias
     # - Derecha: ficha + pronósticos
     #
     # Mobile:
@@ -1019,7 +1059,7 @@ def render_jugadores(
     c_lista, c_detalle = st.columns([1.05, 1.15], gap="large")
 
     # ============================================================
-    # COLUMNA IZQUIERDA — LISTA DE JUGADORES
+    # COLUMNA IZQUIERDA — LISTA DE JUGADORES + MURO DESKTOP
     # ============================================================
 
     with c_lista:
@@ -1035,19 +1075,16 @@ def render_jugadores(
 </div>
 """, unsafe_allow_html=True)
 
-            nombres_usuarios = df_usuarios["NOMBRE"].fillna("Jugador").tolist()
-
-            if "jugador_seleccionado" not in st.session_state:
-                st.session_state.jugador_seleccionado = (
-                    nombres_usuarios[0] if nombres_usuarios else None
-                )
-
             with st.container(height=430):
                 for _, u in df_usuarios.iterrows():
                     foto_mini = get_avatar(u)
 
                     rank_row, idx_rank = get_ranking_row(u)
-                    pts = safe_int(rank_row.get("PUNTOS", 0)) if rank_row is not None else 0
+                    pts = (
+                        safe_int(rank_row.get("PUNTOS", 0))
+                        if rank_row is not None
+                        else 0
+                    )
 
                     nombre_raw = str(u.get("NOMBRE", "Jugador"))
                     usuario_raw = str(u.get("USUARIO", nombre_raw))
@@ -1107,7 +1144,22 @@ def render_jugadores(
                 df_usuarios["NOMBRE"] == st.session_state.jugador_seleccionado
             ]
 
-            user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
+            user_sel = (
+                user_sel_query.iloc[0]
+                if not user_sel_query.empty
+                else None
+            )
+
+        # Muro visible solo en desktop.
+        # Va fuera del container de lista, pero dentro de la columna izquierda.
+        st.markdown(
+            f"""
+<div class="badges-desktop">
+{badges_panel_html}
+</div>
+""",
+            unsafe_allow_html=True
+        )
 
     # ============================================================
     # COLUMNA DERECHA — PERFIL + PRONÓSTICOS DEL JUGADOR
@@ -1129,9 +1181,23 @@ def render_jugadores(
         if bio.strip() == "" or bio.strip().lower() == "nan":
             bio = "Sin bio cargada todavía."
 
-        pts = safe_int(datos_vivos.get("PUNTOS", 0)) if datos_vivos is not None else 0
-        exactos = safe_int(datos_vivos.get("EXACTOS", 0)) if datos_vivos is not None else 0
-        generales = safe_int(datos_vivos.get("GENERALES", 0)) if datos_vivos is not None else 0
+        pts = (
+            safe_int(datos_vivos.get("PUNTOS", 0))
+            if datos_vivos is not None
+            else 0
+        )
+
+        exactos = (
+            safe_int(datos_vivos.get("EXACTOS", 0))
+            if datos_vivos is not None
+            else 0
+        )
+
+        generales = (
+            safe_int(datos_vivos.get("GENERALES", 0))
+            if datos_vivos is not None
+            else 0
+        )
 
         try:
             posicion = int(idx_real)
@@ -1188,6 +1254,7 @@ def render_jugadores(
 <div class="player-bio">
 <strong>Bio:</strong> {bio}
 </div>
+
 </div>
 """,
             unsafe_allow_html=True
@@ -1255,48 +1322,15 @@ Sin pronósticos cargados todavía.
         )
 
     # ============================================================
-    # BLOQUE INFERIOR — MURO DE INSIGNIAS
-    # En desktop queda debajo de la lista, a la izquierda.
-    # En mobile queda después de perfil y pronósticos.
+    # MURO MOBILE
+    # Visible solo en mobile, después de perfil + pronósticos.
     # ============================================================
 
-    c_badges, c_empty = st.columns([1.05, 1.15], gap="large")
-
-    with c_badges:
-        logros = calcular_logros_globales()
-
-        badges_html = ""
-
-        for logro in logros:
-            badges_html += f"""
-<div class="badge-card">
-<div class="badge-icon">{logro["icon"]}</div>
-<div class="badge-title">{escape(str(logro["title"]))}</div>
-<div class="badge-winner">{escape(str(logro["winner"]))}</div>
-<div class="badge-detail">{escape(str(logro["detail"]))}</div>
-</div>
-"""
-
-        st.markdown(
-            f"""
-<div class="badges-wall-panel">
-
-<div class="players-panel-header">
-<div class="players-panel-icon">🏅</div>
-<div>
-<div class="players-panel-title">Muro de Insignias</div>
-<div class="players-panel-subtitle">Logros alternativos del Prode</div>
-</div>
-</div>
-
-<div class="badges-grid">
-{badges_html}
-</div>
-
+    st.markdown(
+        f"""
+<div class="badges-mobile">
+{badges_panel_html}
 </div>
 """,
-            unsafe_allow_html=True
-        )
-
-    with c_empty:
-        st.empty()
+        unsafe_allow_html=True
+    )
