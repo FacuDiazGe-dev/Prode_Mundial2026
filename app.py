@@ -23,6 +23,7 @@ from sections.inicio import render_inicio
 from sections.mis_pronosticos import render_mis_pronosticos
 from sections.jugadores import render_jugadores
 from sections.laboratorio import render_laboratorio
+from sections.foro import render_foro
 
 
 
@@ -286,116 +287,13 @@ elif menu == "👥 Jugadores":
 # ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
 
 elif menu == "💬 Foro":
-    df_foro = conn.read(worksheet="FORO", ttl=0)
-    df_u_ref = df_usuarios 
-    user_actual = st.session_state['user_data']['USUARIO']
+    render_foro(
+        conn=conn,
+        df_usuarios=df_usuarios
+    )
 
-    col_principal, col_derecha = st.columns([1.7, 0.9], gap="large")
-    
-    with col_principal:
-        st.subheader("💬 Muro de la Comunidad")
-        
-        # Formulario de publicación (Mismo que ya tienes)
-        with st.expander("✍️ Escribir algo en el muro"):
-            with st.form("nuevo_post_full", clear_on_submit=True):
-                texto = st.text_area("¿Qué tienes en mente?", max_chars=250)
-                if st.form_submit_button("🚀 Publicar", use_container_width=True):
-                    if texto.strip():
-                        nuevo_msg = {"FECHA": (datetime.now() - timedelta(hours=3)).strftime("%d/%m %H:%M"),
-                                     "USUARIO": user_actual, "NOMBRE": st.session_state['user_data']['NOMBRE'],
-                                     "MENSAJE": texto.strip(), "PARTIDO_ID": 0, "LIKES": 0, "DISLIKES": 0}
-                        df_update = pd.concat([df_foro, pd.DataFrame([nuevo_msg])], ignore_index=True)
-                        conn.update(worksheet="FORO", data=df_update)
-                        st.cache_data.clear()
-                        st.rerun()
+# ---------- PANEL DE CONTROL------------------------
 
-        st.markdown("---")
-
-        for idx, m in df_foro.iloc[::-1].iterrows():
-            u_match = df_u_ref[df_u_ref['USUARIO'] == m['USUARIO']]
-            foto_msg = u_match.iloc[0]['AVATAR_URL'] if not u_match.empty and pd.notna(u_match.iloc[0]['AVATAR_URL']) else AVATAR_GENERICO
-            es_mio = m['USUARIO'] == user_actual
-            aln = "flex-end" if es_mio else "flex-start"
-            bg = "#dcf8c6" if es_mio else "#ffffff"
-            
-            # BURBUJA DE MENSAJE
-            st.markdown(f"""
-                <div style="display: flex; flex-direction: column; align-items: {aln}; margin-bottom: 2px; width: 100%;">
-                    <div style="display: flex; align-items: flex-end; gap: 10px; flex-direction: {'row-reverse' if es_mio else 'row'};">
-                        <img src="{foto_msg}" style="border-radius: 50%; width: 40px; height: 40px; object-fit: cover; border: 2px solid #007bff;">
-                        <div style="max-width: 80%; background-color: {bg}; padding: 12px 16px; border-radius: 18px; border: 1px solid #ddd; position: relative;">
-                            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 15px; margin-bottom: 4px;">
-                                <span style="font-size: 0.85em; color: #007bff; font-weight: bold;">{m['NOMBRE']}</span>
-                                <span style="font-size: 0.7em; color: #999;">{m['FECHA']}</span>
-                            </div>
-                            <div style="font-size: 1.05em; color: #333;">{m['MENSAJE']}</div>
-                        </div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # --- FILA DE REACCIONES (CON BLOQUEO DE AUTO-REACCIÓN) ---
-            l_count = int(m['LIKES']) if pd.notna(m.get('LIKES')) else 0
-            d_count = int(m['DISLIKES']) if pd.notna(m.get('DISLIKES')) else 0
-
-            # Definimos la distribución de columnas
-            distribucion = [0.10, 0.90] if not es_mio else [0.55, 0.45]
-            col_espacio, col_botones = st.columns(distribucion)
-
-            with col_botones:
-                # Si el mensaje es de OTRO, mostramos Likes, Dislikes y (si es admin) Borrar
-                if not es_mio:
-                    r1, r2, r3, _ = st.columns([0.1, 0.1, 0.1, 0.7], gap="small")
-                    
-                    with r1:
-                        if st.button(f"👍{l_count}", key=f"lk_{idx}"):
-                            df_foro.at[idx, 'LIKES'] = l_count + 1
-                            conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
-                    with r2:
-                        if st.button(f"👎{d_count}", key=f"ds_{idx}"):
-                            df_foro.at[idx, 'DISLIKES'] = d_count + 1
-                            conn.update(worksheet="FORO", data=df_foro); st.cache_data.clear(); st.rerun()
-                    with r3:
-                        # Un Admin puede borrar mensajes de otros
-                        if st.session_state['user_data']['ROL'] == 'admin':
-                            if st.button("🗑️", key=f"del_{idx}"):
-                                df_f = df_foro.drop(idx)
-                                conn.update(worksheet="FORO", data=df_f); st.cache_data.clear(); st.rerun()
-                
-                # Si el mensaje es MÍO, solo mostramos el botón de borrar
-                else:
-                    # Empujamos el botón de borrar hacia la derecha de la burbuja
-                    _, r_del = st.columns([0.85, 0.15])
-                    with r_del:
-                        if st.button("🗑️", key=f"del_{idx}", help="Eliminar mi mensaje"):
-                            df_f = df_foro.drop(idx)
-                            conn.update(worksheet="FORO", data=df_f); st.cache_data.clear(); st.rerun()
-
-    # 3. COLUMNA DERECHA DIVIDIDA
-    with col_derecha:
-        st.subheader("📢 Comunidad")
-        
-        # Subdivisión 15% y 15%
-        col_com_izq, col_com_der = st.columns(2)
-        
-        with col_com_izq:
-            st.write("**Top Agitadores**")
-            top_com = df_foro['NOMBRE'].value_counts().head(3)
-            for nombre, cant in top_com.items():
-                st.write(f"💬 {nombre} ({cant})")
-
-        with col_com_der:
-            st.write("**Popularidad**")
-            top_likes = df_foro.groupby('NOMBRE')['LIKES'].sum().sort_values(ascending=False).head(1)
-            for n, t in top_likes.items():
-                st.write(f"🌟 {n}" if t > 0 else "Sin likes")
-            
-            top_dis = df_foro.groupby('NOMBRE')['DISLIKES'].sum().sort_values(ascending=False).head(1)
-            for n, t in top_dis.items():
-                st.write(f"🍋 {n}" if t > 0 else "Sin polémicas")
-        
-        st.markdown("---")
-        
         
 elif menu == "⚙️ Panel Control":
     # --- VALIDACIÓN DE SEGURIDAD ---
