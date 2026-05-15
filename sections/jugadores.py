@@ -812,15 +812,6 @@ def render_jugadores(
             user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
 
     with c_ficha:
-        st.markdown("""
-<div class="players-panel-header standalone">
-<div class="players-panel-icon">👤</div>
-<div>
-<div class="players-panel-title">Ficha del jugador</div>
-<div class="players-panel-subtitle">Resumen del seleccionado</div>
-</div>
-</div>
-""", unsafe_allow_html=True)
 
         if user_sel is None:
             st.warning("Seleccioná un jugador para ver su perfil.")
@@ -849,6 +840,15 @@ def render_jugadores(
         st.markdown(
             f"""
 <div class="player-profile-panel">
+
+<div class="players-panel-header">
+<div class="players-panel-icon">👤</div>
+<div>
+<div class="players-panel-title">Ficha del jugador</div>
+<div class="players-panel-subtitle">Resumen del seleccionado</div>
+</div>
+</div>
+
 <div class="player-hero">
 <img src="{foto_perfil}" class="player-avatar">
 <div class="player-name">{nombre}</div>
