@@ -356,57 +356,104 @@ def render_jugadores(
 
 .badges-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
 }
 
 .badge-card {
-    background: rgba(248,250,252,0.86);
+    background: rgba(248,250,252,0.88);
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 14px;
-    padding: 11px;
-    min-height: 86px;
+    padding: 10px 7px;
+    min-height: 104px;
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    transition: all 0.16s ease;
 }
 
-.badge-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 7px;
+.badge-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(244,197,66,0.55);
+    box-shadow: 0 8px 18px rgba(244,197,66,0.10);
 }
 
 .badge-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
     background: rgba(244,197,66,0.16);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
+    font-size: 19px;
+    margin-bottom: 7px;
 }
 
 .badge-title {
     color: #0f172a;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 900;
     line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 5px;
 }
 
 .badge-winner {
     color: #07111F;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 900;
+    line-height: 1.1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .badge-detail {
     color: #64748b;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
-    margin-top: 2px;
+    margin-top: 3px;
+    line-height: 1.15;
 }
 
+@media (max-width: 768px) {
+    .badges-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .badge-card {
+        min-height: 92px;
+        padding: 8px 5px;
+    }
+
+    .badge-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 17px;
+        margin-bottom: 5px;
+    }
+
+    .badge-title {
+        font-size: 8px;
+    }
+
+    .badge-winner {
+        font-size: 10px;
+    }
+
+    .badge-detail {
+        font-size: 8px;
+    }
+}
 
 /* ============================================================
    9. PRONÓSTICOS DEL JUGADOR
@@ -637,86 +684,279 @@ def render_jugadores(
         if df_ranking.empty:
             return logros
 
-        top_row = df_ranking.iloc[0]
-        top_name = get_nombre_desde_ranking(top_row)
-        top_pts = safe_int(top_row.get("PUNTOS", 0))
+        # ------------------------------------------------------------
+        # Helpers internos
+        # ------------------------------------------------------------
 
+        def nombre_usuario_por_usuario(usuario):
+            match = df_usuarios[df_usuarios["USUARIO"].astype(str) == str(usuario)]
+            if not match.empty:
+                return str(match.iloc[0].get("NOMBRE", usuario))
+            return str(usuario)
+
+        def nombre_desde_rank(row):
+            if row is None:
+                return "-"
+
+            if "JUGADOR" in row:
+                return str(row.get("JUGADOR", "-"))
+
+            if "USUARIO" in row:
+                return nombre_usuario_por_usuario(row.get("USUARIO", "-"))
+
+            return "-"
+
+        def get_bio_len(row):
+            bio = str(row.get("DESCRIPCION", "")).strip()
+
+            if bio.lower() == "nan":
+                bio = ""
+
+            return len(bio)
+
+        # ------------------------------------------------------------
+        # 1. PUNTERO
+        # ------------------------------------------------------------
+
+        top_row = df_ranking.iloc[0]
         logros.append({
             "icon": "🏆",
-            "title": "Puntero actual",
-            "winner": top_name,
-            "detail": f"{top_pts} puntos"
+            "title": "Puntero",
+            "winner": nombre_desde_rank(top_row),
+            "detail": f'{safe_int(top_row.get("PUNTOS", 0))} pts'
         })
+
+        # ------------------------------------------------------------
+        # 2. FRANCOTIRADOR — más exactos
+        # ------------------------------------------------------------
 
         if "EXACTOS" in df_ranking.columns:
-            idx_exactos = df_ranking["EXACTOS"].astype(int).idxmax()
+            exactos_num = pd.to_numeric(df_ranking["EXACTOS"], errors="coerce").fillna(0)
+            idx_exactos = exactos_num.idxmax()
             row_exactos = df_ranking.loc[idx_exactos]
+
             logros.append({
                 "icon": "🎯",
-                "title": "Más exactos",
-                "winner": get_nombre_desde_ranking(row_exactos),
+                "title": "Francotirador",
+                "winner": nombre_desde_rank(row_exactos),
                 "detail": f'{safe_int(row_exactos.get("EXACTOS", 0))} exactos'
             })
-
-        if "GENERALES" in df_ranking.columns:
-            idx_generales = df_ranking["GENERALES"].astype(int).idxmax()
-            row_generales = df_ranking.loc[idx_generales]
+        else:
             logros.append({
-                "icon": "✅",
-                "title": "Más generales",
-                "winner": get_nombre_desde_ranking(row_generales),
-                "detail": f'{safe_int(row_generales.get("GENERALES", 0))} generales'
+                "icon": "🎯",
+                "title": "Francotirador",
+                "winner": "-",
+                "detail": "Sin datos"
             })
 
-        mejor_racha = 0
-        mejor_racha_nombre = "-"
+        # ------------------------------------------------------------
+        # 3. REGULARIDAD PURA — más generales
+        # ------------------------------------------------------------
+
+        if "GENERALES" in df_ranking.columns:
+            generales_num = pd.to_numeric(df_ranking["GENERALES"], errors="coerce").fillna(0)
+            idx_generales = generales_num.idxmax()
+            row_generales = df_ranking.loc[idx_generales]
+
+            logros.append({
+                "icon": "✅",
+                "title": "Regularidad",
+                "winner": nombre_desde_rank(row_generales),
+                "detail": f'{safe_int(row_generales.get("GENERALES", 0))} generales'
+            })
+        else:
+            logros.append({
+                "icon": "✅",
+                "title": "Regularidad",
+                "winner": "-",
+                "detail": "Sin datos"
+            })
+
+        # ------------------------------------------------------------
+        # DATOS DE PRONÓSTICOS POR USUARIO
+        # ------------------------------------------------------------
+
+        stats_pronosticos = []
 
         for _, u in df_usuarios.iterrows():
-            racha = calcular_racha_exactos(u)
-            if racha > mejor_racha:
-                mejor_racha = racha
-                mejor_racha_nombre = str(u.get("NOMBRE", "-"))
+            usuario = str(u.get("USUARIO", ""))
+            nombre = str(u.get("NOMBRE", usuario))
 
-        logros.append({
-            "icon": "🔥",
-            "title": "Mejor racha",
-            "winner": mejor_racha_nombre,
-            "detail": f"{mejor_racha} exactos seguidos"
-        })
+            pro_user = df_pro[df_pro["USUARIO"].astype(str) == usuario]
 
-        try:
-            fundadores = df_usuarios[df_usuarios["ID"].astype(int) <= 3]
-            nombres_fundadores = ", ".join(
-                fundadores["NOMBRE"].astype(str).head(3).tolist()
+            if pro_user.empty:
+                continue
+
+            p1 = pd.to_numeric(pro_user["P1"], errors="coerce").fillna(0)
+            p2 = pd.to_numeric(pro_user["P2"], errors="coerce").fillna(0)
+
+            total_partidos = len(pro_user)
+            goles_totales = int((p1 + p2).sum())
+            promedio_goles = goles_totales / total_partidos if total_partidos > 0 else 0
+            empates = int((p1 == p2).sum())
+
+            stats_pronosticos.append({
+                "usuario": usuario,
+                "nombre": nombre,
+                "total_partidos": total_partidos,
+                "goles_totales": goles_totales,
+                "promedio_goles": promedio_goles,
+                "empates": empates
+            })
+
+        # ------------------------------------------------------------
+        # 4. OPTIMISTA DEL GOL — mayor promedio de goles
+        # ------------------------------------------------------------
+
+        if stats_pronosticos:
+            optimista = max(
+                stats_pronosticos,
+                key=lambda x: x["promedio_goles"]
             )
-        except Exception:
-            nombres_fundadores = "-"
 
-        logros.append({
-            "icon": "🏅",
-            "title": "Fundadores",
-            "winner": nombres_fundadores,
-            "detail": "Primeros en sumarse"
-        })
-
-        if len(df_ranking) > 1:
-            ultimo_row = df_ranking.iloc[-1]
             logros.append({
-                "icon": "🐌",
-                "title": "Último de la tabla",
-                "winner": get_nombre_desde_ranking(ultimo_row),
-                "detail": "Todavía hay esperanza"
+                "icon": "⚽",
+                "title": "Optimista",
+                "winner": optimista["nombre"],
+                "detail": f'{round(optimista["promedio_goles"], 1)} goles/prom.'
+            })
+        else:
+            logros.append({
+                "icon": "⚽",
+                "title": "Optimista",
+                "winner": "-",
+                "detail": "Sin datos"
+            })
+
+        # ------------------------------------------------------------
+        # 5. BILARDISTA — menor promedio de goles
+        # ------------------------------------------------------------
+
+        if stats_pronosticos:
+            bilardista = min(
+                stats_pronosticos,
+                key=lambda x: x["promedio_goles"]
+            )
+
+            logros.append({
+                "icon": "🧱",
+                "title": "Bilardista",
+                "winner": bilardista["nombre"],
+                "detail": f'{round(bilardista["promedio_goles"], 1)} goles/prom.'
+            })
+        else:
+            logros.append({
+                "icon": "🧱",
+                "title": "Bilardista",
+                "winner": "-",
+                "detail": "Sin datos"
+            })
+
+        # ------------------------------------------------------------
+        # 6. REY DEL EMPATE — más empates pronosticados
+        # ------------------------------------------------------------
+
+        if stats_pronosticos:
+            rey_empate = max(
+                stats_pronosticos,
+                key=lambda x: x["empates"]
+            )
+
+            logros.append({
+                "icon": "🤝",
+                "title": "Rey empate",
+                "winner": rey_empate["nombre"],
+                "detail": f'{rey_empate["empates"]} empates'
+            })
+        else:
+            logros.append({
+                "icon": "🤝",
+                "title": "Rey empate",
+                "winner": "-",
+                "detail": "Sin datos"
+            })
+
+        # ------------------------------------------------------------
+        # 7. EL POETA — bio más larga
+        # ------------------------------------------------------------
+
+        df_bios = df_usuarios.copy()
+        df_bios["BIO_LEN"] = df_bios.apply(get_bio_len, axis=1)
+
+        if not df_bios.empty and df_bios["BIO_LEN"].max() > 0:
+            poeta_row = df_bios.loc[df_bios["BIO_LEN"].idxmax()]
+
+            logros.append({
+                "icon": "📝",
+                "title": "El poeta",
+                "winner": str(poeta_row.get("NOMBRE", "-")),
+                "detail": f'{int(poeta_row.get("BIO_LEN", 0))} caracteres'
+            })
+        else:
+            logros.append({
+                "icon": "📝",
+                "title": "El poeta",
+                "winner": "-",
+                "detail": "Sin bios"
+            })
+
+        # ------------------------------------------------------------
+        # 8. EL MISTERIOSO — bio vacía o más corta
+        # ------------------------------------------------------------
+
+        if not df_bios.empty:
+            misteriosos = df_bios[df_bios["BIO_LEN"] == 0]
+
+            if not misteriosos.empty:
+                misterioso_row = misteriosos.iloc[0]
+                detalle_misterioso = "Sin bio"
+            else:
+                misterioso_row = df_bios.loc[df_bios["BIO_LEN"].idxmin()]
+                detalle_misterioso = f'{int(misterioso_row.get("BIO_LEN", 0))} caracteres'
+
+            logros.append({
+                "icon": "🕵️",
+                "title": "Misterioso",
+                "winner": str(misterioso_row.get("NOMBRE", "-")),
+                "detail": detalle_misterioso
+            })
+        else:
+            logros.append({
+                "icon": "🕵️",
+                "title": "Misterioso",
+                "winner": "-",
+                "detail": "Sin datos"
+            })
+
+        # ------------------------------------------------------------
+        # 9. CALCULADORA — más cercano al promedio general del grupo
+        # ------------------------------------------------------------
+
+        if stats_pronosticos:
+            promedio_grupo = sum(
+                x["promedio_goles"] for x in stats_pronosticos
+            ) / len(stats_pronosticos)
+
+            calculadora = min(
+                stats_pronosticos,
+                key=lambda x: abs(x["promedio_goles"] - promedio_grupo)
+            )
+
+            logros.append({
+                "icon": "📊",
+                "title": "Calculadora",
+                "winner": calculadora["nombre"],
+                "detail": f'{round(calculadora["promedio_goles"], 1)} vs {round(promedio_grupo, 1)}'
+            })
+        else:
+            logros.append({
+                "icon": "📊",
+                "title": "Calculadora",
+                "winner": "-",
+                "detail": "Sin datos"
             })
 
         return logros
-
-    def flag_html(flag_value):
-        flag_value = str(flag_value)
-
-        if flag_value.startswith("http") or flag_value.startswith("data:image"):
-            return f'<img src="{flag_value}" width="18">'
-
-        return escape(flag_value)
 
     # ============================================================
     # TÍTULO
@@ -928,12 +1168,11 @@ def render_jugadores(
             st.markdown(
                 f"""
 <div class="badge-card">
-<div class="badge-top">
 <div class="badge-icon">{logro["icon"]}</div>
 <div class="badge-title">{escape(logro["title"])}</div>
-</div>
 <div class="badge-winner">{escape(logro["winner"])}</div>
 <div class="badge-detail">{escape(logro["detail"])}</div>
+</div>
 </div>
 """,
                 unsafe_allow_html=True
