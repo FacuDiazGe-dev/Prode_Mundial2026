@@ -661,7 +661,6 @@ def render_jugadores(
 <div class="players-panel-subtitle">Seleccioná a quién querés espiar</div>
 </div>
 </div>
-</div>
 """, unsafe_allow_html=True)
 
         nombres_usuarios = df_usuarios["NOMBRE"].fillna("Jugador").tolist()
