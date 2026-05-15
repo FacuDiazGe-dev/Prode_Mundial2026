@@ -112,6 +112,11 @@ def upload_profile_picture(archivo, file_name):
 
 
 def upload_foro_image(archivo, usuario):
+    from google.cloud import storage
+    import io
+    import time
+    import re
+    from pathlib import Path
     """
     Sube una imagen del foro al bucket.
     Guarda en la carpeta foro/<usuario>/.
