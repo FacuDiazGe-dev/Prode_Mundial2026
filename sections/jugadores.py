@@ -1151,8 +1151,24 @@ def render_jugadores(
     c_badges, c_preds = st.columns([1.1, 1], gap="large")
 
     with c_badges:
-        st.markdown("""
+        logros = calcular_logros_globales()
+
+        badges_html = ""
+
+        for logro in logros:
+            badges_html += f"""
+<div class="badge-card">
+<div class="badge-icon">{logro["icon"]}</div>
+<div class="badge-title">{escape(str(logro["title"]))}</div>
+<div class="badge-winner">{escape(str(logro["winner"]))}</div>
+<div class="badge-detail">{escape(str(logro["detail"]))}</div>
+</div>
+"""
+
+        st.markdown(
+            f"""
 <div class="badges-wall-panel">
+
 <div class="players-panel-header">
 <div class="players-panel-icon">🏅</div>
 <div>
@@ -1162,23 +1178,13 @@ def render_jugadores(
 </div>
 
 <div class="badges-grid">
-""", unsafe_allow_html=True)
-
-        for logro in calcular_logros_globales():
-            st.markdown(
-                f"""
-<div class="badge-card">
-<div class="badge-icon">{logro["icon"]}</div>
-<div class="badge-title">{escape(logro["title"])}</div>
-<div class="badge-winner">{escape(logro["winner"])}</div>
-<div class="badge-detail">{escape(logro["detail"])}</div>
+{badges_html}
 </div>
+
 </div>
 """,
-                unsafe_allow_html=True
-            )
-
-        st.markdown("</div></div>", unsafe_allow_html=True)
+            unsafe_allow_html=True
+        )
 
     with c_preds:
         pro_user_sel = df_pro[df_pro["USUARIO"] == user_sel["USUARIO"]]
