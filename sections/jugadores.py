@@ -608,6 +608,18 @@ def render_jugadores(
             return int(value)
         except Exception:
             return default
+            
+    def flag_html(flag_value):
+    """
+    Devuelve una bandera como HTML si viene como imagen/base64,
+    o como texto/emoji si viene en otro formato.
+    """
+    flag_value = str(flag_value)
+
+    if flag_value.startswith("http") or flag_value.startswith("data:image"):
+        return f'<img src="{flag_value}" width="18" style="vertical-align:middle;">'
+
+    return escape(flag_value)
 
     def get_avatar(row):
         avatar = row.get("AVATAR_URL", "")
