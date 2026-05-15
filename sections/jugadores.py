@@ -726,11 +726,13 @@ def render_jugadores(
 
                     st.markdown("</div>", unsafe_allow_html=True)
 
-        user_sel_query = df_usuarios[
-            df_usuarios["NOMBRE"] == st.session_state.jugador_seleccionado
-        ]
-
-        user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
+            user_sel_query = df_usuarios[
+                df_usuarios["NOMBRE"] == st.session_state.jugador_seleccionado
+            ]
+            
+            user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
+            
+            st.markdown("</div>", unsafe_allow_html=True)
 
     with c_ficha:
         st.markdown("""
