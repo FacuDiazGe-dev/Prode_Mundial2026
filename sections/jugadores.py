@@ -582,7 +582,7 @@ def render_jugadores(
 <div class="players-panel-subtitle">Seleccioná a quién querés espiar</div>
 </div>
 </div>
-""", unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
         nombre_elegido = st.selectbox(
             "Seleccioná un jugador:",
@@ -629,13 +629,11 @@ def render_jugadores(
 
     with c_ficha:
         st.markdown("""
-<div class="player-profile-panel">
-<div class="players-panel-header">
+<div class="players-panel-header standalone">
 <div class="players-panel-icon">👤</div>
 <div>
 <div class="players-panel-title">Ficha del jugador</div>
 <div class="players-panel-subtitle">Resumen del seleccionado</div>
-</div>
 </div>
 </div>
 """, unsafe_allow_html=True)
@@ -746,13 +744,11 @@ def render_jugadores(
     with c_preds:
         st.markdown(
             f"""
-<div class="player-preds-panel">
-<div class="players-panel-header">
+<div class="players-panel-header standalone">
 <div class="players-panel-icon">🗳️</div>
 <div>
 <div class="players-panel-title">Pronósticos</div>
 <div class="players-panel-subtitle">Predicciones de {nombre}</div>
-</div>
 </div>
 </div>
 """,
