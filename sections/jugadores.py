@@ -353,6 +353,14 @@ def render_jugadores(
    8. MURO DE INSIGNIAS / LOGROS
    Logros globales alternativos al ranking.
    ============================================================ */
+.badges-desktop {
+    display: block;
+    margin-top: 18px;
+}
+
+.badges-mobile {
+    display: none;
+}
 
 .badges-grid {
     display: grid;
@@ -428,6 +436,15 @@ def render_jugadores(
     .badges-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 6px;
+    }
+
+    .badges-desktop {
+        display: none;
+    }
+
+    .badges-mobile {
+        display: block;
+        margin-top: 18px;
     }
 
     .badge-card {
@@ -590,7 +607,7 @@ def render_jugadores(
     .badges-grid {
         grid-template-columns: 1fr;
     }
-
+    
     .player-pred-row {
         grid-template-columns: 28px 1fr 52px 1fr;
         font-size: 10px;
