@@ -290,7 +290,7 @@ elif menu == "💬 Foro":
     df_u_ref = df_usuarios 
     user_actual = st.session_state['user_data']['USUARIO']
 
-     col_principal, col_derecha = st.columns([1.7, 0.9], gap="large")
+    col_principal, col_derecha = st.columns([1.7, 0.9], gap="large")
     
     with col_principal:
         st.subheader("💬 Muro de la Comunidad")
