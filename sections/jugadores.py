@@ -766,14 +766,14 @@ def render_jugadores(
 
                         if es_seleccionado:
                             st.button(
-                                "✓",
+                                "🔍",
                                 key=f"jugador_activo_{usuario_raw}",
                                 use_container_width=True,
                                 disabled=True
                             )
                         else:
                             if st.button(
-                                "👁️",
+                                "🔍︎",
                                 key=f"ver_jugador_{usuario_raw}",
                                 use_container_width=True
                             ):
