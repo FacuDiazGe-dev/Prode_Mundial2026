@@ -575,7 +575,6 @@ def render_jugadores(
 
     with c_lista:
         st.markdown("""
-div class="players-panel">
 <div class="players-panel-icon">👥</div>
 <div>
 <div class="players-panel-title">Jugadores</div>
