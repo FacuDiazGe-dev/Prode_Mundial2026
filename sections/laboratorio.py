@@ -200,7 +200,102 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
         font-size: 11px;
     }
 }
+/* ============================================================
+   LAB — PRUEBA BOTÓN + CARD DE JUGADOR
+   ============================================================ */
 
+.lab-player-select-row {
+    margin-bottom: 8px;
+}
+
+.lab-player-card-mini {
+    background: rgba(248,250,252,0.92);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 14px;
+    padding: 9px 10px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-height: 54px;
+}
+
+.lab-player-card-mini.selected {
+    border: 1px solid rgba(244,197,66,0.85);
+    background:
+        linear-gradient(
+            90deg,
+            rgba(244,197,66,0.20),
+            rgba(248,250,252,0.96)
+        );
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.6),
+        0 8px 18px rgba(244,197,66,0.10);
+}
+
+.lab-player-card-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(244,197,66,0.75);
+    flex-shrink: 0;
+}
+
+.lab-player-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.lab-player-card-name {
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lab-player-card-team {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lab-player-card-points {
+    background: rgba(7,17,31,0.96);
+    color: #F4C542;
+    border-radius: 999px;
+    padding: 5px 8px;
+    font-size: 11px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.lab-select-button button {
+    border-radius: 12px !important;
+    min-height: 42px !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    border: 1px solid rgba(244,197,66,0.38) !important;
+    background: rgba(244,197,66,0.18) !important;
+    color: #07111F !important;
+}
+
+.lab-select-button button:hover {
+    background: rgba(244,197,66,0.30) !important;
+    border-color: rgba(244,197,66,0.65) !important;
+}
+
+.lab-select-button button:disabled {
+    background: rgba(7,17,31,0.92) !important;
+    color: #F4C542 !important;
+    border: 1px solid rgba(244,197,66,0.30) !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -225,6 +320,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     tab = sac.tabs(
         [
             sac.TabsItem("Selector vertical", icon="people"),
+            sac.TabsItem("Botón + Card", icon="layout-sidebar"),
             sac.TabsItem("Botones", icon="collection"),
             sac.TabsItem("Filtros", icon="funnel"),
             sac.TabsItem("Insignias", icon="award"),
@@ -310,6 +406,140 @@ Prueba para reemplazar el selectbox por un selector más visual. Evaluar mobile,
 """,
                     unsafe_allow_html=True
                 )
+
+        # ============================================================
+    # TAB 2 — BOTÓN + CARD
+    # ============================================================
+
+    elif tab == "Botón + Card":
+        st.markdown("""
+<div class="lab-panel">
+<h3>Botón + Card de jugador</h3>
+<div class="lab-note">
+Prueba alternativa: el botón selecciona y la card contiene el diseño visual completo.
+Esto evita depender de cards clickeables con HTML.
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+        if "lab_jugador_card_sel" not in st.session_state:
+            st.session_state.lab_jugador_card_sel = nombres[0] if nombres else None
+
+        col1, col2 = st.columns([1.15, 1], gap="large")
+
+        with col1:
+            with st.container(border=True):
+                st.markdown("""
+<div class="lab-card-header">
+<div class="lab-card-icon">👥</div>
+<div>
+<div class="lab-card-title">Listado selector</div>
+<div class="lab-card-subtitle">Botón a la izquierda + card a la derecha</div>
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+                with st.container(height=380):
+                    for _, row in df_lab.iterrows():
+                        nombre_raw = str(row["NOMBRE"])
+                        usuario_raw = str(row["USUARIO"])
+                        equipo = str(row["EQUIPO FAVORITO"])
+
+                        avatar = row.get("AVATAR_URL", "")
+                        avatar_html = ""
+
+                        if pd.notna(avatar) and str(avatar).strip() != "":
+                            avatar_html = f'<img src="{avatar}" class="lab-player-card-avatar">'
+                        else:
+                            avatar_html = '<div class="lab-player-card-avatar"></div>'
+
+                        es_sel = st.session_state.lab_jugador_card_sel == nombre_raw
+                        selected_class = "selected" if es_sel else ""
+
+                        c_btn, c_card = st.columns([0.24, 0.76], gap="small")
+
+                        with c_btn:
+                            st.markdown(
+                                '<div class="lab-select-button">',
+                                unsafe_allow_html=True
+                            )
+
+                            if es_sel:
+                                st.button(
+                                    "Activo",
+                                    key=f"lab_btn_activo_{usuario_raw}",
+                                    use_container_width=True,
+                                    disabled=True
+                                )
+                            else:
+                                if st.button(
+                                    "Ver",
+                                    key=f"lab_btn_ver_{usuario_raw}",
+                                    use_container_width=True
+                                ):
+                                    st.session_state.lab_jugador_card_sel = nombre_raw
+                                    st.rerun()
+
+                            st.markdown("</div>", unsafe_allow_html=True)
+
+                        with c_card:
+                            st.markdown(
+                                f"""
+<div class="lab-player-select-row">
+<div class="lab-player-card-mini {selected_class}">
+{avatar_html}
+<div class="lab-player-card-info">
+<div class="lab-player-card-name">{nombre_raw}</div>
+<div class="lab-player-card-team">⚽ {equipo}</div>
+</div>
+<div class="lab-player-card-points">pts</div>
+</div>
+</div>
+""",
+                                unsafe_allow_html=True
+                            )
+
+        with col2:
+            user = df_lab[
+                df_lab["NOMBRE"] == st.session_state.lab_jugador_card_sel
+            ].iloc[0]
+
+            avatar = user.get("AVATAR_URL", "")
+            avatar_html = ""
+
+            if pd.notna(avatar) and str(avatar).strip() != "":
+                avatar_html = f'<img src="{avatar}" class="lab-preview-avatar">'
+
+            with st.container(border=True):
+                st.markdown(
+                    f"""
+<div class="lab-card-header">
+<div class="lab-card-icon">🧾</div>
+<div>
+<div class="lab-card-title">Vista previa</div>
+<div class="lab-card-subtitle">Jugador seleccionado</div>
+</div>
+</div>
+
+<div class="lab-preview-card">
+<div class="lab-preview-row">
+{avatar_html}
+<div>
+<div class="lab-preview-name">{user["NOMBRE"]}</div>
+<div class="lab-preview-meta">@{user["USUARIO"]} · {user["EQUIPO FAVORITO"]}</div>
+</div>
+</div>
+</div>
+
+<div class="lab-return-box">
+<div class="lab-return-label">Valor guardado en session_state</div>
+<div class="lab-return-value">{st.session_state.lab_jugador_card_sel}</div>
+</div>
+""",
+                    unsafe_allow_html=True
+                )
+    
+    
     # ============================================================
     # TAB 2 — BOTONES
     # ============================================================
