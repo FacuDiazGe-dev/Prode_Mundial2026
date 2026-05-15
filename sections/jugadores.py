@@ -413,6 +413,22 @@ def render_jugadores(
    Listado compacto de partidos pronosticados.
    ============================================================ */
 
+.player-preds-scroll {
+    max-height: 360px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.player-pred-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 58px 1fr;
+    align-items: center;
+    gap: 6px;
+
+    padding: 7px 6px;
+    border-bottom: 1px solid rgba(226,232,240,0.75);
+    font-size: 11px;
+}
 .player-pred-row {
     display: grid;
     grid-template-columns: 32px 1fr 58px 1fr;
@@ -926,45 +942,59 @@ def render_jugadores(
         st.markdown("</div></div>", unsafe_allow_html=True)
 
     with c_preds:
-        st.markdown(
-            f"""
-<div class="players-panel-header standalone">
-<div class="players-panel-icon">🗳️</div>
-<div>
-<div class="players-panel-title">Pronósticos</div>
-<div class="players-panel-subtitle">Predicciones de {nombre}</div>
-</div>
-</div>
-""",
-            unsafe_allow_html=True
-        )
-
         pro_user_sel = df_pro[df_pro["USUARIO"] == user_sel["USUARIO"]]
 
         if pro_user_sel.empty:
-            st.warning("Sin pronósticos.")
+            rows_html = """
+<div class="player-bio">
+Sin pronósticos cargados todavía.
+</div>
+"""
         else:
-            with st.container(height=360):
-                for _, p in pro_user_sel.sort_values("N_PARTIDO").iterrows():
-                    p_match = df_res[df_res["N_PARTIDO"] == p["N_PARTIDO"]]
+            rows = []
 
-                    if not p_match.empty:
-                        p_inf = p_match.iloc[0]
+            for _, p in pro_user_sel.sort_values("N_PARTIDO").iterrows():
+                p_match = df_res[df_res["N_PARTIDO"] == p["N_PARTIDO"]]
 
-                        f1 = get_flag_img_cached(p_inf["Equipo_1"])
-                        f2 = get_flag_img_cached(p_inf["Equipo_2"])
+                if not p_match.empty:
+                    p_inf = p_match.iloc[0]
 
-                        i1 = flag_html(f1)
-                        i2 = flag_html(f2)
+                    f1 = get_flag_img_cached(p_inf["Equipo_1"])
+                    f2 = get_flag_img_cached(p_inf["Equipo_2"])
 
-                        st.markdown(
-                            f"""
+                    i1 = flag_html(f1)
+                    i2 = flag_html(f2)
+
+                    rows.append(
+                        f"""
 <div class="player-pred-row">
 <div class="player-pred-num">{int(p["N_PARTIDO"])}</div>
 <div class="player-pred-team-left">{escape(str(p_inf["Equipo_1"]))} {i1}</div>
 <div class="player-pred-score">{int(p["P1"])} - {int(p["P2"])}</div>
 <div class="player-pred-team-right">{i2} {escape(str(p_inf["Equipo_2"]))}</div>
 </div>
+"""
+                    )
+
+            rows_html = "\n".join(rows)
+
+        st.markdown(
+            f"""
+<div class="player-preds-panel">
+
+<div class="players-panel-header">
+<div class="players-panel-icon">🗳️</div>
+<div>
+<div class="players-panel-title">Pronósticos</div>
+<div class="players-panel-subtitle">Predicciones de {nombre}</div>
+</div>
+</div>
+
+<div class="player-preds-scroll">
+{rows_html}
+</div>
+
+</div>
 """,
-                            unsafe_allow_html=True
-                        )
+            unsafe_allow_html=True
+        )
