@@ -19,18 +19,15 @@ def render_jugadores(
 
     st.markdown("""
 <style>
+
+/* ============================================================
+   1. TÍTULO GENERAL DE LA SECCIÓN
+   ============================================================ */
+
 .players-title {
     margin-bottom: 22px;
 }
 
-.players-panel-header.standalone {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
-}
 .players-title h1 {
     font-family: 'Montserrat', sans-serif;
     font-size: 34px;
@@ -47,6 +44,12 @@ def render_jugadores(
     font-weight: 600;
 }
 
+
+/* ============================================================
+   2. PANELES BASE Y ENCABEZADOS
+   Usados en ficha, muro de insignias y pronósticos.
+   ============================================================ */
+
 .players-panel,
 .player-profile-panel,
 .badges-wall-panel,
@@ -58,54 +61,63 @@ def render_jugadores(
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
 }
 
-.players-box {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
-}
-
-.players-box .players-panel-header {
-    padding: 0 0 14px 0;
+.players-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 4px 14px 4px;
     margin-bottom: 12px;
+    border-bottom: 1px solid rgba(226,232,240,0.75);
 }
 
-.player-select-btn button {
-    border-radius: 12px !important;
-    min-height: 38px !important;
-    font-size: 12px !important;
-    font-weight: 900 !important;
-    border: 1px solid rgba(244,197,66,0.38) !important;
-    background: rgba(244,197,66,0.18) !important;
-    color: #07111F !important;
+.players-panel-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(244,197,66,0.16);
+    color: #0f172a;
+    font-size: 16px;
+    flex-shrink: 0;
 }
 
-.player-select-btn button:hover {
-    background: rgba(244,197,66,0.30) !important;
-    border-color: rgba(244,197,66,0.65) !important;
+.players-panel-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
 }
 
-.player-select-btn button:disabled {
-    background: rgba(7,17,31,0.92) !important;
-    color: #F4C542 !important;
-    border: 1px solid rgba(244,197,66,0.30) !important;
+.players-panel-subtitle {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 2px;
 }
 
 
+/* ============================================================
+   3. LISTADO SELECTOR DE JUGADORES
+   Estructura: botón pequeño + card visual del jugador.
+   ============================================================ */
 
-/* Card del jugador */
+.player-select-row {
+    margin-bottom: 8px;
+}
+
 .player-list-card {
     background: rgba(248,250,252,0.92);
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 14px;
-    padding: 10px;
-    margin-bottom: 8px;
+    padding: 9px 10px;
 
     display: flex;
     align-items: center;
     gap: 10px;
 
+    min-height: 54px;
     transition: all 0.16s ease;
 }
 
@@ -114,7 +126,7 @@ def render_jugadores(
     background:
         linear-gradient(
             90deg,
-            rgba(244,197,66,0.18),
+            rgba(244,197,66,0.20),
             rgba(248,250,252,0.96)
         );
     box-shadow:
@@ -123,11 +135,12 @@ def render_jugadores(
 }
 
 .player-list-avatar {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(244,197,66,0.75);
+    flex-shrink: 0;
 }
 
 .player-list-main {
@@ -148,6 +161,9 @@ def render_jugadores(
     color: #64748b;
     font-size: 11px;
     font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .player-list-points {
@@ -160,74 +176,42 @@ def render_jugadores(
     white-space: nowrap;
 }
 
-# .players-panel-header {
-#     display: flex;
-#     align-items: center;
-#     gap: 10px;
-#     padding: 4px 4px 14px 4px;
-#     margin-bottom: 12px;
-#     border-bottom: 1px solid rgba(226,232,240,0.75);
-# }
 
-.players-panel-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(244,197,66,0.16);
-    color: #0f172a;
-    font-size: 16px;
+/* ============================================================
+   4. BOTÓN SELECTOR DEL LISTADO
+   Botón pequeño de acción: ver / activo.
+   ============================================================ */
+
+.player-select-btn button {
+    border-radius: 12px !important;
+    min-height: 42px !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+
+    border: 1px solid rgba(244,197,66,0.38) !important;
+    background: rgba(255,255,255,0.88) !important;
+    color: #07111F !important;
+
+    box-shadow: 0 6px 14px rgba(15,23,42,0.05) !important;
 }
 
-.players-panel-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    color: #0f172a;
+.player-select-btn button:hover {
+    background: rgba(244,197,66,0.22) !important;
+    border-color: rgba(244,197,66,0.65) !important;
 }
 
-.players-panel-subtitle {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 700;
-    margin-top: 2px;
+.player-select-btn button:disabled {
+    background: rgba(7,17,31,0.92) !important;
+    color: #F4C542 !important;
+    border: 1px solid rgba(244,197,66,0.30) !important;
+    opacity: 1 !important;
 }
 
-.player-list-card {
-    background: rgba(248,250,252,0.92);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 14px;
-    padding: 10px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
 
-.player-list-card.selected {
-    border: 1px solid rgba(244,197,66,0.75);
-    background: linear-gradient(
-        90deg,
-        rgba(244,197,66,0.15),
-        rgba(248,250,252,0.96)
-    );
-}
-
-.player-list-avatar {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(244,197,66,0.75);
-}
-
-.player-list-main {
-    flex: 1;
-    min-width: 0;
-}
-
+/* ============================================================
+   5. FICHA DEL JUGADOR SELECCIONADO
+   Card principal de perfil.
+   ============================================================ */
 
 .player-hero {
     background:
@@ -279,11 +263,14 @@ def render_jugadores(
     align-items: center;
     justify-content: center;
     gap: 6px;
+
     margin-top: 12px;
     padding: 7px 12px;
+
     background: rgba(7,17,31,0.96);
     border: 1px solid rgba(244,197,66,0.24);
     border-radius: 999px;
+
     color: #F8FAFC;
     font-size: 12px;
     font-weight: 900;
@@ -292,6 +279,12 @@ def render_jugadores(
 .player-rank-pill strong {
     color: #F4C542;
 }
+
+
+/* ============================================================
+   6. ESTADÍSTICAS DEL JUGADOR
+   Puntos, exactos y generales.
+   ============================================================ */
 
 .player-stats {
     display: grid;
@@ -331,6 +324,12 @@ def render_jugadores(
     text-transform: uppercase;
 }
 
+
+/* ============================================================
+   7. BIO DEL JUGADOR
+   Texto breve dentro de la ficha.
+   ============================================================ */
+
 .player-bio {
     margin-top: 12px;
     padding: 12px;
@@ -342,6 +341,12 @@ def render_jugadores(
     font-weight: 700;
     line-height: 1.35;
 }
+
+
+/* ============================================================
+   8. MURO DE INSIGNIAS / LOGROS
+   Logros globales alternativos al ranking.
+   ============================================================ */
 
 .badges-grid {
     display: grid;
@@ -373,6 +378,7 @@ def render_jugadores(
     align-items: center;
     justify-content: center;
     font-size: 18px;
+    flex-shrink: 0;
 }
 
 .badge-title {
@@ -395,11 +401,18 @@ def render_jugadores(
     margin-top: 2px;
 }
 
+
+/* ============================================================
+   9. PRONÓSTICOS DEL JUGADOR
+   Listado compacto de partidos pronosticados.
+   ============================================================ */
+
 .player-pred-row {
     display: grid;
     grid-template-columns: 32px 1fr 58px 1fr;
     align-items: center;
     gap: 6px;
+
     padding: 7px 6px;
     border-bottom: 1px solid rgba(226,232,240,0.75);
     font-size: 11px;
@@ -437,13 +450,63 @@ def render_jugadores(
     font-weight: 900;
 }
 
+
+/* ============================================================
+   10. MOBILE
+   Ajustes compactos para celulares.
+   ============================================================ */
+
 @media (max-width: 768px) {
     .players-title h1 {
         font-size: 28px;
     }
 
-    .badges-grid {
-        grid-template-columns: 1fr;
+    .players-title p {
+        font-size: 12px;
+    }
+
+    .players-panel,
+    .player-profile-panel,
+    .badges-wall-panel,
+    .player-preds-panel {
+        padding: 13px;
+        border-radius: 16px;
+    }
+
+    .players-panel-title {
+        font-size: 16px;
+    }
+
+    .players-panel-subtitle {
+        font-size: 11px;
+    }
+
+    .player-list-card {
+        padding: 8px;
+        min-height: 50px;
+    }
+
+    .player-list-avatar {
+        width: 34px;
+        height: 34px;
+    }
+
+    .player-list-name {
+        font-size: 12px;
+    }
+
+    .player-list-team {
+        font-size: 10px;
+    }
+
+    .player-list-points {
+        font-size: 10px;
+        padding: 4px 7px;
+    }
+
+    .player-select-btn button {
+        min-height: 38px !important;
+        font-size: 13px !important;
     }
 
     .player-avatar {
@@ -455,14 +518,18 @@ def render_jugadores(
         font-size: 21px;
     }
 
+    .badges-grid {
+        grid-template-columns: 1fr;
+    }
+
     .player-pred-row {
         grid-template-columns: 28px 1fr 52px 1fr;
         font-size: 10px;
     }
 }
+
 </style>
 """, unsafe_allow_html=True)
-
     # ============================================================
     # HELPERS
     # ============================================================
@@ -652,8 +719,9 @@ def render_jugadores(
     c_lista, c_ficha = st.columns([1.1, 1], gap="large")
 
     with c_lista:
-        st.markdown("""
-<div class="players-box">
+        with st.container(border=True):
+
+            st.markdown("""
 <div class="players-panel-header">
 <div class="players-panel-icon">👥</div>
 <div>
@@ -663,36 +731,61 @@ def render_jugadores(
 </div>
 """, unsafe_allow_html=True)
 
-        nombres_usuarios = df_usuarios["NOMBRE"].fillna("Jugador").tolist()
+            nombres_usuarios = df_usuarios["NOMBRE"].fillna("Jugador").tolist()
 
-        if "jugador_seleccionado" not in st.session_state:
-            st.session_state.jugador_seleccionado = (
-                nombres_usuarios[0] if nombres_usuarios else None
-            )
-
-        with st.container(height=430):
-            for _, u in df_usuarios.iterrows():
-                foto_mini = get_avatar(u)
-
-                rank_row, idx_rank = get_ranking_row(u)
-                pts = safe_int(rank_row.get("PUNTOS", 0)) if rank_row is not None else 0
-
-                nombre_raw = str(u.get("NOMBRE", "Jugador"))
-                usuario_raw = str(u.get("USUARIO", nombre_raw))
-                nombre = escape(nombre_raw)
-                equipo = escape(str(u.get("EQUIPO FAVORITO", "-")))
-
-                es_seleccionado = (
-                    st.session_state.jugador_seleccionado == nombre_raw
+            if "jugador_seleccionado" not in st.session_state:
+                st.session_state.jugador_seleccionado = (
+                    nombres_usuarios[0] if nombres_usuarios else None
                 )
 
-                selected_class = "selected" if es_seleccionado else ""
+            with st.container(height=430):
+                for _, u in df_usuarios.iterrows():
+                    foto_mini = get_avatar(u)
 
-                c_card, c_action = st.columns([0.78, 0.22], gap="small")
+                    rank_row, idx_rank = get_ranking_row(u)
+                    pts = safe_int(rank_row.get("PUNTOS", 0)) if rank_row is not None else 0
 
-                with c_card:
-                    st.markdown(
-                        f"""
+                    nombre_raw = str(u.get("NOMBRE", "Jugador"))
+                    usuario_raw = str(u.get("USUARIO", nombre_raw))
+                    nombre = escape(nombre_raw)
+                    equipo = escape(str(u.get("EQUIPO FAVORITO", "-")))
+
+                    es_seleccionado = (
+                        st.session_state.jugador_seleccionado == nombre_raw
+                    )
+
+                    selected_class = "selected" if es_seleccionado else ""
+
+                    c_btn, c_card = st.columns([0.16, 0.84], gap="small")
+
+                    with c_btn:
+                        st.markdown(
+                            '<div class="player-select-btn">',
+                            unsafe_allow_html=True
+                        )
+
+                        if es_seleccionado:
+                            st.button(
+                                "✓",
+                                key=f"jugador_activo_{usuario_raw}",
+                                use_container_width=True,
+                                disabled=True
+                            )
+                        else:
+                            if st.button(
+                                "👁️",
+                                key=f"ver_jugador_{usuario_raw}",
+                                use_container_width=True
+                            ):
+                                st.session_state.jugador_seleccionado = nombre_raw
+                                st.rerun()
+
+                        st.markdown("</div>", unsafe_allow_html=True)
+
+                    with c_card:
+                        st.markdown(
+                            f"""
+<div class="player-select-row">
 <div class="player-list-card {selected_class}">
 <img src="{foto_mini}" class="player-list-avatar">
 <div class="player-list-main">
@@ -701,38 +794,16 @@ def render_jugadores(
 </div>
 <div class="player-list-points">{pts} pts</div>
 </div>
+</div>
 """,
-                        unsafe_allow_html=True
-                    )
-
-                with c_action:
-                    st.markdown('<div class="player-select-btn">', unsafe_allow_html=True)
-
-                    if es_seleccionado:
-                        st.button(
-                            "Activo",
-                            key=f"jugador_activo_{usuario_raw}",
-                            use_container_width=True,
-                            disabled=True
+                            unsafe_allow_html=True
                         )
-                    else:
-                        if st.button(
-                            "Ver",
-                            key=f"ver_jugador_{usuario_raw}",
-                            use_container_width=True
-                        ):
-                            st.session_state.jugador_seleccionado = nombre_raw
-                            st.rerun()
-
-                    st.markdown("</div>", unsafe_allow_html=True)
 
             user_sel_query = df_usuarios[
                 df_usuarios["NOMBRE"] == st.session_state.jugador_seleccionado
             ]
-            
+
             user_sel = user_sel_query.iloc[0] if not user_sel_query.empty else None
-            
-            st.markdown("</div>", unsafe_allow_html=True)
 
     with c_ficha:
         st.markdown("""
