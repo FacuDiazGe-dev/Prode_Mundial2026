@@ -3,12 +3,12 @@ import pandas as pd
 import streamlit_antd_components as sac
 
 try:
-    from streamlit_elements import elements, mui, sync
+    from streamlit_elements import elements, mui, lazy
     ELEMENTS_AVAILABLE = True
 except Exception:
     elements = None
     mui = None
-    sync = None
+    lazy = None
     ELEMENTS_AVAILABLE = False
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
@@ -331,9 +331,6 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     if "lab_mui_selected_action" not in st.session_state:
         st.session_state.lab_mui_selected_action = None
 
-    if "lab_mui_last_processed_action" not in st.session_state:
-        st.session_state.lab_mui_last_processed_action = None
-
     if "lab_mui_action" not in st.session_state:
         st.session_state.lab_mui_action = ""
 
@@ -346,16 +343,22 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     if "lab_mui_total_actions" not in st.session_state:
         st.session_state.lab_mui_total_actions = 0
 
+    def crear_handler_click(action_id):
+        """
+        Devuelve un callback lazy para usar en botones MUI.
+        Guarda la acción seleccionada en session_state.
+        """
+
+        def handler():
+            st.session_state.lab_mui_selected_action = action_id
+
+        return lazy(handler)
+
     def procesar_accion_mui():
         accion_actual = st.session_state.get("lab_mui_selected_action")
 
         if not accion_actual:
             return
-
-        if accion_actual == st.session_state.lab_mui_last_processed_action:
-            return
-
-        st.session_state.lab_mui_last_processed_action = accion_actual
 
         if str(accion_actual).startswith("like_"):
             msg_id = str(accion_actual).replace("like_", "")
@@ -374,8 +377,10 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
             st.session_state.lab_mui_total_actions += 1
             st.session_state.lab_mui_action = f"🗑️ Borrar mensaje {msg_id}"
 
-    procesar_accion_mui()
+        # Limpia la acción para que no se procese de nuevo en otro rerun.
+        st.session_state.lab_mui_selected_action = None
 
+    procesar_accion_mui()
     tab = sac.tabs(
         [
             sac.TabsItem("Selector vertical", icon="people"),
@@ -920,7 +925,7 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                                         size="small",
                                         id=f"like_{msg['id']}",
                                         key=f"lab_like_{msg['id']}",
-                                        onClick=sync("lab_mui_selected_action"),
+                                        onClick=crear_handler_click(f"like_{msg['id']}"),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
@@ -935,7 +940,7 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                                         size="small",
                                         id=f"dislike_{msg['id']}",
                                         key=f"lab_dislike_{msg['id']}",
-                                        onClick=sync("lab_mui_selected_action"),
+                                        onClick=crear_handler_click(f"like_{msg['id']}"),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
@@ -951,7 +956,7 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                                         size="small",
                                         id=f"delete_{msg['id']}",
                                         key=f"lab_delete_{msg['id']}",
-                                        onClick=sync("lab_mui_selected_action"),
+                                        onClick=crear_handler_click(f"like_{msg['id']}"),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
