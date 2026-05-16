@@ -3,12 +3,11 @@ import pandas as pd
 import streamlit_antd_components as sac
 
 try:
-    from streamlit_elements import elements, mui, lazy
+    from streamlit_elements import elements, mui
     ELEMENTS_AVAILABLE = True
 except Exception:
     elements = None
     mui = None
-    lazy = None
     ELEMENTS_AVAILABLE = False
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
@@ -345,14 +344,14 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
 
     def crear_handler_click(action_id):
         """
-        Devuelve un callback lazy para usar en botones MUI.
-        Guarda la acción seleccionada en session_state.
+        Devuelve un callback directo para probar si mui.Button
+        puede actualizar session_state sin sync() ni lazy().
         """
 
-        def handler():
+        def handler(*_):
             st.session_state.lab_mui_selected_action = action_id
 
-        return lazy(handler)
+        return handler
 
     def procesar_accion_mui():
         accion_actual = st.session_state.get("lab_mui_selected_action")
@@ -377,7 +376,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
             st.session_state.lab_mui_total_actions += 1
             st.session_state.lab_mui_action = f"🗑️ Borrar mensaje {msg_id}"
 
-        # Limpia la acción para que no se procese de nuevo en otro rerun.
+        # Limpia la acción para evitar reprocesarla en otro rerun.
         st.session_state.lab_mui_selected_action = None
 
     procesar_accion_mui()
@@ -609,6 +608,22 @@ Esto evita depender de cards clickeables con HTML.
     # ============================================================
 
     elif tab == "Foro MUI":
+
+        st.write(
+            "DEBUG selected action:",
+            st.session_state.get("lab_mui_selected_action")
+        )
+
+        st.write(
+            "DEBUG last action:",
+            st.session_state.get("lab_mui_action")
+        )
+
+        st.write(
+            "DEBUG total actions:",
+            st.session_state.get("lab_mui_total_actions")
+        )
+
         st.markdown("""
 <div class="lab-panel">
 <h3>Foro MUI con streamlit-elements</h3>
@@ -940,7 +955,7 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                                         size="small",
                                         id=f"dislike_{msg['id']}",
                                         key=f"lab_dislike_{msg['id']}",
-                                        onClick=crear_handler_click(f"like_{msg['id']}"),
+                                        onClick=crear_handler_click(f"dislike_{msg['id']}"),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
@@ -956,7 +971,7 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                                         size="small",
                                         id=f"delete_{msg['id']}",
                                         key=f"lab_delete_{msg['id']}",
-                                        onClick=crear_handler_click(f"like_{msg['id']}"),
+                                        onClick=crear_handler_click(f"delete_{msg['id']}"),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
