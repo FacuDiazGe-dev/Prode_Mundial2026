@@ -987,20 +987,6 @@ div[data-testid="stButton"] button {
 
         if not modo_edicion:
 
-            if es_tiempo_valido:
-                if st.button(
-                    "✏️ Editar pronósticos",
-                    use_container_width=True
-                ):
-                    st.session_state.permitir_edicion = True
-                    st.rerun()
-            else:
-                st.button(
-                    "Lectura — edición deshabilitada",
-                    use_container_width=True,
-                    disabled=True
-                )
-
             with st.container(height=520):
 
                 for _, row in df_res.sort_values("N_PARTIDO").iterrows():
@@ -1059,7 +1045,19 @@ div[data-testid="stButton"] button {
 """,
                         unsafe_allow_html=True
                     )
-
+            if es_tiempo_valido:
+                if st.button(
+                    "✏️ Editar pronósticos",
+                    use_container_width=True
+                ):
+                    st.session_state.permitir_edicion = True
+                    st.rerun()
+            else:
+                st.button(
+                    "Lectura — edición deshabilitada",
+                    use_container_width=True,
+                    disabled=True
+                )
                     st.markdown(
                         "<div class='pred-match-gap'></div>",
                         unsafe_allow_html=True
