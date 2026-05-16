@@ -281,11 +281,11 @@ elif menu == "👥 Jugadores":
     df_foro = conn.read(
     worksheet="FORO",
     ttl=60
-)
-
-if df_foro is None:
-    df_foro = pd.DataFrame()
+    )
     
+    if df_foro is None:
+        df_foro = pd.DataFrame()
+        
     render_jugadores(
         df_usuarios=df_usuarios,
         df_ranking=df_ranking,
