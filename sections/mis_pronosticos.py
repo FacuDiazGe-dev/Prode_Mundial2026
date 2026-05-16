@@ -5,7 +5,7 @@ from html import escape
 import re
 
 from styles_config import (AVATAR_GENERICO, HEADER_BACKGROUND, SIDEBAR_BANNER)
-from tools import upload_profile_picture
+from tools import upload_profile_picture, get_flag_img
 
 
 def render_mis_pronosticos(
@@ -970,10 +970,10 @@ div[data-testid="stButton"] button {
             filas_editor.append(
                 {
                     "N_PARTIDO": id_p,
-                    "Equipo 1": f"{flag_text(bandera1)} {equipo_1}",
+                    "Equipo 1": equipo_1,
                     "P1": v1,
                     "P2": v2,
-                    "Equipo 2": f"{equipo_2} {flag_text(bandera2)}",
+                    "Equipo 2": equipo_2,
                     "DIA": dia,
                     "HORA": hora,
                 }
@@ -1134,15 +1134,14 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                     "HORA"
                 ],
                 column_order=[
-                    "N_PARTIDO",
                     "Equipo 1",
                     "P1",
                     "P2",
                     "Equipo 2"
                 ],
                 column_config={
-                    "N_PARTIDO": st.column_config.NumberColumn(
-                        "#",
+                    "Equipo 1": st.column_config.TextColumn(
+                        "Equipo 1",
                         width="small"
                     ),
                     "Equipo 1": st.column_config.TextColumn(
@@ -1154,7 +1153,7 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                         min_value=0,
                         max_value=20,
                         step=1,
-                        width="small"
+                        width="small
                     ),
                     "P2": st.column_config.NumberColumn(
                         "P2",
@@ -1165,7 +1164,7 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                     ),
                     "Equipo 2": st.column_config.TextColumn(
                         "Equipo 2",
-                        width="medium"
+                        width="small"
                     ),
                 }
             )
