@@ -1045,6 +1045,12 @@ div[data-testid="stButton"] button {
 """,
                         unsafe_allow_html=True
                     )
+
+                    st.markdown(
+                        "<div class='pred-match-gap'></div>",
+                        unsafe_allow_html=True
+                    )
+
             if es_tiempo_valido:
                 if st.button(
                     "✏️ Editar pronósticos",
@@ -1058,11 +1064,6 @@ div[data-testid="stButton"] button {
                     use_container_width=True,
                     disabled=True
                 )
-                    st.markdown(
-                        "<div class='pred-match-gap'></div>",
-                        unsafe_allow_html=True
-                    )
-
             # ------------------------------------------------------------
             # RESUMEN OSCURO — MODO VISUAL
             # ------------------------------------------------------------
