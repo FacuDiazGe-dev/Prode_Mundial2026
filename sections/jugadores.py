@@ -253,7 +253,7 @@ def render_jugadores(
 }
 
 @media (max-width: 768px) {
-    .badges--desktop {
+    .badges-desktop {
         display: none;
     }
 
@@ -499,12 +499,12 @@ def render_jugadores(
    Grid HTML responsive + estilo medallero premium.
    ============================================================ */
 
-.badges--desktop {
+.badges-desktop {
     display: block;
     margin-top: 18px;
 }
 
-.badges--mobile {
+.badges-mobile {
     display: none;
 }
 
@@ -664,21 +664,21 @@ def render_jugadores(
 
 /* Mobile: 2 columnas reales */
 @media (max-width: 768px) {
-    .badges--desktop {
+    .badges-desktop {
         display: none;
     }
 
-    .badges--mobile {
+    .badges-mobile {
         display: block;
         margin-top: 18px;
     }
 
-    .badges--wall-panel {
+    .badges-wall-panel {
         padding: 13px;
         border-radius: 16px;
     }
 
-    .badges--grid {
+    .badges-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
     }
@@ -698,6 +698,7 @@ def render_jugadores(
 
     .badge-title {
         font-size: 9px;
+        line-height: 1.1;
     }
 
     .badge-winner {
