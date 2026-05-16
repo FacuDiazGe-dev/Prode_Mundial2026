@@ -58,7 +58,7 @@ def render_jugadores(
 
 .players-panel,
 .player-profile-panel,
-.badges-wall-panel,
+.badges--wall-panel,
 .player-preds-panel {
     background: rgba(255,255,255,0.94);
     border: 1px solid rgba(226,232,240,0.9);
@@ -253,16 +253,16 @@ def render_jugadores(
 }
 
 @media (max-width: 768px) {
-    .badges-desktop {
+    .badges--desktop {
         display: none;
     }
 
-    .badges-mobile {
+    .badges--mobile {
         display: block;
         margin-top: 18px;
     }
 
-    .badges-grid {
+    .badges--grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
     }
@@ -499,17 +499,17 @@ def render_jugadores(
    Grid HTML responsive + estilo medallero premium.
    ============================================================ */
 
-.badges-desktop {
+.badges--desktop {
     display: block;
     margin-top: 18px;
 }
 
-.badges-mobile {
+.badges--mobile {
     display: none;
 }
 
 /* Panel general del muro */
-.badges-wall-panel {
+.badges--wall-panel {
     background:
         radial-gradient(
             circle at 100% 0%,
@@ -526,7 +526,7 @@ def render_jugadores(
 }
 
 /* Grid real de insignias */
-.badges-grid {
+.badges--grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
@@ -664,21 +664,21 @@ def render_jugadores(
 
 /* Mobile: 2 columnas reales */
 @media (max-width: 768px) {
-    .badges-desktop {
+    .badges--desktop {
         display: none;
     }
 
-    .badges-mobile {
+    .badges--mobile {
         display: block;
         margin-top: 18px;
     }
 
-    .badges-wall-panel {
+    .badges--wall-panel {
         padding: 13px;
         border-radius: 16px;
     }
 
-    .badges-grid {
+    .badges--grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
     }
@@ -791,7 +791,7 @@ def render_jugadores(
 
     .players-panel,
     .player-profile-panel,
-    .badges-wall-panel,
+    .badges--wall-panel,
     .player-preds-panel {
         padding: 13px;
         border-radius: 16px;
@@ -1310,7 +1310,7 @@ def render_jugadores(
     logros = calcular_logros_globales()
 
     badges_html = ""
-    
+
     badge_class_map = {
         "Puntero": "puntero",
         "Sr. Prode": "prode",
@@ -1322,21 +1322,39 @@ def render_jugadores(
         "El Misterioso": "misterioso",
         "El Distinto": "distinto",
     }
-    
+
     for logro in logros:
         badge_type = badge_class_map.get(
             str(logro["title"]),
             "default"
         )
-    
+
         badges_html += f"""
-    <div class="badge-card badge-{badge_type}">
-    <div class="badge-icon">{logro["icon"]}</div>
-    <div class="badge-title">{escape(str(logro["title"]))}</div>
-    <div class="badge-winner">{escape(str(logro["winner"]))}</div>
-    <div class="badge-detail">{escape(str(logro["detail"]))}</div>
-    </div>
-    """
+<div class="badge-card badge-{badge_type}">
+<div class="badge-icon">{logro["icon"]}</div>
+<div class="badge-title">{escape(str(logro["title"]))}</div>
+<div class="badge-winner">{escape(str(logro["winner"]))}</div>
+<div class="badge-detail">{escape(str(logro["detail"]))}</div>
+</div>
+"""
+
+    badges_panel_html = f"""
+<div class="badges-wall-panel">
+
+<div class="players-panel-header">
+<div class="players-panel-icon">🏅</div>
+<div>
+<div class="players-panel-title">Muro de Insignias</div>
+<div class="players-panel-subtitle">Logros alternativos del Prode</div>
+</div>
+</div>
+
+<div class="badges-grid">
+{badges_html}
+</div>
+
+</div>
+"""
 
     # ============================================================
     # ESTRUCTURA PRINCIPAL
