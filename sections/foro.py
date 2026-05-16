@@ -112,41 +112,47 @@ def render_foro(conn, df_usuarios):
 
 /* ============================================================
    4. MENSAJES DEL FORO
+   Feed compacto tipo muro social.
    ============================================================ */
 
 .foro-feed {
-    margin-top: 16px;
+    margin-top: 14px;
 }
 
+/* Card general de cada mensaje */
 .foro-message-card {
     background: rgba(255,255,255,0.96);
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 16px;
-    padding: 12px;
-    margin-bottom: 10px;
+
+    padding: 11px 12px;
+    margin-bottom: 4px;
+
     box-shadow: 0 8px 18px rgba(15,23,42,0.04);
 }
 
+/* Card de mensaje propio */
 .foro-message-card.mine {
     background:
         linear-gradient(
             90deg,
-            rgba(244,197,66,0.14),
+            rgba(244,197,66,0.13),
             rgba(255,255,255,0.96)
         );
-    border-color: rgba(244,197,66,0.45);
+    border-color: rgba(244,197,66,0.42);
 }
 
+/* Cabecera: avatar + nombre + fecha */
 .foro-message-head {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
+    gap: 9px;
+    margin-bottom: 7px;
 }
 
 .foro-avatar {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(244,197,66,0.75);
@@ -162,6 +168,7 @@ def render_foro(conn, df_usuarios):
     color: #0f172a;
     font-size: 13px;
     font-weight: 900;
+    line-height: 1.05;
 }
 
 .foro-message-date {
@@ -175,40 +182,50 @@ def render_foro(conn, df_usuarios):
     display: inline-block;
     margin-left: 6px;
     padding: 2px 6px;
+
     border-radius: 999px;
     background: rgba(7,17,31,0.95);
+
     color: #F4C542;
     font-size: 9px;
     font-weight: 900;
 }
 
+/* Texto del mensaje */
 .foro-message-text {
     color: #334155;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    line-height: 1.38;
+    line-height: 1.35;
     white-space: pre-wrap;
 }
 
+/* Si el mensaje no tiene texto, evita altura visual innecesaria */
+.foro-message-text:empty {
+    display: none;
+}
+
+
 /* ============================================================
    4B. IMÁGENES PUBLICADAS EN EL FORO
+   Imagen como adjunto, no como banner gigante.
    ============================================================ */
 
 .foro-image-wrap {
-    margin-top: 10px;
+    margin-top: 9px;
     display: flex;
     justify-content: center;
 }
 
 .foro-message-img {
     width: auto;
-    max-width: 520px;
-    max-height: 320px;
+    max-width: 440px;
+    max-height: 260px;
 
     object-fit: contain;
     display: block;
 
-    border-radius: 14px;
+    border-radius: 13px;
     border: 1px solid rgba(226,232,240,0.9);
     background: rgba(248,250,252,0.78);
 }
@@ -216,29 +233,76 @@ def render_foro(conn, df_usuarios):
 
 /* ============================================================
    4C. ACCIONES DEL FORO — SEGMENTED CONTROL
+   Barra compacta debajo de cada card.
    ============================================================ */
 
 div[data-testid="stSegmentedControl"] {
-    margin: -2px 0 12px 0 !important;
+    margin: 0 0 12px 0 !important;
 }
 
 div[data-testid="stSegmentedControl"] button {
-    min-height: 32px !important;
-    padding: 3px 10px !important;
+    min-height: 31px !important;
+    padding: 3px 9px !important;
+
     border-radius: 10px !important;
+
     font-size: 12px !important;
     font-weight: 800 !important;
 }
 
+/* Reduce la separación entre card y barra de acciones */
+.foro-message-card + div[data-testid="stSegmentedControl"] {
+    margin-top: -2px !important;
+}
+
+
+/* ============================================================
+   4D. MOBILE — FEED DEL FORO
+   ============================================================ */
+
 @media (max-width: 768px) {
+    .foro-feed {
+        margin-top: 12px;
+    }
+
+    .foro-message-card {
+        padding: 10px;
+        border-radius: 15px;
+        margin-bottom: 3px;
+    }
+
+    .foro-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .foro-message-name {
+        font-size: 12px;
+    }
+
+    .foro-message-date {
+        font-size: 9px;
+    }
+
+    .foro-message-text {
+        font-size: 12px;
+        line-height: 1.32;
+    }
+
+    .foro-message-img {
+        width: 100%;
+        max-width: 100%;
+        max-height: 230px;
+    }
+
     div[data-testid="stSegmentedControl"] {
-        margin: -4px 0 14px 0 !important;
+        margin: 0 0 12px 0 !important;
     }
 
     div[data-testid="stSegmentedControl"] button {
-        min-height: 32px !important;
-        padding: 3px 8px !important;
-        font-size: 12px !important;
+        min-height: 30px !important;
+        padding: 3px 7px !important;
+        font-size: 11px !important;
     }
 }
 
