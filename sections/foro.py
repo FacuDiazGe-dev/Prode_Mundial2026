@@ -665,7 +665,7 @@ div[data-testid="stSegmentedControl"] button:hover {
     # ============================================================
     # COLUMNA PRINCIPAL — MURO
     # ============================================================
-
+    with col_main:
         st.markdown("""
 <div class="foro-main-shell">
 
