@@ -344,7 +344,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     # FUNCIONES CALLBACKS PARA BOTONES MUI
     # ✅ SOLUCIÓN: Usar callbacks Python directos en lugar de sync()
     # ============================================================
-
+    print(type(msg_id))
     def on_like_click(msg_id):
         """Callback cuando se clickea el botón de like"""
         st.session_state.lab_mui_like_count += 1
