@@ -616,12 +616,13 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
 
         if st.session_state.lab_mui_action:
             st.success(
-                f"Última acción MUI: {st.session_state.lab_mui_action} · "
+                f"✅ Botón MUI funcionando · {st.session_state.lab_mui_action} · "
+                f"Acciones totales: {st.session_state.lab_mui_total_actions} · "
                 f"👍 {st.session_state.lab_mui_like_count} · "
                 f"👎 {st.session_state.lab_mui_dislike_count}"
             )
         else:
-            st.info("Todavía no se presionó ningún botón MUI.")
+            st.info("🧪 Todavía no se presionó ningún botón MUI.")
 
         mensajes_demo = [
             {
@@ -680,6 +681,45 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                 }
             ):
 
+                # Indicador visual dentro del panel MUI
+                with mui.Box(
+                    sx={
+                        "display": "flex",
+                        "alignItems": "center",
+                        "justifyContent": "space-between",
+                        "gap": 1,
+                        "mb": 1.5,
+                        "p": 1.2,
+                        "borderRadius": "14px",
+                        "background": "rgba(248,250,252,0.92)",
+                        "border": "1px solid rgba(226,232,240,0.9)",
+                    }
+                ):
+                    mui.Typography(
+                        st.session_state.lab_mui_action
+                        if st.session_state.lab_mui_action
+                        else "Esperando acción MUI...",
+                        variant="body2",
+                        sx={
+                            "fontWeight": 800,
+                            "color": "#334155",
+                        },
+                    )
+
+                    mui.Box(
+                        f"Clicks: {st.session_state.lab_mui_total_actions}",
+                        sx={
+                            "px": 1.2,
+                            "py": 0.45,
+                            "borderRadius": "999px",
+                            "background": "#07111F",
+                            "color": "#F4C542",
+                            "fontSize": "12px",
+                            "fontWeight": 900,
+                            "whiteSpace": "nowrap",
+                        },
+                    )
+                
                 # Header oscuro
                 with mui.Box(
                     sx={
