@@ -755,10 +755,6 @@ def render_jugadores(
     .player-name {
         font-size: 21px;
     }
-
-    .badges-grid {
-        grid-template-columns: 1fr;
-    }
     
     .player-pred-row {
         grid-template-columns: 28px 1fr 52px 1fr;
