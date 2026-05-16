@@ -3,11 +3,13 @@ import pandas as pd
 import streamlit_antd_components as sac
 
 try:
-    from streamlit_elements import elements, mui
+    from streamlit_elements import elements, mui, sync
     ELEMENTS_AVAILABLE = True
 except Exception:
+    elements = None
+    mui = None
+    sync = None
     ELEMENTS_AVAILABLE = False
-
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
     st.markdown("""
@@ -326,6 +328,10 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     # HELPERS — LAB FORO MUI
     # ============================================================
 
+    # ============================================================
+    # HELPERS — LAB FORO MUI
+    # ============================================================
+
     if "lab_mui_action" not in st.session_state:
         st.session_state.lab_mui_action = None
 
@@ -338,44 +344,35 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     if "lab_mui_total_actions" not in st.session_state:
         st.session_state.lab_mui_total_actions = 0
 
-    if "lab_mui_raw_event" not in st.session_state:
-        st.session_state.lab_mui_raw_event = ""
+    if "lab_mui_last_clicked" not in st.session_state:
+        st.session_state.lab_mui_last_clicked = ""
 
-    def lab_mui_handle_click(event):
+    def lab_mui_register_click(action_id):
         """
-        Handler único para botones MUI.
-        Lee el id del botón desde el evento React/MUI.
+        Recibe un string simple desde MUI.
+        Evita depender de event.currentTarget.id.
         """
+        st.session_state.lab_mui_last_clicked = str(action_id)
 
-        try:
-            action_id = event.currentTarget.id
-        except Exception:
-            try:
-                action_id = event.target.id
-            except Exception:
-                action_id = ""
-
-        st.session_state.lab_mui_raw_event = str(action_id)
-
-        if action_id.startswith("like_"):
-            msg_id = action_id.replace("like_", "")
+        if str(action_id).startswith("like_"):
+            msg_id = str(action_id).replace("like_", "")
             st.session_state.lab_mui_action = f"👍 Like en mensaje {msg_id}"
             st.session_state.lab_mui_like_count += 1
             st.session_state.lab_mui_total_actions += 1
 
-        elif action_id.startswith("dislike_"):
-            msg_id = action_id.replace("dislike_", "")
+        elif str(action_id).startswith("dislike_"):
+            msg_id = str(action_id).replace("dislike_", "")
             st.session_state.lab_mui_action = f"👎 Dislike en mensaje {msg_id}"
             st.session_state.lab_mui_dislike_count += 1
             st.session_state.lab_mui_total_actions += 1
 
-        elif action_id.startswith("delete_"):
-            msg_id = action_id.replace("delete_", "")
+        elif str(action_id).startswith("delete_"):
+            msg_id = str(action_id).replace("delete_", "")
             st.session_state.lab_mui_action = f"🗑️ Borrar mensaje {msg_id}"
             st.session_state.lab_mui_total_actions += 1
 
         else:
-            st.session_state.lab_mui_action = "Click recibido, pero sin id detectado"
+            st.session_state.lab_mui_action = f"Click recibido: {action_id}"
             st.session_state.lab_mui_total_actions += 1
         
     tab = sac.tabs(
@@ -628,7 +625,7 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                 f"Acciones totales: {st.session_state.lab_mui_total_actions} · "
                 f"👍 {st.session_state.lab_mui_like_count} · "
                 f"👎 {st.session_state.lab_mui_dislike_count} · "
-                f"ID detectado: {st.session_state.lab_mui_raw_event}"
+                f"Recibido: {st.session_state.lab_mui_last_clicked}"
             )
         else:
             st.info("🧪 Todavía no se presionó ningún botón MUI.")
@@ -716,7 +713,7 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                     )
 
                     mui.Box(
-                        f"Clicks: {st.session_state.lab_mui_total_actions}",
+                        f"Clicks: {st.session_state.lab_mui_total_actions}"
                         sx={
                             "px": 1.2,
                             "py": 0.45,
@@ -918,11 +915,13 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                                 ):
                                     mui.Button(
                                         f"👍 {st.session_state.lab_mui_like_count}",
-                                            variant="outlined",
-                                            size="small",
-                                            id=f"like_{msg['id']}",
-                                            key=f"lab_like_{msg['id']}",
-                                            onClick=lab_mui_handle_click,
+                                        variant="outlined",
+                                        size="small",
+                                        key=f"lab_like_{msg['id']}",
+                                        onClick=sync(
+                                            lab_mui_register_click,
+                                            f"like_{msg['id']}"
+                                        ),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
@@ -935,9 +934,11 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                                         f"👎 {st.session_state.lab_mui_dislike_count}",
                                         variant="outlined",
                                         size="small",
-                                        id=f"dislike_{msg['id']}",
                                         key=f"lab_dislike_{msg['id']}",
-                                        onClick=lab_mui_handle_click,
+                                        onClick=sync(
+                                            lab_mui_register_click,
+                                            f"dislike_{msg['id']}"
+                                        ),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
@@ -951,16 +952,18 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                                         variant="outlined",
                                         color="warning",
                                         size="small",
-                                        id=f"delete_{msg['id']}",
                                         key=f"lab_delete_{msg['id']}",
-                                        onClick=lab_mui_handle_click,
+                                        onClick=sync(
+                                            lab_mui_register_click,
+                                            f"delete_{msg['id']}"
+                                        ),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
                                             "borderRadius": "10px",
                                             "minHeight": 30,
                                         },
-                                    )    
+                                    )   
     
     # ============================================================
     # TAB 2 — BOTONES
