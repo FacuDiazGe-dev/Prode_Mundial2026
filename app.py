@@ -22,7 +22,7 @@ from io import BytesIO
 from sections.inicio import render_inicio
 from sections.mis_pronosticos import render_mis_pronosticos
 from sections.jugadores import render_jugadores
-from sections.laboratorio import render_laboratorio
+#from sections.laboratorio import render_laboratorio
 from sections.foro import render_foro
 
 
@@ -228,8 +228,8 @@ with st.sidebar:
         "🏠 Inicio",
         "📝 Mis Pronósticos",
         "👥 Jugadores",
-        "💬 Foro",
-        "🧪 Laboratorio"
+        "💬 Foro"#,
+        #"🧪 Laboratorio"
     ]
 
     if st.session_state["user_data"]["ROL"] == "admin":
@@ -482,9 +482,9 @@ elif menu == "⚙️ Panel Control":
         st.error("⛔ No tienes permisos para acceder a esta sección.")
 
 
-elif menu == "🧪 Laboratorio":
-    render_laboratorio(
-        df_usuarios=df_usuarios,
-        df_ranking=df_ranking
-    )
+# elif menu == "🧪 Laboratorio":
+#     render_laboratorio(
+#         df_usuarios=df_usuarios,
+#         df_ranking=df_ranking
+#     )
 
