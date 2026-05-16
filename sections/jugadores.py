@@ -432,7 +432,7 @@ def render_jugadores(
 
 /* ============================================================
    8. MURO DE INSIGNIAS / LOGROS
-   Grid HTML responsive: desktop 3 columnas, mobile 2 columnas.
+   Grid HTML responsive + estilo medallero premium.
    ============================================================ */
 
 .badges-desktop {
@@ -444,12 +444,20 @@ def render_jugadores(
     display: none;
 }
 
-/* Panel general */
+/* Panel general del muro */
 .badges-wall-panel {
-    background: rgba(255,255,255,0.94);
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(244,197,66,0.10),
+            rgba(255,255,255,0.96) 36%
+        ),
+        rgba(255,255,255,0.96);
+
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 18px;
     padding: 16px;
+
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
 }
 
@@ -463,7 +471,7 @@ def render_jugadores(
 /* Card de cada insignia */
 .badge-card {
     min-width: 0;
-    min-height: 118px;
+    min-height: 124px;
 
     background:
         linear-gradient(
@@ -473,9 +481,9 @@ def render_jugadores(
         );
 
     border: 1px solid rgba(226,232,240,0.95);
-    border-radius: 15px;
+    border-radius: 16px;
 
-    padding: 10px 7px;
+    padding: 11px 7px;
     text-align: center;
 
     display: flex;
@@ -485,26 +493,30 @@ def render_jugadores(
 
     box-shadow:
         0 8px 18px rgba(15,23,42,0.04),
-        inset 0 1px 0 rgba(255,255,255,0.55);
+        inset 0 1px 0 rgba(255,255,255,0.65);
 
-    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        border-color 0.16s ease;
 }
 
 .badge-card:hover {
     transform: translateY(-1px);
     border-color: rgba(244,197,66,0.62);
+
     box-shadow:
         0 10px 22px rgba(244,197,66,0.12),
-        inset 0 1px 0 rgba(255,255,255,0.65);
+        inset 0 1px 0 rgba(255,255,255,0.75);
 }
 
 /* Medalla / ícono */
 .badge-icon {
-    width: 46px;
-    height: 46px;
-    margin-bottom: 7px;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 8px;
 
-    border-radius: 15px;
+    border-radius: 50%;
 
     display: flex;
     align-items: center;
@@ -512,19 +524,21 @@ def render_jugadores(
 
     background:
         radial-gradient(
-            circle at 30% 20%,
-            rgba(244,197,66,0.42),
-            rgba(7,17,31,0.96) 68%
+            circle at 35% 25%,
+            rgba(255,224,120,0.95),
+            rgba(244,197,66,0.92) 34%,
+            rgba(160,110,20,0.95) 100%
         );
 
-    border: 1px solid rgba(244,197,66,0.42);
+    border: 2px solid rgba(255,239,170,0.95);
 
-    color: #F4C542;
-    font-size: 24px;
+    color: #07111F;
+    font-size: 25px;
 
     box-shadow:
-        0 8px 18px rgba(15,23,42,0.14),
-        inset 0 1px 0 rgba(255,255,255,0.10);
+        0 8px 18px rgba(15,23,42,0.18),
+        0 0 18px rgba(244,197,66,0.20),
+        inset 0 1px 0 rgba(255,255,255,0.55);
 }
 
 .badge-title {
@@ -558,12 +572,20 @@ def render_jugadores(
 .badge-detail {
     display: inline-block;
 
-    margin-top: 6px;
-    padding: 3px 7px;
+    margin-top: 7px;
+    padding: 4px 8px;
 
     border-radius: 999px;
 
-    background: rgba(7,17,31,0.96);
+    background:
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.96)
+        );
+
+    border: 1px solid rgba(244,197,66,0.18);
+
     color: #F4C542;
 
     font-size: 8px;
@@ -598,16 +620,15 @@ def render_jugadores(
     }
 
     .badge-card {
-        min-height: 112px;
+        min-height: 116px;
         padding: 9px 6px;
         border-radius: 14px;
     }
 
     .badge-icon {
-        width: 42px;
-        height: 42px;
+        width: 44px;
+        height: 44px;
         font-size: 22px;
-        border-radius: 14px;
         margin-bottom: 6px;
     }
 
