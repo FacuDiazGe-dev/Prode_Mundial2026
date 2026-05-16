@@ -338,7 +338,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
         st.session_state.lab_mui_action = ""
 
     if "lab_mui_like_count" not in st.session_state:
-        st.session_state.lab_mui_like_count = 0
+        st.session_state.lab_mui_like_count += 1 
 
     if "lab_mui_dislike_count" not in st.session_state:
         st.session_state.lab_mui_dislike_count = 0
