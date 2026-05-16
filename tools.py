@@ -28,6 +28,9 @@ def get_flag_img(pais):
         "República Democrática del Congo": "cd", "Senegal": "sn", "Sudáfrica": "za",
         "Suecia": "se", "Suiza": "ch", "Túnez": "tn", "Turquía": "tr",
         "Uruguay": "uy", "Uzbekistán": "uz"
+        "Rep. Checa": "cz","Bosnia": "ba","Bosnia-Herzegovina": "ba","EE. UU.": "us",
+        "Estados Unidos": "us",
+        "USA": "us",
     }
     
     code = codigos.get(pais)
