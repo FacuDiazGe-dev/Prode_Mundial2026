@@ -143,11 +143,11 @@ def render_foro(conn, df_usuarios):
 }
 
 .foro-feed-shell {
-    margin-top: 14px;
-    padding: 10px;
+    margin-top: 8px;
+    padding: 8px;
     border-radius: 18px;
-    background: rgba(255,255,255,0.42);
-    border: 1px solid rgba(226,232,240,0.62);
+    background: rgba(248,250,252,0.72);
+    border: 1px solid rgba(226,232,240,0.75);
 }
 
 /* ============================================================
@@ -665,7 +665,13 @@ div[data-testid="stSegmentedControl"] button:hover {
     # ============================================================
     # COLUMNA PRINCIPAL — MURO
     # ============================================================
+
     with col_main:
+
+        # ------------------------------------------------------------
+        # HEADER DEL MURO
+        # ------------------------------------------------------------
+
         st.markdown("""
 <div class="foro-hero-header">
 <div class="foro-hero-row">
@@ -676,7 +682,11 @@ div[data-testid="stSegmentedControl"] button:hover {
 </div>
 </div>
 </div>
-""", unsafe_allow_html=True))
+""", unsafe_allow_html=True)
+
+        # ------------------------------------------------------------
+        # FORMULARIO DE PUBLICACIÓN
+        # ------------------------------------------------------------
 
         with st.expander("🔥 Publicar en el muro", expanded=False):
             with st.form("nuevo_post_full", clear_on_submit=True):
@@ -748,16 +758,19 @@ div[data-testid="stSegmentedControl"] button:hover {
                     st.session_state.foro_uploader_key += 1
 
                     save_foro(df_update)
-                    
-            st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
-        st.markdown("</div>", unsafe_allow_html=True)      # cierra foro-feed-shell
+        # ------------------------------------------------------------
+        # FEED CON SCROLL
+        # ------------------------------------------------------------
+
+        st.markdown('<div class="foro-feed-shell">', unsafe_allow_html=True)
 
         with st.container(height=620):
             st.markdown('<div class="foro-feed">', unsafe_allow_html=True)
 
             if df_foro.empty:
                 st.info("Todavía no hay mensajes en el foro.")
+
             else:
                 for idx, m in df_foro.iloc[::-1].iterrows():
                     usuario_msg = str(m.get("USUARIO", ""))
@@ -848,8 +861,6 @@ div[data-testid="stSegmentedControl"] button:hover {
             st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
         st.markdown("</div>", unsafe_allow_html=True)      # cierra foro-feed-shell
-
-        st.markdown("</div>", unsafe_allow_html=True)      # cierra foro-main-shell
     # ============================================================
     # COLUMNA DERECHA — DECÁLOGO / COMUNIDAD / REGLAS
     # ============================================================
