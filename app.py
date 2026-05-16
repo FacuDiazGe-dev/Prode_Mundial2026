@@ -281,7 +281,8 @@ elif menu == "👥 Jugadores":
         df_usuarios=df_usuarios,
         df_ranking=df_ranking,
         df_pro=df_pro,
-        df_res=df_res
+        df_res=df_res,
+        df_foro=df_foro
     )
        
 # ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
