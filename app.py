@@ -17,8 +17,8 @@ from styles_config import (
 from styles_config import dibujar_banner
 from tools import get_flag_img_cached, upload_profile_picture, registrar_usuario
 from io import BytesIO
-import textwrap
-import streamlit.components.v1 as components
+#import textwrap
+#import streamlit.components.v1 as components
 from sections.inicio import render_inicio
 from sections.mis_pronosticos import render_mis_pronosticos
 from sections.jugadores import render_jugadores
@@ -482,9 +482,9 @@ elif menu == "⚙️ Panel Control":
         st.error("⛔ No tienes permisos para acceder a esta sección.")
 
 
-# elif menu == "🧪 Laboratorio":
-#     render_laboratorio(
-#         df_usuarios=df_usuarios,
-#         df_ranking=df_ranking
-#     )
+elif menu == "🧪 Laboratorio":
+    render_laboratorio(
+        df_usuarios=df_usuarios,
+        df_ranking=df_ranking
+    )
 
