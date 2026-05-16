@@ -576,6 +576,26 @@ div[data-testid="stSegmentedControl"] button:hover {
         max-width: 100%;
         max-height: 230px;
     }
+
+#------------ 7 -  decalogo ---------------------
+
+.decalogo-hero-header {
+    margin-top: 0;
+    margin-bottom: 8px;
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(244,197,66,0.24),
+            rgba(7,17,31,0.98) 38%
+        ),
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.96)
+        );
+}
+
+    
 </style>
 """, unsafe_allow_html=True)
 
@@ -868,8 +888,20 @@ div[data-testid="stSegmentedControl"] button:hover {
         # DECÁLOGO — abierto por defecto
         # ------------------------------------------------------------
 
-        with st.expander("📜 Decálogo del Foro", expanded=True):
-            mostrar_decalogo()
+st.markdown("""
+<div class="foro-hero-header decalogo-hero-header">
+<div class="foro-hero-row">
+<div class="foro-hero-icon">📜</div>
+<div>
+<div class="foro-hero-title">Decálogo del Prode</div>
+<div class="foro-hero-subtitle">“La pelota no se mancha”</div>
+</div>
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+    with st.expander("Ver decálogo", expanded=True):
+        mostrar_decalogo()
 
         # ------------------------------------------------------------
         # DATOS DE COMUNIDAD
