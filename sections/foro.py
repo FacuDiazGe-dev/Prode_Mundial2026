@@ -151,6 +151,119 @@ def render_foro(conn, df_usuarios):
 }
 
 /* ============================================================
+   2C. PANEL INTEGRADO — MURO DEL FORO
+   Contiene header + publicar + feed.
+   ============================================================ */
+
+.foro-main-shell {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 20px;
+    padding: 14px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
+
+.foro-hero-header {
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.22),
+            rgba(7,17,31,0.98) 38%
+        ),
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.96)
+        );
+
+    border: 1px solid rgba(244,197,66,0.22);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 10px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 10px 22px rgba(15,23,42,0.10);
+}
+
+.foro-hero-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.foro-hero-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+    background: rgba(244,197,66,0.18);
+    color: #F4C542;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    flex-shrink: 0;
+}
+
+.foro-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: #F8FAFC;
+    line-height: 1.05;
+}
+
+.foro-hero-subtitle {
+    color: rgba(248,250,252,0.70);
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: 4px;
+}
+
+.foro-publish-wrap {
+    margin-bottom: 10px;
+}
+
+/* Feed integrado al mismo módulo */
+.foro-feed-shell {
+    padding: 10px;
+    border-radius: 18px;
+    background: rgba(248,250,252,0.72);
+    border: 1px solid rgba(226,232,240,0.75);
+}
+
+/* Ajuste fino para que el expander no quede tan separado */
+.foro-publish-wrap div[data-testid="stExpander"] {
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 768px) {
+    .foro-main-shell {
+        padding: 10px;
+        border-radius: 18px;
+    }
+
+    .foro-hero-header {
+        padding: 13px;
+        border-radius: 16px;
+        margin-bottom: 8px;
+    }
+
+    .foro-hero-title {
+        font-size: 18px;
+    }
+
+    .foro-hero-subtitle {
+        font-size: 11px;
+    }
+
+    .foro-feed-shell {
+        padding: 8px;
+        border-radius: 16px;
+    }
+}
+
+/* ============================================================
    3. FORMULARIO
    ============================================================ */
 
@@ -553,24 +666,23 @@ div[data-testid="stSegmentedControl"] button:hover {
     # COLUMNA PRINCIPAL — MURO
     # ============================================================
 
-    with col_main:
         st.markdown("""
-<div class="foro-panel">
-<div class="foro-panel-header">
-<div class="foro-panel-icon">💬</div>
+<div class="foro-main-shell">
+
+<div class="foro-hero-header">
+<div class="foro-hero-row">
+<div class="foro-hero-icon">💬</div>
 <div>
-<div class="foro-panel-title">Muro de la Comunidad</div>
-<div class="foro-panel-subtitle">Chascarrillos, fotos y comentarios mundialistas</div>
+<div class="foro-hero-title">Muro de la Comunidad</div>
+<div class="foro-hero-subtitle">Chascarrillos, fotos y comentarios mundialistas</div>
 </div>
 </div>
+</div>
+
+<div class="foro-publish-wrap">
 """, unsafe_allow_html=True)
 
         with st.expander("🔥 Publicar en el muro", expanded=False):
-            with st.form("nuevo_post_full", clear_on_submit=True):
-                texto = st.text_area(
-                    "¿Qué tenés en mente?",
-                    max_chars=250
-                )
 
                 img_file = st.file_uploader(
                     "Foto opcional",
@@ -633,7 +745,8 @@ div[data-testid="stSegmentedControl"] button:hover {
                     st.session_state.foro_uploader_key += 1
 
                     save_foro(df_update)
-
+                    
+        st.markdown("</div>", unsafe_allow_html=True)
         st.markdown('<div class="foro-feed-shell">', unsafe_allow_html=True)
 
         with st.container(height=620):
@@ -728,9 +841,11 @@ div[data-testid="stSegmentedControl"] button:hover {
                             df_new = df_foro.drop(idx).reset_index(drop=True)
                             save_foro(df_new)
 
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)      # cierra foro-feed-shell
+
+        st.markdown("</div>", unsafe_allow_html=True)      # cierra foro-main-shell
     # ============================================================
     # COLUMNA DERECHA — DECÁLOGO / COMUNIDAD / REGLAS
     # ============================================================
