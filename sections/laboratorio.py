@@ -10,7 +10,7 @@ except Exception:
     mui = None
     sync = None
     ELEMENTS_AVAILABLE = False
-msg_id=125
+msg_id="125"
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
     st.markdown("""
