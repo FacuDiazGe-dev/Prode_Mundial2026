@@ -11,7 +11,8 @@ def render_jugadores(
     df_usuarios,
     df_ranking,
     df_pro,
-    df_res
+    df_res,
+    df_foro=None
 ):
     # ============================================================
     # ESTILOS — JUGADORES
@@ -883,19 +884,12 @@ def render_jugadores(
 
             return "-"
 
-        def get_bio_len(row):
-            bio = str(row.get("DESCRIPCION", "")).strip()
-
-            if bio.lower() == "nan":
-                bio = ""
-
-            return len(bio)
-
         # ------------------------------------------------------------
-        # 1. PUNTERO
+        # 1. PUNTERO — mayor puntaje
         # ------------------------------------------------------------
 
         top_row = df_ranking.iloc[0]
+
         logros.append({
             "icon": "🏆",
             "title": "Puntero",
@@ -904,47 +898,55 @@ def render_jugadores(
         })
 
         # ------------------------------------------------------------
-        # 2. FRANCOTIRADOR — más exactos
+        # 2. SR. PRODE — más exactos
         # ------------------------------------------------------------
 
         if "EXACTOS" in df_ranking.columns:
-            exactos_num = pd.to_numeric(df_ranking["EXACTOS"], errors="coerce").fillna(0)
+            exactos_num = pd.to_numeric(
+                df_ranking["EXACTOS"],
+                errors="coerce"
+            ).fillna(0)
+
             idx_exactos = exactos_num.idxmax()
             row_exactos = df_ranking.loc[idx_exactos]
 
             logros.append({
                 "icon": "🎯",
-                "title": "Francotirador",
+                "title": "Sr. Prode",
                 "winner": nombre_desde_rank(row_exactos),
                 "detail": f'{safe_int(row_exactos.get("EXACTOS", 0))} exactos'
             })
         else:
             logros.append({
                 "icon": "🎯",
-                "title": "Francotirador",
+                "title": "Sr. Prode",
                 "winner": "-",
                 "detail": "Sin datos"
             })
 
         # ------------------------------------------------------------
-        # 3. REGULARIDAD PURA — más generales
+        # 3. EL CONSTANTE — más generales
         # ------------------------------------------------------------
 
         if "GENERALES" in df_ranking.columns:
-            generales_num = pd.to_numeric(df_ranking["GENERALES"], errors="coerce").fillna(0)
+            generales_num = pd.to_numeric(
+                df_ranking["GENERALES"],
+                errors="coerce"
+            ).fillna(0)
+
             idx_generales = generales_num.idxmax()
             row_generales = df_ranking.loc[idx_generales]
 
             logros.append({
                 "icon": "✅",
-                "title": "Regularidad",
+                "title": "El Constante",
                 "winner": nombre_desde_rank(row_generales),
                 "detail": f'{safe_int(row_generales.get("GENERALES", 0))} generales'
             })
         else:
             logros.append({
                 "icon": "✅",
-                "title": "Regularidad",
+                "title": "El Constante",
                 "winner": "-",
                 "detail": "Sin datos"
             })
@@ -993,38 +995,38 @@ def render_jugadores(
 
             logros.append({
                 "icon": "⚽",
-                "title": "Optimista",
+                "title": "Optimista del Gol",
                 "winner": optimista["nombre"],
                 "detail": f'{round(optimista["promedio_goles"], 1)} goles/prom.'
             })
         else:
             logros.append({
                 "icon": "⚽",
-                "title": "Optimista",
+                "title": "Optimista del Gol",
                 "winner": "-",
                 "detail": "Sin datos"
             })
 
         # ------------------------------------------------------------
-        # 5. BILARDISTA — menor promedio de goles
+        # 5. EL CHOLO — menor promedio de goles
         # ------------------------------------------------------------
 
         if stats_pronosticos:
-            bilardista = min(
+            cholo = min(
                 stats_pronosticos,
                 key=lambda x: x["promedio_goles"]
             )
 
             logros.append({
                 "icon": "🧱",
-                "title": "Bilardista",
-                "winner": bilardista["nombre"],
-                "detail": f'{round(bilardista["promedio_goles"], 1)} goles/prom.'
+                "title": "El Cholo",
+                "winner": cholo["nombre"],
+                "detail": f'{round(cholo["promedio_goles"], 1)} goles/prom.'
             })
         else:
             logros.append({
                 "icon": "🧱",
-                "title": "Bilardista",
+                "title": "El Cholo",
                 "winner": "-",
                 "detail": "Sin datos"
             })
@@ -1041,94 +1043,155 @@ def render_jugadores(
 
             logros.append({
                 "icon": "🤝",
-                "title": "Rey empate",
+                "title": "Rey del Empate",
                 "winner": rey_empate["nombre"],
                 "detail": f'{rey_empate["empates"]} empates'
             })
         else:
             logros.append({
                 "icon": "🤝",
-                "title": "Rey empate",
+                "title": "Rey del Empate",
                 "winner": "-",
                 "detail": "Sin datos"
             })
 
         # ------------------------------------------------------------
-        # 7. EL POETA — bio más larga
+        # DATOS DEL FORO
         # ------------------------------------------------------------
 
-        df_bios = df_usuarios.copy()
-        df_bios["BIO_LEN"] = df_bios.apply(get_bio_len, axis=1)
+        foro_counts = {}
 
-        if not df_bios.empty and df_bios["BIO_LEN"].max() > 0:
-            poeta_row = df_bios.loc[df_bios["BIO_LEN"].idxmax()]
+        if df_foro is not None and not df_foro.empty and "USUARIO" in df_foro.columns:
+            foro_counts = (
+                df_foro["USUARIO"]
+                .astype(str)
+                .value_counts()
+                .to_dict()
+            )
+
+        usuarios_foro = []
+
+        for _, u in df_usuarios.iterrows():
+            usuario = str(u.get("USUARIO", ""))
+            nombre = str(u.get("NOMBRE", usuario))
+            cantidad = int(foro_counts.get(usuario, 0))
+
+            usuarios_foro.append({
+                "usuario": usuario,
+                "nombre": nombre,
+                "comentarios": cantidad
+            })
+
+        # ------------------------------------------------------------
+        # 7. EL MACAYA — más comentarios en el foro
+        # ------------------------------------------------------------
+
+        if usuarios_foro and foro_counts:
+            macaya = max(
+                usuarios_foro,
+                key=lambda x: x["comentarios"]
+            )
 
             logros.append({
-                "icon": "📝",
-                "title": "El poeta",
-                "winner": str(poeta_row.get("NOMBRE", "-")),
-                "detail": f'{int(poeta_row.get("BIO_LEN", 0))} caracteres'
+                "icon": "🎙️",
+                "title": "El Macaya",
+                "winner": macaya["nombre"],
+                "detail": f'{macaya["comentarios"]} comentarios'
             })
         else:
             logros.append({
-                "icon": "📝",
-                "title": "El poeta",
+                "icon": "🎙️",
+                "title": "El Macaya",
                 "winner": "-",
-                "detail": "Sin bios"
+                "detail": "Sin foro"
             })
 
         # ------------------------------------------------------------
-        # 8. EL MISTERIOSO — bio vacía o más corta
+        # 8. EL MISTERIOSO — menos comentarios en el foro
         # ------------------------------------------------------------
 
-        if not df_bios.empty:
-            misteriosos = df_bios[df_bios["BIO_LEN"] == 0]
+        if usuarios_foro and foro_counts:
+            misterioso = min(
+                usuarios_foro,
+                key=lambda x: x["comentarios"]
+            )
 
-            if not misteriosos.empty:
-                misterioso_row = misteriosos.iloc[0]
-                detalle_misterioso = "Sin bio"
-            else:
-                misterioso_row = df_bios.loc[df_bios["BIO_LEN"].idxmin()]
-                detalle_misterioso = f'{int(misterioso_row.get("BIO_LEN", 0))} caracteres'
+            detalle_misterioso = (
+                "Sin comentarios"
+                if misterioso["comentarios"] == 0
+                else f'{misterioso["comentarios"]} comentarios'
+            )
 
             logros.append({
                 "icon": "🕵️",
-                "title": "Misterioso",
-                "winner": str(misterioso_row.get("NOMBRE", "-")),
+                "title": "El Misterioso",
+                "winner": misterioso["nombre"],
                 "detail": detalle_misterioso
             })
         else:
             logros.append({
                 "icon": "🕵️",
-                "title": "Misterioso",
+                "title": "El Misterioso",
                 "winner": "-",
-                "detail": "Sin datos"
+                "detail": "Sin foro"
             })
 
         # ------------------------------------------------------------
-        # 9. CALCULADORA — más cercano al promedio general del grupo
+        # 9. EL DISTINTO — más alejado de la media del grupo
         # ------------------------------------------------------------
 
-        if stats_pronosticos:
-            promedio_grupo = sum(
-                x["promedio_goles"] for x in stats_pronosticos
-            ) / len(stats_pronosticos)
+        if len(stats_pronosticos) >= 2:
+            distintos = []
 
-            calculadora = min(
-                stats_pronosticos,
-                key=lambda x: abs(x["promedio_goles"] - promedio_grupo)
-            )
+            for jugador in stats_pronosticos:
+                otros = [
+                    x for x in stats_pronosticos
+                    if x["usuario"] != jugador["usuario"]
+                ]
 
-            logros.append({
-                "icon": "📊",
-                "title": "Calculadora",
-                "winner": calculadora["nombre"],
-                "detail": f'{round(calculadora["promedio_goles"], 1)} vs {round(promedio_grupo, 1)}'
-            })
+                if not otros:
+                    continue
+
+                promedio_otros = (
+                    sum(x["promedio_goles"] for x in otros) / len(otros)
+                )
+
+                diferencia = abs(
+                    jugador["promedio_goles"] - promedio_otros
+                )
+
+                distintos.append({
+                    "usuario": jugador["usuario"],
+                    "nombre": jugador["nombre"],
+                    "promedio_goles": jugador["promedio_goles"],
+                    "promedio_otros": promedio_otros,
+                    "diferencia": diferencia
+                })
+
+            if distintos:
+                distinto = max(
+                    distintos,
+                    key=lambda x: x["diferencia"]
+                )
+
+                logros.append({
+                    "icon": "🧬",
+                    "title": "El Distinto",
+                    "winner": distinto["nombre"],
+                    "detail": f'±{round(distinto["diferencia"], 1)} goles/prom.'
+                })
+            else:
+                logros.append({
+                    "icon": "🧬",
+                    "title": "El Distinto",
+                    "winner": "-",
+                    "detail": "Sin datos"
+                })
+
         else:
             logros.append({
-                "icon": "📊",
-                "title": "Calculadora",
+                "icon": "🧬",
+                "title": "El Distinto",
                 "winner": "-",
                 "detail": "Sin datos"
             })
