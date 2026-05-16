@@ -346,7 +346,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     # ✅ SOLUCIÓN: Usar callbacks Python directos en lugar de sync()
     # ============================================================
 
-    def on_like_click(msg_id):
+    def on_like_click(msg_1):
         """Callback cuando se clickea el botón de like"""
         st.session_state.lab_mui_like_count += 1
         st.session_state.lab_mui_total_actions += 1
@@ -877,7 +877,7 @@ Clickea los botones de like, dislike y borrar. Los clicks se cuentan correctamen
                                         f"👍 {st.session_state.lab_mui_like_count}",
                                         variant="outlined",
                                         size="small",
-                                        onClick=lambda msg_id=True : on_like_click(msg_id),
+                                        onClick=lambda msg_id=msg["1"] : on_like_click(msg_id),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
