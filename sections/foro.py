@@ -155,13 +155,7 @@ def render_foro(conn, df_usuarios):
    Contiene header + publicar + feed.
    ============================================================ */
 
-.foro-main-shell {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 20px;
-    padding: 14px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
-}
+
 
 .foro-hero-header {
     background:
@@ -220,22 +214,6 @@ def render_foro(conn, df_usuarios):
     margin-top: 4px;
 }
 
-.foro-publish-wrap {
-    margin-bottom: 10px;
-}
-
-/* Feed integrado al mismo módulo */
-.foro-feed-shell {
-    padding: 10px;
-    border-radius: 18px;
-    background: rgba(248,250,252,0.72);
-    border: 1px solid rgba(226,232,240,0.75);
-}
-
-/* Ajuste fino para que el expander no quede tan separado */
-.foro-publish-wrap div[data-testid="stExpander"] {
-    margin-bottom: 0 !important;
-}
 
 @media (max-width: 768px) {
     .foro-main-shell {
@@ -255,11 +233,6 @@ def render_foro(conn, df_usuarios):
 
     .foro-hero-subtitle {
         font-size: 11px;
-    }
-
-    .foro-feed-shell {
-        padding: 8px;
-        border-radius: 16px;
     }
 }
 
@@ -505,7 +478,9 @@ div[data-testid="stSegmentedControl"] button:hover {
    5. COMUNIDAD / STATS / REGLAS
    ============================================================ */
 
-#------------ 7 -  decalogo ---------------------
+/* ============================================================
+   5A. DECÁLOGO
+   ============================================================ */
 
 .decalogo-hero-header {
     margin-top: 0;
@@ -578,13 +553,10 @@ div[data-testid="stSegmentedControl"] button:hover {
         font-size: 13px;
     }
 
-    .foro-message-img {
-        max-height: 260px;
-    }
-}
     .foro-message-body.has-image {
         display: block;
     }
+
     .foro-image-wrap {
         margin-top: 9px;
     }
@@ -594,7 +566,7 @@ div[data-testid="stSegmentedControl"] button:hover {
         max-width: 100%;
         max-height: 230px;
     }
-
+}
     
 </style>
 """, unsafe_allow_html=True)
@@ -885,10 +857,10 @@ div[data-testid="stSegmentedControl"] button:hover {
     with col_side:
 
         # ------------------------------------------------------------
-        # DECÁLOGO — abierto por defecto
+        # DECÁLOGO
         # ------------------------------------------------------------
 
-st.markdown("""
+        st.markdown("""
 <div class="foro-hero-header decalogo-hero-header">
 <div class="foro-hero-row">
 <div class="foro-hero-icon">📜</div>
@@ -900,8 +872,8 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-    with st.expander("Ver decálogo", expanded=True):
-        mostrar_decalogo()
+        with st.expander("Ver decálogo", expanded=True):
+            mostrar_decalogo()
 
         # ------------------------------------------------------------
         # DATOS DE COMUNIDAD
