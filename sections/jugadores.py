@@ -58,7 +58,7 @@ def render_jugadores(
 
 .players-panel,
 .player-profile-panel,
-.badges--wall-panel,
+.badges-wall-panel,
 .player-preds-panel {
     background: rgba(255,255,255,0.94);
     border: 1px solid rgba(226,232,240,0.9);
@@ -102,7 +102,6 @@ def render_jugadores(
     font-weight: 700;
     margin-top: 2px;
 }
-
 /* ============================================================
    3. LISTADO SELECTOR DE JUGADORES
    Estructura: botón pequeño + card visual del jugador.
@@ -252,112 +251,6 @@ def render_jugadores(
     margin-bottom: 10px;
 }
 
-@media (max-width: 768px) {
-    .badges-desktop {
-        display: none;
-    }
-
-    .badges--mobile {
-        display: block;
-        margin-top: 18px;
-    }
-
-    .badges--grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-    }
-
-    .badge-card {
-        min-height: 108px;
-        padding: 9px 6px;
-        border-radius: 14px;
-    }
-
-    .badge-icon {
-        width: 42px;
-        height: 42px;
-        font-size: 22px;
-        margin-bottom: 6px;
-        border-radius: 13px;
-    }
-
-    /* Variantes visuales por insignia */
-    
-    .badge-puntero .badge-icon {
-        background:
-            radial-gradient(circle at 35% 25%, #fff2a8, #F4C542 38%, #9a6508 100%);
-        color: #07111F;
-    }
-    
-    .badge-prode .badge-icon {
-        background:
-            radial-gradient(circle at 35% 25%, #ffd6d6, #dc2626 42%, #450a0a 100%);
-        color: #ffffff;
-        border-color: rgba(254,202,202,0.95);
-    }
-    
-    .badge-constante .badge-icon {
-        background:
-            radial-gradient(circle at 35% 25%, #bbf7d0, #16a34a 42%, #052e16 100%);
-        color: #ffffff;
-        border-color: rgba(187,247,208,0.95);
-    }
-    
-    .badge-gol .badge-icon {
-        background:
-            radial-gradient(circle at 35% 25%, #bae6fd, #0284c7 42%, #082f49 100%);
-        color: #ffffff;
-        border-color: rgba(186,230,253,0.95);
-    }
-    
-    .badge-cholo .badge-icon {
-        background:
-            radial-gradient(circle at 35% 25%, #cbd5e1, #334155 44%, #020617 100%);
-        color: #F4C542;
-        border-color: rgba(203,213,225,0.95);
-    }
-    
-    .badge-empate .badge-icon {
-        background:
-            radial-gradient(circle at 35% 25%, #ddd6fe, #7c3aed 42%, #2e1065 100%);
-        color: #ffffff;
-        border-color: rgba(221,214,254,0.95);
-    }
-    
-    .badge-macaya .badge-icon {
-        background:
-            radial-gradient(circle at 35% 25%, #fde68a, #d97706 42%, #451a03 100%);
-        color: #ffffff;
-        border-color: rgba(253,230,138,0.95);
-    }
-    
-    .badge-misterioso .badge-icon {
-        background:
-            radial-gradient(circle at 35% 25%, #e2e8f0, #475569 42%, #020617 100%);
-        color: #ffffff;
-        border-color: rgba(226,232,240,0.95);
-    }
-    
-    .badge-distinto .badge-icon {
-        background:
-            radial-gradient(circle at 35% 25%, #ccfbf1, #14b8a6 38%, #042f2e 100%);
-        color: #ffffff;
-        border-color: rgba(204,251,241,0.95);
-    }
-
-    .badge-title {
-        font-size: 9px;
-        line-height: 1.1;
-    }
-
-    .badge-winner {
-        font-size: 10px;
-    }
-
-    .badge-detail {
-        font-size: 8px;
-    }
-}
 
 /* ============================================================
    5. FICHA DEL JUGADOR SELECCIONADO
@@ -509,7 +402,7 @@ def render_jugadores(
 }
 
 /* Panel general del muro */
-.badges--wall-panel {
+.badges-wall-panel {
     background:
         radial-gradient(
             circle at 100% 0%,
@@ -526,9 +419,9 @@ def render_jugadores(
 }
 
 /* Grid real de insignias */
-.badges--grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+.badges-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 10px;
 }
 
@@ -574,7 +467,7 @@ def render_jugadores(
         inset 0 1px 0 rgba(255,255,255,0.75);
 }
 
-/* Medalla / ícono */
+/* Medalla / ícono base */
 .badge-icon {
     width: 50px;
     height: 50px;
@@ -603,6 +496,70 @@ def render_jugadores(
         0 8px 18px rgba(15,23,42,0.18),
         0 0 18px rgba(244,197,66,0.20),
         inset 0 1px 0 rgba(255,255,255,0.55);
+}
+
+/* Variantes visuales por insignia */
+
+.badge-puntero .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #fff2a8, #F4C542 38%, #9a6508 100%);
+    color: #07111F;
+}
+
+.badge-prode .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #ffd6d6, #dc2626 42%, #450a0a 100%);
+    color: #ffffff;
+    border-color: rgba(254,202,202,0.95);
+}
+
+.badge-constante .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #bbf7d0, #16a34a 42%, #052e16 100%);
+    color: #ffffff;
+    border-color: rgba(187,247,208,0.95);
+}
+
+.badge-gol .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #bae6fd, #0284c7 42%, #082f49 100%);
+    color: #ffffff;
+    border-color: rgba(186,230,253,0.95);
+}
+
+.badge-cholo .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #cbd5e1, #334155 44%, #020617 100%);
+    color: #F4C542;
+    border-color: rgba(203,213,225,0.95);
+}
+
+.badge-empate .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #ddd6fe, #7c3aed 42%, #2e1065 100%);
+    color: #ffffff;
+    border-color: rgba(221,214,254,0.95);
+}
+
+.badge-macaya .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #fde68a, #d97706 42%, #451a03 100%);
+    color: #ffffff;
+    border-color: rgba(253,230,138,0.95);
+}
+
+.badge-misterioso .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #e2e8f0, #475569 42%, #020617 100%);
+    color: #ffffff;
+    border-color: rgba(226,232,240,0.95);
+}
+
+.badge-distinto .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #ccfbf1, #14b8a6 38%, #042f2e 100%);
+    color: #ffffff;
+    border-color: rgba(204,251,241,0.95);
 }
 
 .badge-title {
@@ -678,6 +635,12 @@ def render_jugadores(
         border-radius: 16px;
     }
 
+    .badges-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px;
+    }
+
     .badge-card {
         min-height: 116px;
         padding: 9px 6px;
@@ -717,16 +680,6 @@ def render_jugadores(
     padding-right: 4px;
 }
 
-.player-pred-row {
-    display: grid;
-    grid-template-columns: 32px 1fr 58px 1fr;
-    align-items: center;
-    gap: 6px;
-
-    padding: 7px 6px;
-    border-bottom: 1px solid rgba(226,232,240,0.75);
-    font-size: 11px;
-}
 .player-pred-row {
     display: grid;
     grid-template-columns: 32px 1fr 58px 1fr;
@@ -787,7 +740,7 @@ def render_jugadores(
 
     .players-panel,
     .player-profile-panel,
-    .badges--wall-panel,
+    .badges-wall-panel,
     .player-preds-panel {
         padding: 13px;
         border-radius: 16px;
