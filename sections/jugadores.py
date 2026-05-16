@@ -281,69 +281,69 @@ def render_jugadores(
         border-radius: 13px;
     }
 
-/* Variantes visuales por insignia */
-
-.badge-puntero .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #fff2a8, #F4C542 38%, #9a6508 100%);
-    color: #07111F;
-}
-
-.badge-prode .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #ffd6d6, #dc2626 42%, #450a0a 100%);
-    color: #ffffff;
-    border-color: rgba(254,202,202,0.95);
-}
-
-.badge-constante .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #bbf7d0, #16a34a 42%, #052e16 100%);
-    color: #ffffff;
-    border-color: rgba(187,247,208,0.95);
-}
-
-.badge-gol .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #bae6fd, #0284c7 42%, #082f49 100%);
-    color: #ffffff;
-    border-color: rgba(186,230,253,0.95);
-}
-
-.badge-cholo .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #cbd5e1, #334155 44%, #020617 100%);
-    color: #F4C542;
-    border-color: rgba(203,213,225,0.95);
-}
-
-.badge-empate .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #ddd6fe, #7c3aed 42%, #2e1065 100%);
-    color: #ffffff;
-    border-color: rgba(221,214,254,0.95);
-}
-
-.badge-macaya .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #fde68a, #d97706 42%, #451a03 100%);
-    color: #ffffff;
-    border-color: rgba(253,230,138,0.95);
-}
-
-.badge-misterioso .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #e2e8f0, #475569 42%, #020617 100%);
-    color: #ffffff;
-    border-color: rgba(226,232,240,0.95);
-}
-
-.badge-distinto .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #ccfbf1, #14b8a6 38%, #042f2e 100%);
-    color: #ffffff;
-    border-color: rgba(204,251,241,0.95);
-}
+    /* Variantes visuales por insignia */
+    
+    .badge-puntero .badge-icon {
+        background:
+            radial-gradient(circle at 35% 25%, #fff2a8, #F4C542 38%, #9a6508 100%);
+        color: #07111F;
+    }
+    
+    .badge-prode .badge-icon {
+        background:
+            radial-gradient(circle at 35% 25%, #ffd6d6, #dc2626 42%, #450a0a 100%);
+        color: #ffffff;
+        border-color: rgba(254,202,202,0.95);
+    }
+    
+    .badge-constante .badge-icon {
+        background:
+            radial-gradient(circle at 35% 25%, #bbf7d0, #16a34a 42%, #052e16 100%);
+        color: #ffffff;
+        border-color: rgba(187,247,208,0.95);
+    }
+    
+    .badge-gol .badge-icon {
+        background:
+            radial-gradient(circle at 35% 25%, #bae6fd, #0284c7 42%, #082f49 100%);
+        color: #ffffff;
+        border-color: rgba(186,230,253,0.95);
+    }
+    
+    .badge-cholo .badge-icon {
+        background:
+            radial-gradient(circle at 35% 25%, #cbd5e1, #334155 44%, #020617 100%);
+        color: #F4C542;
+        border-color: rgba(203,213,225,0.95);
+    }
+    
+    .badge-empate .badge-icon {
+        background:
+            radial-gradient(circle at 35% 25%, #ddd6fe, #7c3aed 42%, #2e1065 100%);
+        color: #ffffff;
+        border-color: rgba(221,214,254,0.95);
+    }
+    
+    .badge-macaya .badge-icon {
+        background:
+            radial-gradient(circle at 35% 25%, #fde68a, #d97706 42%, #451a03 100%);
+        color: #ffffff;
+        border-color: rgba(253,230,138,0.95);
+    }
+    
+    .badge-misterioso .badge-icon {
+        background:
+            radial-gradient(circle at 35% 25%, #e2e8f0, #475569 42%, #020617 100%);
+        color: #ffffff;
+        border-color: rgba(226,232,240,0.95);
+    }
+    
+    .badge-distinto .badge-icon {
+        background:
+            radial-gradient(circle at 35% 25%, #ccfbf1, #14b8a6 38%, #042f2e 100%);
+        color: #ffffff;
+        border-color: rgba(204,251,241,0.95);
+    }
 
     .badge-title {
         font-size: 9px;
