@@ -97,152 +97,121 @@ def render_mis_pronosticos(
 }
 
 /* ============================================================
-   PARTIDO CARD — VERSION 2 FILAS
-   Resultado arriba / Equipos abajo
+   PARTIDO CARD — ESTILO RESULTADOS OFICIALES
    ============================================================ */
 
 .pred-match-card-v2 {
     background: rgba(248,250,252,0.96);
     border: 1px solid rgba(226,232,240,0.95);
-    border-radius: 15px;
-    padding: 10px 12px 12px 12px;
-    margin-bottom: 10px;
-    overflow: hidden;
+    border-radius: 16px;
+
+    padding: 13px 14px;
+    margin-bottom: 11px;
+
+    box-shadow: 0 8px 18px rgba(15,23,42,0.035);
 }
 
 .pred-match-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     color: #94a3b8;
     font-size: 10px;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    margin-bottom: 10px;
+
+    margin-bottom: 13px;
 }
 
-.pred-score-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-
-    background: rgba(7,17,31,0.96);
-    border: 1px solid rgba(244,197,66,0.20);
-    border-radius: 14px;
-
-    padding: 9px 10px;
-    margin-bottom: 9px;
-}
-
-.pred-score-sep {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 20px;
-    font-weight: 900;
-    color: #F4C542;
-    line-height: 1;
-}
-
-.pred-teams-row {
+.pred-match-main-row {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
-    gap: 10px;
-
-    background: rgba(255,255,255,0.76);
-    border: 1px solid rgba(226,232,240,0.8);
-    border-radius: 13px;
-
-    padding: 9px 10px;
+    gap: 12px;
 }
 
-.pred-team-side {
+.pred-team-inline {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     min-width: 0;
 }
 
-.pred-team-side.left {
+.pred-team-inline.left {
     justify-content: flex-end;
     text-align: right;
 }
 
-.pred-team-side.right {
+.pred-team-inline.right {
     justify-content: flex-start;
     text-align: left;
 }
 
-.pred-team-side span {
-    color: #0f172a;
+.pred-team-inline span {
+    color: #07111F;
     font-size: 13px;
     font-weight: 900;
+    line-height: 1.15;
+
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.pred-team-side img,
+.pred-team-inline img,
 .pred-flag {
-    width: 28px;
-    height: 20px;
+    width: 30px;
+    height: 21px;
     object-fit: cover;
     border-radius: 4px;
     flex-shrink: 0;
-    box-shadow: 0 2px 5px rgba(15,23,42,0.16);
+
+    box-shadow:
+        0 3px 7px rgba(15,23,42,0.20),
+        inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
-.pred-vs-label {
-    color: #94a3b8;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-}
+.pred-score-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 
-
-
-/* Input único de marcador 0-0 */
-div[data-testid="stTextInput"] {
-    max-width: 96px !important;
-    margin: 0 auto 9px auto !important;
-}
-
-div[data-testid="stTextInput"] input {
-    height: 44px !important;
-    text-align: center !important;
-
-    font-family: 'Montserrat', sans-serif !important;
-    font-size: 22px !important;
-    font-weight: 900 !important;
-
-    letter-spacing: 0.08em !important;
-
-    border-radius: 13px !important;
-    border: 1px solid rgba(244,197,66,0.42) !important;
+    min-width: 78px;
+    height: 44px;
 
     background:
         linear-gradient(
             135deg,
             rgba(7,17,31,0.98),
-            rgba(15,23,42,0.95)
-        ) !important;
+            rgba(15,23,42,0.96)
+        );
 
-    color: #F4C542 !important;
+    border: 1px solid rgba(244,197,66,0.22);
+    border-radius: 11px;
 
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.06),
-        0 8px 18px rgba(15,23,42,0.12) !important;
+        0 8px 18px rgba(15,23,42,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.07);
 }
 
-div[data-testid="stTextInput"] input:disabled {
-    color: #F4C542 !important;
-    opacity: 0.85 !important;
-    -webkit-text-fill-color: #F4C542 !important;
-}  
+.pred-score-pill span {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: #F8FAFC;
+    line-height: 1;
+}
+
+.pred-score-pill .score-colon {
+    color: #F4C542;
+    opacity: 0.95;
+}
 
 .pred-match-gap {
-    height: 6px;
+    height: 2px;
 }
 
 /* ============================================================
@@ -386,12 +355,10 @@ div[data-testid="stTextInput"] input:disabled {
         font-size: 12px;
     }
 
-    div[data-testid="stForm"] {
-        padding: 12px !important;
-    }
-
     .pred-panel-header-v2 {
-        padding: 10px 12px 12px 12px;
+        padding: 11px 12px;
+        border-radius: 14px;
+        margin-bottom: 12px;
     }
 
     .panel-title {
@@ -402,109 +369,84 @@ div[data-testid="stTextInput"] input:disabled {
         font-size: 10px;
     }
 
+    /* Card de partido */
     .pred-match-card-v2 {
-        padding: 8px 8px 9px 8px !important;
-        border-radius: 13px !important;
+        padding: 10px 9px !important;
+        border-radius: 14px !important;
         margin-bottom: 9px !important;
     }
 
     .pred-match-meta {
         font-size: 8px !important;
         letter-spacing: 0.03em !important;
-        margin-bottom: 7px !important;
+        margin-bottom: 9px !important;
     }
 
-    .pred-score-row {
-        padding: 7px 8px !important;
+    .pred-match-main-row {
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
         gap: 6px !important;
-        border-radius: 12px !important;
-        margin-bottom: 7px !important;
     }
 
-    .pred-score-sep {
-        font-size: 16px !important;
-    }
-
-    .pred-teams-row {
-        gap: 6px !important;
-        padding: 7px 7px !important;
-        border-radius: 11px !important;
-    }
-
-    .pred-team-side {
+    .pred-team-inline {
         gap: 4px !important;
     }
 
-    .pred-team-side span {
+    .pred-team-inline span {
         font-size: 9px !important;
-        max-width: 92px !important;
+        max-width: 84px !important;
+        line-height: 1.15 !important;
     }
 
-    .pred-team-side img,
+    .pred-team-inline img,
     .pred-flag {
-        width: 18px !important;
-        height: 13px !important;
+        width: 20px !important;
+        height: 14px !important;
         border-radius: 3px !important;
     }
 
-    .pred-vs-label {
-        font-size: 8px !important;
+    .pred-score-pill {
+        min-width: 58px !important;
+        height: 36px !important;
+        border-radius: 9px !important;
+        gap: 3px !important;
     }
 
-    div[data-testid="stNumberInput"] {
-        width: 36px !important;
-        min-width: 36px !important;
-        max-width: 36px !important;
-    }
-
-    div[data-testid="stNumberInput"] input {
-        width: 36px !important;
-        min-width: 36px !important;
-        max-width: 36px !important;
-
-        height: 32px !important;
-        min-height: 32px !important;
-        max-height: 32px !important;
-
-        padding: 0 !important;
+    .pred-score-pill span {
         font-size: 14px !important;
-        border-radius: 8px !important;
     }
-    div[data-testid="stTextInput"] {
-        max-width: 82px !important;
-        margin-bottom: 7px !important;
-    }
-    
-    div[data-testid="stTextInput"] input {
-        height: 38px !important;
-        font-size: 19px !important;
-        border-radius: 11px !important;
-    }
+
     .pred-match-gap {
         height: 4px !important;
     }
 
+    /* Tabla editable */
+    div[data-testid="stDataFrame"] {
+        font-size: 11px !important;
+    }
+
+    /* Resumen inferior */
     .pred-summary-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
         gap: 5px !important;
     }
-    
+
     .pred-summary-item {
         padding: 7px 3px !important;
     }
-    
+
     .pred-summary-icon {
         font-size: 13px !important;
     }
-    
+
     .pred-summary-number {
         font-size: 14px !important;
     }
-    
+
     .pred-summary-label {
         font-size: 7px !important;
     }
 
+    /* Perfil */
     .profile-stats {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -514,7 +456,6 @@ div[data-testid="stTextInput"] input:disabled {
         gap: 2px;
     }
 }
-
 /* ============================================================
    MI PERFIL — CARD PREMIUM
    ============================================================ */
@@ -1017,29 +958,30 @@ div[data-testid="stButton"] button {
                     st.markdown(
                         f"""
 <div class="pred-match-card-v2">
+
 <div class="pred-match-meta">
 <span>Partido #{id_p}</span>
 <span>{escape(dia)} | {escape(hora)}</span>
 </div>
 
-<div class="pred-score-row">
-<span class="pred-score-sep">{v1}</span>
-<span class="pred-score-sep">-</span>
-<span class="pred-score-sep">{v2}</span>
-</div>
+<div class="pred-match-main-row">
 
-<div class="pred-teams-row">
-<div class="pred-team-side left">
+<div class="pred-team-inline left">
 <span>{escape(equipo_1)}</span>
 {flag_html(bandera1)}
 </div>
 
-<div class="pred-vs-label">VS</div>
+<div class="pred-score-pill">
+<span>{v1}</span>
+<span class="score-colon">:</span>
+<span>{v2}</span>
+</div>
 
-<div class="pred-team-side right">
+<div class="pred-team-inline right">
 {flag_html(bandera2)}
 <span>{escape(equipo_2)}</span>
 </div>
+
 </div>
 </div>
 """,
