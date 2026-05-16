@@ -877,7 +877,7 @@ Clickea los botones de like, dislike y borrar. Los clicks se cuentan correctamen
                                         f"👍 {st.session_state.lab_mui_like_count}",
                                         variant="outlined",
                                         size="small",
-                                        onClick=lambda msg_id=msg["1"] : on_like_click(msg_id),
+                                        onClick=lambda msg_id=1 : on_like_click(msg_id),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
