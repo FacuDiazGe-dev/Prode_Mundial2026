@@ -328,10 +328,6 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     # HELPERS — LAB FORO MUI
     # ============================================================
 
-    # ============================================================
-    # HELPERS — LAB FORO MUI
-    # ============================================================
-
     if "lab_mui_action" not in st.session_state:
         st.session_state.lab_mui_action = None
 
@@ -684,7 +680,7 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                     "border": "1px solid rgba(226,232,240,0.95)",
                     "boxShadow": "0 14px 32px rgba(15,23,42,0.08)",
                     "p": 2,
-                }
+                },
             ):
 
                 # Indicador visual dentro del panel MUI
@@ -713,7 +709,7 @@ Prueba para resolver el problema real del Foro: cards, scroll interno y botones 
                     )
 
                     mui.Box(
-                        f"Clicks: {st.session_state.lab_mui_total_actions}"
+                        f"Clicks: {st.session_state.lab_mui_total_actions}",
                         sx={
                             "px": 1.2,
                             "py": 0.45,
