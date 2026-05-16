@@ -344,12 +344,6 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     if "lab_mui_total_actions" not in st.session_state:
         st.session_state.lab_mui_total_actions = 0
 
-    # ============================================================
-    # Inicializar tab_index correctamente
-    # ============================================================
-    if "lab_tabs_index" not in st.session_state:
-        st.session_state.lab_tabs_index = 0
-
     def crear_handler_click(action_id):
         """
         Handler que actualiza session_state directamente.
@@ -398,6 +392,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
         align="center",
         size="md",
         return_index=True,
+        key="lab_tabs_index_v2",
     )
 
     # ============================================================
