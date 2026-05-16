@@ -281,6 +281,70 @@ def render_jugadores(
         border-radius: 13px;
     }
 
+/* Variantes visuales por insignia */
+
+.badge-puntero .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #fff2a8, #F4C542 38%, #9a6508 100%);
+    color: #07111F;
+}
+
+.badge-prode .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #ffd6d6, #dc2626 42%, #450a0a 100%);
+    color: #ffffff;
+    border-color: rgba(254,202,202,0.95);
+}
+
+.badge-constante .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #bbf7d0, #16a34a 42%, #052e16 100%);
+    color: #ffffff;
+    border-color: rgba(187,247,208,0.95);
+}
+
+.badge-gol .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #bae6fd, #0284c7 42%, #082f49 100%);
+    color: #ffffff;
+    border-color: rgba(186,230,253,0.95);
+}
+
+.badge-cholo .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #cbd5e1, #334155 44%, #020617 100%);
+    color: #F4C542;
+    border-color: rgba(203,213,225,0.95);
+}
+
+.badge-empate .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #ddd6fe, #7c3aed 42%, #2e1065 100%);
+    color: #ffffff;
+    border-color: rgba(221,214,254,0.95);
+}
+
+.badge-macaya .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #fde68a, #d97706 42%, #451a03 100%);
+    color: #ffffff;
+    border-color: rgba(253,230,138,0.95);
+}
+
+.badge-misterioso .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #e2e8f0, #475569 42%, #020617 100%);
+    color: #ffffff;
+    border-color: rgba(226,232,240,0.95);
+}
+
+.badge-distinto .badge-icon {
+    background:
+        radial-gradient(circle at 35% 25%, #ccfbf1, #14b8a6 38%, #042f2e 100%);
+    color: #ffffff;
+    border-color: rgba(204,251,241,0.95);
+}
+
     .badge-title {
         font-size: 9px;
         line-height: 1.1;
@@ -1245,33 +1309,32 @@ def render_jugadores(
 
     logros = calcular_logros_globales()
 
-    badges_html = ""
+badges_html = ""
 
-    for logro in logros:
-        badges_html += f"""
-<div class="badge-card">
+badge_class_map = {
+    "Puntero": "puntero",
+    "Sr. Prode": "prode",
+    "El Constante": "constante",
+    "Optimista del Gol": "gol",
+    "El Cholo": "cholo",
+    "Rey del Empate": "empate",
+    "El Macaya": "macaya",
+    "El Misterioso": "misterioso",
+    "El Distinto": "distinto",
+}
+
+for logro in logros:
+    badge_type = badge_class_map.get(
+        str(logro["title"]),
+        "default"
+    )
+
+    badges_html += f"""
+<div class="badge-card badge-{badge_type}">
 <div class="badge-icon">{logro["icon"]}</div>
 <div class="badge-title">{escape(str(logro["title"]))}</div>
 <div class="badge-winner">{escape(str(logro["winner"]))}</div>
 <div class="badge-detail">{escape(str(logro["detail"]))}</div>
-</div>
-"""
-
-    badges_panel_html = f"""
-<div class="badges-wall-panel">
-
-<div class="players-panel-header">
-<div class="players-panel-icon">🏅</div>
-<div>
-<div class="players-panel-title">Muro de Insignias</div>
-<div class="players-panel-subtitle">Logros alternativos del Prode</div>
-</div>
-</div>
-
-<div class="badges-grid">
-{badges_html}
-</div>
-
 </div>
 """
 
