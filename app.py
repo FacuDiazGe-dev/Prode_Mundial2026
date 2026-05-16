@@ -14,7 +14,7 @@ from styles_config import (
     HEADER_BACKGROUND,
     EVOL_HEADER_BACKGROUND
 )
-# from styles_config import dibujar_banner
+from styles_config import dibujar_banner
 from tools import get_flag_img_cached, upload_profile_picture, registrar_usuario
 from io import BytesIO
 #import textwrap
@@ -228,8 +228,8 @@ with st.sidebar:
         "🏠 Inicio",
         "📝 Mis Pronósticos",
         "👥 Jugadores",
-        "💬 Foro"#,
-       #"🧪 Laboratorio"
+        "💬 Foro",
+        "🧪 Laboratorio"
     ]
 
     if st.session_state["user_data"]["ROL"] == "admin":
