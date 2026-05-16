@@ -980,28 +980,34 @@ div[data-testid="stSegmentedControl"] button:hover {
 <div class="foro-rule-list">
 
 **¿Cómo se suman puntos?**  
-- Resultado exacto: se suma el puntaje definido por el grupo.  
-- Ganador o empate correcto: suma puntaje parcial.  
-- Sin acierto: 0 puntos.
+- 0 puntos: Si no acertás el resultado.
+- 1 punto: Por acertar el resultado general (Ganador o Empate).
+- 2 puntos adicionales: Por acertar el resultado exacto.
+- 3 puntos: Es la cantidad máxima por partido.
 
 **¿Hasta cuándo puedo cargar mis pronósticos?**  
-- Hasta la fecha límite indicada en “Mis Pronósticos”.  
-- Después de ese momento, la edición queda bloqueada.
+- Hasta la fecha límite indicada en la sección "Mis Pronósticos".
+- Pasada esa hora, la edición se bloquea automáticamente. Es una falta de respeto total pedirle al Admin que te lo cargue.
 
 **¿Cómo se determina el ganador?**  
-- Gana quien tenga más puntos al final de la fase definida.  
-- En caso de empate, se puede desempatar por exactos, generales u otro criterio que defina el grupo.
+- El GANADOR será el jugador que sume la mayor cantidad de puntos al finalizar la fase de grupos
+- En caso de EMPATE TÉCNICO, define quien tenga más resultados exactos. Si persiste, define quien tenga más resultados generales.
+- Si el empate sigue, siguiendo, se define a Piedra, Papel o Tijera en un duelo a mejor de 3 rondas, con al menos 3 participantes del PRODE como testigos. ¡He dicho!
 
 **¿Cuánto hay que poner?**  
-- El monto lo define el grupo.  
-- Este dato después puede editarse desde el Panel de Control.
+- La tarasca, la guita, la biyuya... El monto final lo decidirá el Comité Organizador mediante votación en el grupo de WhatsApp.
+- Definido el Aporte, se comunicará el alias y la fecha límite para transferir..
+- Si pasa la fecha límite y no pusiste un peso, se elimina tu cuenta y tus pronósticos quedan sin efecto. A llorar al campito.
 
-**¿Puedo modificar mis pronósticos?**  
-- Sí, mientras la edición esté abierta.  
+**¿Puedo modificar mis pronósticos?¿donde?**  
+- Sí, mientras la edición esté abierta. en la seccion Mis Pronosticos.
 - Una vez bloqueados, ya no se pueden editar.
+- Opción analógica: Si la tecnología te supera, pedile al Admin la plantilla de Excel para que el Comité lo cargue por vos. Somos inclusivos.
+- Opción prehistórica: Si el Excel tampoco es lo tuyo, podés mandar tu predicción escrita a mano en un papelito.
+- Aviso importante: Lo que carga la administración lo hace un ser humano más distraído de lo que imaginás. Revisá tus datos a tiempo. La organización no se responsabiliza por sus propios errores. Besis.
 
 **¿Qué pasa si no cargo un partido?**  
-- Queda sin pronóstico o con el valor por defecto que defina el grupo.
+- Nada. Queda sin pronóstico o con el valor por defecto que defina la Organizacion.  
 
 </div>
 """, unsafe_allow_html=True)
