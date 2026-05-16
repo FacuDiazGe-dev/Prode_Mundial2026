@@ -93,6 +93,62 @@ def render_foro(conn, df_usuarios):
     margin-top: 2px;
 }
 
+/* ============================================================
+   2B. AJUSTE VISUAL PREMIUM — FORO
+   Más contraste, acento dorado y lectura más clara.
+   ============================================================ */
+
+.foro-panel {
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.14),
+            rgba(255,255,255,0.96) 34%
+        ),
+        rgba(255,255,255,0.96);
+}
+
+.foro-community-panel {
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(244,197,66,0.10),
+            rgba(255,255,255,0.96) 36%
+        ),
+        rgba(255,255,255,0.96);
+}
+
+.foro-panel-title {
+    letter-spacing: -0.02em;
+}
+
+.foro-panel-subtitle {
+    color: #475569;
+}
+
+.foro-message-card {
+    border-left: 4px solid rgba(148,163,184,0.35);
+}
+
+.foro-message-card.mine {
+    border-left: 4px solid #F4C542;
+}
+
+.foro-message-name {
+    color: #07111F;
+}
+
+.foro-message-text {
+    color: #1f2937;
+}
+
+.foro-feed-shell {
+    margin-top: 14px;
+    padding: 10px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.42);
+    border: 1px solid rgba(226,232,240,0.62);
+}
 
 /* ============================================================
    3. FORMULARIO
@@ -257,13 +313,23 @@ div[data-testid="stSegmentedControl"] {
 }
 
 div[data-testid="stSegmentedControl"] button {
-    min-height: 31px !important;
+    min-height: 32px !important;
     padding: 3px 9px !important;
 
     border-radius: 10px !important;
+    border: 1px solid rgba(226,232,240,0.95) !important;
+
+    background: rgba(255,255,255,0.92) !important;
+    color: #334155 !important;
 
     font-size: 12px !important;
-    font-weight: 800 !important;
+    font-weight: 900 !important;
+}
+
+div[data-testid="stSegmentedControl"] button:hover {
+    background: rgba(244,197,66,0.14) !important;
+    border-color: rgba(244,197,66,0.45) !important;
+    color: #07111F !important;
 }
 
 /* Reduce la separación entre card y barra de acciones */
@@ -568,43 +634,45 @@ div[data-testid="stSegmentedControl"] button {
 
                     save_foro(df_update)
 
-        st.markdown('<div class="foro-feed">', unsafe_allow_html=True)
+        st.markdown('<div class="foro-feed-shell">', unsafe_allow_html=True)
 
-        if df_foro.empty:
-            st.info("Todavía no hay mensajes en el foro.")
-        else:
-            for idx, m in df_foro.iloc[::-1].iterrows():
-                usuario_msg = str(m.get("USUARIO", ""))
-                es_mio = usuario_msg == str(user_actual)
+        with st.container(height=620):
+            st.markdown('<div class="foro-feed">', unsafe_allow_html=True)
 
-                foto_msg = get_avatar(usuario_msg)
+            if df_foro.empty:
+                st.info("Todavía no hay mensajes en el foro.")
+            else:
+                for idx, m in df_foro.iloc[::-1].iterrows():
+                    usuario_msg = str(m.get("USUARIO", ""))
+                    es_mio = usuario_msg == str(user_actual)
 
-                nombre_msg = escape(str(m.get("NOMBRE", "Jugador")))
-                fecha_msg = escape(str(m.get("FECHA", "")))
-                mensaje_msg = escape(str(m.get("MENSAJE", "")))
+                    foto_msg = get_avatar(usuario_msg)
 
-                img_url = str(m.get("FORO_IMG_URL", "")).strip()
-                img_html = ""
+                    nombre_msg = escape(str(m.get("NOMBRE", "Jugador")))
+                    fecha_msg = escape(str(m.get("FECHA", "")))
+                    mensaje_msg = escape(str(m.get("MENSAJE", "")))
 
-                if img_url and img_url.lower() != "nan":
-                    img_html = f"""
+                    img_url = str(m.get("FORO_IMG_URL", "")).strip()
+                    img_html = ""
+
+                    if img_url and img_url.lower() != "nan":
+                        img_html = f"""
 <div class="foro-image-wrap">
 <img src="{escape(img_url, quote=True)}" class="foro-message-img">
 </div>
 """
 
-                body_class = (
-                    "foro-message-body has-image"
-                    if img_html
-                    else "foro-message-body"
-                )
+                    body_class = (
+                        "foro-message-body has-image"
+                        if img_html
+                        else "foro-message-body"
+                    )
 
-                own_pill = '<span class="foro-own-pill">TUYO</span>' if es_mio else ""
+                    own_pill = '<span class="foro-own-pill">TUYO</span>' if es_mio else ""
+                    card_class = "foro-message-card mine" if es_mio else "foro-message-card"
 
-                card_class = "foro-message-card mine" if es_mio else "foro-message-card"
-
-                st.markdown(
-                    f"""
+                    st.markdown(
+                        f"""
 <div class="{card_class}">
 <div class="foro-message-head">
 <img src="{foto_msg}" class="foro-avatar">
@@ -620,48 +688,49 @@ div[data-testid="stSegmentedControl"] button {
 </div>
 </div>
 """,
-                    unsafe_allow_html=True
-                )
+                        unsafe_allow_html=True
+                    )
 
-                l_count = safe_int(m.get("LIKES", 0))
-                d_count = safe_int(m.get("DISLIKES", 0))
+                    l_count = safe_int(m.get("LIKES", 0))
+                    d_count = safe_int(m.get("DISLIKES", 0))
 
-                if es_mio:
-                    opciones_accion = ["🗑️ Borrar"]
-                else:
-                    opciones_accion = [
-                        f"👍 {l_count}",
-                        f"👎 {d_count}"
-                    ]
+                    if es_mio:
+                        opciones_accion = ["🗑️ Borrar"]
+                    else:
+                        opciones_accion = [
+                            f"👍 {l_count}",
+                            f"👎 {d_count}"
+                        ]
 
-                    if rol_actual == "admin":
-                        opciones_accion.append("🗑️ Borrar")
+                        if rol_actual == "admin":
+                            opciones_accion.append("🗑️ Borrar")
 
-                accion = st.segmented_control(
-                    "Acciones del mensaje",
-                    options=opciones_accion,
-                    selection_mode="single",
-                    default=None,
-                    key=f"foro_accion_{idx}",
-                    label_visibility="collapsed",
-                    width="stretch"
-                )
+                    accion = st.segmented_control(
+                        "Acciones del mensaje",
+                        options=opciones_accion,
+                        selection_mode="single",
+                        default=None,
+                        key=f"foro_accion_{idx}",
+                        label_visibility="collapsed",
+                        width="stretch"
+                    )
 
-                if accion is not None:
-                    if accion.startswith("👍"):
-                        df_foro.at[idx, "LIKES"] = l_count + 1
-                        save_foro(df_foro)
+                    if accion is not None:
+                        if accion.startswith("👍"):
+                            df_foro.at[idx, "LIKES"] = l_count + 1
+                            save_foro(df_foro)
 
-                    elif accion.startswith("👎"):
-                        df_foro.at[idx, "DISLIKES"] = d_count + 1
-                        save_foro(df_foro)
+                        elif accion.startswith("👎"):
+                            df_foro.at[idx, "DISLIKES"] = d_count + 1
+                            save_foro(df_foro)
 
-                    elif accion.startswith("🗑️"):
-                        df_new = df_foro.drop(idx).reset_index(drop=True)
-                        save_foro(df_new)
+                        elif accion.startswith("🗑️"):
+                            df_new = df_foro.drop(idx).reset_index(drop=True)
+                            save_foro(df_new)
+
+            st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
-
     # ============================================================
     # COLUMNA DERECHA — DECÁLOGO / COMUNIDAD / REGLAS
     # ============================================================
