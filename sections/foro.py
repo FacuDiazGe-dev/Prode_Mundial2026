@@ -683,6 +683,12 @@ div[data-testid="stSegmentedControl"] button:hover {
 """, unsafe_allow_html=True)
 
         with st.expander("🔥 Publicar en el muro", expanded=False):
+            with st.form("nuevo_post_full", clear_on_submit=True):
+
+                texto = st.text_area(
+                    "¿Qué tenés en mente?",
+                    max_chars=250
+                )
 
                 img_file = st.file_uploader(
                     "Foto opcional",
@@ -695,8 +701,9 @@ div[data-testid="stSegmentedControl"] button:hover {
                     st.image(
                         img_file,
                         caption="Vista previa",
-                        width=220
+                        width=240
                     )
+
                 submit = st.form_submit_button(
                     "🚀 Publicar",
                     use_container_width=True
