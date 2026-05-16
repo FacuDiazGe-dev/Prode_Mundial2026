@@ -10,6 +10,7 @@ except Exception:
     mui = None
     sync = None
     ELEMENTS_AVAILABLE = False
+msg_id=125
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
     st.markdown("""
@@ -344,7 +345,6 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     # FUNCIONES CALLBACKS PARA BOTONES MUI
     # ✅ SOLUCIÓN: Usar callbacks Python directos en lugar de sync()
     # ============================================================
-    msg_id = 123  
 
     def on_like_click(msg_id):
         """Callback cuando se clickea el botón de like"""
