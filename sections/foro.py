@@ -667,8 +667,6 @@ div[data-testid="stSegmentedControl"] button:hover {
     # ============================================================
     with col_main:
         st.markdown("""
-<div class="foro-main-shell">
-
 <div class="foro-hero-header">
 <div class="foro-hero-row">
 <div class="foro-hero-icon">💬</div>
@@ -678,9 +676,7 @@ div[data-testid="stSegmentedControl"] button:hover {
 </div>
 </div>
 </div>
-
-<div class="foro-publish-wrap">
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True))
 
         with st.expander("🔥 Publicar en el muro", expanded=False):
             with st.form("nuevo_post_full", clear_on_submit=True):
@@ -753,8 +749,9 @@ div[data-testid="stSegmentedControl"] button:hover {
 
                     save_foro(df_update)
                     
-        st.markdown("</div>", unsafe_allow_html=True)
-        st.markdown('<div class="foro-feed-shell">', unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
+
+        st.markdown("</div>", unsafe_allow_html=True)      # cierra foro-feed-shell
 
         with st.container(height=620):
             st.markdown('<div class="foro-feed">', unsafe_allow_html=True)
