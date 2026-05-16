@@ -344,15 +344,18 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     if "lab_mui_total_actions" not in st.session_state:
         st.session_state.lab_mui_total_actions = 0
 
+    # ============================================================
+    # Inicializar tab_index correctamente
+    # ============================================================
+    if "lab_tabs_index" not in st.session_state:
+        st.session_state.lab_tabs_index = 0
+
     def crear_handler_click(action_id):
         """
         Handler que actualiza session_state directamente.
-        Streamlit sincroniza automáticamente.
         """
         def handler(*_):
             st.session_state.lab_mui_selected_action = action_id
-            # Fuerza rerun inmediato
-            st.session_state._force_rerun = True
         return handler
 
     def procesar_accion_mui():
@@ -382,7 +385,8 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
         st.session_state.lab_mui_selected_action = None
 
     procesar_accion_mui()
-    tab = sac.tabs(
+
+    tab_index = sac.tabs(
         [
             sac.TabsItem("Selector vertical", icon="people"),
             sac.TabsItem("Botón + Card", icon="layout-sidebar"),
@@ -393,14 +397,14 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
         ],
         align="center",
         size="md",
-        key="lab_tabs"
+        return_index=True,
     )
 
     # ============================================================
     # TAB 1 — SELECTOR VERTICAL
     # ============================================================
 
-    if tab == "Selector vertical":
+    if tab_index == 0:
         st.markdown("""
 <div class="lab-panel">
 <h3>Selector vertical de jugadores</h3>
@@ -473,11 +477,11 @@ Prueba para reemplazar el selectbox por un selector más visual. Evaluar mobile,
                     unsafe_allow_html=True
                 )
 
-        # ============================================================
+    # ============================================================
     # TAB 2 — BOTÓN + CARD
     # ============================================================
 
-    elif tab == "Botón + Card":
+    elif tab_index == 1:
         st.markdown("""
 <div class="lab-panel">
 <h3>Botón + Card de jugador</h3>
@@ -609,7 +613,7 @@ Esto evita depender de cards clickeables con HTML.
     # TAB 3 — FORO MUI / STREAMLIT-ELEMENTS
     # ============================================================
 
-    elif tab == "Foro MUI":
+    elif tab_index == 2:
 
         st.markdown("""
 <div class="lab-panel">
@@ -956,7 +960,7 @@ Cards con botones integrados, scroll real y responsive design para mobile.
     # TAB 4 — BOTONES
     # ============================================================
 
-    elif tab == "Botones":
+    elif tab_index == 3:
         st.markdown("""
 <div class="lab-panel">
 <h3>Botones como selector</h3>
@@ -990,7 +994,7 @@ Sirve para pocos jugadores o para categorías. Si hay muchos, puede volverse lar
     # TAB 5 — FILTROS
     # ============================================================
 
-    elif tab == "Filtros":
+    elif tab_index == 4:
         st.markdown("""
 <div class="lab-panel">
 <h3>Filtros / segmentados</h3>
@@ -1029,7 +1033,7 @@ Acá después podríamos mostrar una lista filtrada de jugadores.
     # TAB 6 — INSIGNIAS
     # ============================================================
 
-    elif tab == "Insignias":
+    elif tab_index == 5:
         st.markdown("""
 <div class="lab-panel">
 <h3>Tags / Insignias</h3>
