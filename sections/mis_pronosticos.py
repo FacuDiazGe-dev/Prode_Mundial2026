@@ -1144,16 +1144,12 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                         "Equipo 1",
                         width="small"
                     ),
-                    "Equipo 1": st.column_config.TextColumn(
-                        "Equipo 1",
-                        width="medium"
-                    ),
                     "P1": st.column_config.NumberColumn(
                         "P1",
                         min_value=0,
                         max_value=20,
                         step=1,
-                        width="small
+                        width="small"
                     ),
                     "P2": st.column_config.NumberColumn(
                         "P2",
@@ -1168,7 +1164,6 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                     ),
                 }
             )
-
             c_cancelar, c_guardar = st.columns([0.35, 0.65])
 
             with c_cancelar:
