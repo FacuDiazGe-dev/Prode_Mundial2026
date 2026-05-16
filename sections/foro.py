@@ -505,6 +505,24 @@ div[data-testid="stSegmentedControl"] button:hover {
    5. COMUNIDAD / STATS / REGLAS
    ============================================================ */
 
+#------------ 7 -  decalogo ---------------------
+
+.decalogo-hero-header {
+    margin-top: 0;
+    margin-bottom: 8px;
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(244,197,66,0.24),
+            rgba(7,17,31,0.98) 38%
+        ),
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.96)
+        );
+}
+
 .foro-stat-box {
     background: rgba(248,250,252,0.82);
     border: 1px solid rgba(226,232,240,0.85);
@@ -576,24 +594,6 @@ div[data-testid="stSegmentedControl"] button:hover {
         max-width: 100%;
         max-height: 230px;
     }
-
-#------------ 7 -  decalogo ---------------------
-
-.decalogo-hero-header {
-    margin-top: 0;
-    margin-bottom: 8px;
-    background:
-        radial-gradient(
-            circle at 100% 0%,
-            rgba(244,197,66,0.24),
-            rgba(7,17,31,0.98) 38%
-        ),
-        linear-gradient(
-            135deg,
-            rgba(7,17,31,0.98),
-            rgba(15,23,42,0.96)
-        );
-}
 
     
 </style>
