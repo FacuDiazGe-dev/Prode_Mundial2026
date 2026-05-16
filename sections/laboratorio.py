@@ -3,11 +3,13 @@ import pandas as pd
 import streamlit_antd_components as sac
 
 try:
-    from streamlit_elements import elements, mui
+    from streamlit_elements import elements, mui, sync, lazy
     ELEMENTS_AVAILABLE = True
 except Exception:
     elements = None
     mui = None
+    sync = None
+    lazy = None
     ELEMENTS_AVAILABLE = False
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
@@ -303,88 +305,6 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     color: #F4C542 !important;
     border: 1px solid rgba(244,197,66,0.30) !important;
 }
-
-/* ============================================================
-   LAB — FORO NATIVO (sin streamlit-elements)
-   ============================================================ */
-
-.foro-msg-container {
-    background: rgba(255,255,255,0.98);
-    border: 1px solid rgba(226,232,240,0.95);
-    border-radius: 18px;
-    padding: 16px;
-    margin-bottom: 14px;
-}
-
-.foro-msg-container.mio {
-    background: linear-gradient(90deg, rgba(244,197,66,0.12), rgba(255,255,255,0.98));
-    border: 1px solid rgba(244,197,66,0.75);
-}
-
-.foro-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.foro-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #F4C542;
-}
-
-.foro-user-info {
-    flex: 1;
-}
-
-.foro-nombre {
-    font-weight: 900;
-    color: #07111F;
-    font-family: 'Montserrat', sans-serif;
-    display: inline-block;
-}
-
-.foro-tuyo {
-    font-size: 9px;
-    font-weight: 900;
-    color: #F4C542;
-    background: #07111F;
-    border-radius: 999px;
-    padding: 3px 8px;
-    display: inline-block;
-    margin-left: 8px;
-}
-
-.foro-fecha {
-    color: #94A3B8;
-    font-weight: 800;
-    font-size: 12px;
-    display: block;
-}
-
-.foro-texto {
-    color: #334155;
-    font-weight: 700;
-    line-height: 1.35;
-    margin-bottom: 10px;
-}
-
-.foro-imagen {
-    width: 100%;
-    max-width: 200px;
-    border-radius: 14px;
-    border: 1px solid rgba(226,232,240,0.9);
-    margin-bottom: 10px;
-}
-
-.foro-botones {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -406,7 +326,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
 
     nombres = df_lab["NOMBRE"].tolist()
     # ============================================================
-    # HELPERS — LAB FORO
+    # HELPERS — LAB FORO MUI
     # ============================================================
 
     if "lab_mui_selected_action" not in st.session_state:
@@ -423,6 +343,17 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
 
     if "lab_mui_total_actions" not in st.session_state:
         st.session_state.lab_mui_total_actions = 0
+
+    def crear_handler_click(action_id):
+        """
+        Handler que actualiza session_state directamente.
+        Streamlit sincroniza automáticamente.
+        """
+        def handler(*_):
+            st.session_state.lab_mui_selected_action = action_id
+            # Fuerza rerun inmediato
+            st.session_state._force_rerun = True
+        return handler
 
     def procesar_accion_mui():
         accion_actual = st.session_state.get("lab_mui_selected_action")
@@ -451,12 +382,11 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
         st.session_state.lab_mui_selected_action = None
 
     procesar_accion_mui()
-    
     tab = sac.tabs(
         [
             sac.TabsItem("Selector vertical", icon="people"),
             sac.TabsItem("Botón + Card", icon="layout-sidebar"),
-            sac.TabsItem("Foro Nativo", icon="chat-dots"),
+            sac.TabsItem("Foro MUI", icon="chat-dots"),
             sac.TabsItem("Botones", icon="collection"),
             sac.TabsItem("Filtros", icon="funnel"),
             sac.TabsItem("Insignias", icon="award"),
@@ -676,35 +606,40 @@ Esto evita depender de cards clickeables con HTML.
                 )
 
     # ============================================================
-    # TAB 3 — FORO NATIVO (sin streamlit-elements)
+    # TAB 3 — FORO MUI / STREAMLIT-ELEMENTS
     # ============================================================
 
-    elif tab == "Foro Nativo":
+    elif tab == "Foro MUI":
 
         st.markdown("""
 <div class="lab-panel">
-<h3>Foro con componentes nativos</h3>
+<h3>Foro MUI con streamlit-elements</h3>
 <div class="lab-note">
-Versión con componentes nativos de Streamlit para máxima estabilidad y sincronización con session_state.
+Cards con botones integrados, scroll real y responsive design para mobile.
 </div>
 </div>
 """, unsafe_allow_html=True)
 
-        # DEBUG
-        col_debug1, col_debug2, col_debug3 = st.columns(3)
+        if not ELEMENTS_AVAILABLE:
+            st.error(
+                "streamlit-elements no está instalado. "
+                "Agregá streamlit-elements==0.1.* en requirements.txt y reiniciá la app."
+            )
+            return
+
+        # DEBUG - Métricas en la parte superior
+        col_debug1, col_debug2, col_debug3, col_debug4 = st.columns(4)
         with col_debug1:
-            st.metric("Acciones totales", st.session_state.lab_mui_total_actions)
+            st.metric("Total", st.session_state.lab_mui_total_actions)
         with col_debug2:
             st.metric("👍 Likes", st.session_state.lab_mui_like_count)
         with col_debug3:
             st.metric("👎 Dislikes", st.session_state.lab_mui_dislike_count)
-
-        if st.session_state.lab_mui_action:
-            st.success(f"✅ {st.session_state.lab_mui_action}")
-        else:
-            st.info("🧪 Presiona un botón para registrar una acción")
-
-        st.markdown("---")
+        with col_debug4:
+            if st.session_state.lab_mui_action:
+                st.success(f"✅ {st.session_state.lab_mui_action}")
+            else:
+                st.info("🧪 Presiona un botón")
 
         mensajes_demo = [
             {
@@ -749,82 +684,273 @@ Versión con componentes nativos de Streamlit para máxima estabilidad y sincron
             },
         ]
 
-        # Contenedor con scroll
-        for msg in mensajes_demo:
-            avatar = msg["avatar"] or "https://ui-avatars.com/api/?name=Jugador&background=E2E8F0&color=0F172A"
-            is_mine = msg["mio"]
-            
-            clase_container = "foro-msg-container mio" if is_mine else "foro-msg-container"
-            
-            with st.container(border=True):
-                st.markdown(f'<div class="{clase_container}">', unsafe_allow_html=True)
-                
-                # Header: Avatar, nombre, fecha
-                col_avatar, col_info = st.columns([0.08, 0.92], gap="small")
-                
-                with col_avatar:
-                    st.image(avatar, width=40)
-                
-                with col_info:
-                    nombre_badge = f'<span class="foro-nombre">{msg["nombre"]}</span>'
-                    if is_mine:
-                        nombre_badge += '<span class="foro-tuyo">TUYO</span>'
-                    nombre_badge += f'<span class="foro-fecha">{msg["fecha"]}</span>'
-                    
-                    st.markdown(nombre_badge, unsafe_allow_html=True)
-                
-                st.markdown("---")
-                
-                # Contenido: Texto + Imagen
-                if msg["imagen"]:
-                    col_text, col_img = st.columns([0.65, 0.35], gap="medium")
-                    
-                    with col_text:
-                        st.markdown(f'<p class="foro-texto">{msg["texto"]}</p>', unsafe_allow_html=True)
-                    
-                    with col_img:
-                        st.image(msg["imagen"], use_column_width=True)
-                else:
-                    st.markdown(f'<p class="foro-texto">{msg["texto"]}</p>', unsafe_allow_html=True)
-                
-                st.markdown("---")
-                
-                # Botones - Funcionan nativamente con session_state
-                btn_col1, btn_col2, btn_col3 = st.columns(3, gap="small")
-                
-                with btn_col1:
-                    if st.button(
-                        f"👍 {st.session_state.lab_mui_like_count}",
-                        key=f"like_{msg['id']}",
-                        use_container_width=True
-                    ):
-                        st.session_state.lab_mui_like_count += 1
-                        st.session_state.lab_mui_total_actions += 1
-                        st.session_state.lab_mui_action = f"👍 Like en mensaje {msg['id']}"
-                        st.rerun()
-                
-                with btn_col2:
-                    if st.button(
-                        f"👎 {st.session_state.lab_mui_dislike_count}",
-                        key=f"dislike_{msg['id']}",
-                        use_container_width=True
-                    ):
-                        st.session_state.lab_mui_dislike_count += 1
-                        st.session_state.lab_mui_total_actions += 1
-                        st.session_state.lab_mui_action = f"👎 Dislike en mensaje {msg['id']}"
-                        st.rerun()
-                
-                with btn_col3:
-                    if st.button(
-                        "🗑️ Borrar",
-                        key=f"delete_{msg['id']}",
-                        use_container_width=True
-                    ):
-                        st.session_state.lab_mui_total_actions += 1
-                        st.session_state.lab_mui_action = f"🗑️ Borrar mensaje {msg['id']}"
-                        st.rerun()
-                
-                st.markdown('</div>', unsafe_allow_html=True)
+        with elements("lab_foro_mui_frame"):
+
+            with mui.Box(
+                sx={
+                    "width": "100%",
+                    "boxSizing": "border-box",
+                    "borderRadius": "22px",
+                    "background": "rgba(255,255,255,0.96)",
+                    "border": "1px solid rgba(226,232,240,0.95)",
+                    "boxShadow": "0 14px 32px rgba(15,23,42,0.08)",
+                    "p": 2,
+                },
+            ):
+
+                # Header oscuro
+                with mui.Box(
+                    sx={
+                        "background": "linear-gradient(135deg, #07111F, #111827)",
+                        "borderRadius": "18px",
+                        "p": 2,
+                        "mb": 2,
+                        "border": "1px solid rgba(244,197,66,0.24)",
+                    }
+                ):
+                    mui.Typography(
+                        "💬 Muro de la Comunidad",
+                        variant="h5",
+                        sx={
+                            "fontWeight": 900,
+                            "color": "#F8FAFC",
+                            "fontFamily": "Montserrat, sans-serif",
+                            "lineHeight": 1.05,
+                        },
+                    )
+                    mui.Typography(
+                        "Cards, imágenes, scroll y botones MUI integrados",
+                        variant="body2",
+                        sx={
+                            "color": "rgba(248,250,252,0.72)",
+                            "fontWeight": 700,
+                            "mt": 0.6,
+                        },
+                    )
+
+                # Feed con scroll real
+                with mui.Box(
+                    sx={
+                        "height": 520,
+                        "overflowY": "auto",
+                        "p": 1.2,
+                        "borderRadius": "18px",
+                        "background": "rgba(248,250,252,0.86)",
+                        "border": "1px solid rgba(226,232,240,0.85)",
+                    }
+                ):
+                    for msg in mensajes_demo:
+                        avatar = msg["avatar"] or "https://ui-avatars.com/api/?name=Jugador&background=E2E8F0&color=0F172A"
+                        is_mine = msg["mio"]
+
+                        with mui.Card(
+                            key=f"lab_mui_card_{msg['id']}",
+                            sx={
+                                "mb": 1.2,
+                                "borderRadius": "18px",
+                                "border": "1px solid rgba(226,232,240,0.95)"
+                                if not is_mine
+                                else "1px solid rgba(244,197,66,0.75)",
+                                "boxShadow": "0 8px 18px rgba(15,23,42,0.05)",
+                                "background": "linear-gradient(90deg, rgba(244,197,66,0.12), rgba(255,255,255,0.98))"
+                                if is_mine
+                                else "rgba(255,255,255,0.98)",
+                            },
+                        ):
+                            with mui.CardContent(
+                                sx={
+                                    "p": 1.5,
+                                    "&:last-child": {
+                                        "pb": 1.5,
+                                    },
+                                }
+                            ):
+
+                                # Cabecera mensaje
+                                with mui.Box(
+                                    sx={
+                                        "display": "flex",
+                                        "alignItems": "center",
+                                        "gap": 1.2,
+                                        "mb": 1,
+                                    }
+                                ):
+                                    mui.Avatar(
+                                        src=avatar,
+                                        sx={
+                                            "width": 42,
+                                            "height": 42,
+                                            "border": "2px solid #F4C542",
+                                        },
+                                    )
+
+                                    with mui.Box(
+                                        sx={
+                                            "minWidth": 0,
+                                            "flex": 1,
+                                        }
+                                    ):
+                                        with mui.Box(
+                                            sx={
+                                                "display": "flex",
+                                                "alignItems": "center",
+                                                "gap": 0.8,
+                                                "flexWrap": "wrap",
+                                            }
+                                        ):
+                                            mui.Typography(
+                                                msg["nombre"],
+                                                variant="body2",
+                                                sx={
+                                                    "fontWeight": 900,
+                                                    "color": "#07111F",
+                                                    "fontFamily": "Montserrat, sans-serif",
+                                                },
+                                            )
+
+                                            if is_mine:
+                                                mui.Box(
+                                                    "TUYO",
+                                                    sx={
+                                                        "fontSize": "9px",
+                                                        "fontWeight": 900,
+                                                        "color": "#F4C542",
+                                                        "background": "#07111F",
+                                                        "borderRadius": "999px",
+                                                        "px": 0.8,
+                                                        "py": 0.2,
+                                                    },
+                                                )
+
+                                        mui.Typography(
+                                            msg["fecha"],
+                                            variant="caption",
+                                            sx={
+                                                "color": "#94A3B8",
+                                                "fontWeight": 800,
+                                                "width": "100%",
+                                            },
+                                        )
+
+                                # Cuerpo texto + imagen
+                                if msg["imagen"]:
+                                    with mui.Box(
+                                        sx={
+                                            "display": "grid",
+                                            "gridTemplateColumns": {
+                                                "xs": "1fr",
+                                                "sm": "1fr 180px",
+                                            },
+                                            "gap": 1.4,
+                                            "alignItems": "start",
+                                        }
+                                    ):
+                                        mui.Typography(
+                                            msg["texto"],
+                                            variant="body2",
+                                            sx={
+                                                "color": "#334155",
+                                                "fontWeight": 700,
+                                                "lineHeight": 1.35,
+                                            },
+                                        )
+
+                                        mui.Box(
+                                            component="img",
+                                            src=msg["imagen"],
+                                            sx={
+                                                "width": "100%",
+                                                "maxHeight": 150,
+                                                "objectFit": "contain",
+                                                "borderRadius": "14px",
+                                                "border": "1px solid rgba(226,232,240,0.9)",
+                                                "background": "#F8FAFC",
+                                            },
+                                        )
+                                else:
+                                    mui.Typography(
+                                        msg["texto"],
+                                        variant="body2",
+                                        sx={
+                                            "color": "#334155",
+                                            "fontWeight": 700,
+                                            "lineHeight": 1.35,
+                                        },
+                                    )
+
+                                # Botones dentro de la card - responsive
+                                with mui.Box(
+                                    sx={
+                                        "display": "flex",
+                                        "gap": 1,
+                                        "mt": 1.2,
+                                        "flexWrap": "wrap",
+                                        "justifyContent": "flex-start",
+                                    }
+                                ):
+                                    mui.Button(
+                                        f"👍 {st.session_state.lab_mui_like_count}",
+                                        variant="outlined",
+                                        size="small",
+                                        id=f"like_{msg['id']}",
+                                        key=f"lab_like_{msg['id']}",
+                                        onClick=crear_handler_click(f"like_{msg['id']}"),
+                                        sx={
+                                            "textTransform": "none",
+                                            "fontWeight": 900,
+                                            "borderRadius": "10px",
+                                            "minHeight": 32,
+                                            "fontSize": "12px",
+                                            "flex": {
+                                                "xs": "1",
+                                                "sm": "auto",
+                                            },
+                                            "minWidth": "60px",
+                                        },
+                                    )
+
+                                    mui.Button(
+                                        f"👎 {st.session_state.lab_mui_dislike_count}",
+                                        variant="outlined",
+                                        size="small",
+                                        id=f"dislike_{msg['id']}",
+                                        key=f"lab_dislike_{msg['id']}",
+                                        onClick=crear_handler_click(f"dislike_{msg['id']}"),
+                                        sx={
+                                            "textTransform": "none",
+                                            "fontWeight": 900,
+                                            "borderRadius": "10px",
+                                            "minHeight": 32,
+                                            "fontSize": "12px",
+                                            "flex": {
+                                                "xs": "1",
+                                                "sm": "auto",
+                                            },
+                                            "minWidth": "60px",
+                                        },
+                                    )
+
+                                    mui.Button(
+                                        "🗑️ Borrar",
+                                        variant="outlined",
+                                        color="warning",
+                                        size="small",
+                                        id=f"delete_{msg['id']}",
+                                        key=f"lab_delete_{msg['id']}",
+                                        onClick=crear_handler_click(f"delete_{msg['id']}"),
+                                        sx={
+                                            "textTransform": "none",
+                                            "fontWeight": 900,
+                                            "borderRadius": "10px",
+                                            "minHeight": 32,
+                                            "fontSize": "12px",
+                                            "flex": {
+                                                "xs": "1",
+                                                "sm": "auto",
+                                            },
+                                            "minWidth": "60px",
+                                        },
+                                    )
 
     # ============================================================
     # TAB 4 — BOTONES
