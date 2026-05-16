@@ -400,16 +400,12 @@ div[data-testid="stSegmentedControl"] button {
 <div class="foro-panel-icon">💬</div>
 <div>
 <div class="foro-panel-title">Muro de la Comunidad</div>
-<div class="foro-panel-subtitle">Publicá mensajes, cargadas o fotos del momento</div>
-</div>
-</div>
-<div class="foro-form-note">
-Podés publicar texto y, si querés, una imagen opcional del partido, juntada o cábala mundialista.
+<div class="foro-panel-subtitle">Chascarrillos, fotos y comentarios mundialistas</div>
 </div>
 </div>
 """, unsafe_allow_html=True)
 
-        with st.expander("✍️ Escribir algo en el muro", expanded=False):
+        with st.expander("🔥 Publicar en el muro", expanded=False):
             with st.form("nuevo_post_full", clear_on_submit=True):
                 texto = st.text_area(
                     "¿Qué tenés en mente?",
@@ -563,20 +559,21 @@ Podés publicar texto y, si querés, una imagen opcional del partido, juntada o 
         st.markdown("</div>", unsafe_allow_html=True)
 
     # ============================================================
-    # COLUMNA DERECHA — COMUNIDAD / REGLAS
+    # COLUMNA DERECHA — DECÁLOGO / COMUNIDAD / REGLAS
     # ============================================================
 
     with col_side:
-        st.markdown("""
-<div class="foro-community-panel">
-<div class="foro-panel-header">
-<div class="foro-panel-icon">📢</div>
-<div>
-<div class="foro-panel-title">Comunidad</div>
-<div class="foro-panel-subtitle">Actividad, reglas y preguntas frecuentes</div>
-</div>
-</div>
-""", unsafe_allow_html=True)
+
+        # ------------------------------------------------------------
+        # DECÁLOGO — abierto por defecto
+        # ------------------------------------------------------------
+
+        with st.expander("📜 Decálogo del Foro", expanded=True):
+            mostrar_decalogo()
+
+        # ------------------------------------------------------------
+        # DATOS DE COMUNIDAD
+        # ------------------------------------------------------------
 
         if df_foro.empty:
             top_com = pd.Series(dtype=int)
@@ -615,7 +612,9 @@ Podés publicar texto y, si querés, una imagen opcional del partido, juntada o 
             agitadores_html = '<div class="foro-stat-line">Sin mensajes todavía</div>'
         else:
             for nombre, cant in top_com.items():
-                agitadores_html += f'<div class="foro-stat-line">💬 {escape(str(nombre))} ({cant})</div>'
+                agitadores_html += (
+                    f'<div class="foro-stat-line">💬 {escape(str(nombre))} ({cant})</div>'
+                )
 
         popularidad_html = ""
 
@@ -624,7 +623,9 @@ Podés publicar texto y, si querés, una imagen opcional del partido, juntada o 
         else:
             for n, t in top_likes.items():
                 if t > 0:
-                    popularidad_html += f'<div class="foro-stat-line">🌟 Más bancado: {escape(str(n))}</div>'
+                    popularidad_html += (
+                        f'<div class="foro-stat-line">🌟 Más bancado: {escape(str(n))}</div>'
+                    )
                 else:
                     popularidad_html += '<div class="foro-stat-line">🌟 Sin likes todavía</div>'
 
@@ -633,12 +634,26 @@ Podés publicar texto y, si querés, una imagen opcional del partido, juntada o 
         else:
             for n, t in top_dis.items():
                 if t > 0:
-                    popularidad_html += f'<div class="foro-stat-line">🍋 Más polémico: {escape(str(n))}</div>'
+                    popularidad_html += (
+                        f'<div class="foro-stat-line">🍋 Más polémico: {escape(str(n))}</div>'
+                    )
                 else:
                     popularidad_html += '<div class="foro-stat-line">🍋 Sin polémicas</div>'
 
-        st.markdown(
-            f"""
+        total_mensajes = len(df_foro)
+
+        # ------------------------------------------------------------
+        # COMUNIDAD — cerrado por defecto
+        # ------------------------------------------------------------
+
+        with st.expander("📢 Comunidad", expanded=False):
+            st.markdown(
+                f"""
+<div class="foro-stat-box">
+<div class="foro-stat-title">Resumen</div>
+<div class="foro-stat-line">💬 Mensajes totales: {total_mensajes}</div>
+</div>
+
 <div class="foro-stat-box">
 <div class="foro-stat-title">Top agitadores</div>
 {agitadores_html}
@@ -649,13 +664,14 @@ Podés publicar texto y, si querés, una imagen opcional del partido, juntada o 
 {popularidad_html}
 </div>
 """,
-            unsafe_allow_html=True
-        )
+                unsafe_allow_html=True
+            )
 
-        with st.expander("📜 Decálogo del Foro"):
-            mostrar_decalogo()
+        # ------------------------------------------------------------
+        # REGLAS Y FAQ — cerrado por defecto
+        # ------------------------------------------------------------
 
-        with st.expander("📘 Reglas y preguntas frecuentes"):
+        with st.expander("📘 Reglas y preguntas frecuentes", expanded=False):
             st.markdown("""
 <div class="foro-rule-list">
 
@@ -685,5 +701,3 @@ Podés publicar texto y, si querés, una imagen opcional del partido, juntada o 
 
 </div>
 """, unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)
