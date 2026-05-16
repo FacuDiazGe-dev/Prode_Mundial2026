@@ -1309,34 +1309,34 @@ def render_jugadores(
 
     logros = calcular_logros_globales()
 
-badges_html = ""
-
-badge_class_map = {
-    "Puntero": "puntero",
-    "Sr. Prode": "prode",
-    "El Constante": "constante",
-    "Optimista del Gol": "gol",
-    "El Cholo": "cholo",
-    "Rey del Empate": "empate",
-    "El Macaya": "macaya",
-    "El Misterioso": "misterioso",
-    "El Distinto": "distinto",
-}
-
-for logro in logros:
-    badge_type = badge_class_map.get(
-        str(logro["title"]),
-        "default"
-    )
-
-    badges_html += f"""
-<div class="badge-card badge-{badge_type}">
-<div class="badge-icon">{logro["icon"]}</div>
-<div class="badge-title">{escape(str(logro["title"]))}</div>
-<div class="badge-winner">{escape(str(logro["winner"]))}</div>
-<div class="badge-detail">{escape(str(logro["detail"]))}</div>
-</div>
-"""
+    badges_html = ""
+    
+    badge_class_map = {
+        "Puntero": "puntero",
+        "Sr. Prode": "prode",
+        "El Constante": "constante",
+        "Optimista del Gol": "gol",
+        "El Cholo": "cholo",
+        "Rey del Empate": "empate",
+        "El Macaya": "macaya",
+        "El Misterioso": "misterioso",
+        "El Distinto": "distinto",
+    }
+    
+    for logro in logros:
+        badge_type = badge_class_map.get(
+            str(logro["title"]),
+            "default"
+        )
+    
+        badges_html += f"""
+    <div class="badge-card badge-{badge_type}">
+    <div class="badge-icon">{logro["icon"]}</div>
+    <div class="badge-title">{escape(str(logro["title"]))}</div>
+    <div class="badge-winner">{escape(str(logro["winner"]))}</div>
+    <div class="badge-detail">{escape(str(logro["detail"]))}</div>
+    </div>
+    """
 
     # ============================================================
     # ESTRUCTURA PRINCIPAL
