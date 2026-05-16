@@ -285,7 +285,7 @@ def render_foro(conn, df_usuarios):
    ============================================================ */
 
 .foro-feed {
-    margin-top: 14px;
+    margin-top: 4px;
 }
 
 /* Card general de cada mensaje */
@@ -763,8 +763,6 @@ div[data-testid="stSegmentedControl"] button:hover {
         # FEED CON SCROLL
         # ------------------------------------------------------------
 
-        st.markdown('<div class="foro-feed-shell">', unsafe_allow_html=True)
-
         with st.container(height=620):
             st.markdown('<div class="foro-feed">', unsafe_allow_html=True)
 
@@ -860,7 +858,6 @@ div[data-testid="stSegmentedControl"] button:hover {
 
             st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
-        st.markdown("</div>", unsafe_allow_html=True)      # cierra foro-feed-shell
     # ============================================================
     # COLUMNA DERECHA — DECÁLOGO / COMUNIDAD / REGLAS
     # ============================================================
