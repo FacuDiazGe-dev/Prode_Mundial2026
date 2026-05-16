@@ -759,6 +759,22 @@ div[data-testid="stButton"] button {
             return f'<img src="{flag_value}" class="pred-flag">'
 
         return f'<span>{escape(flag_value)}</span>'
+        
+    def flag_text(flag_value):
+        """
+        Devuelve bandera como texto para usar en st.data_editor.
+        Si la bandera es URL/base64, no se puede mostrar como imagen en la tabla,
+        entonces usa una pelota como fallback visual.
+        """
+        flag_value = str(flag_value)
+
+        if flag_value.startswith("http") or flag_value.startswith("data:image"):
+            return "⚽"
+
+        if flag_value.strip() == "" or flag_value.lower() == "nan":
+            return "⚽"
+
+        return flag_value     
 
     def get_user_rank_stats(usuario):
         row_rank = df_ranking[df_ranking["USUARIO"] == usuario]
@@ -881,25 +897,24 @@ div[data-testid="stButton"] button {
     with c_pron:
 
         modo_edicion = st.session_state.permitir_edicion
-        esta_bloqueado = not (es_tiempo_valido and modo_edicion)
 
-        if es_tiempo_valido:
-            estado_txt = "Edición abierta hasta el 08/06/2026"
-            estado_class = "open"
-        else:
+        if not es_tiempo_valido:
             estado_txt = "Plazo finalizado · modo lectura"
             estado_class = "locked"
             modo_edicion = False
             st.session_state.permitir_edicion = False
-            esta_bloqueado = True
+        else:
+            estado_txt = "Edición abierta hasta el 08/06/2026"
+            estado_class = "open"
 
-        with st.form("form_pronosticos_v5"):
+        if "pron_editor_version" not in st.session_state:
+            st.session_state.pron_editor_version = 0
 
-            # ------------------------------------------------------------
-            # HEADER INTEGRADO DEL PANEL
-            # ------------------------------------------------------------
+        # ------------------------------------------------------------
+        # HEADER DEL PANEL
+        # ------------------------------------------------------------
 
-            st.markdown(f"""
+        st.markdown(f"""
 <div class="pred-panel-header-v2">
 <div class="pred-panel-title-row">
 <div class="panel-icon">📝</div>
@@ -911,8 +926,80 @@ div[data-testid="stButton"] button {
 </div>
 """, unsafe_allow_html=True)
 
-            lista_nuevos_pro = []
-            errores_formato = []
+        # ============================================================
+        # PREPARACIÓN DE DATOS COMÚN
+        # ============================================================
+
+        lista_pronosticos_actuales = []
+        filas_editor = []
+
+        for _, row in df_res.sort_values("N_PARTIDO").iterrows():
+            id_p = int(row["N_PARTIDO"])
+            match = df_user_pro[df_user_pro["N_PARTIDO"] == id_p]
+
+            v1 = (
+                int(match.iloc[0]["P1"])
+                if not match.empty and pd.notna(match.iloc[0]["P1"])
+                else 0
+            )
+
+            v2 = (
+                int(match.iloc[0]["P2"])
+                if not match.empty and pd.notna(match.iloc[0]["P2"])
+                else 0
+            )
+
+            equipo_1 = str(row.get("Equipo_1", ""))
+            equipo_2 = str(row.get("Equipo_2", ""))
+
+            bandera1 = mapa_banderas.get(equipo_1, "⚽")
+            bandera2 = mapa_banderas.get(equipo_2, "⚽")
+
+            dia = str(row.get("DIA", ""))
+            hora = str(row.get("HORA", ""))
+
+            lista_pronosticos_actuales.append(
+                {
+                    "N_PARTIDO": id_p,
+                    "USUARIO": user_actual,
+                    "P1": v1,
+                    "P2": v2
+                }
+            )
+
+            filas_editor.append(
+                {
+                    "N_PARTIDO": id_p,
+                    "Equipo 1": f"{flag_text(bandera1)} {equipo_1}",
+                    "P1": v1,
+                    "P2": v2,
+                    "Equipo 2": f"{equipo_2} {flag_text(bandera2)}",
+                    "DIA": dia,
+                    "HORA": hora,
+                }
+            )
+
+        stats_pronosticos = calcular_stats_pronosticos(lista_pronosticos_actuales)
+
+        # ============================================================
+        # MODO VISUAL
+        # ============================================================
+
+        if not modo_edicion:
+
+            if es_tiempo_valido:
+                if st.button(
+                    "✏️ Editar pronósticos",
+                    use_container_width=True
+                ):
+                    st.session_state.permitir_edicion = True
+                    st.rerun()
+            else:
+                st.button(
+                    "Lectura — edición deshabilitada",
+                    use_container_width=True,
+                    disabled=True
+                )
 
             with st.container(height=520):
 
@@ -941,8 +1028,6 @@ div[data-testid="stButton"] button {
                     dia = str(row.get("DIA", ""))
                     hora = str(row.get("HORA", ""))
 
-                    valor_inicial = f"{v1}-{v2}"
-
                     st.markdown(
                         f"""
 <div class="pred-match-card-v2">
@@ -950,31 +1035,13 @@ div[data-testid="stButton"] button {
 <span>Partido #{id_p}</span>
 <span>{escape(dia)} | {escape(hora)}</span>
 </div>
-""",
-                        unsafe_allow_html=True
-                    )
 
-                    score_txt = st.text_input(
-                        f"Resultado partido {id_p}",
-                        value=valor_inicial,
-                        max_chars=3,
-                        key=f"score_{id_p}",
-                        label_visibility="collapsed",
-                        disabled=esta_bloqueado,
-                        placeholder="0-0"
-                    )
+<div class="pred-score-row">
+<span class="pred-score-sep">{v1}</span>
+<span class="pred-score-sep">-</span>
+<span class="pred-score-sep">{v2}</span>
+</div>
 
-                    p1_val, p2_val, score_ok = parse_score_input(
-                        score_txt,
-                        default_p1=v1,
-                        default_p2=v2
-                    )
-
-                    if not score_ok:
-                        errores_formato.append(id_p)
-
-                    st.markdown(
-                        f"""
 <div class="pred-teams-row">
 <div class="pred-team-side left">
 <span>{escape(equipo_1)}</span>
@@ -993,69 +1060,15 @@ div[data-testid="stButton"] button {
                         unsafe_allow_html=True
                     )
 
-                    lista_nuevos_pro.append(
-                        {
-                            "N_PARTIDO": id_p,
-                            "USUARIO": user_actual,
-                            "P1": p1_val,
-                            "P2": p2_val
-                        }
-                    )
-
                     st.markdown(
                         "<div class='pred-match-gap'></div>",
                         unsafe_allow_html=True
                     )
 
-            stats_pronosticos = calcular_stats_pronosticos(lista_nuevos_pro)
+            # ------------------------------------------------------------
+            # RESUMEN OSCURO — MODO VISUAL
+            # ------------------------------------------------------------
 
-            if errores_formato:
-                st.warning(
-                    "⚠️ Revisá el formato de estos partidos: "
-                    + ", ".join([str(x) for x in errores_formato])
-                    + ". Usá el formato 0-0."
-                )
-            
-            # ------------------------------------------------------------
-            # ACCIONES
-            # ------------------------------------------------------------
-            
-            if not es_tiempo_valido:
-                submit = st.form_submit_button(
-                    "Lectura — edición deshabilitada",
-                    use_container_width=True,
-                    disabled=True
-                )
-                cancelar = False
-                editar = False
-            
-            elif not modo_edicion:
-                editar = st.form_submit_button(
-                    "✏️ Editar pronósticos",
-                    use_container_width=True
-                )
-                submit = False
-                cancelar = False
-            
-            else:
-                c_cancelar, c_guardar = st.columns([0.35, 0.65])
-            
-                cancelar = c_cancelar.form_submit_button(
-                    "❌ Cancelar",
-                    use_container_width=True
-                )
-            
-                submit = c_guardar.form_submit_button(
-                    "💾 Guardar pronósticos",
-                    use_container_width=True
-                )
-            
-                editar = False
-            
-            # ------------------------------------------------------------
-            # RESUMEN OSCURO
-            # ------------------------------------------------------------
-            
             st.markdown(
                 f"""
 <div class="pred-summary-footer">
@@ -1091,54 +1104,168 @@ div[data-testid="stButton"] button {
 Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 </div>
 </div>
-            """,
+""",
                 unsafe_allow_html=True
             )
-            
-            # ------------------------------------------------------------
-            # EVENTOS
-            # ------------------------------------------------------------
-            
-            if editar:
-                st.session_state.permitir_edicion = True
-                st.rerun()
-            
+
+        # ============================================================
+        # MODO EDICIÓN — TABLA TIPO EXCEL
+        # ============================================================
+
+        else:
+
+            st.markdown("""
+<div class="pred-status">
+✏️ Modo edición activo. Modificá solamente los goles y luego guardá los cambios.
+</div>
+""", unsafe_allow_html=True)
+
+            df_editor = pd.DataFrame(filas_editor)
+
+            edited_df = st.data_editor(
+                df_editor,
+                hide_index=True,
+                use_container_width=True,
+                key=f"pronosticos_editor_{st.session_state.pron_editor_version}",
+                disabled=[
+                    "N_PARTIDO",
+                    "Equipo 1",
+                    "Equipo 2",
+                    "DIA",
+                    "HORA"
+                ],
+                column_order=[
+                    "N_PARTIDO",
+                    "Equipo 1",
+                    "P1",
+                    "P2",
+                    "Equipo 2"
+                ],
+                column_config={
+                    "N_PARTIDO": st.column_config.NumberColumn(
+                        "#",
+                        width="small"
+                    ),
+                    "Equipo 1": st.column_config.TextColumn(
+                        "Equipo 1",
+                        width="medium"
+                    ),
+                    "P1": st.column_config.NumberColumn(
+                        "P1",
+                        min_value=0,
+                        max_value=20,
+                        step=1,
+                        width="small"
+                    ),
+                    "P2": st.column_config.NumberColumn(
+                        "P2",
+                        min_value=0,
+                        max_value=20,
+                        step=1,
+                        width="small"
+                    ),
+                    "Equipo 2": st.column_config.TextColumn(
+                        "Equipo 2",
+                        width="medium"
+                    ),
+                }
+            )
+
+            c_cancelar, c_guardar = st.columns([0.35, 0.65])
+
+            with c_cancelar:
+                cancelar = st.button(
+                    "❌ Cancelar",
+                    use_container_width=True
+                )
+
+            with c_guardar:
+                guardar = st.button(
+                    "💾 Guardar cambios",
+                    use_container_width=True
+                )
+
             if cancelar:
                 st.session_state.permitir_edicion = False
+                st.session_state.pron_editor_version += 1
                 st.rerun()
-            
-            if submit:
-                if errores_formato:
-                    st.error("No se puede guardar. Hay resultados con formato inválido. Usá el formato 0-0.")
-                    st.stop()
 
+            if guardar:
                 try:
+                    df_save = edited_df.copy()
+
+                    df_save["P1"] = pd.to_numeric(
+                        df_save["P1"],
+                        errors="coerce"
+                    )
+
+                    df_save["P2"] = pd.to_numeric(
+                        df_save["P2"],
+                        errors="coerce"
+                    )
+
+                    if df_save["P1"].isna().any() or df_save["P2"].isna().any():
+                        st.error("Hay valores vacíos o inválidos. Revisá P1 y P2.")
+                        st.stop()
+
+                    df_save["P1"] = df_save["P1"].astype(int)
+                    df_save["P2"] = df_save["P2"].astype(int)
+
+                    if (
+                        (df_save["P1"] < 0).any()
+                        or (df_save["P2"] < 0).any()
+                        or (df_save["P1"] > 20).any()
+                        or (df_save["P2"] > 20).any()
+                    ):
+                        st.error("Los goles deben estar entre 0 y 20.")
+                        st.stop()
+
+                    nuevos_pro = df_save[
+                        [
+                            "N_PARTIDO",
+                            "P1",
+                            "P2"
+                        ]
+                    ].copy()
+
+                    nuevos_pro["USUARIO"] = user_actual
+
+                    nuevos_pro = nuevos_pro[
+                        [
+                            "N_PARTIDO",
+                            "USUARIO",
+                            "P1",
+                            "P2"
+                        ]
+                    ]
+
                     df_pro_full = conn.read(
                         worksheet="PRONOSTICOS",
                         ttl=5
                     )
-            
+
                     df_otros = df_pro_full[
                         df_pro_full["USUARIO"] != user_actual
                     ]
-            
+
                     df_final = pd.concat(
-                        [df_otros, pd.DataFrame(lista_nuevos_pro)],
+                        [df_otros, nuevos_pro],
                         ignore_index=True
                     )
-            
+
                     conn.update(
                         worksheet="PRONOSTICOS",
                         data=df_final
                     )
-            
+
                     st.cache_data.clear()
                     st.session_state.permitir_edicion = False
-            
+                    st.session_state.pron_editor_version += 1
+
                     st.success("✅ ¡Pronósticos guardados correctamente!")
                     st.balloons()
                     st.rerun()
-            
+
                 except Exception as e:
                     st.error(f"Error al guardar: {e}")
 
