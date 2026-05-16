@@ -322,7 +322,8 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     df_lab["EQUIPO FAVORITO"] = df_lab["EQUIPO FAVORITO"].fillna("-").astype(str)
 
     nombres = df_lab["NOMBRE"].tolist()
-        # ============================================================
+
+    # ============================================================
     # HELPERS — LAB FORO MUI
     # ============================================================
 
@@ -332,26 +333,13 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     if "lab_mui_like_count" not in st.session_state:
         st.session_state.lab_mui_like_count = 0
 
+    if "lab_mui_dislike_count" not in st.session_state:
+        st.session_state.lab_mui_dislike_count = 0
+
     if "lab_mui_total_actions" not in st.session_state:
         st.session_state.lab_mui_total_actions = 0
 
     def lab_mui_like(message_id):
-        def callback(*_):
-            st.session_state.lab_mui_action = f"Like en mensaje {message_id}"
-            st.session_state.lab_mui_like_count += 1
-        return callback
-
-    def lab_mui_dislike(message_id):
-        def callback(*_):
-            st.session_state.lab_mui_action = f"Dislike en mensaje {message_id}"
-            st.session_state.lab_mui_dislike_count += 1
-        return callback
-
-    def lab_mui_delete(message_id):
-        def callback(*_):
-            st.session_state.lab_mui_action = f"Borrar mensaje {message_id}"
-        return callback
-        def lab_mui_like(message_id):
         def callback(*_):
             st.session_state.lab_mui_action = f"👍 Like en mensaje {message_id}"
             st.session_state.lab_mui_like_count += 1
@@ -370,6 +358,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
             st.session_state.lab_mui_action = f"🗑️ Borrar mensaje {message_id}"
             st.session_state.lab_mui_total_actions += 1
         return callback
+        
     tab = sac.tabs(
         [
             sac.TabsItem("Selector vertical", icon="people"),
