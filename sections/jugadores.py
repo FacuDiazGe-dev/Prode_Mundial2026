@@ -678,11 +678,6 @@ def render_jugadores(
         border-radius: 16px;
     }
 
-    .badges-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-    }
-
     .badge-card {
         min-height: 116px;
         padding: 9px 6px;
