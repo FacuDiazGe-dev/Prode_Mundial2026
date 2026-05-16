@@ -10,7 +10,7 @@ except Exception:
     mui = None
     sync = None
     ELEMENTS_AVAILABLE = False
-msg_id="125"
+
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
     st.markdown("""
@@ -877,7 +877,7 @@ Clickea los botones de like, dislike y borrar. Los clicks se cuentan correctamen
                                         f"👍 {st.session_state.lab_mui_like_count}",
                                         variant="outlined",
                                         size="small",
-                                        onClick=lambda msg_id=msg["id"]: on_like_click(msg_id),
+                                        onClick=lambda msg_id=TRUE : on_like_click(msg_id),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
