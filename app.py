@@ -17,12 +17,12 @@ from styles_config import (
 from styles_config import dibujar_banner
 from tools import get_flag_img_cached, upload_profile_picture, registrar_usuario
 from io import BytesIO
-#import textwrap
-#import streamlit.components.v1 as components
+import textwrap
+import streamlit.components.v1 as components
 from sections.inicio import render_inicio
 from sections.mis_pronosticos import render_mis_pronosticos
 from sections.jugadores import render_jugadores
-#from sections.laboratorio import render_laboratorio
+from sections.laboratorio import render_laboratorio
 from sections.foro import render_foro
 
 
