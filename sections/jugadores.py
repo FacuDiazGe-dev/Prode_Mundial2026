@@ -252,18 +252,45 @@ def render_jugadores(
 }
 
 @media (max-width: 768px) {
-    .player-detail-panel {
-        padding: 13px;
-        border-radius: 16px;
+    .badges-desktop {
+        display: none;
     }
 
-    .player-detail-block {
-        padding: 12px;
+    .badges-mobile {
+        display: block;
+        margin-top: 18px;
+    }
+
+    .badges-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .badge-card {
+        min-height: 108px;
+        padding: 9px 6px;
         border-radius: 14px;
     }
 
-    .player-detail-section-title {
-        font-size: 14px;
+    .badge-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+        margin-bottom: 6px;
+        border-radius: 13px;
+    }
+
+    .badge-title {
+        font-size: 9px;
+        line-height: 1.1;
+    }
+
+    .badge-winner {
+        font-size: 10px;
+    }
+
+    .badge-detail {
+        font-size: 8px;
     }
 }
 
@@ -404,8 +431,9 @@ def render_jugadores(
 
 /* ============================================================
    8. MURO DE INSIGNIAS / LOGROS
-   Logros globales alternativos al ranking.
+   Grid HTML responsive: desktop 3 columnas, mobile 2 columnas.
    ============================================================ */
+
 .badges-desktop {
     display: block;
     margin-top: 18px;
@@ -415,62 +443,111 @@ def render_jugadores(
     display: none;
 }
 
+/* Panel general */
+.badges-wall-panel {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
+
+/* Grid real de insignias */
 .badges-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 9px;
+    gap: 10px;
 }
 
+/* Card de cada insignia */
 .badge-card {
-    background: rgba(248,250,252,0.88);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 14px;
-    padding: 10px 7px;
-    min-height: 104px;
+    min-width: 0;
+    min-height: 118px;
 
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.98),
+            rgba(248,250,252,0.94)
+        );
+
+    border: 1px solid rgba(226,232,240,0.95);
+    border-radius: 15px;
+
+    padding: 10px 7px;
     text-align: center;
 
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    
-    transition: all 0.16s ease;
+    justify-content: center;
+
+    box-shadow:
+        0 8px 18px rgba(15,23,42,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.55);
+
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
 }
 
 .badge-card:hover {
     transform: translateY(-1px);
-    border-color: rgba(244,197,66,0.55);
-    box-shadow: 0 8px 18px rgba(244,197,66,0.10);
+    border-color: rgba(244,197,66,0.62);
+    box-shadow:
+        0 10px 22px rgba(244,197,66,0.12),
+        inset 0 1px 0 rgba(255,255,255,0.65);
 }
 
+/* Medalla / ícono */
 .badge-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 12px;
-    background: rgba(244,197,66,0.16);
+    width: 46px;
+    height: 46px;
+    margin-bottom: 7px;
+
+    border-radius: 15px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 19px;
-    margin-bottom: 7px;
+
+    background:
+        radial-gradient(
+            circle at 30% 20%,
+            rgba(244,197,66,0.42),
+            rgba(7,17,31,0.96) 68%
+        );
+
+    border: 1px solid rgba(244,197,66,0.42);
+
+    color: #F4C542;
+    font-size: 24px;
+
+    box-shadow:
+        0 8px 18px rgba(15,23,42,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.10);
 }
 
 .badge-title {
-    color: #0f172a;
+    color: #07111F;
+    font-family: 'Montserrat', sans-serif;
     font-size: 10px;
     font-weight: 900;
     line-height: 1.1;
     text-transform: uppercase;
     letter-spacing: 0.02em;
+
     margin-bottom: 5px;
+
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .badge-winner {
-    color: #07111F;
-    font-size: 12px;
+    color: #0f172a;
+    font-size: 11px;
     font-weight: 900;
     line-height: 1.1;
+
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -478,19 +555,28 @@ def render_jugadores(
 }
 
 .badge-detail {
-    color: #64748b;
-    font-size: 9px;
-    font-weight: 800;
-    margin-top: 3px;
-    line-height: 1.15;
+    display: inline-block;
+
+    margin-top: 6px;
+    padding: 3px 7px;
+
+    border-radius: 999px;
+
+    background: rgba(7,17,31,0.96);
+    color: #F4C542;
+
+    font-size: 8px;
+    font-weight: 900;
+    line-height: 1.1;
+
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
+/* Mobile: 2 columnas reales */
 @media (max-width: 768px) {
-    .badges-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 6px;
-    }
-
     .badges-desktop {
         display: none;
     }
@@ -500,20 +586,32 @@ def render_jugadores(
         margin-top: 18px;
     }
 
+    .badges-wall-panel {
+        padding: 13px;
+        border-radius: 16px;
+    }
+
+    .badges-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
     .badge-card {
-        min-height: 92px;
-        padding: 8px 5px;
+        min-height: 112px;
+        padding: 9px 6px;
+        border-radius: 14px;
     }
 
     .badge-icon {
-        width: 30px;
-        height: 30px;
-        font-size: 17px;
-        margin-bottom: 5px;
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+        border-radius: 14px;
+        margin-bottom: 6px;
     }
 
     .badge-title {
-        font-size: 8px;
+        font-size: 9px;
     }
 
     .badge-winner {
@@ -522,6 +620,7 @@ def render_jugadores(
 
     .badge-detail {
         font-size: 8px;
+        padding: 3px 6px;
     }
 }
 
