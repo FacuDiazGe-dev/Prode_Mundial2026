@@ -205,6 +205,22 @@ def render_foro(conn, df_usuarios):
     display: none;
 }
 
+/* Cuerpo del mensaje.
+   En desktop permite texto + imagen en dos columnas. */
+.foro-message-body {
+    display: block;
+}
+
+.foro-message-body.has-image {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 12px;
+    align-items: start;
+}
+
+.foro-message-body.has-image .foro-message-text {
+    min-width: 0;
+}
 
 /* ============================================================
    4B. IMÁGENES PUBLICADAS EN EL FORO
@@ -212,15 +228,15 @@ def render_foro(conn, df_usuarios):
    ============================================================ */
 
 .foro-image-wrap {
-    margin-top: 9px;
+    margin-top: 0;
     display: flex;
     justify-content: center;
 }
 
 .foro-message-img {
-    width: auto;
-    max-width: 440px;
-    max-height: 260px;
+    width: 100%;
+    max-width: 220px;
+    max-height: 180px;
 
     object-fit: contain;
     display: block;
@@ -369,7 +385,18 @@ div[data-testid="stSegmentedControl"] button {
         max-height: 260px;
     }
 }
+    .foro-message-body.has-image {
+        display: block;
+    }
+    .foro-image-wrap {
+        margin-top: 9px;
+    }
 
+    .foro-message-img {
+        width: 100%;
+        max-width: 100%;
+        max-height: 230px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -409,6 +436,9 @@ div[data-testid="stSegmentedControl"] button {
     user_actual = user_data["USUARIO"]
     nombre_actual = user_data["NOMBRE"]
     rol_actual = user_data.get("ROL", "")
+
+    if "foro_uploader_key" not in st.session_state:
+        st.session_state.foro_uploader_key = 0
 
     # ============================================================
     # HELPERS
@@ -479,16 +509,16 @@ div[data-testid="stSegmentedControl"] button {
                 img_file = st.file_uploader(
                     "Foto opcional",
                     type=["jpg", "jpeg", "png", "webp"],
-                    help="Opcional. Ideal para fotos de juntadas, asados o cábalas."
+                    help="Opcional. Ideal para fotos de juntadas, asados o cábalas.",
+                    key=f"foro_img_uploader_{st.session_state.foro_uploader_key}"
                 )
 
                 if img_file is not None:
                     st.image(
                         img_file,
                         caption="Vista previa",
-                        use_container_width=True
+                        width=220
                     )
-
                 submit = st.form_submit_button(
                     "🚀 Publicar",
                     use_container_width=True
@@ -534,6 +564,8 @@ div[data-testid="stSegmentedControl"] button {
                         ignore_index=True
                     )
 
+                    st.session_state.foro_uploader_key += 1
+
                     save_foro(df_update)
 
         st.markdown('<div class="foro-feed">', unsafe_allow_html=True)
@@ -559,7 +591,13 @@ div[data-testid="stSegmentedControl"] button {
 <div class="foro-image-wrap">
 <img src="{escape(img_url, quote=True)}" class="foro-message-img">
 </div>
-                """
+"""
+
+                body_class = (
+                    "foro-message-body has-image"
+                    if img_html
+                    else "foro-message-body"
+                )
 
                 own_pill = '<span class="foro-own-pill">TUYO</span>' if es_mio else ""
 
@@ -576,8 +614,10 @@ div[data-testid="stSegmentedControl"] button {
 </div>
 </div>
 
+<div class="{body_class}">
 <div class="foro-message-text">{mensaje_msg}</div>
 {img_html}
+</div>
 </div>
 """,
                     unsafe_allow_html=True
