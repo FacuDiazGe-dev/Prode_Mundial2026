@@ -3,13 +3,11 @@ import pandas as pd
 import streamlit_antd_components as sac
 
 try:
-    from streamlit_elements import elements, mui, sync, lazy
+    from streamlit_elements import elements, mui
     ELEMENTS_AVAILABLE = True
 except Exception:
     elements = None
     mui = None
-    sync = None
-    lazy = None
     ELEMENTS_AVAILABLE = False
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
@@ -329,8 +327,11 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     # HELPERS — LAB FORO MUI
     # ============================================================
 
-    if "lab_mui_selected_action" not in st.session_state:
-        st.session_state.lab_mui_selected_action = None
+    if "lab_mui_click_event" not in st.session_state:
+        st.session_state.lab_mui_click_event = None
+
+    if "lab_mui_last_event_id" not in st.session_state:
+        st.session_state.lab_mui_last_event_id = None
 
     if "lab_mui_action" not in st.session_state:
         st.session_state.lab_mui_action = ""
@@ -344,43 +345,81 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     if "lab_mui_total_actions" not in st.session_state:
         st.session_state.lab_mui_total_actions = 0
 
-    def crear_handler_click(action_id):
+    def extraer_id_evento(event):
         """
-        Handler que actualiza session_state directamente.
+        Intenta extraer el id del evento MUI.
+        Primero por atributos tipo objeto, después por diccionario.
         """
-        def handler(*_):
-            st.session_state.lab_mui_selected_action = action_id
-        return handler
 
-    def procesar_accion_mui():
-        accion_actual = st.session_state.get("lab_mui_selected_action")
+        if event is None:
+            return None
 
-        if not accion_actual:
+        # Caso tipo objeto: event.target.id
+        try:
+            target = event.target
+            event_id = getattr(target, "id", None)
+            if event_id:
+                return event_id
+        except Exception:
+            pass
+
+        # Caso tipo objeto: event.currentTarget.id
+        try:
+            current_target = event.currentTarget
+            event_id = getattr(current_target, "id", None)
+            if event_id:
+                return event_id
+        except Exception:
+            pass
+
+        # Caso diccionario
+        try:
+            event_id = event.get("target", {}).get("id", None)
+            if event_id:
+                return event_id
+        except Exception:
+            pass
+
+        try:
+            event_id = event.get("currentTarget", {}).get("id", None)
+            if event_id:
+                return event_id
+        except Exception:
+            pass
+
+        return None
+
+    def procesar_evento_mui():
+        event = st.session_state.get("lab_mui_click_event")
+        action_id = extraer_id_evento(event)
+
+        if not action_id:
             return
 
-        if str(accion_actual).startswith("like_"):
-            msg_id = str(accion_actual).replace("like_", "")
+        if action_id == st.session_state.lab_mui_last_event_id:
+            return
+
+        st.session_state.lab_mui_last_event_id = action_id
+
+        if str(action_id).startswith("like_"):
+            msg_id = str(action_id).replace("like_", "")
             st.session_state.lab_mui_like_count += 1
             st.session_state.lab_mui_total_actions += 1
             st.session_state.lab_mui_action = f"👍 Like en mensaje {msg_id}"
 
-        elif str(accion_actual).startswith("dislike_"):
-            msg_id = str(accion_actual).replace("dislike_", "")
+        elif str(action_id).startswith("dislike_"):
+            msg_id = str(action_id).replace("dislike_", "")
             st.session_state.lab_mui_dislike_count += 1
             st.session_state.lab_mui_total_actions += 1
             st.session_state.lab_mui_action = f"👎 Dislike en mensaje {msg_id}"
 
-        elif str(accion_actual).startswith("delete_"):
-            msg_id = str(accion_actual).replace("delete_", "")
+        elif str(action_id).startswith("delete_"):
+            msg_id = str(action_id).replace("delete_", "")
             st.session_state.lab_mui_total_actions += 1
             st.session_state.lab_mui_action = f"🗑️ Borrar mensaje {msg_id}"
 
-        # Limpia la acción para evitar reprocesarla en otro rerun.
-        st.session_state.lab_mui_selected_action = None
-
-    procesar_accion_mui()
-
-    tab_index = sac.tabs(
+    procesar_evento_mui()
+    tab = sac.tabs(
         [
             sac.TabsItem("Selector vertical", icon="people"),
             sac.TabsItem("Botón + Card", icon="layout-sidebar"),
@@ -391,15 +430,14 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
         ],
         align="center",
         size="md",
-        return_index=True,
-        key="lab_tabs_index_v2",
+        key="lab_tabs"
     )
 
     # ============================================================
     # TAB 1 — SELECTOR VERTICAL
     # ============================================================
 
-    if tab_index == 0:
+    if tab == "Selector vertical":
         st.markdown("""
 <div class="lab-panel">
 <h3>Selector vertical de jugadores</h3>
@@ -472,11 +510,11 @@ Prueba para reemplazar el selectbox por un selector más visual. Evaluar mobile,
                     unsafe_allow_html=True
                 )
 
-    # ============================================================
+        # ============================================================
     # TAB 2 — BOTÓN + CARD
     # ============================================================
 
-    elif tab_index == 1:
+    elif tab == "Botón + Card":
         st.markdown("""
 <div class="lab-panel">
 <h3>Botón + Card de jugador</h3>
@@ -608,13 +646,17 @@ Esto evita depender de cards clickeables con HTML.
     # TAB 3 — FORO MUI / STREAMLIT-ELEMENTS
     # ============================================================
 
-    elif tab_index == 2:
+    elif tab == "Foro MUI":
+        st.write("DEBUG click event:", st.session_state.get("lab_mui_click_event"))
+        st.write("DEBUG last event id:", st.session_state.get("lab_mui_last_event_id"))
+        st.write("DEBUG action:", st.session_state.get("lab_mui_action"))
+        st.write("DEBUG total actions:", st.session_state.get("lab_mui_total_actions"))
 
         st.markdown("""
 <div class="lab-panel">
 <h3>Foro MUI con streamlit-elements</h3>
 <div class="lab-note">
-Cards con botones integrados, scroll real y responsive design para mobile.
+Prueba para resolver el problema real del Foro: cards, scroll interno y botones dentro del mismo árbol visual React / Material UI.
 </div>
 </div>
 """, unsafe_allow_html=True)
@@ -626,19 +668,16 @@ Cards con botones integrados, scroll real y responsive design para mobile.
             )
             return
 
-        # DEBUG - Métricas en la parte superior
-        col_debug1, col_debug2, col_debug3, col_debug4 = st.columns(4)
-        with col_debug1:
-            st.metric("Total", st.session_state.lab_mui_total_actions)
-        with col_debug2:
-            st.metric("👍 Likes", st.session_state.lab_mui_like_count)
-        with col_debug3:
-            st.metric("👎 Dislikes", st.session_state.lab_mui_dislike_count)
-        with col_debug4:
-            if st.session_state.lab_mui_action:
-                st.success(f"✅ {st.session_state.lab_mui_action}")
-            else:
-                st.info("🧪 Presiona un botón")
+        if st.session_state.lab_mui_action:
+            st.success(
+                f"✅ Botón MUI funcionando · {st.session_state.lab_mui_action} · "
+                f"Acciones totales: {st.session_state.lab_mui_total_actions} · "
+                f"👍 {st.session_state.lab_mui_like_count} · "
+                f"👎 {st.session_state.lab_mui_dislike_count} · "
+                f"Recibido: {st.session_state.lab_mui_selected_action}"
+            )
+        else:
+            st.info("🧪 Todavía no se presionó ningún botón MUI.")
 
         mensajes_demo = [
             {
@@ -697,13 +736,52 @@ Cards con botones integrados, scroll real y responsive design para mobile.
                 },
             ):
 
+                # Indicador visual dentro del panel MUI
+                with mui.Box(
+                    sx={
+                        "display": "flex",
+                        "alignItems": "center",
+                        "justifyContent": "space-between",
+                        "gap": 1,
+                        "mb": 1.5,
+                        "p": 1.2,
+                        "borderRadius": "14px",
+                        "background": "rgba(248,250,252,0.92)",
+                        "border": "1px solid rgba(226,232,240,0.9)",
+                    }
+                ):
+                    mui.Typography(
+                        st.session_state.lab_mui_action
+                        if st.session_state.lab_mui_action
+                        else "Esperando acción MUI...",
+                        variant="body2",
+                        sx={
+                            "fontWeight": 800,
+                            "color": "#334155",
+                        },
+                    )
+
+                    mui.Box(
+                        f"Clicks: {st.session_state.lab_mui_total_actions}",
+                        sx={
+                            "px": 1.2,
+                            "py": 0.45,
+                            "borderRadius": "999px",
+                            "background": "#07111F",
+                            "color": "#F4C542",
+                            "fontSize": "12px",
+                            "fontWeight": 900,
+                            "whiteSpace": "nowrap",
+                        },
+                    )
+                
                 # Header oscuro
                 with mui.Box(
                     sx={
                         "background": "linear-gradient(135deg, #07111F, #111827)",
                         "borderRadius": "18px",
                         "p": 2,
-                        "mb": 2,
+                        "mb": 1.5,
                         "border": "1px solid rgba(244,197,66,0.24)",
                     }
                 ):
@@ -794,7 +872,6 @@ Cards con botones integrados, scroll real y responsive design para mobile.
                                                 "display": "flex",
                                                 "alignItems": "center",
                                                 "gap": 0.8,
-                                                "flexWrap": "wrap",
                                             }
                                         ):
                                             mui.Typography(
@@ -827,7 +904,6 @@ Cards con botones integrados, scroll real y responsive design para mobile.
                                             sx={
                                                 "color": "#94A3B8",
                                                 "fontWeight": 800,
-                                                "width": "100%",
                                             },
                                         )
 
@@ -877,14 +953,13 @@ Cards con botones integrados, scroll real y responsive design para mobile.
                                         },
                                     )
 
-                                # Botones dentro de la card - responsive
+                                # Botones dentro de la card
                                 with mui.Box(
                                     sx={
                                         "display": "flex",
                                         "gap": 1,
                                         "mt": 1.2,
                                         "flexWrap": "wrap",
-                                        "justifyContent": "flex-start",
                                     }
                                 ):
                                     mui.Button(
@@ -893,18 +968,12 @@ Cards con botones integrados, scroll real y responsive design para mobile.
                                         size="small",
                                         id=f"like_{msg['id']}",
                                         key=f"lab_like_{msg['id']}",
-                                        onClick=crear_handler_click(f"like_{msg['id']}"),
+                                        onClick=sync("lab_mui_click_event"),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
                                             "borderRadius": "10px",
-                                            "minHeight": 32,
-                                            "fontSize": "12px",
-                                            "flex": {
-                                                "xs": "1",
-                                                "sm": "auto",
-                                            },
-                                            "minWidth": "60px",
+                                            "minHeight": 30,
                                         },
                                     )
 
@@ -914,21 +983,14 @@ Cards con botones integrados, scroll real y responsive design para mobile.
                                         size="small",
                                         id=f"dislike_{msg['id']}",
                                         key=f"lab_dislike_{msg['id']}",
-                                        onClick=crear_handler_click(f"dislike_{msg['id']}"),
+                                        onClick=sync("lab_mui_click_event"),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
                                             "borderRadius": "10px",
-                                            "minHeight": 32,
-                                            "fontSize": "12px",
-                                            "flex": {
-                                                "xs": "1",
-                                                "sm": "auto",
-                                            },
-                                            "minWidth": "60px",
+                                            "minHeight": 30,
                                         },
                                     )
-
                                     mui.Button(
                                         "🗑️ Borrar",
                                         variant="outlined",
@@ -936,26 +998,20 @@ Cards con botones integrados, scroll real y responsive design para mobile.
                                         size="small",
                                         id=f"delete_{msg['id']}",
                                         key=f"lab_delete_{msg['id']}",
-                                        onClick=crear_handler_click(f"delete_{msg['id']}"),
+                                        onClick=sync("lab_mui_click_event"),
                                         sx={
                                             "textTransform": "none",
                                             "fontWeight": 900,
                                             "borderRadius": "10px",
-                                            "minHeight": 32,
-                                            "fontSize": "12px",
-                                            "flex": {
-                                                "xs": "1",
-                                                "sm": "auto",
-                                            },
-                                            "minWidth": "60px",
+                                            "minHeight": 30,
                                         },
                                     )
-
+    
     # ============================================================
-    # TAB 4 — BOTONES
+    # TAB 2 — BOTONES
     # ============================================================
 
-    elif tab_index == 3:
+    elif tab == "Botones":
         st.markdown("""
 <div class="lab-panel">
 <h3>Botones como selector</h3>
@@ -986,10 +1042,10 @@ Sirve para pocos jugadores o para categorías. Si hay muchos, puede volverse lar
         st.success(f"Seleccionado: {elegido_btn}")
 
     # ============================================================
-    # TAB 5 — FILTROS
+    # TAB 3 — FILTROS
     # ============================================================
 
-    elif tab_index == 4:
+    elif tab == "Filtros":
         st.markdown("""
 <div class="lab-panel">
 <h3>Filtros / segmentados</h3>
@@ -1025,10 +1081,10 @@ Acá después podríamos mostrar una lista filtrada de jugadores.
 """, unsafe_allow_html=True)
 
     # ============================================================
-    # TAB 6 — INSIGNIAS
+    # TAB 4 — INSIGNIAS
     # ============================================================
 
-    elif tab_index == 5:
+    elif tab == "Insignias":
         st.markdown("""
 <div class="lab-panel">
 <h3>Tags / Insignias</h3>
