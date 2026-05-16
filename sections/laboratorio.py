@@ -3,11 +3,12 @@ import pandas as pd
 import streamlit_antd_components as sac
 
 try:
-    from streamlit_elements import elements, mui
+    from streamlit_elements import elements, mui, sync
     ELEMENTS_AVAILABLE = True
 except Exception:
     elements = None
     mui = None
+    sync = None
     ELEMENTS_AVAILABLE = False
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
