@@ -533,8 +533,8 @@ def render_jugadores(
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.98),
-            rgba(248,250,252,0.94)
+            rgba(255,255,255,0.70),
+            rgba(248,250,252,0.50)
         );
 
     border: 1px solid rgba(226,232,240,0.95);
