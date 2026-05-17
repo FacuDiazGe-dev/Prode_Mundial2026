@@ -495,15 +495,30 @@ div[data-testid="stSegmentedControl"] button:hover {
 
     background:
         linear-gradient(
+            180deg,
+            rgba(255,255,255,0.10),
+            rgba(255,255,255,0.03)
+        ),
+        linear-gradient(
             135deg,
-            rgba(7,17,31,0.1),
-            rgba(15,23,42,0.2)
+            rgba(7,17,31,0.5),
+            rgba(15,23,42,0.38)
         ),
         var(--foro-header-bg);
 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+
+    border: 1px solid rgba(244,197,66,0.22);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 10px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 0 18px rgba(244,197,66,0.12),
+        0 10px 22px rgba(15,23,42,0.10);
 }
 
 .foro-stat-box {
