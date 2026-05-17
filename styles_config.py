@@ -474,24 +474,7 @@ def mostrar_decalogo():
 
 .decalogo-header {
     text-align: center;
-    margin-bottom: 22px;
-}
-
-.decalogo-kicker {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 5px 10px;
-    margin-bottom: 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(215,198,160,0.16);
-    background: rgba(255,255,255,0.04);
-    color: var(--muted);
-    font-family: 'Inter', sans-serif;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    margin-bottom: 15px;
 }
 
 .decalogo-title {
@@ -579,14 +562,14 @@ def mostrar_decalogo():
 .decalogo-rule-title {
     margin: 0 0 5px 0;
 
-    color: #FFFFFF;
+    color: #F4F7FB;
     font-family: 'Inter', sans-serif;
     font-size: 14.5px;
     font-weight: 900;
     line-height: 1.24;
     letter-spacing: 0.01em;
 
-    text-shadow: 0 1px 6px rgba(0,0,0,0.22);
+    text-shadow: 0 1px 8px rgba(0,0,0,0.38);
 }
 
 .decalogo-rule-text {
@@ -611,7 +594,7 @@ def mostrar_decalogo():
 @media (max-width: 768px) {
     .decalogo-card {
         border-radius: 18px;
-        padding: 20px 15px 16px 15px;
+        padding: 20px 22px 22px 22px;
     }
 
     .decalogo-title {
@@ -655,7 +638,6 @@ def mostrar_decalogo():
 
 <section class="decalogo-card">
 <header class="decalogo-header">
-<span class="decalogo-kicker">Reglamento oficial del grupo</span>
 <h2 class="decalogo-title">El Decálogo del Prode</h2>
 <p class="decalogo-lead">Las reglas sagradas para jugar, cargar y sobrevivir al VAR emocional.</p>
 <div class="decalogo-divider"></div>
