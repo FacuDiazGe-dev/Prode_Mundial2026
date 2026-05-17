@@ -1383,53 +1383,56 @@ def render_jugadores(
         "El Misterioso": "misterioso",
         "El Distinto": "distinto",
     }
+
     def normalizar_texto(valor):
         return str(valor).strip().lower()
 
-def build_player_badges_mini_html(user_row, logros, badge_asset_map):
-    jugador_nombre = normalizar_texto(user_row.get("NOMBRE", ""))
+    def build_player_badges_mini_html(user_row, logros, badge_asset_map):
+        jugador_nombre = normalizar_texto(user_row.get("NOMBRE", ""))
 
-    badge_order = [
-        "Puntero",
-        "Sr. Prode",
-        "Siempre Suma",
-        "Optimista del Gol",
-        "El Cholo",
-        "Rey del Empate",
-        "El Macaya",
-        "El Misterioso",
-        "El Distinto",
-    ]
+        badge_order = [
+            "Puntero",
+            "Sr. Prode",
+            "Siempre Suma",
+            "Optimista del Gol",
+            "El Cholo",
+            "Rey del Empate",
+            "El Macaya",
+            "El Misterioso",
+            "El Distinto",
+        ]
 
-    earned_titles = {
-        str(logro.get("title", "")).strip()
-        for logro in logros
-        if normalizar_texto(logro.get("winner", "")) == jugador_nombre
-    }
+        earned_titles = {
+            str(logro.get("title", "")).strip()
+            for logro in logros
+            if normalizar_texto(logro.get("winner", "")) == jugador_nombre
+        }
 
-    items = []
+        items = []
 
-    for title in badge_order:
-        assets = badge_asset_map.get(title, {})
-        is_earned = title in earned_titles
+        for title in badge_order:
+            assets = badge_asset_map.get(title, {})
+            is_earned = title in earned_titles
 
-        if is_earned:
-            badge_url = assets.get("mini", "")
-        else:
-            badge_url = assets.get("gray", "") or assets.get("mini", "")
+            if is_earned:
+                badge_url = assets.get("mini", "")
+            else:
+                badge_url = assets.get("gray", "") or assets.get("mini", "")
 
-        state_class = "earned" if is_earned else "locked"
+            state_class = "earned" if is_earned else "locked"
 
-        if badge_url:
-            visual_html = f'<img src="{escape(badge_url)}" class="player-badge-mini-img" alt="{escape(title)}" loading="lazy">'
-        else:
-            visual_html = '<div class="player-badge-mini-fallback">🏅</div>'
+            if badge_url:
+                visual_html = f'<img src="{escape(badge_url)}" class="player-badge-mini-img" alt="{escape(title)}" loading="lazy">'
+            else:
+                visual_html = '<div class="player-badge-mini-fallback">🏅</div>'
 
-        items.append(
-            f'<div class="player-badge-mini {state_class}" title="{escape(title)}">{visual_html}</div>'
-        )
+            items.append(
+                f'<div class="player-badge-mini {state_class}" title="{escape(title)}">{visual_html}</div>'
+            )
 
-    return "".join(items)
+        return "".join(items)
+
+    badges_html = ""
 
     for logro in logros:
         badge_title = str(logro.get("title", ""))
@@ -1448,19 +1451,17 @@ def build_player_badges_mini_html(user_row, logros, badge_asset_map):
         if badge_img:
             badge_visual_html = f"""
 <div class="badge-medal-wrap">
-    <img 
-        class="badge-medal-img" 
-        src="{escape(badge_img)}" 
-        alt="{escape(badge_title)}"
-        loading="lazy"
-    >
+<img 
+class="badge-medal-img" 
+src="{escape(badge_img)}" 
+alt="{escape(badge_title)}"
+loading="lazy"
+>
 </div>
             """
         else:
             badge_visual_html = f"""
-<div class="badge-icon-fallback">
-    {escape(badge_icon_fallback)}
-</div>
+<div class="badge-icon-fallback">{escape(badge_icon_fallback)}</div>
             """
 
         badges_html += f"""
@@ -1487,17 +1488,9 @@ def build_player_badges_mini_html(user_row, logros, badge_asset_map):
 </div>
 </div>
     """
+
     # ============================================================
     # ESTRUCTURA PRINCIPAL
-    # Desktop:
-    # - Izquierda: lista de jugadores + muro de insignias
-    # - Derecha: ficha + pronósticos
-    #
-    # Mobile:
-    # - Lista
-    # - Ficha
-    # - Pronósticos
-    # - Insignias
     # ============================================================
 
     c_lista, c_detalle = st.columns([1.05, 1.15], gap="large")
