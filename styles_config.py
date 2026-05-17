@@ -417,7 +417,7 @@ def dibujar_banner():
 def mostrar_decalogo():
     """Renderiza el decálogo azul profundo con fondo visual personalizado."""
 
-    DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
+    DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/DECALOGO1.png"
 
     st.markdown(f"""
 <div style="
