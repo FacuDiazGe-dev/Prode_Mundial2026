@@ -415,60 +415,117 @@ def dibujar_banner():
     )
 
 def mostrar_decalogo():
-    """Renderiza el decálogo azul profundo con fondo visual personalizado."""
+    """Renderiza el decálogo con fondo decorativo y contenido legible."""
 
-    DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/DECALOGO1.png"
+    DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
 
     st.markdown(f"""
 <div style="
 background:
     linear-gradient(
         180deg,
-        rgba(240,242,246,0.45),
-        rgba(240,242,246,0.35)
+        rgba(7,17,31,0.18),
+        rgba(7,17,31,0.12)
     ),
     url('{DECALOGO_BG_URL}');
 background-size: cover;
 background-position: center;
 background-repeat: no-repeat;
-padding: 25px;
-border-radius: 15px;
-border: 1px solid rgba(3, 41, 73, 0.2);
-backdrop-filter: blur(10px);
-box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+padding: 18px;
+border-radius: 18px;
+border: 1px solid rgba(244,197,66,0.18);
+box-shadow: 0 10px 26px rgba(15,23,42,0.10);
 ">
-<h4 style="text-align: center; color: rgb(3, 41, 73); margin-top: 0; margin-bottom: 25px; font-family: sans-serif; letter-spacing: 2px; font-weight: 800; text-transform: uppercase;">📜 EL DECÁLOGO DEL PRODE</h4>
-<ol style="font-size: 0.95em; color: #333333; padding-left: 25px; font-family: sans-serif;">
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Respetar al rival:</b> La chicana es parte del juego, la falta de respeto no.</span>
+
+<div style="
+max-width: 92%;
+margin: 0 auto;
+background: rgba(255,255,255,0.88);
+padding: 28px 26px;
+border-radius: 16px;
+border: 1px solid rgba(226,232,240,0.85);
+backdrop-filter: blur(8px);
+box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.65),
+    0 8px 24px rgba(15,23,42,0.08);
+">
+
+<h3 style="
+text-align: center;
+color: #0B2E59;
+margin-top: 0;
+margin-bottom: 24px;
+font-family: 'Montserrat', sans-serif;
+font-size: 20px;
+font-weight: 900;
+letter-spacing: 0.03em;
+line-height: 1.15;
+text-transform: uppercase;
+">
+📜 EL DECÁLOGO DEL PRODE
+</h3>
+
+<ol style="
+max-width: 760px;
+margin: 0 auto;
+padding-left: 22px;
+font-family: 'Montserrat', sans-serif;
+font-size: 15px;
+line-height: 1.7;
+color: #334155;
+">
+
+<li style="margin-bottom: 14px; text-align: center;">
+<b style="color: #0B2E59;">Respetar al rival:</b>
+<span style="color: #334155;"> La chicana es parte del juego, la falta de respeto no.</span>
 </li>
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Ley del VAR:</b> ¡Prohibido llorar por el VAR!, a Pe-la-se!.</span>
+
+<li style="margin-bottom: 14px; text-align: center;">
+<b style="color: #0B2E59;">Ley del VAR:</b>
+<span style="color: #334155;"> ¡Prohibido llorar por el VAR!, a Pe-la-se!.</span>
 </li>
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Fair Play:</b> No tontié, no pidas que te editen un resultado después del 8/6.</span>
+
+<li style="margin-bottom: 14px; text-align: center;">
+<b style="color: #0B2E59;">Fair Play:</b>
+<span style="color: #334155;"> No tontié, no pidas que te editen un resultado después del 8/6.</span>
 </li>
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">El Puntero:</b> Al que va primero en el ranking se le respeta... o se le envidia.</span>
+
+<li style="margin-bottom: 14px; text-align: center;">
+<b style="color: #0B2E59;">El Puntero:</b>
+<span style="color: #334155;"> Al que va primero en el ranking se le respeta... o se le envidia.</span>
 </li>
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Grito de Gol:</b> Se permite escribir "¡GOOOOL!" en mayúsculas.</span>
+
+<li style="margin-bottom: 14px; text-align: center;">
+<b style="color: #0B2E59;">Grito de Gol:</b>
+<span style="color: #334155;"> Se permite escribir "¡GOOOOL!" en mayúsculas.</span>
 </li>
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">La Cábala:</b> No se revelan las cábalas personales.</span>
+
+<li style="margin-bottom: 14px; text-align: center;">
+<b style="color: #0B2E59;">La Cábala:</b>
+<span style="color: #334155;"> No se revelan las cábalas personales.</span>
 </li>
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Oliver Atom:</b> Recuerda que: "¡El balón está vivo!" y que "El partido no se termina hasta que se termina".</span>
+
+<li style="margin-bottom: 14px; text-align: center;">
+<b style="color: #0B2E59;">Oliver Atom:</b>
+<span style="color: #334155;"> Recuerda que: "¡El balón está vivo!" y que "El partido no se termina hasta que se termina".</span>
 </li>
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Sabiduría:</b> Si no sabes de fútbol, fingí que sí; los puntos no mienten wachx.</span>
+
+<li style="margin-bottom: 14px; text-align: center;">
+<b style="color: #0B2E59;">Sabiduría:</b>
+<span style="color: #334155;"> Si no sabes de fútbol, fingí que sí; los puntos no mienten wachx.</span>
 </li>
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">Puntualidad:</b> No dejes para mañana el pronóstico que puedes cargar hoy, amen.</span>
+
+<li style="margin-bottom: 14px; text-align: center;">
+<b style="color: #0B2E59;">Puntualidad:</b>
+<span style="color: #334155;"> No dejes para mañana el pronóstico que puedes cargar hoy, amén.</span>
 </li>
-<li style="margin-bottom: 15px; line-height: 1.6; font-weight: bold; color: rgb(3, 41, 73);">
-<span style="font-weight: normal; color: #333333;"><b style="color: rgb(3, 41, 73);">La Gloria:</b> ¡Disfrutar el mundial! ⚽</span>
+
+<li style="margin-bottom: 0; text-align: center;">
+<b style="color: #0B2E59;">La Gloria:</b>
+<span style="color: #334155;"> ¡Disfrutar el mundial! ⚽</span>
 </li>
+
 </ol>
+</div>
 </div>
 """, unsafe_allow_html=True)
