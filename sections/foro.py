@@ -676,7 +676,7 @@ div[data-testid="stSegmentedControl"] button:hover {
 </div>
 </div>
 </div>
-""", unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
         # ------------------------------------------------------------
         # FORMULARIO DE PUBLICACIÓN
@@ -872,7 +872,7 @@ div[data-testid="stSegmentedControl"] button:hover {
 </div>
 </div>
 </div>
-""", unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
         with st.expander("Ver decálogo", expanded=True):
             mostrar_decalogo()
