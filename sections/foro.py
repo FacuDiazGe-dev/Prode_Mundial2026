@@ -1218,7 +1218,7 @@ div[data-testid="stSegmentedControl"] button:hover {
 <div>¿Puedo ser eliminado o expulsado?</div>
 </div>
 <ul class="faq-list">
-<li>¿Me pueden descalificar? ¡Sí, sin dudarlo! En este juego familiar prima la buena onda. Cualquier comportamiento inapropiado, exceso, trampa o falta de respeto hacia otro miembro del grupo te dejará fuera de competencia. Esto significa la eliminación total de tu cuenta y de tus pronósticos guardados. No hay lola..</li>
+<li>¿Me pueden descalificar? ¡Sí, sin dudarlo! En este juego familiar prima la buena onda. Cualquier comportamiento inapropiado, exceso, trampa o falta de respeto hacia otro miembro del grupo te dejará fuera de competencia. Esto significa la eliminación total de tu cuenta y de tus pronósticos guardados. No hay lola.</li>
 </ul>
 </div>
 
