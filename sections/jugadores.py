@@ -467,100 +467,45 @@ def render_jugadores(
         inset 0 1px 0 rgba(255,255,255,0.75);
 }
 
-/* Medalla / ícono base */
-.badge-icon {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 8px;
+/* =====================================================
+   BADGES - MEDALLAS CON IMAGEN
+   ===================================================== */
 
-    border-radius: 50%;
+.badge-medal-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 6px;
+}
 
+.badge-medal-img {
+    width: 118px;
+    height: 118px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.20));
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.badge-card:hover .badge-medal-img {
+    transform: translateY(-2px) scale(1.035);
+    filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.26));
+}
+
+.badge-icon-fallback {
+    width: 118px;
+    height: 118px;
+    margin: 0 auto 6px auto;
+    border-radius: 999px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    background:
-        radial-gradient(
-            circle at 35% 25%,
-            rgba(255,224,120,0.95),
-            rgba(244,197,66,0.92) 34%,
-            rgba(160,110,20,0.95) 100%
-        );
-
-    border: 2px solid rgba(255,239,170,0.95);
-
-    color: #07111F;
-    font-size: 25px;
-
-    box-shadow:
-        0 8px 18px rgba(15,23,42,0.18),
-        0 0 18px rgba(244,197,66,0.20),
-        inset 0 1px 0 rgba(255,255,255,0.55);
+    font-size: 58px;
+    background: radial-gradient(circle at 30% 20%, #ffffff 0%, #eef3fb 38%, #dce5f3 100%);
+    box-shadow: 0 10px 18px rgba(8, 25, 52, 0.16);
 }
 
-/* Variantes visuales por insignia */
-
-.badge-puntero .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #fff2a8, #F4C542 38%, #9a6508 100%);
-    color: #07111F;
-}
-
-.badge-prode .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #ffd6d6, #dc2626 42%, #450a0a 100%);
-    color: #ffffff;
-    border-color: rgba(254,202,202,0.95);
-}
-
-.badge-constante .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #bbf7d0, #16a34a 42%, #052e16 100%);
-    color: #ffffff;
-    border-color: rgba(187,247,208,0.95);
-}
-
-.badge-gol .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #bae6fd, #0284c7 42%, #082f49 100%);
-    color: #ffffff;
-    border-color: rgba(186,230,253,0.95);
-}
-
-.badge-cholo .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #cbd5e1, #334155 44%, #020617 100%);
-    color: #F4C542;
-    border-color: rgba(203,213,225,0.95);
-}
-
-.badge-empate .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #ddd6fe, #7c3aed 42%, #2e1065 100%);
-    color: #ffffff;
-    border-color: rgba(221,214,254,0.95);
-}
-
-.badge-macaya .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #fde68a, #d97706 42%, #451a03 100%);
-    color: #ffffff;
-    border-color: rgba(253,230,138,0.95);
-}
-
-.badge-misterioso .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #e2e8f0, #475569 42%, #020617 100%);
-    color: #ffffff;
-    border-color: rgba(226,232,240,0.95);
-}
-
-.badge-distinto .badge-icon {
-    background:
-        radial-gradient(circle at 35% 25%, #ccfbf1, #14b8a6 38%, #042f2e 100%);
-    color: #ffffff;
-    border-color: rgba(204,251,241,0.95);
-}
 
 .badge-title {
     color: #07111F;
@@ -647,25 +592,29 @@ def render_jugadores(
         border-radius: 14px;
     }
 
-    .badge-icon {
-        width: 44px;
-        height: 44px;
-        font-size: 22px;
-        margin-bottom: 6px;
+    .badge-medal-img {
+        width: 92px;
+        height: 92px;
+    }
+
+    .badge-icon-fallback {
+        width: 92px;
+        height: 92px;
+        font-size: 44px;
     }
 
     .badge-title {
-        font-size: 9px;
-        line-height: 1.1;
+        font-size: 0.78rem;
+        line-height: 1.05;
     }
 
     .badge-winner {
-        font-size: 10px;
+        font-size: 0.76rem;
     }
 
     .badge-detail {
-        font-size: 8px;
-        padding: 3px 6px;
+        font-size: 0.72rem;
+        padding: 5px 8px;
     }
 }
 
@@ -959,7 +908,7 @@ def render_jugadores(
             })
 
         # ------------------------------------------------------------
-        # 3. EL CONSTANTE — más generales
+        # 3. SIEMPRE SUMA — más generales
         # ------------------------------------------------------------
 
         if "GENERALES" in df_ranking.columns:
@@ -973,14 +922,14 @@ def render_jugadores(
 
             logros.append({
                 "icon": "✅",
-                "title": "El Constante",
+                "title": "Siempre Suma",
                 "winner": nombre_desde_rank(row_generales),
                 "detail": f'{safe_int(row_generales.get("GENERALES", 0))} generales'
             })
         else:
             logros.append({
                 "icon": "✅",
-                "title": "El Constante",
+                "title": "Siempre Suma,
                 "winner": "-",
                 "detail": "Sin datos"
             })
@@ -1258,12 +1207,66 @@ def render_jugadores(
 
     logros = calcular_logros_globales()
 
+# =====================================================
+# ASSETS DE INSIGNIAS
+# =====================================================
+
+BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/TU_BUCKET/badges"
+
+badge_asset_map = {
+    "Puntero": {
+        "large": f"{BADGE_ASSET_BASE_URL}/puntero_large.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/puntero_mini.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/puntero_gray.png",
+    },
+    "Sr. Prode": {
+        "large": f"{BADGE_ASSET_BASE_URL}/sr_prode_large.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/sr_prode_mini.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/sr_prode_gray.png",
+    },
+    "El Constante": {
+        "large": f"{BADGE_ASSET_BASE_URL}/constante_large.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/constante_mini.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/constante_gray.png",
+    },
+    "Optimista del Gol": {
+        "large": f"{BADGE_ASSET_BASE_URL}/optimista_gol_large.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/optimista_gol_mini.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/optimista_gol_gray.png",
+    },
+    "El Cholo": {
+        "large": f"{BADGE_ASSET_BASE_URL}/cholo_large.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/cholo_mini.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/cholo_gray.png",
+    },
+    "Rey del Empate": {
+        "large": f"{BADGE_ASSET_BASE_URL}/rey_empate_large.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/rey_empate_mini.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/rey_empate_gray.png",
+    },
+    "El Macaya": {
+        "large": f"{BADGE_ASSET_BASE_URL}/macaya_large.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/macaya_mini.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/macaya_gray.png",
+    },
+    "El Misterioso": {
+        "large": f"{BADGE_ASSET_BASE_URL}/misterioso_large.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/misterioso_mini.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/misterioso_gray.png",
+    },
+    "El Distinto": {
+        "large": f"{BADGE_ASSET_BASE_URL}/distinto_large.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/distinto_mini.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/distinto_gray.png",
+    },
+}
+    
     badges_html = ""
 
     badge_class_map = {
         "Puntero": "puntero",
         "Sr. Prode": "prode",
-        "El Constante": "constante",
+        "Siempre Suma": "suma",
         "Optimista del Gol": "gol",
         "El Cholo": "cholo",
         "Rey del Empate": "empate",
@@ -1278,33 +1281,45 @@ def render_jugadores(
             "default"
         )
 
-        badges_html += f"""
+badge_title = str(logro.get("title", ""))
+badge_type = badge_class_map.get(badge_title, "default")
+
+badge_img = badge_asset_map.get(
+    badge_title,
+    {}
+).get(
+    "large",
+    ""
+)
+
+badge_icon_fallback = str(logro.get("icon", "🏅"))
+
+if badge_img:
+    badge_visual_html = f"""
+    <div class="badge-medal-wrap">
+        <img 
+            class="badge-medal-img" 
+            src="{escape(badge_img)}" 
+            alt="{escape(badge_title)}"
+            loading="lazy"
+        >
+    </div>
+    """
+else:
+    badge_visual_html = f"""
+    <div class="badge-icon-fallback">
+        {escape(badge_icon_fallback)}
+    </div>
+    """
+
+badges_html += f"""
 <div class="badge-card badge-{badge_type}">
-<div class="badge-icon">{logro["icon"]}</div>
-<div class="badge-title">{escape(str(logro["title"]))}</div>
-<div class="badge-winner">{escape(str(logro["winner"]))}</div>
-<div class="badge-detail">{escape(str(logro["detail"]))}</div>
+    {badge_visual_html}
+    <div class="badge-title">{escape(badge_title)}</div>
+    <div class="badge-winner">👤 {escape(str(logro.get("winner", "-")))}</div>
+    <div class="badge-detail">{escape(str(logro.get("detail", "")))}</div>
 </div>
 """
-
-    badges_panel_html = f"""
-<div class="badges-wall-panel">
-
-<div class="players-panel-header">
-<div class="players-panel-icon">🏅</div>
-<div>
-<div class="players-panel-title">Muro de Insignias</div>
-<div class="players-panel-subtitle">Logros alternativos del Prode</div>
-</div>
-</div>
-
-<div class="badges-grid">
-{badges_html}
-</div>
-
-</div>
-"""
-
     # ============================================================
     # ESTRUCTURA PRINCIPAL
     # Desktop:
