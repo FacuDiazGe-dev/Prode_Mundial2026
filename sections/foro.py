@@ -520,27 +520,6 @@ div[data-testid="stSegmentedControl"] button:hover {
         0 10px 22px rgba(15,23,42,0.16);
 }
 
-.decalogo-content-bg {
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.88),
-            rgba(255,255,255,0.78)
-        ),
-        var(--decalogo-content-bg);
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-
-    border-radius: 18px;
-    padding: 16px;
-    border: 1px solid rgba(226,232,240,0.85);
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.65),
-        0 10px 24px rgba(15,23,42,0.06);
-}
 .foro-stat-box {
     background: rgba(248,250,252,0.82);
     border: 1px solid rgba(226,232,240,0.85);
@@ -908,8 +887,6 @@ div[data-testid="stSegmentedControl"] button:hover {
         # ------------------------------------------------------------
         # DECÁLOGO
         # ------------------------------------------------------------
-        
-        DECALOGO_CONTENT_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/DECALOGO1.png"
       
         st.markdown(
             f"""
@@ -934,15 +911,8 @@ div[data-testid="stSegmentedControl"] button:hover {
                 unsafe_allow_html=True
             )
         
+        with st.expander("Ver decálogo", expanded=True):
             mostrar_decalogo()
-        
-            st.markdown(
-                """
-        </div>
-        """,
-                unsafe_allow_html=True
-            )
-
         # ------------------------------------------------------------
         # DATOS DE COMUNIDAD
         # ------------------------------------------------------------
