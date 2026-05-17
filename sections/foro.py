@@ -161,9 +161,14 @@ def render_foro(conn, df_usuarios):
 
     background:
         linear-gradient(
+            180deg,
+            rgba(255,255,255,0.10),
+            rgba(255,255,255,0.03)
+        ),
+        linear-gradient(
             135deg,
-        rgba(255,255,255,0),
-        rgba(255,255,255,0)
+            rgba(7,17,31,0.72),
+            rgba(15,23,42,0.58)
         ),
         var(--foro-header-bg);
 
@@ -177,7 +182,8 @@ def render_foro(conn, df_usuarios):
     margin-bottom: 10px;
 
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 0 18px rgba(244,197,66,0.12),
         0 10px 22px rgba(15,23,42,0.10);
 }
 
