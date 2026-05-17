@@ -592,10 +592,10 @@ def mostrar_decalogo():
 .decalogo-rule-text {
     margin: 0;
 
-    color: #B8C7D9;
+    color: #ffffff;
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    font-weight: 200;
+    font-weight: 150;
     line-height: 1.56;
 }
 
