@@ -929,7 +929,7 @@ def render_jugadores(
         else:
             logros.append({
                 "icon": "✅",
-                "title": "Siempre Suma,
+                "title": "Siempre Suma",
                 "winner": "-",
                 "detail": "Sin datos"
             })
@@ -1207,61 +1207,59 @@ def render_jugadores(
 
     logros = calcular_logros_globales()
 
-# =====================================================
-# ASSETS DE INSIGNIAS
-# =====================================================
+    # =====================================================
+    # ASSETS DE INSIGNIAS
+    # =====================================================
 
-BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
+    BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
 
-badge_asset_map = {
-    "Puntero": {
-        "large": f"{BADGE_ASSET_BASE_URL}/PUNTERO_LARGE_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/PUNTERO_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/PUNTERO_GRAY_128.png",
-    },
-    "Sr. Prode": {
-        "large": f"{BADGE_ASSET_BASE_URL}/SRPRODE_LARGE_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/SRPRODE_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/SRPRODE_GRAY_128.png",
-    },
-    "Siempre Suma": {
-        "large": f"{BADGE_ASSET_BASE_URL}/SUMA_LARGE_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/SUMA_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/SUMA_GRAY_128.png",
-    },
-    "Optimista del Gol": {
-        "large": f"{BADGE_ASSET_BASE_URL}/OPTIMISTA_LARGE_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/OPTIMISTA_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/OPTIMISTA_GRAY_128.png",
-    },
-    "El Cholo": {
-        "large": f"{BADGE_ASSET_BASE_URL}/ELCHOLO_LARGE_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/ELCHOLO_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/ELCHOLO_GRAY_128.png",
-    },
-    "Rey del Empate": {
-        "large": f"{BADGE_ASSET_BASE_URL}/EMPATE_LARGE_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/EMPATE_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/EMPATE_GRAY_128.png",
-    },
-    "El Macaya": {
-        "large": f"{BADGE_ASSET_BASE_URL}/MACAYA_LARGE_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/MACAYA_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/MACAYA_GRAY_128.png",
-    },
-    "El Misterioso": {
-        "large": f"{BADGE_ASSET_BASE_URL}/MISTERIOSO_LARGE_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/MISTERIOSO_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/MISTERIOSO_GRAY_128.png",
-    },
-    "El Distinto": {
-        "large": f"{BADGE_ASSET_BASE_URL}/DISTINTO_LARGE_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/DISTINTO_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/DISTINTO_GRAY_128.png",
-    },
-}
-    
-    badges_html = ""
+    badge_asset_map = {
+        "Puntero": {
+            "large": f"{BADGE_ASSET_BASE_URL}/PUNTERO_LARGE_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/PUNTERO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/PUNTERO_GRAY_128.png",
+        },
+        "Sr. Prode": {
+            "large": f"{BADGE_ASSET_BASE_URL}/SRPRODE_LARGE_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/SRPRODE_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/SRPRODE_GRAY_128.png",
+        },
+        "Siempre Suma": {
+            "large": f"{BADGE_ASSET_BASE_URL}/SUMA_LARGE_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/SUMA_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/SUMA_GRAY_128.png",
+        },
+        "Optimista del Gol": {
+            "large": f"{BADGE_ASSET_BASE_URL}/OPTIMISTA_LARGE_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/OPTIMISTA_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/OPTIMISTA_GRAY_128.png",
+        },
+        "El Cholo": {
+            "large": f"{BADGE_ASSET_BASE_URL}/ELCHOLO_LARGE_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/ELCHOLO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/ELCHOLO_GRAY_128.png",
+        },
+        "Rey del Empate": {
+            "large": f"{BADGE_ASSET_BASE_URL}/EMPATE_LARGE_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/EMPATE_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/EMPATE_GRAY_128.png",
+        },
+        "El Macaya": {
+            "large": f"{BADGE_ASSET_BASE_URL}/MACAYA_LARGE_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/MACAYA_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/MACAYA_GRAY_128.png",
+        },
+        "El Misterioso": {
+            "large": f"{BADGE_ASSET_BASE_URL}/MISTERIOSO_LARGE_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/MISTERIOSO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/MISTERIOSO_GRAY_128.png",
+        },
+        "El Distinto": {
+            "large": f"{BADGE_ASSET_BASE_URL}/DISTINTO_LARGE_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/DISTINTO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/DISTINTO_GRAY_128.png",
+        },
+    }
 
     badge_class_map = {
         "Puntero": "puntero",
@@ -1275,51 +1273,64 @@ badge_asset_map = {
         "El Distinto": "distinto",
     }
 
+    badges_html = ""
+
     for logro in logros:
-        badge_type = badge_class_map.get(
-            str(logro["title"]),
-            "default"
+        badge_title = str(logro.get("title", ""))
+        badge_type = badge_class_map.get(badge_title, "default")
+
+        badge_img = badge_asset_map.get(
+            badge_title,
+            {}
+        ).get(
+            "large",
+            ""
         )
 
-badge_title = str(logro.get("title", ""))
-badge_type = badge_class_map.get(badge_title, "default")
+        badge_icon_fallback = str(logro.get("icon", "🏅"))
 
-badge_img = badge_asset_map.get(
-    badge_title,
-    {}
-).get(
-    "large",
-    ""
-)
+        if badge_img:
+            badge_visual_html = f"""
+            <div class="badge-medal-wrap">
+                <img 
+                    class="badge-medal-img" 
+                    src="{escape(badge_img)}" 
+                    alt="{escape(badge_title)}"
+                    loading="lazy"
+                >
+            </div>
+            """
+        else:
+            badge_visual_html = f"""
+            <div class="badge-icon-fallback">
+                {escape(badge_icon_fallback)}
+            </div>
+            """
 
-badge_icon_fallback = str(logro.get("icon", "🏅"))
+        badges_html += f"""
+        <div class="badge-card badge-{badge_type}">
+            {badge_visual_html}
+            <div class="badge-title">{escape(badge_title)}</div>
+            <div class="badge-winner">👤 {escape(str(logro.get("winner", "-")))}</div>
+            <div class="badge-detail">{escape(str(logro.get("detail", "")))}</div>
+        </div>
+        """
 
-if badge_img:
-    badge_visual_html = f"""
-    <div class="badge-medal-wrap">
-        <img 
-            class="badge-medal-img" 
-            src="{escape(badge_img)}" 
-            alt="{escape(badge_title)}"
-            loading="lazy"
-        >
+    badges_panel_html = f"""
+    <div class="badges-wall-panel">
+        <div class="players-panel-header">
+            <div class="players-panel-icon">🏅</div>
+            <div>
+                <div class="players-panel-title">Muro de Insignias</div>
+                <div class="players-panel-subtitle">Logros destacados del Prode</div>
+            </div>
+        </div>
+
+        <div class="badges-grid">
+            {badges_html}
+        </div>
     </div>
     """
-else:
-    badge_visual_html = f"""
-    <div class="badge-icon-fallback">
-        {escape(badge_icon_fallback)}
-    </div>
-    """
-
-badges_html += f"""
-<div class="badge-card badge-{badge_type}">
-    {badge_visual_html}
-    <div class="badge-title">{escape(badge_title)}</div>
-    <div class="badge-winner">👤 {escape(str(logro.get("winner", "-")))}</div>
-    <div class="badge-detail">{escape(str(logro.get("detail", "")))}</div>
-</div>
-"""
     # ============================================================
     # ESTRUCTURA PRINCIPAL
     # Desktop:
