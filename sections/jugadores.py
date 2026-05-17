@@ -65,10 +65,10 @@ def render_jugadores(
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.92),
-            rgba(255,255,255,0.86)
+            rgba(255,255,255,0.20),
+            rgba(255,255,255,0.30)
         ),
-        url("https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png");
+        var(--badges-wall-bg);
 
     background-size: cover;
     background-position: center;
@@ -1340,6 +1340,8 @@ def render_jugadores(
 
     BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
     PLAYER_HERO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
+    BADGES_WALL_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png"
+
     
     badge_asset_map = {
         "Puntero": {
@@ -1491,7 +1493,7 @@ loading="lazy"
         """
 
     badges_panel_html = f"""
-<div class="badges-wall-panel">
+<div class="badges-wall-panel" style="--badges-wall-bg: url('{BADGES_WALL_BG_URL}');">
 <div class="players-panel-header">
 <div class="players-panel-icon">🏅</div>
 <div>
