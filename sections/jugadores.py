@@ -1544,7 +1544,7 @@ loading="lazy"
 </div>
 """, unsafe_allow_html=True)
 
-            with st.container(height=600):
+            with st.container(height=340):
                 for _, u in df_usuarios.iterrows():
                     foto_mini = get_avatar(u)
 
