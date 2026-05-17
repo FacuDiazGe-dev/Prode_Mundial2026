@@ -1211,53 +1211,53 @@ def render_jugadores(
 # ASSETS DE INSIGNIAS
 # =====================================================
 
-BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/TU_BUCKET/badges"
+BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
 
 badge_asset_map = {
     "Puntero": {
-        "large": f"{BADGE_ASSET_BASE_URL}/puntero_large.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/puntero_mini.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/puntero_gray.png",
+        "large": f"{BADGE_ASSET_BASE_URL}/PUNTERO_LARGE_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/PUNTERO_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/PUNTERO_GRAY_128.png",
     },
     "Sr. Prode": {
-        "large": f"{BADGE_ASSET_BASE_URL}/sr_prode_large.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/sr_prode_mini.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/sr_prode_gray.png",
+        "large": f"{BADGE_ASSET_BASE_URL}/SRPRODE_LARGE_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/SRPRODE_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/SRPRODE_GRAY_128.png",
     },
-    "El Constante": {
-        "large": f"{BADGE_ASSET_BASE_URL}/constante_large.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/constante_mini.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/constante_gray.png",
+    "Siempre Suma": {
+        "large": f"{BADGE_ASSET_BASE_URL}/SUMA_LARGE_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/SUMA_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/SUMA_GRAY_128.png",
     },
     "Optimista del Gol": {
-        "large": f"{BADGE_ASSET_BASE_URL}/optimista_gol_large.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/optimista_gol_mini.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/optimista_gol_gray.png",
+        "large": f"{BADGE_ASSET_BASE_URL}/OPTIMISTA_LARGE_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/OPTIMISTA_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/OPTIMISTA_GRAY_128.png",
     },
     "El Cholo": {
-        "large": f"{BADGE_ASSET_BASE_URL}/cholo_large.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/cholo_mini.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/cholo_gray.png",
+        "large": f"{BADGE_ASSET_BASE_URL}/ELCHOLO_LARGE_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/ELCHOLO_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/ELCHOLO_GRAY_128.png",
     },
     "Rey del Empate": {
-        "large": f"{BADGE_ASSET_BASE_URL}/rey_empate_large.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/rey_empate_mini.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/rey_empate_gray.png",
+        "large": f"{BADGE_ASSET_BASE_URL}/EMPATE_LARGE_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/EMPATE_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/EMPATE_GRAY_128.png",
     },
     "El Macaya": {
-        "large": f"{BADGE_ASSET_BASE_URL}/macaya_large.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/macaya_mini.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/macaya_gray.png",
+        "large": f"{BADGE_ASSET_BASE_URL}/MACAYA_LARGE_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/MACAYA_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/MACAYA_GRAY_128.png",
     },
     "El Misterioso": {
-        "large": f"{BADGE_ASSET_BASE_URL}/misterioso_large.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/misterioso_mini.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/misterioso_gray.png",
+        "large": f"{BADGE_ASSET_BASE_URL}/MISTERIOSO_LARGE_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/MISTERIOSO_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/MISTERIOSO_GRAY_128.png",
     },
     "El Distinto": {
-        "large": f"{BADGE_ASSET_BASE_URL}/distinto_large.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/distinto_mini.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/distinto_gray.png",
+        "large": f"{BADGE_ASSET_BASE_URL}/DISTINTO_LARGE_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/DISTINTO_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/DISTINTO_GRAY_128.png",
     },
 }
     
