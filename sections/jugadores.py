@@ -78,7 +78,12 @@ def render_jugadores(
 }
 
 .badges-wall-title {
-    color: ; #F8FAFC
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #F8FAFC;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
 }
 
 .player-preds-panel {
