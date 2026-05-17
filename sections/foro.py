@@ -165,11 +165,6 @@ def render_foro(conn, df_usuarios):
         rgba(255,255,255,0.12),
         rgba(255,255,255,0.00)
         ),
-        linear-gradient(
-            135deg,
-            rgba(7,17,31,0.62),
-            rgba(15,23,42,0.46)
-        ),
         var(--foro-header-bg);
 
     background-size: cover;
