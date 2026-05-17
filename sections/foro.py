@@ -163,7 +163,7 @@ def render_foro(conn, df_usuarios):
         linear-gradient(
             135deg,
         rgba(255,255,255,0),
-        rgba(255,255,255,1)
+        rgba(255,255,255,0)
         ),
         var(--foro-header-bg);
 
