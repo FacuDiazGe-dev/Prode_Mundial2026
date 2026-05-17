@@ -162,8 +162,8 @@ def render_foro(conn, df_usuarios):
     background:
         linear-gradient(
             135deg,
-            rgba(7,17,31,0.88),
-            rgba(15,23,42,0.80)
+            rgba(7,17,31,0.1),
+            rgba(15,23,42,0.2)
         ),
         var(--foro-header-bg);
 
@@ -490,8 +490,8 @@ div[data-testid="stSegmentedControl"] button:hover {
     background:
         linear-gradient(
             135deg,
-            rgba(7,17,31,0.84),
-            rgba(15,23,42,0.78)
+            rgba(7,17,31,0.1),
+            rgba(15,23,42,0.2)
         ),
         var(--foro-header-bg);
 
