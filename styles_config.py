@@ -415,215 +415,161 @@ def dibujar_banner():
     )
 
 def mostrar_decalogo():
-    """Renderiza el decálogo como placa premium ceremonial del Prode."""
-
     st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Oswald:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Oswald:wght@500;600;700&display=swap');
 
 :root {
-    --decalogo-bg: #07111f;
-    --decalogo-bg-soft: #0e1c2f;
-    --decalogo-card: rgba(255, 255, 255, 0.055);
-    --decalogo-card-hover: rgba(255, 255, 255, 0.085);
-    --decalogo-card-border: rgba(255, 255, 255, 0.10);
-    --decalogo-gold: #f4c542;
-    --decalogo-gold-soft: rgba(244, 197, 66, 0.22);
-    --decalogo-title: #f8fafc;
-    --decalogo-subtitle: #ffffff;
-    --decalogo-text: #cbd6e2;
-    --decalogo-muted: #8fa3b8;
+    --bg-main: #0C1624;
+    --bg-card: #162334;
+    --bg-card-soft: #1B2A3D;
+    --title: #F4F7FB;
+    --subtitle: #E4ECF5;
+    --text: #C6D2E0;
+    --muted: #8FA3B8;
+    --accent-soft: #B8C7D9;
+    --champagne: #D7C6A0;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.12);
+    --shadow: 0 18px 40px rgba(3, 10, 20, 0.34);
 }
 
 .decalogo-card {
+    position: relative;
+    overflow: hidden;
     width: 100%;
-    max-width: 820px;
+    max-width: 860px;
     margin: 0 auto;
-
     background:
         radial-gradient(
             circle at 50% 0%,
-            rgba(244,197,66,0.16),
-            rgba(244,197,66,0.00) 30%
-        ),
-        radial-gradient(
-            circle at 100% 100%,
-            rgba(59,130,246,0.12),
-            rgba(59,130,246,0.00) 34%
+            rgba(215,198,160,0.05),
+            rgba(215,198,160,0.00) 26%
         ),
         linear-gradient(
             180deg,
-            rgba(14,28,47,0.98),
-            rgba(7,17,31,0.98)
+            #162334 0%,
+            #0C1624 100%
         );
-
-    border: 1px solid rgba(244,197,66,0.24);
-    border-radius: 24px;
-    padding: 26px 24px 24px 24px;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.08),
-        0 18px 42px rgba(15,23,42,0.22);
-
-    overflow: hidden;
-    position: relative;
+    border: 1px solid rgba(215,198,160,0.12);
+    border-radius: 22px;
+    padding: 26px 22px 22px 22px;
+    box-shadow: var(--shadow);
 }
 
 .decalogo-card::before {
     content: "";
     position: absolute;
+    top: 0;
     left: 24px;
     right: 24px;
-    top: 0;
-    height: 2px;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(244,197,66,0.00),
-            rgba(244,197,66,0.85),
-            rgba(244,197,66,0.00)
-        );
-
-    opacity: 0.9;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        rgba(215,198,160,0.00),
+        rgba(215,198,160,0.85),
+        rgba(215,198,160,0.00)
+    );
 }
 
 .decalogo-header {
     text-align: center;
-    margin-bottom: 24px;
-    position: relative;
-    z-index: 1;
+    margin-bottom: 22px;
 }
 
 .decalogo-kicker {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
+    padding: 5px 10px;
     margin-bottom: 10px;
-    padding: 5px 11px;
-
     border-radius: 999px;
-    background: rgba(244,197,66,0.12);
-    border: 1px solid rgba(244,197,66,0.22);
-
-    color: var(--decalogo-gold);
+    border: 1px solid rgba(215,198,160,0.16);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
     font-family: 'Inter', sans-serif;
     font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.11em;
+    font-weight: 800;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
 }
 
 .decalogo-title {
     margin: 0;
-
-    font-family: 'Oswald', 'Montserrat', sans-serif;
-    font-size: 30px;
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: 0.045em;
+    color: var(--title);
+    font-family: 'Oswald', 'Barlow Condensed', sans-serif;
+    font-size: 31px;
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-
-    color: var(--decalogo-title);
-    text-shadow: 0 3px 12px rgba(0,0,0,0.35);
 }
 
-.decalogo-title span {
-    color: var(--decalogo-gold);
-}
-
-.decalogo-epigrafe {
-    max-width: 520px;
-    margin: 12px auto 0 auto;
-
-    color: var(--decalogo-muted);
+.decalogo-lead {
+    max-width: 560px;
+    margin: 10px auto 0 auto;
+    color: var(--muted);
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.45;
 }
 
 .decalogo-divider {
-    width: 76px;
+    width: 74px;
     height: 2px;
-    margin: 17px auto 0 auto;
-
+    margin: 16px auto 0 auto;
     border-radius: 999px;
-    background:
-        linear-gradient(
-            90deg,
-            rgba(244,197,66,0.00),
-            rgba(244,197,66,0.95),
-            rgba(244,197,66,0.00)
-        );
+    background: linear-gradient(
+        90deg,
+        rgba(215,198,160,0.00),
+        rgba(215,198,160,0.95),
+        rgba(215,198,160,0.00)
+    );
 }
 
 .decalogo-list {
     list-style: none;
     margin: 0;
     padding: 0;
-
     display: flex;
     flex-direction: column;
     gap: 10px;
-
-    position: relative;
-    z-index: 1;
 }
 
 .decalogo-item {
     display: grid;
-    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-columns: 44px minmax(0, 1fr);
     gap: 12px;
     align-items: start;
-
-    padding: 13px 14px;
-
-    border-radius: 17px;
-    background: var(--decalogo-card);
-    border: 1px solid var(--decalogo-card-border);
-
+    padding: 14px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.035),
+        rgba(255,255,255,0.025)
+    );
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.045),
-        0 8px 18px rgba(0,0,0,0.08);
-
-    transition:
-        background 0.16s ease,
-        border-color 0.16s ease,
-        transform 0.16s ease;
-}
-
-.decalogo-item:hover {
-    background: var(--decalogo-card-hover);
-    border-color: rgba(244,197,66,0.22);
-    transform: translateY(-1px);
+        inset 0 1px 0 rgba(255,255,255,0.03),
+        0 8px 18px rgba(0,0,0,0.10);
 }
 
 .decalogo-number {
     width: 34px;
     height: 34px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 12px;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(244,197,66,0.20),
-            rgba(244,197,66,0.08)
-        );
-
-    border: 1px solid rgba(244,197,66,0.34);
-
-    color: var(--decalogo-gold);
+    border-radius: 11px;
+    border: 1px solid rgba(215,198,160,0.16);
+    background: rgba(255,255,255,0.035);
+    color: var(--accent-soft);
     font-family: 'Oswald', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
     line-height: 1;
+    letter-spacing: 0.04em;
 }
 
 .decalogo-content {
@@ -632,53 +578,63 @@ def mostrar_decalogo():
 
 .decalogo-rule-title {
     margin: 0 0 4px 0;
-
+    color: var(--subtitle);
     font-family: 'Inter', sans-serif;
     font-size: 14px;
-    font-weight: 900;
-    line-height: 1.25;
-
-    color: var(--decalogo-subtitle);
+    font-weight: 800;
+    line-height: 1.24;
 }
 
 .decalogo-rule-text {
     margin: 0;
-
+    color: var(--text);
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    font-weight: 600;
-    line-height: 1.48;
+    font-weight: 500;
+    line-height: 1.52;
+}
 
-    color: var(--decalogo-text);
+.decalogo-item:hover {
+    background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.048),
+        rgba(255,255,255,0.032)
+    );
+    border-color: var(--border-strong);
 }
 
 @media (max-width: 768px) {
     .decalogo-card {
-        border-radius: 20px;
-        padding: 22px 16px 18px 16px;
+        border-radius: 18px;
+        padding: 20px 15px 16px 15px;
     }
 
     .decalogo-title {
         font-size: 24px;
-        letter-spacing: 0.035em;
+        line-height: 1.06;
     }
 
-    .decalogo-epigrafe {
+    .decalogo-lead {
         font-size: 12px;
+        max-width: 100%;
+    }
+
+    .decalogo-list {
+        gap: 8px;
     }
 
     .decalogo-item {
-        grid-template-columns: 36px minmax(0, 1fr);
+        grid-template-columns: 38px minmax(0, 1fr);
         gap: 10px;
         padding: 12px 11px;
-        border-radius: 15px;
+        border-radius: 14px;
     }
 
     .decalogo-number {
         width: 30px;
         height: 30px;
         border-radius: 10px;
-        font-size: 13px;
+        font-size: 12px;
     }
 
     .decalogo-rule-title {
@@ -687,23 +643,22 @@ def mostrar_decalogo():
 
     .decalogo-rule-text {
         font-size: 12px;
-        line-height: 1.45;
+        line-height: 1.48;
     }
 }
 </style>
 
 <section class="decalogo-card">
 <header class="decalogo-header">
-<div class="decalogo-kicker">Reglamento oficial del grupo</div>
-<h2 class="decalogo-title">El Decálogo<br><span>del Prode</span></h2>
-<p class="decalogo-epigrafe">Las reglas sagradas para jugar, cargar y sobrevivir al VAR emocional.</p>
+<span class="decalogo-kicker">Reglamento oficial del grupo</span>
+<h2 class="decalogo-title">El Decálogo del Prode</h2>
+<p class="decalogo-lead">Las reglas sagradas para jugar, cargar y sobrevivir al VAR emocional.</p>
 <div class="decalogo-divider"></div>
 </header>
 
 <ol class="decalogo-list">
-
 <li class="decalogo-item">
-<div class="decalogo-number">01</div>
+<span class="decalogo-number">01</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">Respetar al rival</h3>
 <p class="decalogo-rule-text">La chicana es parte del juego, la falta de respeto no.</p>
@@ -711,7 +666,7 @@ def mostrar_decalogo():
 </li>
 
 <li class="decalogo-item">
-<div class="decalogo-number">02</div>
+<span class="decalogo-number">02</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">Ley del VAR</h3>
 <p class="decalogo-rule-text">¡Prohibido llorar por el VAR!, a Pe-la-se!.</p>
@@ -719,7 +674,7 @@ def mostrar_decalogo():
 </li>
 
 <li class="decalogo-item">
-<div class="decalogo-number">03</div>
+<span class="decalogo-number">03</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">Fair Play</h3>
 <p class="decalogo-rule-text">No tontié, no pidas que te editen un resultado después del 8/6.</p>
@@ -727,7 +682,7 @@ def mostrar_decalogo():
 </li>
 
 <li class="decalogo-item">
-<div class="decalogo-number">04</div>
+<span class="decalogo-number">04</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">El Puntero</h3>
 <p class="decalogo-rule-text">Al que va primero en el ranking se le respeta... o se le envidia.</p>
@@ -735,7 +690,7 @@ def mostrar_decalogo():
 </li>
 
 <li class="decalogo-item">
-<div class="decalogo-number">05</div>
+<span class="decalogo-number">05</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">Grito de Gol</h3>
 <p class="decalogo-rule-text">Se permite escribir "¡GOOOOL!" en mayúsculas.</p>
@@ -743,7 +698,7 @@ def mostrar_decalogo():
 </li>
 
 <li class="decalogo-item">
-<div class="decalogo-number">06</div>
+<span class="decalogo-number">06</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">La Cábala</h3>
 <p class="decalogo-rule-text">No se revelan las cábalas personales.</p>
@@ -751,7 +706,7 @@ def mostrar_decalogo():
 </li>
 
 <li class="decalogo-item">
-<div class="decalogo-number">07</div>
+<span class="decalogo-number">07</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">Oliver Atom</h3>
 <p class="decalogo-rule-text">Recuerda que: "¡El balón está vivo!" y que "El partido no se termina hasta que se termina".</p>
@@ -759,7 +714,7 @@ def mostrar_decalogo():
 </li>
 
 <li class="decalogo-item">
-<div class="decalogo-number">08</div>
+<span class="decalogo-number">08</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">Sabiduría</h3>
 <p class="decalogo-rule-text">Si no sabes de fútbol, fingí que sí; los puntos no mienten wachx.</p>
@@ -767,7 +722,7 @@ def mostrar_decalogo():
 </li>
 
 <li class="decalogo-item">
-<div class="decalogo-number">09</div>
+<span class="decalogo-number">09</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">Puntualidad</h3>
 <p class="decalogo-rule-text">No dejes para mañana el pronóstico que puedes cargar hoy, amen.</p>
@@ -775,13 +730,12 @@ def mostrar_decalogo():
 </li>
 
 <li class="decalogo-item">
-<div class="decalogo-number">10</div>
+<span class="decalogo-number">10</span>
 <div class="decalogo-content">
 <h3 class="decalogo-rule-title">La Gloria</h3>
 <p class="decalogo-rule-text">¡Disfrutar el mundial! ⚽</p>
 </div>
 </li>
-
 </ol>
 </section>
 """, unsafe_allow_html=True)
