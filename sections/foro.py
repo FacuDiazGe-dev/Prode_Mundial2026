@@ -155,20 +155,21 @@ def render_foro(conn, df_usuarios):
    Contiene header + publicar + feed.
    ============================================================ */
 
-
-
 .foro-hero-header {
+    position: relative;
+    overflow: hidden;
+
     background:
-        radial-gradient(
-            circle at 0% 0%,
-            rgba(244,197,66,0.22),
-            rgba(7,17,31,0.98) 38%
-        ),
         linear-gradient(
             135deg,
-            rgba(7,17,31,0.98),
-            rgba(15,23,42,0.96)
-        );
+            rgba(7,17,31,0.88),
+            rgba(15,23,42,0.80)
+        ),
+        var(--foro-header-bg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 
     border: 1px solid rgba(244,197,66,0.22);
     border-radius: 18px;
@@ -485,17 +486,18 @@ div[data-testid="stSegmentedControl"] button:hover {
 .decalogo-hero-header {
     margin-top: 0;
     margin-bottom: 8px;
+
     background:
-        radial-gradient(
-            circle at 100% 0%,
-            rgba(244,197,66,0.24),
-            rgba(7,17,31,0.98) 38%
-        ),
         linear-gradient(
             135deg,
-            rgba(7,17,31,0.98),
-            rgba(15,23,42,0.96)
-        );
+            rgba(7,17,31,0.84),
+            rgba(15,23,42,0.78)
+        ),
+        var(--foro-header-bg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .foro-stat-box {
@@ -645,6 +647,9 @@ div[data-testid="stSegmentedControl"] button:hover {
     # TÍTULO
     # ============================================================
 
+FORO_MURO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20DE%20SECCION2.png"
+FORO_DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZASECCION.png"
+    
     st.markdown("""
 <div class="foro-title">
 <h1>💬 Foro del Prode</h1>
@@ -665,7 +670,7 @@ div[data-testid="stSegmentedControl"] button:hover {
         # ------------------------------------------------------------
 
         st.markdown("""
-<div class="foro-hero-header">
+<div class="foro-hero-header" style="--foro-header-bg: url('{FORO_MURO_BG_URL}');">
 <div class="foro-hero-row">
 <div class="foro-hero-icon">💬</div>
 <div>
@@ -861,7 +866,7 @@ div[data-testid="stSegmentedControl"] button:hover {
         # ------------------------------------------------------------
 
         st.markdown("""
-<div class="foro-hero-header decalogo-hero-header">
+<div class="foro-hero-header decalogo-hero-header" style="--foro-header-bg: url('{FORO_DECALOGO_BG_URL}');">
 <div class="foro-hero-row">
 <div class="foro-hero-icon">📜</div>
 <div>
