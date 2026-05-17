@@ -25,17 +25,31 @@ from sections.jugadores import render_jugadores
 #from sections.laboratorio import render_laboratorio
 from sections.foro import render_foro
 
+from PIL import Image
+import streamlit as st
 
-
-
-
+icono_app = Image.open("https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png")
 
 # --- CONFIGURACIÓN DE PÁGINA ---
+
 st.set_page_config(
-    page_title="Prode Mundial 2026", 
-    page_icon="https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png", 
-    layout="wide"
+    page_title="Prode Mundial 2026",
+    page_icon=icono_app,
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+st.logo(
+    "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png",
+    icon_image="assets/ICONOAPP.png"
+)
+
+# # --- CONFIGURACIÓN DE PÁGINA ---
+# st.set_page_config(
+#     page_title="Prode Mundial 2026", 
+#     page_icon="https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png", 
+#     layout="wide"
+# )
 
 # --- CONEXIÓN ---
 # Conexión única
