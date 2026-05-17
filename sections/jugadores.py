@@ -1420,16 +1420,16 @@ def render_jugadores(
 
             if badge_url:
                 visual_html = f"""
-                <img
-                    src="{escape(badge_url)}"
-                    class="player-badge-mini-img"
-                    alt="{escape(title)}"
-                    loading="lazy"
-                >
+<img
+    src="{escape(badge_url)}"
+    class="player-badge-mini-img"
+    alt="{escape(title)}"
+    loading="lazy"
+>
                 """
             else:
                 visual_html = """
-                <div class="player-badge-mini-fallback">🏅</div>
+<div class="player-badge-mini-fallback">🏅</div>
                 """
 
             state_class = "earned" if is_earned else "locked"
