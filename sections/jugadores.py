@@ -1386,64 +1386,50 @@ def render_jugadores(
     def normalizar_texto(valor):
         return str(valor).strip().lower()
 
-    def build_player_badges_mini_html(user_row, logros, badge_asset_map):
-        jugador_nombre = normalizar_texto(user_row.get("NOMBRE", ""))
+def build_player_badges_mini_html(user_row, logros, badge_asset_map):
+    jugador_nombre = normalizar_texto(user_row.get("NOMBRE", ""))
 
-        badge_order = [
-            "Puntero",
-            "Sr. Prode",
-            "Siempre Suma",
-            "Optimista del Gol",
-            "El Cholo",
-            "Rey del Empate",
-            "El Macaya",
-            "El Misterioso",
-            "El Distinto",
-        ]
+    badge_order = [
+        "Puntero",
+        "Sr. Prode",
+        "Siempre Suma",
+        "Optimista del Gol",
+        "El Cholo",
+        "Rey del Empate",
+        "El Macaya",
+        "El Misterioso",
+        "El Distinto",
+    ]
 
-        earned_titles = {
-            str(logro.get("title", "")).strip()
-            for logro in logros
-            if normalizar_texto(logro.get("winner", "")) == jugador_nombre
-        }
+    earned_titles = {
+        str(logro.get("title", "")).strip()
+        for logro in logros
+        if normalizar_texto(logro.get("winner", "")) == jugador_nombre
+    }
 
-        items = []
+    items = []
 
-        for title in badge_order:
-            assets = badge_asset_map.get(title, {})
-            is_earned = title in earned_titles
+    for title in badge_order:
+        assets = badge_asset_map.get(title, {})
+        is_earned = title in earned_titles
 
-            if is_earned:
-                badge_url = assets.get("mini", "")
-            else:
-                badge_url = assets.get("gray", "") or assets.get("mini", "")
+        if is_earned:
+            badge_url = assets.get("mini", "")
+        else:
+            badge_url = assets.get("gray", "") or assets.get("mini", "")
 
-            if badge_url:
-                visual_html = f"""
-<img
-    src="{escape(badge_url)}"
-    class="player-badge-mini-img"
-    alt="{escape(title)}"
-    loading="lazy"
->
-                """
-            else:
-                visual_html = """
-<div class="player-badge-mini-fallback">🏅</div>
-                """
+        state_class = "earned" if is_earned else "locked"
 
-            state_class = "earned" if is_earned else "locked"
+        if badge_url:
+            visual_html = f'<img src="{escape(badge_url)}" class="player-badge-mini-img" alt="{escape(title)}" loading="lazy">'
+        else:
+            visual_html = '<div class="player-badge-mini-fallback">🏅</div>'
 
-            items.append(
-                f"""
-<div class="player-badge-mini {state_class}" title="{escape(title)}">
-    {visual_html}
-</div>
-"""
-            )
+        items.append(
+            f'<div class="player-badge-mini {state_class}" title="{escape(title)}">{visual_html}</div>'
+        )
 
-        return "\n".join(items)
-    badges_html = ""
+    return "".join(items)
 
     for logro in logros:
         badge_title = str(logro.get("title", ""))
@@ -1736,7 +1722,7 @@ Sin pronósticos cargados todavía.
 
 <div class="player-badges-side">
 <div class="player-badges-mini">
-    {player_badges_mini_html}
+{player_badges_mini_html}
 </div>
 </div>
 </div>
