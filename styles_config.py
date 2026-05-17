@@ -479,15 +479,17 @@ def mostrar_decalogo():
 
 .decalogo-title {
     margin: 0;
-    color: var(--title);
+
+    color: #F8FAFC !important;
     font-family: 'Oswald', 'Barlow Condensed', sans-serif;
     font-size: 31px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.02;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-}
 
+    text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+}
 .decalogo-lead {
     max-width: 560px;
     margin: 10px auto 0 auto;
