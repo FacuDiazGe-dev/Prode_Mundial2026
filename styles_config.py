@@ -424,8 +424,8 @@ def mostrar_decalogo():
     --bg-card: #162334;
     --bg-card-soft: #1B2A3D;
     --title: #F4F7FB;
-    --subtitle: #E4ECF5;
-    --text: #C6D2E0;
+    --subtitle: #F2F6FA;
+    --text: #FFFFFF;
     --muted: #8FA3B8;
     --accent-soft: #B8C7D9;
     --champagne: #D7C6A0;
@@ -577,21 +577,26 @@ def mostrar_decalogo():
 }
 
 .decalogo-rule-title {
-    margin: 0 0 4px 0;
-    color: var(--subtitle);
+    margin: 0 0 5px 0;
+
+    color: #FFFFFF;
     font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 800;
+    font-size: 14.5px;
+    font-weight: 900;
     line-height: 1.24;
+    letter-spacing: 0.01em;
+
+    text-shadow: 0 1px 6px rgba(0,0,0,0.22);
 }
 
 .decalogo-rule-text {
     margin: 0;
-    color: var(--text);
+
+    color: #B8C7D9;
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    font-weight: 500;
-    line-height: 1.52;
+    font-weight: 300;
+    line-height: 1.56;
 }
 
 .decalogo-item:hover {
