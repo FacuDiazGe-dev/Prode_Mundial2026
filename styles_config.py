@@ -595,7 +595,7 @@ def mostrar_decalogo():
     color: #B8C7D9;
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    font-weight: 300;
+    font-weight: 200;
     line-height: 1.56;
 }
 
