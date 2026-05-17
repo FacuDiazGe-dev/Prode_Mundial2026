@@ -61,8 +61,8 @@ def render_jugadores(
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.10)
+            rgba(255,255,255,0.50),
+            rgba(255,255,255,0.36)
         ),
         var(--badges-wall-bg);
 
@@ -538,7 +538,8 @@ def render_jugadores(
 /* Card de cada insignia */
 .badge-card {
     min-width: 0;
-    min-height: 124px;
+    min-height: 112px;
+    
 
     background:
         linear-gradient(
@@ -550,7 +551,7 @@ def render_jugadores(
     border: 1px solid rgba(226,232,240,0.95);
     border-radius: 16px;
 
-    padding: 11px 7px;
+    padding: 8px 6px;
     text-align: center;
 
     display: flex;
@@ -590,11 +591,11 @@ def render_jugadores(
 }
 
 .badge-medal-img {
-    width: 118px;
-    height: 118px;
+    width: 86px;
+    height: 86px;
     object-fit: contain;
     display: block;
-    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.20));
+    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.18));
     transition: transform 0.18s ease, filter 0.18s ease;
 }
 
@@ -620,13 +621,13 @@ def render_jugadores(
 .badge-title {
     color: #07111F;
     font-family: 'Montserrat', sans-serif;
-    font-size: 10px;
+    font-size: 8.5px;
     font-weight: 900;
-    line-height: 1.1;
+    line-height: 1.05;
     text-transform: uppercase;
     letter-spacing: 0.02em;
 
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 
     max-width: 100%;
     overflow: hidden;
@@ -635,7 +636,7 @@ def render_jugadores(
 
 .badge-winner {
     color: #0f172a;
-    font-size: 11px;
+    font-size: 9.5px;
     font-weight: 900;
     line-height: 1.1;
 
@@ -648,8 +649,8 @@ def render_jugadores(
 .badge-detail {
     display: inline-block;
 
-    margin-top: 7px;
-    padding: 4px 8px;
+    margin-top: 7.5px;
+    padding: 3px 7px;
 
     border-radius: 999px;
 
@@ -697,14 +698,14 @@ def render_jugadores(
     }
 
     .badge-card {
-        min-height: 116px;
-        padding: 9px 6px;
-        border-radius: 14px;
+        min-height: 104px;
+        padding: 7px 5px;
+        border-radius: 13px;
     }
 
     .badge-medal-img {
-        width: 92px;
-        height: 92px;
+        width: 74px;
+        height: 74px;
     }
 
     .badge-icon-fallback {
@@ -714,17 +715,17 @@ def render_jugadores(
     }
 
     .badge-title {
-        font-size: 0.78rem;
+        font-size: 0.62rem;
         line-height: 1.05;
     }
 
     .badge-winner {
-        font-size: 0.76rem;
+        font-size: 0.62rem;
     }
 
     .badge-detail {
-        font-size: 0.72rem;
-        padding: 5px 8px;
+        font-size: 0.58rem;
+        padding: 3px 6px;
     }
 }
 
