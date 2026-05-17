@@ -1291,45 +1291,45 @@ def render_jugadores(
 
         if badge_img:
             badge_visual_html = f"""
-            <div class="badge-medal-wrap">
-                <img 
-                    class="badge-medal-img" 
-                    src="{escape(badge_img)}" 
-                    alt="{escape(badge_title)}"
-                    loading="lazy"
-                >
-            </div>
+<div class="badge-medal-wrap">
+    <img 
+        class="badge-medal-img" 
+        src="{escape(badge_img)}" 
+        alt="{escape(badge_title)}"
+        loading="lazy"
+    >
+</div>
             """
         else:
             badge_visual_html = f"""
-            <div class="badge-icon-fallback">
-                {escape(badge_icon_fallback)}
-            </div>
+<div class="badge-icon-fallback">
+    {escape(badge_icon_fallback)}
+</div>
             """
 
         badges_html += f"""
-        <div class="badge-card badge-{badge_type}">
-            {badge_visual_html}
-            <div class="badge-title">{escape(badge_title)}</div>
-            <div class="badge-winner">👤 {escape(str(logro.get("winner", "-")))}</div>
-            <div class="badge-detail">{escape(str(logro.get("detail", "")))}</div>
-        </div>
+<div class="badge-card badge-{badge_type}">
+{badge_visual_html}
+<div class="badge-title">{escape(badge_title)}</div>
+<div class="badge-winner">👤 {escape(str(logro.get("winner", "-")))}</div>
+<div class="badge-detail">{escape(str(logro.get("detail", "")))}</div>
+</div>
         """
 
     badges_panel_html = f"""
-    <div class="badges-wall-panel">
-        <div class="players-panel-header">
-            <div class="players-panel-icon">🏅</div>
-            <div>
-                <div class="players-panel-title">Muro de Insignias</div>
-                <div class="players-panel-subtitle">Logros destacados del Prode</div>
-            </div>
-        </div>
+<div class="badges-wall-panel">
+<div class="players-panel-header">
+<div class="players-panel-icon">🏅</div>
+<div>
+<div class="players-panel-title">Muro de Insignias</div>
+<div class="players-panel-subtitle">Logros destacados del Prode</div>
+</div>
+</div>
 
-        <div class="badges-grid">
-            {badges_html}
-        </div>
-    </div>
+<div class="badges-grid">
+{badges_html}
+</div>
+</div>
     """
     # ============================================================
     # ESTRUCTURA PRINCIPAL
