@@ -608,7 +608,7 @@ def render_jugadores(
 
 
 .badge-title {
-    color: #07111F;
+    color: #F8FAFC;
     font-family: 'Montserrat', sans-serif;
     font-size: 10px;
     font-weight: 900;
