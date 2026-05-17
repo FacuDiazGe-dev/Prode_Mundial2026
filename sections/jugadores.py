@@ -1509,7 +1509,7 @@ loading="lazy"
 <div class="players-panel-header">
 <div class="players-panel-icon">🏅</div>
 <div>
-<div class="players-panel-title badges-wall-title">Muro de Insignias</div>
+<div class="badges-wall-title">Muro de Insignias</div>
 <div class="players-panel-subtitle">Logros destacados del Prode</div>
 </div>
 </div>
