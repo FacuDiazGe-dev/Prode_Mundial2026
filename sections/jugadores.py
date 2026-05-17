@@ -264,7 +264,7 @@ def render_jugadores(
     background:
         linear-gradient(
             90deg,
-            rgba(255,255,255,0.10),
+            rgba(255,255,255,0.90),
             rgba(255,255,255,0.10)
         ),
         var(--player-hero-bg);
