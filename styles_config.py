@@ -424,8 +424,8 @@ def mostrar_decalogo():
 background:
     linear-gradient(
         180deg,
-        rgba(240,242,246,0.88),
-        rgba(240,242,246,0.78)
+        rgba(240,242,246,0.45),
+        rgba(240,242,246,0.35)
     ),
     url('{DECALOGO_BG_URL}');
 background-size: cover;
