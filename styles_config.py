@@ -559,27 +559,28 @@ def mostrar_decalogo():
     min-width: 0;
 }
 
-.decalogo-rule-title {
-    margin: 0 0 5px 0;
+.decalogo-card .decalogo-rule-title {
+    margin: 0 0 6px 0;
 
-    color: #FFFFFF;
+    color: #F8FAFC !important;
     font-family: 'Inter', sans-serif;
     font-size: 14.5px;
-    font-weight: 900;
+    font-weight: 850;
     line-height: 1.24;
     letter-spacing: 0.01em;
+
+    text-shadow: 0 1px 8px rgba(0,0,0,0.45);
 }
 
-.decalogo-rule-text {
+.decalogo-card .decalogo-rule-text {
     margin: 0;
 
-    color: ##e4eaf2;
+    color: #D8E1EC !important;
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    font-weight: 150;
-    line-height: 1.56;
+    font-weight: 400;
+    line-height: 1.58;
 }
-
 .decalogo-item:hover {
     background: linear-gradient(
         180deg,
