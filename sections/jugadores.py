@@ -1617,11 +1617,12 @@ def build_player_badges_mini_html(user_row, logros, badge_asset_map):
         usuario = escape(str(user_sel.get("USUARIO", "")))
         equipo = escape(str(user_sel.get("EQUIPO FAVORITO", "-")))
         bio = escape(str(user_sel.get("DESCRIPCION", "")))
-        player_badges_mini_html = build_player_badges_mini_html(
-            user_sel,
-            logros,
-            badge_asset_map
-        )
+        player_badges_mini_html = ""
+        # player_badges_mini_html = build_player_badges_mini_html(
+        #     user_sel,
+        #     logros,
+        #     badge_asset_map
+        # )
         if bio.strip() == "" or bio.strip().lower() == "nan":
             bio = "Sin bio cargada todavía."
 
