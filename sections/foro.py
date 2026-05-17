@@ -887,8 +887,8 @@ div[data-testid="stSegmentedControl"] button:hover {
         # DECÁLOGO
         # ------------------------------------------------------------
 
-    st.markdown(
-        f"""
+        st.markdown(
+            f"""
 <div class="foro-hero-header decalogo-hero-header" style="--foro-header-bg: url('{FORO_DECALOGO_BG_URL}');">
 <div class="foro-hero-row">
 <div class="foro-hero-icon">📜</div>
@@ -899,8 +899,8 @@ div[data-testid="stSegmentedControl"] button:hover {
 </div>
 </div>
 """,
-        unsafe_allow_html=True
-    )
+            unsafe_allow_html=True
+        )
 
         with st.expander("Ver decálogo", expanded=True):
             mostrar_decalogo()
