@@ -894,22 +894,14 @@ div[data-testid="stSegmentedControl"] button:hover {
 <div class="foro-hero-row">
 <div class="foro-hero-icon">📜</div>
 <div>
-<div class="foro-hero-title">Decálogo del Prode"</div>
+<div class="foro-hero-title">Decálogo del Prode</div>
 <div class="foro-hero-subtitle">“La pelota no se mancha”</div>
 </div>
 </div>
 </div>
-""",
+        """,
             unsafe_allow_html=True
         )
-
-        with st.expander("Ver decálogo", expanded=True):
-            st.markdown(
-                f"""
-        <div class="decalogo-content-bg" style="--decalogo-content-bg: url('{DECALOGO_CONTENT_BG_URL}');">
-        """,
-                unsafe_allow_html=True
-            )
         
         with st.expander("Ver decálogo", expanded=True):
             mostrar_decalogo()
