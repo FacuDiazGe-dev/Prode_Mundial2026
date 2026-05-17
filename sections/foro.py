@@ -1132,8 +1132,8 @@ div[data-testid="stSegmentedControl"] button:hover {
         # REGLAS Y FAQ — cerrado por defecto
         # ------------------------------------------------------------
 
-            with st.expander("📘 Reglas y preguntas frecuentes", expanded=False):
-                st.markdown("""
+        with st.expander("📘 Reglas y preguntas frecuentes", expanded=False):
+            st.markdown("""
 <div class="faq-panel">
 <div class="faq-intro">
 <div class="faq-intro-title">📘 Reglas y preguntas frecuentes</div>
