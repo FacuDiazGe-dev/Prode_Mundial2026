@@ -159,32 +159,21 @@ def render_foro(conn, df_usuarios):
     position: relative;
     overflow: hidden;
 
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.01)
-        ),
-        linear-gradient(
-            135deg,
-            rgba(7,17,31,0.82),
-            rgba(15,23,42,0.72)
-        ),
-        var(--foro-header-bg);
+    background: var(--foro-header-bg);
 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 
-    border: 1px solid rgba(244,197,66,0.28);
+    border: 1px solid rgba(244,197,66,0.22);
     border-radius: 18px;
     padding: 16px;
     margin-bottom: 10px;
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
-        0 0 18px rgba(244,197,66,0.16),
-        0 10px 22px rgba(15,23,42,0.16);
+        0 0 18px rgba(244,197,66,0.12),
+        0 10px 22px rgba(15,23,42,0.10);
 }
 .foro-hero-row {
     display: flex;
@@ -492,32 +481,21 @@ div[data-testid="stSegmentedControl"] button:hover {
     margin-top: 0;
     margin-bottom: 8px;
 
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.01)
-        ),
-        linear-gradient(
-            135deg,
-            rgba(7,17,31,0.82),
-            rgba(15,23,42,0.72)
-        ),
-        var(--foro-header-bg);
+    background: var(--foro-header-bg);
 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 
-    border: 1px solid rgba(244,197,66,0.28);
+    border: 1px solid rgba(244,197,66,0.22);
     border-radius: 18px;
     padding: 16px;
     margin-bottom: 10px;
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
-        0 0 18px rgba(244,197,66,0.16),
-        0 10px 22px rgba(15,23,42,0.16);
+        0 0 18px rgba(244,197,66,0.12),
+        0 10px 22px rgba(15,23,42,0.10);
 }
 .foro-stat-box {
     background: rgba(248,250,252,0.82);
