@@ -647,8 +647,8 @@ div[data-testid="stSegmentedControl"] button:hover {
     # TÍTULO
     # ============================================================
 
-FORO_MURO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20DE%20SECCION2.png"
-FORO_DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZASECCION.png"
+    FORO_MURO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20DE%20SECCION2.png"
+    FORO_DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZASECCION.png"
     
     st.markdown("""
 <div class="foro-title">
