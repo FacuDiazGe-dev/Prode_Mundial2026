@@ -46,10 +46,6 @@ def render_jugadores(
 }
 
 
-/* ============================================================
-   2. PANELES BASE Y ENCABEZADOS
-   Usados en ficha, muro de insignias y pronósticos.
-   ============================================================ */
 
 /* ============================================================
    2. PANELES BASE Y ENCABEZADOS
@@ -501,13 +497,20 @@ def render_jugadores(
 
 /* Panel general del muro */
 .badges-wall-panel {
+    position: relative;
+    overflow: hidden;
+
     background:
-        radial-gradient(
-            circle at 100% 0%,
-            rgba(244,197,66,0.10),
-            rgba(255,255,255,0.96) 36%
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.20),
+            rgba(255,255,255,0.30)
         ),
-        rgba(255,255,255,0.96);
+        var(--badges-wall-bg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 18px;
@@ -515,7 +518,6 @@ def render_jugadores(
 
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
 }
-
 /* Grid real de insignias */
 .badges-grid {
     display: grid !important;
