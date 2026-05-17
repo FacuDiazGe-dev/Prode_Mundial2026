@@ -61,8 +61,8 @@ def render_jugadores(
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.20),
-            rgba(255,255,255,0.30)
+            rgba(255,255,255,0.08),
+            rgba(255,255,255,0.10)
         ),
         var(--badges-wall-bg);
 
@@ -503,8 +503,8 @@ def render_jugadores(
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.20),
-            rgba(255,255,255,0.30)
+            rgba(255,255,255,0.08),
+            rgba(255,255,255,0.10)
         ),
         var(--badges-wall-bg);
 
