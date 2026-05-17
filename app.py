@@ -28,7 +28,7 @@ from sections.foro import render_foro
 from PIL import Image
 import streamlit as st
 
-icono_app = Image.open("https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png")
+icono_app = Image.open("https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 
