@@ -264,7 +264,7 @@ def render_jugadores(
     background:
         linear-gradient(
             90deg,
-            rgba(255,255,255,0.90),
+            rgba(255,255,255,0.08),
             rgba(255,255,255,0.10)
         ),
         var(--player-hero-bg);
@@ -367,7 +367,7 @@ def render_jugadores(
     font-family: 'Montserrat', sans-serif;
     font-size: 24px;
     font-weight: 900;
-    color: #0f172a;
+    color: #F8FAFC;
     margin-top: 13px;
     line-height: 1.05;
 }
