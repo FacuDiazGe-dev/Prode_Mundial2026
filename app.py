@@ -27,17 +27,30 @@ from sections.foro import render_foro
 
 from PIL import Image
 import streamlit as st
+import streamlit.components.v1 as components
 
-icono_app = Image.open("sections/ICONOAPP2.png")
+# 1. DEFINE LA URL DE TU BUCKET (La usaremos en ambos lados)
+URL_ICONO = "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP2.png"
 
-
-# --- CONFIGURACIÓN DE PÁGINA ---
-
+# 2. CONFIGURACIÓN DE PÁGINA (¡SIEMPRE DEBE IR PRIMERO!)
 st.set_page_config(
     page_title="Prode Mundial 2026",
-    page_icon=icono_app,
+    page_icon=URL_ICONO,  # Pasamos la URL directamente, es más rápido que PIL
     layout="wide",
     initial_sidebar_state="expanded"
+)
+
+# 3. INYECTAR LA ETIQUETA PARA APPLE (Se ejecuta después de configurar la página)
+components.html(
+    f"""
+    <script>
+        const link = window.parent.document.createElement('link');
+        link.rel = 'apple-touch-icon';
+        link.href = '{URL_ICONO}'; 
+        window.parent.document.head.appendChild(link);
+    </script>
+    """,
+    height=0,  # Invisible en la interfaz
 )
 
 
