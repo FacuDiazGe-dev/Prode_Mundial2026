@@ -28,7 +28,8 @@ from sections.foro import render_foro
 from PIL import Image
 import streamlit as st
 
-icono_app = Image.open("https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png
+icono_app = Image.open("sections/ICONOAPP2.png")
+
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 
@@ -39,10 +40,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.logo(
-    "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png",
-    icon_image="assets/ICONOAPP.png"
-)
 
 # # --- CONFIGURACIÓN DE PÁGINA ---
 # st.set_page_config(
