@@ -258,22 +258,104 @@ def render_jugadores(
    ============================================================ */
 
 .player-hero {
+    position: relative;
+    overflow: hidden;
+
     background:
         radial-gradient(
-            circle at 50% 0%,
+            circle at 0% 0%,
             rgba(244,197,66,0.22),
-            rgba(255,255,255,0.00) 42%
+            rgba(255,255,255,0.00) 30%
+        ),
+        radial-gradient(
+            circle at 100% 100%,
+            rgba(37,99,235,0.10),
+            rgba(255,255,255,0.00) 32%
         ),
         linear-gradient(
             180deg,
-            rgba(248,250,252,0.96),
-            rgba(255,255,255,0.96)
+            rgba(250,250,248,0.98),
+            rgba(255,255,255,0.98)
         );
+
     border: 1px solid rgba(226,232,240,0.85);
     border-radius: 16px;
-    padding: 18px 14px 14px 14px;
+    padding: 18px 16px 14px 16px;
+}
+
+.player-hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.player-hero-profile {
+    flex: 1;
+    min-width: 0;
     text-align: center;
 }
+
+.player-badges-side {
+    width: 170px;
+    flex-shrink: 0;
+}
+
+.player-badges-mini {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    justify-items: center;
+}
+
+.player-badge-mini {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+    background: rgba(255,255,255,0.66);
+    border: 1px solid rgba(226,232,240,0.90);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.72),
+        0 6px 14px rgba(15,23,42,0.05);
+}
+
+.player-badge-mini.earned {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.82),
+        0 8px 18px rgba(15,23,42,0.08);
+}
+
+.player-badge-mini.locked {
+    opacity: 0.92;
+}
+
+.player-badge-mini-img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+}
+
+.player-badge-mini-fallback {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+    background: rgba(241,245,249,0.95);
+    color: #64748b;
+}
+
 
 .player-avatar {
     width: 118px;
@@ -743,6 +825,35 @@ def render_jugadores(
     .player-pred-row {
         grid-template-columns: 28px 1fr 52px 1fr;
         font-size: 10px;
+    }
+        .player-hero-top {
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .player-hero-profile {
+        width: 100%;
+    }
+
+    .player-badges-side {
+        width: 100%;
+        max-width: 210px;
+    }
+
+    .player-badges-mini {
+        gap: 6px;
+    }
+
+    .player-badge-mini {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+    }
+
+    .player-badge-mini-img {
+        width: 38px;
+        height: 38px;
     }
 }
 
@@ -1272,7 +1383,66 @@ def render_jugadores(
         "El Misterioso": "misterioso",
         "El Distinto": "distinto",
     }
+    def normalizar_texto(valor):
+        return str(valor).strip().lower()
 
+    def build_player_badges_mini_html(user_row, logros, badge_asset_map):
+        jugador_nombre = normalizar_texto(user_row.get("NOMBRE", ""))
+
+        badge_order = [
+            "Puntero",
+            "Sr. Prode",
+            "Siempre Suma",
+            "Optimista del Gol",
+            "El Cholo",
+            "Rey del Empate",
+            "El Macaya",
+            "El Misterioso",
+            "El Distinto",
+        ]
+
+        earned_titles = {
+            str(logro.get("title", "")).strip()
+            for logro in logros
+            if normalizar_texto(logro.get("winner", "")) == jugador_nombre
+        }
+
+        items = []
+
+        for title in badge_order:
+            assets = badge_asset_map.get(title, {})
+            is_earned = title in earned_titles
+
+            if is_earned:
+                badge_url = assets.get("mini", "")
+            else:
+                badge_url = assets.get("gray", "") or assets.get("mini", "")
+
+            if badge_url:
+                visual_html = f"""
+                <img
+                    src="{escape(badge_url)}"
+                    class="player-badge-mini-img"
+                    alt="{escape(title)}"
+                    loading="lazy"
+                >
+                """
+            else:
+                visual_html = """
+                <div class="player-badge-mini-fallback">🏅</div>
+                """
+
+            state_class = "earned" if is_earned else "locked"
+
+            items.append(
+                f"""
+<div class="player-badge-mini {state_class}" title="{escape(title)}">
+    {visual_html}
+</div>
+"""
+            )
+
+        return "\n".join(items)
     badges_html = ""
 
     for logro in logros:
@@ -1461,7 +1631,11 @@ def render_jugadores(
         usuario = escape(str(user_sel.get("USUARIO", "")))
         equipo = escape(str(user_sel.get("EQUIPO FAVORITO", "-")))
         bio = escape(str(user_sel.get("DESCRIPCION", "")))
-
+        player_badges_mini_html = build_player_badges_mini_html(
+            user_sel,
+            logros,
+            badge_asset_map
+        )
         if bio.strip() == "" or bio.strip().lower() == "nan":
             bio = "Sin bio cargada todavía."
 
@@ -1548,13 +1722,23 @@ Sin pronósticos cargados todavía.
 <div class="player-detail-section-title">👤 Perfil</div>
 
 <div class="player-hero">
+<div class="player-hero-top">
+<div class="player-hero-profile">
 <img src="{foto_perfil}" class="player-avatar">
 <div class="player-name">{nombre}</div>
 <div class="player-team">@{usuario} · {equipo}</div>
 
 <div class="player-rank-pill">
-<span>📊 Posición actual</span>
-<strong>{posicion}°</strong>
+    <span>📊 Posición actual</span>
+    <strong>{posicion}°</strong>
+</div>
+</div>
+
+<div class="player-badges-side">
+<div class="player-badges-mini">
+    {player_badges_mini_html}
+</div>
+</div>
 </div>
 </div>
 
