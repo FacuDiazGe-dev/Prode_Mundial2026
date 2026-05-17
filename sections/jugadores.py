@@ -262,21 +262,16 @@ def render_jugadores(
     overflow: hidden;
 
     background:
-        radial-gradient(
-            circle at 0% 0%,
-            rgba(244,197,66,0.22),
-            rgba(255,255,255,0.00) 30%
-        ),
-        radial-gradient(
-            circle at 100% 100%,
-            rgba(37,99,235,0.10),
-            rgba(255,255,255,0.00) 32%
-        ),
         linear-gradient(
-            180deg,
-            rgba(250,250,248,0.98),
-            rgba(255,255,255,0.98)
-        );
+            90deg,
+            rgba(255,255,255,0.92),
+            rgba(255,255,255,0.76)
+        ),
+        var(--player-hero-bg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 
     border: 1px solid rgba(226,232,240,0.85);
     border-radius: 16px;
@@ -1323,7 +1318,8 @@ def render_jugadores(
     # =====================================================
 
     BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
-
+    PLAYER_HERO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
+    
     badge_asset_map = {
         "Puntero": {
             "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
@@ -1700,7 +1696,7 @@ Sin pronósticos cargados todavía.
 <div class="player-detail-block">
 <div class="player-detail-section-title">👤 Perfil</div>
 
-<div class="player-hero">
+<div class="player-hero" style="--player-hero-bg: url('{PLAYER_HERO_BG_URL}');">
 <div class="player-hero-top">
 <div class="player-hero-profile">
 <img src="{foto_perfil}" class="player-avatar">
