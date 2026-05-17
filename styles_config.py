@@ -562,7 +562,7 @@ def mostrar_decalogo():
 .decalogo-rule-title {
     margin: 0 0 5px 0;
 
-    color: #F4F7FB;
+    color: #FFFFFF;
     font-family: 'Inter', sans-serif;
     font-size: 14.5px;
     font-weight: 900;
@@ -573,7 +573,7 @@ def mostrar_decalogo():
 .decalogo-rule-text {
     margin: 0;
 
-    color: #ffffff;
+    color: ##e4eaf2;
     font-family: 'Inter', sans-serif;
     font-size: 13px;
     font-weight: 150;
