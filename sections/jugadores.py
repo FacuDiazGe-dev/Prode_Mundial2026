@@ -76,6 +76,11 @@ def render_jugadores(
 
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
 }
+
+.badges-wall-title {
+    color: ; #F8FAFC
+}
+
 .player-preds-panel {
     background: rgba(255,255,255,0.94);
     border: 1px solid rgba(226,232,240,0.9);
@@ -608,7 +613,7 @@ def render_jugadores(
 
 
 .badge-title {
-    color: #F8FAFC;
+    color: #07111F;
     font-family: 'Montserrat', sans-serif;
     font-size: 10px;
     font-weight: 900;
@@ -1499,7 +1504,7 @@ loading="lazy"
 <div class="players-panel-header">
 <div class="players-panel-icon">🏅</div>
 <div>
-<div class="players-panel-title">Muro de Insignias</div>
+<div class="players-panel-title badges-wall-title">Muro de Insignias</div>
 <div class="players-panel-subtitle">Logros destacados del Prode</div>
 </div>
 </div>
