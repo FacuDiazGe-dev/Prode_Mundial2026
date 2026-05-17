@@ -162,13 +162,13 @@ def render_foro(conn, df_usuarios):
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.06),
-            rgba(255,255,255,0.00)
+            rgba(255,255,255,0.08),
+            rgba(255,255,255,0.01)
         ),
         linear-gradient(
             135deg,
-            rgba(7,17,31,0.32),
-            rgba(15,23,42,0.22)
+            rgba(7,17,31,0.82),
+            rgba(15,23,42,0.72)
         ),
         var(--foro-header-bg);
 
@@ -176,17 +176,16 @@ def render_foro(conn, df_usuarios):
     background-position: center;
     background-repeat: no-repeat;
 
-    border: 1px solid rgba(244,197,66,0.22);
+    border: 1px solid rgba(244,197,66,0.28);
     border-radius: 18px;
     padding: 16px;
     margin-bottom: 10px;
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
-        0 0 18px rgba(244,197,66,0.12),
-        0 10px 22px rgba(15,23,42,0.10);
+        0 0 18px rgba(244,197,66,0.16),
+        0 10px 22px rgba(15,23,42,0.16);
 }
-
 .foro-hero-row {
     display: flex;
     align-items: center;
@@ -496,13 +495,13 @@ div[data-testid="stSegmentedControl"] button:hover {
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.06),
-            rgba(255,255,255,0.00)
+            rgba(255,255,255,0.08),
+            rgba(255,255,255,0.01)
         ),
         linear-gradient(
             135deg,
-            rgba(7,17,31,0.32),
-            rgba(15,23,42,0.22)
+            rgba(7,17,31,0.82),
+            rgba(15,23,42,0.72)
         ),
         var(--foro-header-bg);
 
@@ -510,17 +509,16 @@ div[data-testid="stSegmentedControl"] button:hover {
     background-position: center;
     background-repeat: no-repeat;
 
-    border: 1px solid rgba(244,197,66,0.22);
+    border: 1px solid rgba(244,197,66,0.28);
     border-radius: 18px;
     padding: 16px;
     margin-bottom: 10px;
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
-        0 0 18px rgba(244,197,66,0.12),
-        0 10px 22px rgba(15,23,42,0.10);
+        0 0 18px rgba(244,197,66,0.16),
+        0 10px 22px rgba(15,23,42,0.16);
 }
-
 .foro-stat-box {
     background: rgba(248,250,252,0.82);
     border: 1px solid rgba(226,232,240,0.85);
@@ -668,8 +666,8 @@ div[data-testid="stSegmentedControl"] button:hover {
     # TÍTULO
     # ============================================================
 
-    FORO_MURO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20DE%20SECCION2.png"
-    FORO_DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZASECCION.png"
+    FORO_MURO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
+    FORO_DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
     
     st.markdown("""
 <div class="foro-title">
