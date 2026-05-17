@@ -58,7 +58,28 @@ def render_jugadores(
 
 .players-panel,
 .player-profile-panel,
-.badges-wall-panel,
+.badges-wall-panel {
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.92),
+            rgba(255,255,255,0.86)
+        ),
+        url("https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 16px;
+
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
 .player-preds-panel {
     background: rgba(255,255,255,0.94);
     border: 1px solid rgba(226,232,240,0.9);
