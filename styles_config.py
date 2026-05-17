@@ -568,8 +568,6 @@ def mostrar_decalogo():
     font-weight: 900;
     line-height: 1.24;
     letter-spacing: 0.01em;
-
-    text-shadow: 0 1px 8px rgba(0,0,0,0.38);
 }
 
 .decalogo-rule-text {
