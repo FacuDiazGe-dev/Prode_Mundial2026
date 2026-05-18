@@ -978,11 +978,47 @@ def render_jugadores(
                     r_act = 0
 
         return r_max
+        
+        def get_partidos_con_resultado_visible():
+        if df_res is None or df_res.empty:
+            return 0
 
+        df_check = df_res.copy()
+
+        if "VIZ" in df_check.columns:
+            viz_check = (
+                df_check["VIZ"]
+                .astype(str)
+                .str.strip()
+                .str.upper()
+            )
+
+            df_check = df_check[
+                viz_check.isin(
+                    ["TRUE", "1", "1.0", "VERDADERO", "T"]
+                )
+            ]
+
+        if (
+            "R1" not in df_check.columns
+            or "R2" not in df_check.columns
+        ):
+            return 0
+
+        return len(
+            df_check[
+                df_check["R1"].notna()
+                & df_check["R2"].notna()
+            ]
+        )
+        
     def calcular_logros_globales():
         logros = []
 
         if df_ranking.empty:
+            return logros
+
+        if get_partidos_con_resultado_visible() < 5:
             return logros
 
         # ------------------------------------------------------------
@@ -1356,53 +1392,62 @@ def render_jugadores(
     BADGES_WALL_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png"
 
     
-    badge_asset_map = {
-        "Puntero": {
-            "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_128.png",
-        },
-        "Sr. Prode": {
-            "large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_128.png",
-        },
-        "Siempre Suma": {
-            "large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_128.png",
-        },
-        "Optimista del Gol": {
-            "large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_128.png",
-        },
-        "El Cholo": {
-            "large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_128.png",
-        },
-        "Rey del Empate": {
-            "large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_128.png",
-        },
-        "El Macaya": {
-            "large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_128.png",
-        },
-        "El Misterioso": {
-            "large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_128.png",
-        },
-        "El Distinto": {
-            "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
-        },
-    }
+badge_asset_map = {
+    "Puntero": {
+        "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
+        "gray_large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_128.png",
+    },
+    "Sr. Prode": {
+        "large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_512.png",
+        "gray_large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_128.png",
+    },
+    "Siempre Suma": {
+        "large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_512.png",
+        "gray_large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_128.png",
+    },
+    "Optimista del Gol": {
+        "large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_512.png",
+        "gray_large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_128.png",
+    },
+    "El Cholo": {
+        "large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_512.png",
+        "gray_large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_128.png",
+    },
+    "Rey del Empate": {
+        "large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_512.png",
+        "gray_large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_128.png",
+    },
+    "El Macaya": {
+        "large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_512.png",
+        "gray_large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_128.png",
+    },
+    "El Misterioso": {
+        "large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_512.png",
+        "gray_large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_128.png",
+    },
+    "El Distinto": {
+        "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
+        "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_512.png",
+        "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
+        "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
+    },
+}
 
     badge_class_map = {
         "Puntero": "puntero",
@@ -1419,20 +1464,20 @@ def render_jugadores(
     def normalizar_texto(valor):
         return str(valor).strip().lower()
 
+    badge_order = [
+        "Puntero",
+        "Sr. Prode",
+        "Siempre Suma",
+        "Optimista del Gol",
+        "El Cholo",
+        "Rey del Empate",
+        "El Macaya",
+        "El Misterioso",
+        "El Distinto",
+    ]
+
     def build_player_badges_mini_html(user_row, logros, badge_asset_map):
         jugador_nombre = normalizar_texto(user_row.get("NOMBRE", ""))
-
-        badge_order = [
-            "Puntero",
-            "Sr. Prode",
-            "Siempre Suma",
-            "Optimista del Gol",
-            "El Cholo",
-            "Rey del Empate",
-            "El Macaya",
-            "El Misterioso",
-            "El Distinto",
-        ]
 
         earned_titles = {
             str(logro.get("title", "")).strip()
@@ -1463,21 +1508,38 @@ def render_jugadores(
             )
 
         return "".join(items)
+    badges_habilitadas = get_partidos_con_resultado_visible() >= 5
+
+    if badges_habilitadas:
+        logros_muro = logros
+    else:
+        logros_muro = [
+            {
+                "icon": "🏅",
+                "title": title,
+                "winner": "-",
+                "detail": "Desde partido 5",
+                "locked": True
+            }
+            for title in badge_order
+        ]
 
     badges_html = ""
 
-    for logro in logros:
+    for logro in logros_muro:
         badge_title = str(logro.get("title", ""))
         badge_type = badge_class_map.get(badge_title, "default")
 
-        badge_img = badge_asset_map.get(
+        assets = badge_asset_map.get(
             badge_title,
             {}
-        ).get(
-            "large",
-            ""
         )
 
+        if logro.get("locked", False):
+            badge_img = assets.get("gray_large", "") or assets.get("gray", "") or assets.get("large", "")
+        else:
+            badge_img = assets.get("large", "")
+            
         badge_icon_fallback = str(logro.get("icon", "🏅"))
 
         if badge_img:
@@ -1496,15 +1558,20 @@ loading="lazy"
 <div class="badge-icon-fallback">{escape(badge_icon_fallback)}</div>
             """
 
+        winner_html = (
+            "🔒 Sin dueño"
+            if logro.get("locked", False)
+            else f'👤 {escape(str(logro.get("winner", "-")))}'
+        )
+
         badges_html += f"""
 <div class="badge-card badge-{badge_type}">
 {badge_visual_html}
 <div class="badge-title">{escape(badge_title)}</div>
-<div class="badge-winner">👤 {escape(str(logro.get("winner", "-")))}</div>
+<div class="badge-winner">{winner_html}</div>
 <div class="badge-detail">{escape(str(logro.get("detail", "")))}</div>
 </div>
         """
-
     badges_panel_html = f"""
 <div class="badges-wall-panel" style="--badges-wall-bg: url('{BADGES_WALL_BG_URL}');">
 <div class="players-panel-header">
