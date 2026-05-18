@@ -661,6 +661,40 @@ def render_inicio(
             color: #0f172a;
             font-weight: 900;
         }
+
+        .ranking-badges-mini {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 5px;
+            min-height: 20px;
+        }
+        
+        .ranking-badge-mini {
+            width: 19px;
+            height: 19px;
+            object-fit: contain;
+            display: block;
+        
+            filter: drop-shadow(0 2px 4px rgba(15,23,42,0.16));
+        }
+        
+        .ranking-row.me .ranking-badge-mini {
+            width: 21px;
+            height: 21px;
+        }
+        
+        @media (max-width: 768px) {
+            .ranking-badge-mini {
+                width: 17px;
+                height: 17px;
+            }
+        
+            .ranking-row.me .ranking-badge-mini {
+                width: 18px;
+                height: 18px;
+            }
+        }
         
         .rank-points {
             text-align: right;
@@ -738,6 +772,48 @@ def render_inicio(
             return ""
         
         usuario_actual = st.session_state["user_data"]["USUARIO"]
+
+        BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
+
+        ranking_badge_asset_map = {
+            "Puntero": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
+            "Sr. Prode": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
+            "Siempre Suma": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
+            "Optimista del Gol": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
+            "El Cholo": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
+            "Rey del Empate": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
+            "El Macaya": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
+            "El Misterioso": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
+            "El Distinto": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
+        }
+        def build_ranking_badges_html(badges):
+            if badges is None:
+                return ""
+        
+            if isinstance(badges, str):
+                badges = [badges]
+        
+            if not isinstance(badges, list):
+                return ""
+        
+            html = ""
+        
+            for badge in badges:
+                badge_name = str(badge).strip()
+                badge_url = ranking_badge_asset_map.get(badge_name, "")
+        
+                if badge_url:
+                    html += (
+                        f'<img src="{escape(badge_url)}" '
+                        f'class="ranking-badge-mini" '
+                        f'title="{escape(badge_name)}" '
+                        f'alt="{escape(badge_name)}">'
+                    )
+        
+            if html == "":
+                return ""
+        
+            return f'<div class="ranking-badges-mini">{html}</div>'
         
         ranking_html = '<div class="ranking-panel">'
         ranking_html += '<div class="ranking-panel-header"><div class="ranking-panel-icon">🏆</div><div class="ranking-panel-title">Ranking General</div></div>'
@@ -760,17 +836,20 @@ def render_inicio(
             medalla = clase_medalla(posicion_num)
         
             subtitulo = "Tu posición actual" if es_usuario_actual else "Participante"
-        
+            
+            badges_html = build_ranking_badges_html(
+                row.get("BADGES", [])
+            )
+            
             ranking_html += f'<div class="ranking-row {clase_usuario}">'
             ranking_html += f'<div class="rank-pos {medalla}">{pos_label}</div>'
             ranking_html += (
                 f'<div class="player-info">'
                 f'<div class="player-name">{jugador}</div>'
                 f'<div class="player-sub">{subtitulo} · 🎯 {exactos} · ✅ {generales}</div>'
+                f'{badges_html}'
                 f'</div>'
             )
-            ranking_html += f'<div class="rank-points"><div class="points-main">{puntos}</div><div class="points-label">pts</div></div>'
-            ranking_html += '</div>'
         
         ranking_html += '</div></div>'
         
