@@ -330,418 +330,418 @@ elif menu == "👥 Jugadores":
 # ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
 
 # ---------- PANEL DE CONTROL ------------------------
-    
-    elif menu == "⚙️ Panel Control":
-    
-        # --- VALIDACIÓN DE SEGURIDAD ---
-        if st.session_state["user_data"]["ROL"] == "admin":
-    
-            st.markdown("## ⚙️ Panel de Control")
-    
-            col_principal, col_derecha = st.columns(
-                [1.45, 1],
-                gap="large"
+
+elif menu == "⚙️ Panel Control":
+
+    # --- VALIDACIÓN DE SEGURIDAD ---
+    if st.session_state["user_data"]["ROL"] == "admin":
+
+        st.markdown("## ⚙️ Panel de Control")
+
+        col_principal, col_derecha = st.columns(
+            [1.45, 1],
+            gap="large"
+        )
+
+        # ============================================================
+        # 1. COLUMNA PRINCIPAL — GESTIÓN DE PARTIDOS
+        # ============================================================
+
+        with col_principal:
+            st.subheader("⚽ Gestión de Jornada (72 Partidos)")
+
+            df_res_admin = conn.read(
+                worksheet="RESULTADOS",
+                ttl=5
             )
-    
-            # ============================================================
-            # 1. COLUMNA PRINCIPAL — GESTIÓN DE PARTIDOS
-            # ============================================================
-    
-            with col_principal:
-                st.subheader("⚽ Gestión de Jornada (72 Partidos)")
-    
-                df_res_admin = conn.read(
-                    worksheet="RESULTADOS",
-                    ttl=5
+
+            with st.form("form_admin_master_72"):
+
+                df_to_update = df_res_admin.copy()
+                df_to_update["VIZ"] = df_to_update["VIZ"].astype(object)
+
+                t1, t2, t3 = st.tabs(
+                    [
+                        "Fase 1",
+                        "Fase 2",
+                        "Fase 3"
+                    ]
                 )
-    
-                with st.form("form_admin_master_72"):
-    
-                    df_to_update = df_res_admin.copy()
-                    df_to_update["VIZ"] = df_to_update["VIZ"].astype(object)
-    
-                    t1, t2, t3 = st.tabs(
-                        [
-                            "Fase 1",
-                            "Fase 2",
-                            "Fase 3"
-                        ]
-                    )
-    
-                    def renderizar_bloque(df_grupo, contenedor):
-                        with contenedor:
-                            for idx_df, row in df_grupo.iterrows():
-                                id_p = int(row["N_PARTIDO"])
-    
-                                r1_curr = (
-                                    int(row["R1"])
-                                    if pd.notna(row["R1"])
-                                    else 0
-                                )
-    
-                                r2_curr = (
-                                    int(row["R2"])
-                                    if pd.notna(row["R2"])
-                                    else 0
-                                )
-    
-                                viz_act = (
-                                    str(row["VIZ"])
-                                    .strip()
-                                    .upper()
-                                    in [
-                                        "TRUE",
-                                        "1",
-                                        "1.0",
-                                        "VERDADERO"
-                                    ]
-                                )
-    
-                                st.markdown(
-                                    f"**P{id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}"
-                                )
-    
-                                c1, c_vs, c2, c_viz = st.columns(
-                                    [1, 0.2, 1, 1.2]
-                                )
-    
-                                with c1:
-                                    r1_val = st.number_input(
-                                        f"G1_{id_p}",
-                                        0,
-                                        20,
-                                        r1_curr,
-                                        key=f"r1_{id_p}",
-                                        label_visibility="collapsed"
-                                    )
-    
-                                with c_vs:
-                                    st.write(
-                                        "<div style='text-align:center; padding-top:5px;'>:</div>",
-                                        unsafe_allow_html=True
-                                    )
-    
-                                with c2:
-                                    r2_val = st.number_input(
-                                        f"G2_{id_p}",
-                                        0,
-                                        20,
-                                        r2_curr,
-                                        key=f"r2_{id_p}",
-                                        label_visibility="collapsed"
-                                    )
-    
-                                with c_viz:
-                                    viz_val = st.toggle(
-                                        "Visible",
-                                        value=viz_act,
-                                        key=f"viz_{id_p}"
-                                    )
-    
-                                    finalizado = st.checkbox(
-                                        "Fin",
-                                        value=pd.notna(row["R1"]),
-                                        key=f"fin_{id_p}"
-                                    )
-    
-                                df_to_update.at[idx_df, "R1"] = (
-                                    r1_val
-                                    if finalizado
-                                    else None
-                                )
-    
-                                df_to_update.at[idx_df, "R2"] = (
-                                    r2_val
-                                    if finalizado
-                                    else None
-                                )
-    
-                                df_to_update.at[idx_df, "VIZ"] = (
-                                    "TRUE"
-                                    if viz_val
-                                    else "FALSE"
-                                )
-    
-                                st.markdown("---")
-    
-                    renderizar_bloque(
-                        df_to_update.iloc[0:24],
-                        t1
-                    )
-    
-                    renderizar_bloque(
-                        df_to_update.iloc[24:48],
-                        t2
-                    )
-    
-                    renderizar_bloque(
-                        df_to_update.iloc[48:72],
-                        t3
-                    )
-    
-                    submit = st.form_submit_button(
-                        "💾 GUARDAR LOS 72 PARTIDOS",
-                        use_container_width=True
-                    )
-    
-                    if submit:
-                        try:
-                            conn.update(
-                                worksheet="RESULTADOS",
-                                data=df_to_update
+
+                def renderizar_bloque(df_grupo, contenedor):
+                    with contenedor:
+                        for idx_df, row in df_grupo.iterrows():
+                            id_p = int(row["N_PARTIDO"])
+
+                            r1_curr = (
+                                int(row["R1"])
+                                if pd.notna(row["R1"])
+                                else 0
                             )
-    
-                            st.cache_data.clear()
-                            st.success("✅ ¡Los 72 partidos han sido actualizados!")
-                            st.balloons()
-                            st.rerun()
-    
-                        except Exception as e:
-                            st.error(f"❌ Error al conectar: {e}")
-    
-            # ============================================================
-            # 2. COLUMNA DERECHA — AUDITORÍA Y USUARIOS
-            # ============================================================
-    
-            with col_derecha:
-    
-                st.subheader("🚫 Control de Inscripciones")
-    
-                df_config = conn.read(
-                    worksheet="CONFIG",
-                    ttl=10
+
+                            r2_curr = (
+                                int(row["R2"])
+                                if pd.notna(row["R2"])
+                                else 0
+                            )
+
+                            viz_act = (
+                                str(row["VIZ"])
+                                .strip()
+                                .upper()
+                                in [
+                                    "TRUE",
+                                    "1",
+                                    "1.0",
+                                    "VERDADERO"
+                                ]
+                            )
+
+                            st.markdown(
+                                f"**P{id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}"
+                            )
+
+                            c1, c_vs, c2, c_viz = st.columns(
+                                [1, 0.2, 1, 1.2]
+                            )
+
+                            with c1:
+                                r1_val = st.number_input(
+                                    f"G1_{id_p}",
+                                    0,
+                                    20,
+                                    r1_curr,
+                                    key=f"r1_{id_p}",
+                                    label_visibility="collapsed"
+                                )
+
+                            with c_vs:
+                                st.write(
+                                    "<div style='text-align:center; padding-top:5px;'>:</div>",
+                                    unsafe_allow_html=True
+                                )
+
+                            with c2:
+                                r2_val = st.number_input(
+                                    f"G2_{id_p}",
+                                    0,
+                                    20,
+                                    r2_curr,
+                                    key=f"r2_{id_p}",
+                                    label_visibility="collapsed"
+                                )
+
+                            with c_viz:
+                                viz_val = st.toggle(
+                                    "Visible",
+                                    value=viz_act,
+                                    key=f"viz_{id_p}"
+                                )
+
+                                finalizado = st.checkbox(
+                                    "Fin",
+                                    value=pd.notna(row["R1"]),
+                                    key=f"fin_{id_p}"
+                                )
+
+                            df_to_update.at[idx_df, "R1"] = (
+                                r1_val
+                                if finalizado
+                                else None
+                            )
+
+                            df_to_update.at[idx_df, "R2"] = (
+                                r2_val
+                                if finalizado
+                                else None
+                            )
+
+                            df_to_update.at[idx_df, "VIZ"] = (
+                                "TRUE"
+                                if viz_val
+                                else "FALSE"
+                            )
+
+                            st.markdown("---")
+
+                renderizar_bloque(
+                    df_to_update.iloc[0:24],
+                    t1
                 )
-    
-                estado_manual = str(
-                    df_config.iloc[0]["REGISTRO"]
-                ).strip().upper()
-    
-                if registro_permitido_fecha and estado_manual == "ON":
-                    st.success("✅ Inscripciones ABIERTAS")
-    
+
+                renderizar_bloque(
+                    df_to_update.iloc[24:48],
+                    t2
+                )
+
+                renderizar_bloque(
+                    df_to_update.iloc[48:72],
+                    t3
+                )
+
+                submit = st.form_submit_button(
+                    "💾 GUARDAR LOS 72 PARTIDOS",
+                    use_container_width=True
+                )
+
+                if submit:
+                    try:
+                        conn.update(
+                            worksheet="RESULTADOS",
+                            data=df_to_update
+                        )
+
+                        st.cache_data.clear()
+                        st.success("✅ ¡Los 72 partidos han sido actualizados!")
+                        st.balloons()
+                        st.rerun()
+
+                    except Exception as e:
+                        st.error(f"❌ Error al conectar: {e}")
+
+        # ============================================================
+        # 2. COLUMNA DERECHA — AUDITORÍA Y USUARIOS
+        # ============================================================
+
+        with col_derecha:
+
+            st.subheader("🚫 Control de Inscripciones")
+
+            df_config = conn.read(
+                worksheet="CONFIG",
+                ttl=10
+            )
+
+            estado_manual = str(
+                df_config.iloc[0]["REGISTRO"]
+            ).strip().upper()
+
+            if registro_permitido_fecha and estado_manual == "ON":
+                st.success("✅ Inscripciones ABIERTAS")
+
+                if st.button(
+                    "🔴 CERRAR REGISTRO MANUALMENTE",
+                    use_container_width=True
+                ):
+                    df_config.at[0, "REGISTRO"] = "OFF"
+
+                    conn.update(
+                        worksheet="CONFIG",
+                        data=df_config
+                    )
+
+                    st.cache_data.clear()
+                    st.success("Registro cerrado con éxito")
+                    st.rerun()
+
+            else:
+                st.error("⛔ Inscripciones CERRADAS")
+
+                if registro_permitido_fecha:
                     if st.button(
-                        "🔴 CERRAR REGISTRO MANUALMENTE",
+                        "🟢 ABRIR REGISTRO MANUALMENTE",
                         use_container_width=True
                     ):
-                        df_config.at[0, "REGISTRO"] = "OFF"
-    
+                        df_config.at[0, "REGISTRO"] = "ON"
+
                         conn.update(
                             worksheet="CONFIG",
                             data=df_config
                         )
-    
+
                         st.cache_data.clear()
-                        st.success("Registro cerrado con éxito")
+                        st.success("Registro abierto con éxito")
                         st.rerun()
-    
+
                 else:
-                    st.error("⛔ Inscripciones CERRADAS")
-    
-                    if registro_permitido_fecha:
-                        if st.button(
-                            "🟢 ABRIR REGISTRO MANUALMENTE",
-                            use_container_width=True
-                        ):
-                            df_config.at[0, "REGISTRO"] = "ON"
-    
-                            conn.update(
-                                worksheet="CONFIG",
-                                data=df_config
-                            )
-    
-                            st.cache_data.clear()
-                            st.success("Registro abierto con éxito")
-                            st.rerun()
-    
-                    else:
-                        st.warning(
-                            "No se puede abrir manualmente: ya pasó la fecha límite (07/06)."
-                        )
-    
-                # ------------------------------------------------------------
-                # AUDITORÍA DE CARGAS
-                # ------------------------------------------------------------
-    
-                st.subheader("🕵️ Auditoría de Cargas")
-    
-                conteo_pro = (
-                    df_pro["USUARIO"]
-                    .value_counts()
-                    .reset_index()
-                )
-    
-                conteo_pro.columns = [
-                    "USUARIO",
-                    "COMPLETADOS"
-                ]
-    
-                df_auditoria = pd.merge(
-                    df_usuarios[["USUARIO", "NOMBRE"]],
-                    conteo_pro,
-                    on="USUARIO",
-                    how="left"
-                ).fillna(0)
-    
-                def estado_carga(cant):
-                    if cant >= 24:
-                        return "✅ Listo"
-    
-                    if cant > 0:
-                        return f"⚠️ Incompleto ({int(cant)})"
-    
-                    return "❌ No empezó"
-    
-                df_auditoria["ESTADO"] = (
-                    df_auditoria["COMPLETADOS"]
-                    .apply(estado_carga)
-                )
-    
-                st.dataframe(
-                    df_auditoria[["NOMBRE", "ESTADO"]],
-                    use_container_width=True,
-                    hide_index=True
-                )
-    
-                if st.button("📢 Escrachar colgados en el Foro"):
-                    faltantes = (
-                        df_auditoria[
-                            df_auditoria["COMPLETADOS"] < 24
-                        ]["NOMBRE"]
-                        .tolist()
+                    st.warning(
+                        "No se puede abrir manualmente: ya pasó la fecha límite (07/06)."
                     )
-    
-                    if faltantes:
-                        msg_escrache = (
-                            "🚨 ATENCIÓN: Faltan completar pronósticos: "
-                            f"{', '.join(faltantes)}. ¡El 8/6 se cierra!"
-                        )
-    
-                        st.warning(
-                            "Copia esto al foro: " + msg_escrache
-                        )
-    
-                    else:
-                        st.success("¡Todos los jugadores están al día! 👏")
-    
-                # ------------------------------------------------------------
-                # GESTIÓN DE USUARIOS
-                # ------------------------------------------------------------
-    
-                st.markdown("---")
-                st.subheader("👥 Gestión de Usuarios")
-    
-                df_users_adm = conn.read(
-                    worksheet="USUARIOS",
-                    ttl=10
+
+            # ------------------------------------------------------------
+            # AUDITORÍA DE CARGAS
+            # ------------------------------------------------------------
+
+            st.subheader("🕵️ Auditoría de Cargas")
+
+            conteo_pro = (
+                df_pro["USUARIO"]
+                .value_counts()
+                .reset_index()
+            )
+
+            conteo_pro.columns = [
+                "USUARIO",
+                "COMPLETADOS"
+            ]
+
+            df_auditoria = pd.merge(
+                df_usuarios[["USUARIO", "NOMBRE"]],
+                conteo_pro,
+                on="USUARIO",
+                how="left"
+            ).fillna(0)
+
+            def estado_carga(cant):
+                if cant >= 24:
+                    return "✅ Listo"
+
+                if cant > 0:
+                    return f"⚠️ Incompleto ({int(cant)})"
+
+                return "❌ No empezó"
+
+            df_auditoria["ESTADO"] = (
+                df_auditoria["COMPLETADOS"]
+                .apply(estado_carga)
+            )
+
+            st.dataframe(
+                df_auditoria[["NOMBRE", "ESTADO"]],
+                use_container_width=True,
+                hide_index=True
+            )
+
+            if st.button("📢 Escrachar colgados en el Foro"):
+                faltantes = (
+                    df_auditoria[
+                        df_auditoria["COMPLETADOS"] < 24
+                    ]["NOMBRE"]
+                    .tolist()
                 )
-    
-                df_pro_adm = conn.read(
-                    worksheet="PRONOSTICOS",
-                    ttl=10
-                )
-    
-                usuarios_borrables = df_users_adm[
-                    df_users_adm["USUARIO"]
-                    != st.session_state["user_data"]["USUARIO"]
-                ]
-    
-                if usuarios_borrables.empty:
-                    st.info("No hay otros usuarios para gestionar.")
-    
-                else:
-                    user_a_eliminar = st.selectbox(
-                        "Selecciona un jugador para eliminar:",
-                        usuarios_borrables["USUARIO"].tolist(),
-                        index=None,
-                        placeholder="Elegir usuario..."
+
+                if faltantes:
+                    msg_escrache = (
+                        "🚨 ATENCIÓN: Faltan completar pronósticos: "
+                        f"{', '.join(faltantes)}. ¡El 8/6 se cierra!"
                     )
-    
-                    if user_a_eliminar:
-                        st.warning(
-                            f"⚠️ Estás por borrar a **{user_a_eliminar}**."
-                        )
-    
-                        confirmado = st.checkbox(
-                            "Confirmo borrar usuario y sus pronósticos",
-                            key="conf_borrar"
-                        )
-    
-                        if st.button(
-                            "❌ BORRAR PERMANENTEMENTE",
-                            type="primary",
-                            use_container_width=True,
-                            disabled=not confirmado
-                        ):
-                            df_users_final = df_users_adm[
-                                df_users_adm["USUARIO"] != user_a_eliminar
-                            ]
-    
-                            df_pro_final = df_pro_adm[
-                                df_pro_adm["USUARIO"] != user_a_eliminar
-                            ]
-    
-                            conn.update(
-                                worksheet="USUARIOS",
-                                data=df_users_final
-                            )
-    
-                            conn.update(
-                                worksheet="PRONOSTICOS",
-                                data=df_pro_final
-                            )
-    
-                            st.cache_data.clear()
-                            st.success(f"✅ {user_a_eliminar} eliminado.")
-                            st.rerun()
-    
-                # ------------------------------------------------------------
-                # MANTENIMIENTO
-                # ------------------------------------------------------------
-    
-                st.markdown("---")
-                st.subheader("🚧 Mantenimiento")
-    
-                if estado_mantenimiento == "ON":
-                    st.error("WEB BLOQUEADA")
-    
-                    if st.button("✅ ABRIR WEB"):
-                        df_config = conn.read(
-                            worksheet="CONFIG",
-                            ttl=0
-                        )
-    
-                        df_config.at[0, "MANTENIMIENTO"] = "OFF"
-    
-                        conn.update(
-                            worksheet="CONFIG",
-                            data=df_config
-                        )
-    
-                        st.cache_data.clear()
-                        st.rerun()
-    
+
+                    st.warning(
+                        "Copia esto al foro: " + msg_escrache
+                    )
+
                 else:
-                    st.success("WEB ACTIVA")
-    
-                    if st.button("🚫 CERRAR WEB"):
-                        df_config = conn.read(
-                            worksheet="CONFIG",
-                            ttl=0
-                        )
-    
-                        df_config.at[0, "MANTENIMIENTO"] = "ON"
-    
+                    st.success("¡Todos los jugadores están al día! 👏")
+
+            # ------------------------------------------------------------
+            # GESTIÓN DE USUARIOS
+            # ------------------------------------------------------------
+
+            st.markdown("---")
+            st.subheader("👥 Gestión de Usuarios")
+
+            df_users_adm = conn.read(
+                worksheet="USUARIOS",
+                ttl=10
+            )
+
+            df_pro_adm = conn.read(
+                worksheet="PRONOSTICOS",
+                ttl=10
+            )
+
+            usuarios_borrables = df_users_adm[
+                df_users_adm["USUARIO"]
+                != st.session_state["user_data"]["USUARIO"]
+            ]
+
+            if usuarios_borrables.empty:
+                st.info("No hay otros usuarios para gestionar.")
+
+            else:
+                user_a_eliminar = st.selectbox(
+                    "Selecciona un jugador para eliminar:",
+                    usuarios_borrables["USUARIO"].tolist(),
+                    index=None,
+                    placeholder="Elegir usuario..."
+                )
+
+                if user_a_eliminar:
+                    st.warning(
+                        f"⚠️ Estás por borrar a **{user_a_eliminar}**."
+                    )
+
+                    confirmado = st.checkbox(
+                        "Confirmo borrar usuario y sus pronósticos",
+                        key="conf_borrar"
+                    )
+
+                    if st.button(
+                        "❌ BORRAR PERMANENTEMENTE",
+                        type="primary",
+                        use_container_width=True,
+                        disabled=not confirmado
+                    ):
+                        df_users_final = df_users_adm[
+                            df_users_adm["USUARIO"] != user_a_eliminar
+                        ]
+
+                        df_pro_final = df_pro_adm[
+                            df_pro_adm["USUARIO"] != user_a_eliminar
+                        ]
+
                         conn.update(
-                            worksheet="CONFIG",
-                            data=df_config
+                            worksheet="USUARIOS",
+                            data=df_users_final
                         )
-    
+
+                        conn.update(
+                            worksheet="PRONOSTICOS",
+                            data=df_pro_final
+                        )
+
                         st.cache_data.clear()
+                        st.success(f"✅ {user_a_eliminar} eliminado.")
                         st.rerun()
+
+            # ------------------------------------------------------------
+            # MANTENIMIENTO
+            # ------------------------------------------------------------
+
+            st.markdown("---")
+            st.subheader("🚧 Mantenimiento")
+
+            if estado_mantenimiento == "ON":
+                st.error("WEB BLOQUEADA")
+
+                if st.button("✅ ABRIR WEB"):
+                    df_config = conn.read(
+                        worksheet="CONFIG",
+                        ttl=0
+                    )
+
+                    df_config.at[0, "MANTENIMIENTO"] = "OFF"
+
+                    conn.update(
+                        worksheet="CONFIG",
+                        data=df_config
+                    )
+
+                    st.cache_data.clear()
+                    st.rerun()
+
+            else:
+                st.success("WEB ACTIVA")
+
+                if st.button("🚫 CERRAR WEB"):
+                    df_config = conn.read(
+                        worksheet="CONFIG",
+                        ttl=0
+                    )
+
+                    df_config.at[0, "MANTENIMIENTO"] = "ON"
+
+                    conn.update(
+                        worksheet="CONFIG",
+                        data=df_config
+                    )
+
+                    st.cache_data.clear()
+                    st.rerun()
+
+    else:
+        st.error("⛔ No tienes permisos para acceder a esta sección.")
     
-        else:
-            st.error("⛔ No tienes permisos para acceder a esta sección.")
-        
 # elif menu == "🧪 Laboratorio":
 #     render_laboratorio(
 #         df_usuarios=df_usuarios,
