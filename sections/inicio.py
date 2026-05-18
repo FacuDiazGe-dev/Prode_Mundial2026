@@ -1061,7 +1061,7 @@ def render_inicio(
                     df_ev["Jugador"].astype(str).isin(usuarios_grafico)
                 ].copy()
                 
-                df_ev_plot["JugadorLabel"] = (
+                df_ev_plot["Refe:"] = (
                     df_ev_plot["Jugador"]
                     .astype(str)
                     .map(nombre_map)
