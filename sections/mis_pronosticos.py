@@ -457,7 +457,7 @@ def render_mis_pronosticos(
     }
 }
 /* ============================================================
-   MI PERFIL — CARD PREMIUM
+   MI PERFIL — CARD PREMIUM / MISMO LENGUAJE QUE JUGADORES
    ============================================================ */
 
 .profile-panel {
@@ -469,52 +469,123 @@ def render_mis_pronosticos(
 }
 
 .profile-hero {
-    background-image:
-        radial-gradient(
-            circle at 30% 0%,
-            rgba(244,197,66,0.28),
-            rgba(255,255,255,0.00) 42%
-        ),
+    position: relative;
+    overflow: hidden;
+
+    background:
         linear-gradient(
-            180deg,
-            rgba(255,255,255,0.40),
-            rgba(255,255,255,0.60)
+            90deg,
+            rgba(255,255,255,0.08),
+            rgba(255,255,255,0.10)
         ),
-        url("__HEADER_BACKGROUND__");
+        var(--profile-hero-bg);
 
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
+
     border: 1px solid rgba(226,232,240,0.85);
     border-radius: 16px;
-    padding: 18px 14px 14px 14px;
+    padding: 18px 16px 14px 16px;
+}
+
+.profile-hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.profile-hero-main {
+    flex: 1;
+    min-width: 0;
     text-align: center;
 }
 
+.profile-badges-side {
+    width: 170px;
+    flex-shrink: 0;
+}
+
+.profile-badges-mini {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    justify-items: center;
+}
+
+.profile-badge-mini {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+    background: rgba(255,255,255,0.66);
+    border: 1px solid rgba(226,232,240,0.90);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.72),
+        0 6px 14px rgba(15,23,42,0.05);
+}
+
+.profile-badge-mini.earned {
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.82),
+        0 8px 18px rgba(15,23,42,0.08);
+}
+
+.profile-badge-mini.locked {
+    opacity: 0.92;
+}
+
+.profile-badge-mini-img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+}
+
+.profile-badge-mini-fallback {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+    background: rgba(241,245,249,0.95);
+    color: #64748b;
+}
+
 .profile-avatar {
-    width: 124px;
-    height: 124px;
+    width: 118px;
+    height: 118px;
     object-fit: cover;
     border-radius: 50%;
     border: 5px solid #F4C542;
     box-shadow:
         0 14px 34px rgba(15,23,42,0.18),
-        0 0 26px rgba(244,197,66,0.30),
-        inset 0 1px 0 rgba(255,255,255,0.25);
+        0 0 26px rgba(244,197,66,0.30);
 }
 
 .profile-name {
     font-family: 'Montserrat', sans-serif;
-    font-size: 25px;
+    font-size: 24px;
     font-weight: 900;
-    color: #0f172a;
+    color: #F8FAFC;
     margin-top: 13px;
     line-height: 1.05;
 }
 
 .profile-user {
-    color: #64748b;
+    color: #cbd5e1;
     font-size: 13px;
-    font-weight: 800;
+    font-weight: 900;
     margin-top: 4px;
 }
 
@@ -542,7 +613,7 @@ def render_mis_pronosticos(
 
 .profile-stats {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     margin: 14px 0 14px 0;
 }
@@ -624,6 +695,68 @@ def render_mis_pronosticos(
     padding: 14px;
 }
 
+@media (max-width: 768px) {
+    .profile-hero-top {
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .profile-hero-main {
+        width: 100%;
+    }
+
+    .profile-badges-side {
+        width: 100%;
+        max-width: 210px;
+    }
+
+    .profile-badges-mini {
+        gap: 6px;
+    }
+
+    .profile-badge-mini {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+    }
+
+    .profile-badge-mini-img {
+        width: 38px;
+        height: 38px;
+    }
+
+    .profile-avatar {
+        width: 104px;
+        height: 104px;
+    }
+
+    .profile-name {
+        font-size: 21px;
+    }
+
+    .profile-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .profile-stat {
+        padding: 8px 4px;
+    }
+
+    .profile-stat-number {
+        font-size: 15px;
+    }
+
+    .profile-stat-label {
+        font-size: 7px;
+    }
+
+    .profile-info-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
+}
 /* Botón normal de Streamlit usado en Editar Perfil */
 div[data-testid="stButton"] button {
     border-radius: 13px !important;
@@ -742,6 +875,126 @@ div[data-testid="stButton"] button {
             "generales": int(row.get("GENERALES", 0))
         }
 
+    BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
+
+    badge_order = [
+        "Puntero",
+        "Sr. Prode",
+        "Siempre Suma",
+        "Optimista del Gol",
+        "El Cholo",
+        "Rey del Empate",
+        "El Macaya",
+        "El Misterioso",
+        "El Distinto",
+    ]
+
+    badge_asset_map = {
+        "Puntero": {
+            "mini": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_128.png",
+        },
+        "Sr. Prode": {
+            "mini": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_128.png",
+        },
+        "Siempre Suma": {
+            "mini": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_128.png",
+        },
+        "Optimista del Gol": {
+            "mini": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_128.png",
+        },
+        "El Cholo": {
+            "mini": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_128.png",
+        },
+        "Rey del Empate": {
+            "mini": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_128.png",
+        },
+        "El Macaya": {
+            "mini": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_128.png",
+        },
+        "El Misterioso": {
+            "mini": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_128.png",
+        },
+        "El Distinto": {
+            "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
+        },
+    }
+
+    def get_user_badges(usuario):
+        row_rank = df_ranking[
+            df_ranking["USUARIO"].astype(str) == str(usuario)
+        ]
+
+        if row_rank.empty or "BADGES" not in row_rank.columns:
+            return []
+
+        badges = row_rank.iloc[0].get("BADGES", [])
+
+        if badges is None:
+            return []
+
+        if isinstance(badges, list):
+            return badges
+
+        if isinstance(badges, str):
+            limpio = (
+                badges
+                .replace("[", "")
+                .replace("]", "")
+                .replace("'", "")
+                .replace('"', "")
+            )
+
+            return [
+                b.strip()
+                for b in limpio.split(",")
+                if b.strip()
+            ]
+
+        return []
+
+    def build_profile_badges_html(usuario):
+        earned_badges = set(get_user_badges(usuario))
+
+        items = []
+
+        for title in badge_order:
+            assets = badge_asset_map.get(title, {})
+            is_earned = title in earned_badges
+
+            badge_url = (
+                assets.get("mini", "")
+                if is_earned
+                else assets.get("gray", "") or assets.get("mini", "")
+            )
+
+            state_class = "earned" if is_earned else "locked"
+
+            if badge_url:
+                visual_html = (
+                    f'<img src="{escape(badge_url)}" '
+                    f'class="profile-badge-mini-img" '
+                    f'alt="{escape(title)}" '
+                    f'loading="lazy">'
+                )
+            else:
+                visual_html = '<div class="profile-badge-mini-fallback">🏅</div>'
+
+            items.append(
+                f'<div class="profile-badge-mini {state_class}" '
+                f'title="{escape(title)}">{visual_html}</div>'
+            )
+
+        return "".join(items)
+    
     def calcular_stats_pronosticos(lista_pronosticos):
         total_partidos = len(lista_pronosticos)
 
@@ -811,6 +1064,8 @@ div[data-testid="stButton"] button {
 
     user_actual = st.session_state["user_data"]["USUARIO"]
     u_data = st.session_state["user_data"]
+
+    PROFILE_HERO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
 
     df_user_pro = df_pro[df_pro["USUARIO"] == user_actual]
 
@@ -1230,25 +1485,43 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
             generales = stats["generales"]
             posicion = stats["pos"]
 
+            profile_badges_mini_html = build_profile_badges_html(user_actual)
+
             if bio.strip() == "" or bio.strip().lower() == "nan":
                 bio = "Todavía no cargaste una bio. Contanos tu estilo de juego, tus cábalas o a quién ves campeón."
 
             st.markdown(
                 f"""
 <div class="profile-panel">
+
 <div class="panel-header">
 <div class="panel-icon">👤</div>
+<div>
 <div class="panel-title">Mi Perfil</div>
+<div class="pred-panel-subtitle">Tu ficha personal del Prode</div>
+</div>
 </div>
 
-<div class="profile-hero">
+<div class="profile-hero" style="--profile-hero-bg: url('{PROFILE_HERO_BG_URL}');">
+<div class="profile-hero-top">
+
+<div class="profile-hero-main">
 <img src="{foto}" class="profile-avatar">
 <div class="profile-name">{nombre}</div>
-<div class="profile-user">@{usuario}</div>
+<div class="profile-user">@{usuario} · {equipo}</div>
 
 <div class="profile-rank-pill">
 <span>📊 Posición actual</span>
 <strong>{posicion}°</strong>
+</div>
+</div>
+
+<div class="profile-badges-side">
+<div class="profile-badges-mini">
+{profile_badges_mini_html}
+</div>
+</div>
+
 </div>
 </div>
 
@@ -1270,12 +1543,6 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 <div class="profile-stat-number">{generales}</div>
 <div class="profile-stat-label">Generales</div>
 </div>
-
-<div class="profile-stat">
-<div class="profile-stat-icon">⚽</div>
-<div class="profile-stat-number">{equipo[:3].upper()}</div>
-<div class="profile-stat-label">Equipo</div>
-</div>
 </div>
 
 <div class="profile-info">
@@ -1291,8 +1558,9 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 </div>
 
 <div class="profile-bio">
-{bio}
+<strong>Bio:</strong> {bio}
 </div>
+
 </div>
 """,
                 unsafe_allow_html=True
