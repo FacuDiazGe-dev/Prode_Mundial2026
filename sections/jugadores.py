@@ -1443,7 +1443,7 @@ def render_jugadores(
         },
         "El Distinto": {
             "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_GRAY_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGEGRAY_512.png",
             "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
             "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
         },
