@@ -1006,11 +1006,69 @@ def render_inicio(
         
             else:
                 df_ev = pd.DataFrame(evol_list)
-        
-                usuario_actual = st.session_state["user_data"]["USUARIO"]
-        
+                
+                usuario_actual = str(st.session_state["user_data"]["USUARIO"])
+                
+                # ------------------------------------------------------------
+                # Usuarios visibles en el gráfico:
+                # Top 5 del ranking + usuario logueado si no está en Top 5
+                # ------------------------------------------------------------
+                
+                top5_usuarios = (
+                    df_ranking
+                    .head(5)["USUARIO"]
+                    .astype(str)
+                    .tolist()
+                )
+                
+                usuarios_grafico = []
+                
+                for u in top5_usuarios:
+                    if u not in usuarios_grafico:
+                        usuarios_grafico.append(u)
+                
+                if usuario_actual not in usuarios_grafico:
+                    usuarios_grafico.append(usuario_actual)
+                
+                
+                def nombre_visible_usuario(usuario):
+                    usuario = str(usuario)
+                
+                    match_rank = df_ranking[
+                        df_ranking["USUARIO"].astype(str) == usuario
+                    ]
+                
+                    if not match_rank.empty:
+                        nombre = str(match_rank.iloc[0].get("JUGADOR", usuario))
+                        return nombre
+                
+                    match_user = df_usuarios[
+                        df_usuarios["USUARIO"].astype(str) == usuario
+                    ]
+                
+                    if not match_user.empty:
+                        return str(match_user.iloc[0].get("NOMBRE", usuario))
+                
+                    return usuario
+                
+                
+                nombre_map = {
+                    u: nombre_visible_usuario(u)
+                    for u in usuarios_grafico
+                }
+                
+                df_ev_plot = df_ev[
+                    df_ev["Jugador"].astype(str).isin(usuarios_grafico)
+                ].copy()
+                
+                df_ev_plot["JugadorLabel"] = (
+                    df_ev_plot["Jugador"]
+                    .astype(str)
+                    .map(nombre_map)
+                )
+                
                 df_user_ev = (
-                    df_ev[df_ev["Jugador"] == usuario_actual]
+                    df_ev[df_ev["Jugador"].astype(str) == usuario_actual]
                     .sort_values("N_Partido")
                 )
         
@@ -1050,13 +1108,47 @@ def render_inicio(
                     f'</div>'
                     f'<div class="evol-chart-shell">'
                 )
-        
+
+                # ------------------------------------------------------------
+                # Colores del gráfico
+                # Usuario logueado: dorado
+                # Top 5: colores suaves/pálidos
+                # --
+                
+                paleta_top5 = [
+                    "#93C5FD",  # azul suave
+                    "#A7F3D0",  # verde agua suave
+                    "#C4B5FD",  # violeta suave
+                    "#FCA5A5",  # rojo suave
+                    "#FDBA74",  # naranja suave
+                ]
+                
+                color_map = {}
+                
+                for idx, usuario in enumerate(usuarios_grafico):
+                    nombre_label = nombre_map.get(usuario, usuario)
+                
+                    if usuario == usuario_actual:
+                        color_map[nombre_label] = "#F4C542"
+                    else:
+                        color_map[nombre_label] = paleta_top5[idx % len(paleta_top5)]
+                
+                
+                orden_labels = [
+                    nombre_map.get(u, u)
+                    for u in usuarios_grafico
+                ]
+                
                 fig = px.line(
-                    df_ev,
+                    df_ev_plot,
                     x="N_Partido",
                     y="Puntos",
-                    color="Jugador",
-                    markers=True
+                    color="JugadorLabel",
+                    markers=True,
+                    color_discrete_map=color_map,
+                    category_orders={
+                        "JugadorLabel": orden_labels
+                    }
                 )
         
                 fig.update_layout(
@@ -1068,13 +1160,27 @@ def render_inicio(
                         size=11,
                         color="#64748b"
                     ),
+                    legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.04,
+                    xanchor="left",
+                    x=0,
+                    font=dict(
+                        size=10,
+                        color="#475569"
+                    ),
+                    bgcolor="rgba(255,255,255,0.72)",
+                    bordercolor="rgba(226,232,240,0.90)",
+                    borderwidth=1
+                ),
                     margin=dict(
                         l=38,
                         r=14,
-                        t=10,
+                        t=42,
                         b=24
                     ),
-                    showlegend=False,
+                    showlegend=True,
                     hovermode=False,
                     dragmode=False
                 )
@@ -1100,9 +1206,11 @@ def render_inicio(
                     color="#94a3b8",
                     tickfont=dict(size=10)
                 )    
-        
+                
+                usuario_actual_label = nombre_map.get(usuario_actual, usuario_actual)
+                
                 for trace in fig.data:
-                    if trace.name == usuario_actual:
+                    if trace.name == usuario_actual_label:
                         trace.update(
                             line=dict(
                                 width=5,
@@ -1123,16 +1231,16 @@ def render_inicio(
                     else:
                         trace.update(
                             line=dict(
-                                width=2
+                                width=2.4
                             ),
                             marker=dict(
-                                size=4,
+                                size=5,
                                 line=dict(
                                     width=1,
                                     color="white"
                                 )
                             ),
-                            opacity=0.22,
+                            opacity=0.72,
                             hoverinfo="skip",
                             hovertemplate=None
                         )
@@ -1279,7 +1387,7 @@ def render_inicio(
                 
                 components.html(
                     evol_full_html,
-                    height=470,
+                    height=495,
                     scrolling=False
                 )
                         
