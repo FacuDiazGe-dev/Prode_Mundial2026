@@ -917,22 +917,22 @@ def render_inicio(
             )
         
             ranking_html += f"""
-        <div class="ranking-row {clase_usuario}">
-        <div class="rank-pos {medalla}">{pos_label}</div>
-        
-        <div class="player-info">
-        <div class="player-name">{jugador}</div>
-        <div class="player-sub">{subtitulo} · 🎯 {exactos} · ✅ {generales}</div>
-        {badges_html}
-        </div>
-        
-        <div class="rank-points">
-        <div class="points-main">{puntos}</div>
-        <div class="points-label">pts</div>
-        </div>
-        </div>
-        """
-        
+<div class="ranking-row {clase_usuario}">
+<div class="rank-pos {medalla}">{pos_label}</div>
+
+<div class="player-info">
+<div class="player-name">{jugador}</div>
+<div class="player-sub">{subtitulo} · 🎯 {exactos} · ✅ {generales}</div>
+{badges_html}
+</div>
+
+<div class="rank-points">
+<div class="points-main">{puntos}</div>
+<div class="points-label">pts</div>
+</div>
+</div>
+"""
+
         ranking_html += '</div>'
         ranking_html += '</div>'
         
