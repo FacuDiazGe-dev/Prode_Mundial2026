@@ -888,7 +888,10 @@ def render_inicio(
             return f'<div class="ranking-badges-mini">{html}</div>'
         
         ranking_html = '<div class="ranking-panel">'
-        ranking_html += '<div class="ranking-panel-header"><div class="ranking-panel-icon">🏆</div><div class="ranking-panel-title">Ranking General</div></div>'
+        ranking_html += '<div class="ranking-panel-header">'
+        ranking_html += '<div class="ranking-panel-icon">🏆</div>'
+        ranking_html += '<div class="ranking-panel-title">Ranking General</div>'
+        ranking_html += '</div>'
         ranking_html += '<div class="ranking-scroll">'
         
         for i, row in df_ranking.reset_index(drop=True).iterrows():
@@ -908,24 +911,32 @@ def render_inicio(
             medalla = clase_medalla(posicion_num)
         
             subtitulo = "Tu posición actual" if es_usuario_actual else "Participante"
-            
+        
             badges_html = build_ranking_badges_html(
                 row.get("BADGES", [])
             )
-            
-            ranking_html += f'<div class="ranking-row {clase_usuario}">'
-            ranking_html += f'<div class="rank-pos {medalla}">{pos_label}</div>'
-            ranking_html += (
-                f'<div class="player-info">'
-                f'<div class="player-name">{jugador}</div>'
-                f'<div class="player-sub">{subtitulo} · 🎯 {exactos} · ✅ {generales}</div>'
-                f'{badges_html}'
-                f'</div>'
-            )
         
-        ranking_html += '</div></div>'
+            ranking_html += f"""
+        <div class="ranking-row {clase_usuario}">
+        <div class="rank-pos {medalla}">{pos_label}</div>
         
-        st.markdown(ranking_html, unsafe_allow_html=True)  
+        <div class="player-info">
+        <div class="player-name">{jugador}</div>
+        <div class="player-sub">{subtitulo} · 🎯 {exactos} · ✅ {generales}</div>
+        {badges_html}
+        </div>
+        
+        <div class="rank-points">
+        <div class="points-main">{puntos}</div>
+        <div class="points-label">pts</div>
+        </div>
+        </div>
+        """
+        
+        ranking_html += '</div>'
+        ranking_html += '</div>'
+        
+        st.markdown(ranking_html, unsafe_allow_html=True)
         
         # ============================================================
         # EVOLUCIÓN DE PUNTOS — CARD INTEGRADA
