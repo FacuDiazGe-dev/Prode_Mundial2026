@@ -493,10 +493,6 @@ def render_inicio(
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }}
 
-    /* Ajuste de tipografía general para que coincida con el header */
-    body, p, div {{
-        font-family: 'Inter', -apple-system, sans-serif;
-    }}
 
     /* Unificar las tarjetas de score con el mismo radio de borde */
     .score-card {{
@@ -941,7 +937,7 @@ def render_inicio(
         # ============================================================
         # EVOLUCIÓN DE PUNTOS — CARD INTEGRADA
         # ============================================================
-        
+                
         st.markdown("""
         <style>
         .evol-panel {
@@ -966,16 +962,18 @@ def render_inicio(
             width: 30px;
             height: 30px;
             border-radius: 10px;
+        
             display: flex;
             align-items: center;
             justify-content: center;
+        
             background: rgba(244, 197, 66, 0.16);
             color: #0f172a;
             font-size: 16px;
         }
         
         .evol-panel-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Montserrat', 'Inter', sans-serif;
             font-size: 17px;
             font-weight: 900;
             color: #0f172a;
@@ -983,83 +981,17 @@ def render_inicio(
             letter-spacing: 0.01em;
         }
         
-        .evol-summary-dark {
-            background:
-                linear-gradient(135deg, rgba(7,17,31,0.98), rgba(15,23,42,0.94));
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 15px 15px 0 0;
-            padding: 16px 18px 13px 18px;
-        }
-        
-        .evol-user-name {
-            font-family: 'Inter', sans-serif;
-            font-size: 11px;
-            font-weight: 900;
-            color: rgba(255,255,255,0.58);
-            text-transform: uppercase;
-            letter-spacing: 0.07em;
-            margin-bottom: 6px;
-        }
-        
-        .evol-main-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            gap: 14px;
-        }
-        
-        .evol-main-number {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 36px;
-            font-weight: 900;
-            color: #F8FAFC;
-            line-height: 1;
-        }
-        
-        .evol-main-number span {
-            font-size: 14px;
-            color: rgba(255,255,255,0.55);
-            font-weight: 800;
-            margin-left: 4px;
-        }
-        
-        .evol-position-pill {
-            background: rgba(244,197,66,0.14);
-            border: 1px solid rgba(244,197,66,0.35);
-            color: #F4C542;
-            border-radius: 999px;
-            padding: 6px 10px;
-            font-size: 11px;
-            font-weight: 900;
-            white-space: nowrap;
-        }
-        
-        .evol-meta {
-            margin-top: 10px;
-            font-size: 12px;
-            font-weight: 700;
-            color: rgba(255,255,255,0.65);
-        }
-        
-        .evol-meta strong {
-            color: #F4C542;
-        }
-        
-        .evol-chart-shell {
-            background: rgba(248, 250, 252, 0.96);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-top: none;
-            border-radius: 0 0 15px 15px;
-            padding: 0 8px 4px 8px;
-        }
-        
         .evol-empty {
             height: 315px;
+        
             display: flex;
             align-items: center;
             justify-content: center;
+        
             text-align: center;
             color: #94a3b8;
+        
+            font-family: 'Inter', sans-serif;
             font-size: 13px;
             font-weight: 800;
         }
@@ -1067,24 +999,11 @@ def render_inicio(
         @media (max-width: 768px) {
             .evol-panel {
                 padding: 12px;
+                border-radius: 16px;
             }
         
             .evol-panel-title {
                 font-size: 15px;
-            }
-        
-            .evol-summary-dark {
-                padding: 15px;
-            }
-        
-            .evol-main-number {
-                font-size: 32px;
-            }
-        
-            .evol-main-row {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 8px;
             }
         }
         </style>
@@ -1420,10 +1339,12 @@ def render_inicio(
         
                 evol_component_css = f"""
                 <style>
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Montserrat:wght@800;900&display=swap');
+                
                 body {{
                     margin: 0;
                     padding: 0;
-                    font-family: Inter, sans-serif;
+                    font-family: Inter, Montserrat, sans-serif;
                     background: transparent;
                 }}
                 
