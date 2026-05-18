@@ -1061,7 +1061,7 @@ def render_inicio(
                     df_ev["Jugador"].astype(str).isin(usuarios_grafico)
                 ].copy()
                 
-                df_ev_plot["JugadorLabel"] = (
+                df_ev_plot["Refe"] = (
                     df_ev_plot["Jugador"]
                     .astype(str)
                     .map(nombre_map)
@@ -1143,11 +1143,11 @@ def render_inicio(
                     df_ev_plot,
                     x="N_Partido",
                     y="Puntos",
-                    color="JugadorLabel",
+                    color="Refe",
                     markers=True,
                     color_discrete_map=color_map,
                     category_orders={
-                        "JugadorLabel": orden_labels
+                        "Refe": orden_labels
                     }
                 )
         
