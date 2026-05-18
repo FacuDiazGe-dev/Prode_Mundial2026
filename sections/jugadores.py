@@ -978,8 +978,8 @@ def render_jugadores(
                     r_act = 0
 
         return r_max
-        
-        def get_partidos_con_resultado_visible():
+
+    def get_partidos_con_resultado_visible():
         if df_res is None or df_res.empty:
             return 0
 
@@ -1392,62 +1392,62 @@ def render_jugadores(
     BADGES_WALL_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png"
 
     
-badge_asset_map = {
-    "Puntero": {
-        "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
-        "gray_large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_128.png",
-    },
-    "Sr. Prode": {
-        "large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_512.png",
-        "gray_large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_128.png",
-    },
-    "Siempre Suma": {
-        "large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_512.png",
-        "gray_large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_128.png",
-    },
-    "Optimista del Gol": {
-        "large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_512.png",
-        "gray_large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_128.png",
-    },
-    "El Cholo": {
-        "large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_512.png",
-        "gray_large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_128.png",
-    },
-    "Rey del Empate": {
-        "large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_512.png",
-        "gray_large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_128.png",
-    },
-    "El Macaya": {
-        "large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_512.png",
-        "gray_large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_128.png",
-    },
-    "El Misterioso": {
-        "large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_512.png",
-        "gray_large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_128.png",
-    },
-    "El Distinto": {
-        "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
-        "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_512.png",
-        "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-        "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
-    },
-}
+    badge_asset_map = {
+        "Puntero": {
+            "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_128.png",
+        },
+        "Sr. Prode": {
+            "large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_128.png",
+        },
+        "Siempre Suma": {
+            "large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_128.png",
+        },
+        "Optimista del Gol": {
+            "large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_128.png",
+        },
+        "El Cholo": {
+            "large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_128.png",
+        },
+        "Rey del Empate": {
+            "large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_128.png",
+        },
+        "El Macaya": {
+            "large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_128.png",
+        },
+        "El Misterioso": {
+            "large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_128.png",
+        },
+        "El Distinto": {
+            "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
+            "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_512.png",
+            "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
+            "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
+        },
+    }
 
     badge_class_map = {
         "Puntero": "puntero",
