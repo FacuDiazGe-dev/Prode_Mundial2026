@@ -26,7 +26,7 @@ def calcular_detalle(r1, r2, p1, p2):
     return puntos, exactos, generales
 
 # 2. FUNCIÓN DE APOYO PARA PROCESAR INSIGNIAS NUEVAS
-def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None):
+def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles=None):
     """
     Calcula qué usuario gana cada badge disponible para mostrar en el ranking.
     No modifica el nombre del jugador.
@@ -45,6 +45,29 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None):
 
     if df_rank.empty:
         return badge_por_usuario
+    # ------------------------------------------------------------
+    # ACTIVACIÓN DE INSIGNIAS
+    # Las badges empiezan a mostrarse recién desde el 5º partido
+    # con resultado visible cargado.
+    # ------------------------------------------------------------
+
+    partidos_con_resultado = 0
+
+    if (
+        res_visibles is not None
+        and not res_visibles.empty
+        and "R1" in res_visibles.columns
+        and "R2" in res_visibles.columns
+    ):
+        partidos_con_resultado = len(
+            res_visibles[
+                res_visibles["R1"].notna()
+                & res_visibles["R2"].notna()
+            ]
+        )
+
+    if partidos_con_resultado < 5:
+        return badge_por_usuario        
 
     # ------------------------------------------------------------
     # 1. PUNTERO — mayor puntaje
@@ -395,7 +418,8 @@ def obtener_ranking_global(df_users, df_pro, df_res, df_foro=None):
     badge_por_usuario = calcular_badges_globales_ranking(
         df_rank,
         df_pro,
-        df_foro
+        df_foro,
+        res_visibles
     )
 
     df_rank["BADGES"] = df_rank.apply(
