@@ -26,47 +26,38 @@ def calcular_detalle(r1, r2, p1, p2):
     return puntos, exactos, generales
 
 # 2. FUNCIÓN DE APOYO PARA PROCESAR INSIGNIAS (Tu versión exacta)
-def procesar_nombres_ranking(row, df_rank_base, df_pro, df_res, df_usuarios):
-    nombre = row['JUGADOR']
-    posicion = row.name + 1 
-    insignias = ""
-    
-    df_res['VIZ_CHECK'] = df_res['VIZ'].astype(str).str.strip().str.upper()
-    res_visibles = df_res[df_res['VIZ_CHECK'].isin(['TRUE', '1', '1.0', 'VERDADERO', 'T'])]
+def procesar_badges_ranking(row, df_rank_base):
+    """
+    Devuelve una lista de badges nuevos para mostrar visualmente en el ranking.
+    No modifica el nombre del jugador.
+    """
 
-    try:
-        u_info = df_usuarios[df_usuarios['NOMBRE'] == nombre].iloc[0]
-        u_nick = u_info['USUARIO']
-        u_id = int(u_info['ID'])
-    except:
-        return nombre
+    badges = []
 
-    if posicion == 1: insignias += " 👑"
-    if row['EXACTOS'] >= 5: insignias += " 🎯"
-    
-    max_gen = df_rank_base['GENERALES'].max()
-    if row['GENERALES'] == max_gen and max_gen > 0: insignias += " 🧙‍♂️"
-    if u_id <= 3: insignias += " 🏅"
-    if len(df_rank_base) > 2 and posicion == len(df_rank_base): insignias += " 🐌"
-        
-    user_pro = df_pro[df_pro['USUARIO'] == u_nick]
-    
-    r_act, r_max = 0, 0
-    for _, part_v in res_visibles.sort_values('N_PARTIDO').iterrows():
-        id_p = part_v['N_PARTIDO']
-        p_match = user_pro[user_pro['N_PARTIDO'] == id_p]
-        
-        if not p_match.empty:
-            if pd.notna(part_v['R1']) and pd.notna(part_v['R2']):
-                _, exa, _ = calcular_detalle(part_v['R1'], part_v['R2'], p_match.iloc[0]['P1'], p_match.iloc[0]['P2'])
-                if exa == 1:
-                    r_act += 1
-                    r_max = max(r_max, r_act)
-                else: 
-                    r_act = 0
-                    
-    if r_max >= 3: insignias += f" 🔥x{r_max}"
-    return f"{nombre}{insignias}"
+    posicion = row.name + 1
+
+    puntos = int(row.get("PUNTOS", 0))
+    exactos = int(row.get("EXACTOS", 0))
+    generales = int(row.get("GENERALES", 0))
+
+    max_puntos = int(df_rank_base["PUNTOS"].max()) if not df_rank_base.empty else 0
+    max_exactos = int(df_rank_base["EXACTOS"].max()) if "EXACTOS" in df_rank_base.columns else 0
+    max_generales = int(df_rank_base["GENERALES"].max()) if "GENERALES" in df_rank_base.columns else 0
+
+    # 1. Puntero
+    if posicion == 1 and puntos > 0:
+        badges.append("Puntero")
+
+    # 2. Sr. Prode
+    if exactos == max_exactos and max_exactos > 0:
+        badges.append("Sr. Prode")
+
+    # 3. Siempre Suma
+    if generales == max_generales and max_generales > 0:
+        badges.append("Siempre Suma")
+
+    return badges
+
 
 # 3. FUNCIÓN PRINCIPAL DE RANKING (Tu versión exacta)
 @st.cache_data(ttl=60)
@@ -113,11 +104,17 @@ def obtener_ranking_global(df_users, df_pro, df_res):
     df_rank = pd.DataFrame(ranking_data).sort_values(by=['PUNTOS', 'EXACTOS'], ascending=False).reset_index(drop=True)
     
     # IMPORTANTE: Aplicar insignias antes de formatear el índice
-    df_rank['JUGADOR'] = df_rank.apply(
-        lambda r: procesar_nombres_ranking(r, df_rank, df_pro, df_res, df_users), 
+    # Nueva columna de insignias visuales.
+    # JUGADOR queda limpio, sin emojis agregados al nombre.
+    df_rank["BADGES"] = df_rank.apply(
+        lambda r: procesar_badges_ranking(r, df_rank),
         axis=1
     )
-    df_rank.index = df_rank.index + 1
-    df_rank.insert(0, 'Nº', df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
     
-    return df_rank
+    df_rank.index = df_rank.index + 1
+    
+    # Si querés quitar también la corona vieja del Nº:
+    df_rank.insert(0, "Nº", df_rank.index.map(lambda x: str(x)))
+    
+    # Si querés conservar la corona solo en el número 1, dejá esta línea en vez de la anterior:
+    # df_rank.insert(0, "Nº", df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
