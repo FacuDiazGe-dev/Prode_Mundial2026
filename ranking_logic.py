@@ -26,7 +26,7 @@ def calcular_detalle(r1, r2, p1, p2):
     return puntos, exactos, generales
 
 # 2. FUNCIÓN DE APOYO PARA PROCESAR INSIGNIAS NUEVAS
-def calcular_badges_globales_ranking(df_rank, df_pro):
+def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None):
     """
     Calcula qué usuario gana cada badge disponible para mostrar en el ranking.
     No modifica el nombre del jugador.
@@ -226,7 +226,58 @@ def calcular_badges_globales_ranking(df_rank, df_pro):
                 distinto["usuario"],
                 "El Distinto"
             )
+    # ------------------------------------------------------------
+    # 8. EL MACAYA — más comentarios en el foro
+    # ------------------------------------------------------------
 
+    if (
+        df_foro is not None
+        and not df_foro.empty
+        and "USUARIO" in df_foro.columns
+    ):
+        foro_counts = (
+            df_foro["USUARIO"]
+            .astype(str)
+            .value_counts()
+            .to_dict()
+        )
+
+        usuarios_foro_stats = []
+
+        for _, row in df_rank.iterrows():
+            usuario = str(row.get("USUARIO", ""))
+            comentarios = int(foro_counts.get(usuario, 0))
+
+            usuarios_foro_stats.append({
+                "usuario": usuario,
+                "comentarios": comentarios
+            })
+
+        if usuarios_foro_stats:
+            macaya = max(
+                usuarios_foro_stats,
+                key=lambda x: x["comentarios"]
+            )
+
+            if macaya["comentarios"] > 0:
+                add_badge(
+                    macaya["usuario"],
+                    "El Macaya"
+                )
+
+            # ------------------------------------------------------------
+            # 9. EL MISTERIOSO — menos comentarios en el foro
+            # ------------------------------------------------------------
+
+            misterioso = min(
+                usuarios_foro_stats,
+                key=lambda x: x["comentarios"]
+            )
+
+            add_badge(
+                misterioso["usuario"],
+                "El Misterioso"
+            )
     return badge_por_usuario
 
 
@@ -242,7 +293,7 @@ def procesar_badges_ranking(row, badge_por_usuario):
 
 # 3. FUNCIÓN PRINCIPAL DE RANKING
 @st.cache_data(ttl=60)
-def obtener_ranking_global(df_users, df_pro, df_res):
+def obtener_ranking_global(df_users, df_pro, df_res, df_foro=None):
     ranking_data = []
 
     if df_users is None or df_users.empty:
@@ -343,7 +394,8 @@ def obtener_ranking_global(df_users, df_pro, df_res):
 
     badge_por_usuario = calcular_badges_globales_ranking(
         df_rank,
-        df_pro
+        df_pro,
+        df_foro
     )
 
     df_rank["BADGES"] = df_rank.apply(
@@ -362,11 +414,4 @@ def obtener_ranking_global(df_users, df_pro, df_res):
         df_rank.index.map(lambda x: str(x))
     )
 
-    return df_rank
-    
-    # Si querés quitar también la corona vieja del Nº:
-    df_rank.insert(0, "Nº", df_rank.index.map(lambda x: str(x)))
-    
-    # Si querés conservar la corona solo en el número 1, dejá esta línea en vez de la anterior:
-    # df_rank.insert(0, "Nº", df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
     return df_rank
