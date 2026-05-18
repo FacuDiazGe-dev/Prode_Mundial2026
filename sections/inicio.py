@@ -510,327 +510,327 @@ def render_inicio(
 
 # ------------------ COLUMNA IZQUIERDA: LÍDERES Y TENDENCIAS ------------------
     with c_izq:
-st.markdown("""
-<style>
-.ranking-panel {
-    background: rgba(255, 255, 255, 0.94);
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    border-radius: 18px;
-    padding: 14px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-
-    width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
-}
-
-.ranking-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 4px 14px 4px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.75);
-}
-
-.ranking-panel-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 10px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: rgba(244, 197, 66, 0.16);
-    color: #0f172a;
-    font-size: 16px;
-
-    flex-shrink: 0;
-}
-
-.ranking-panel-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 17px;
-    font-weight: 900;
-    color: #0f172a;
-    text-transform: uppercase;
-    letter-spacing: 0.01em;
-}
-
-/* ============================================================
-   SCROLL VERTICAL REAL
-   ============================================================ */
-
-.ranking-scroll {
-    display: block !important;
-
-    width: 100% !important;
-    height: 315px;
-
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-
-    padding-right: 6px;
-    box-sizing: border-box;
-
-    white-space: normal !important;
-}
-
-.ranking-scroll::-webkit-scrollbar {
-    width: 6px;
-}
-
-.ranking-scroll::-webkit-scrollbar-track {
-    background: rgba(226, 232, 240, 0.55);
-    border-radius: 999px;
-}
-
-.ranking-scroll::-webkit-scrollbar-thumb {
-    background: rgba(15, 23, 42, 0.22);
-    border-radius: 999px;
-}
-
-/* ============================================================
-   FILAS DEL RANKING
-   ============================================================ */
-
-.ranking-row {
-    width: 100% !important;
-    box-sizing: border-box !important;
-
-    display: grid !important;
-    grid-template-columns: 42px minmax(0, 1fr) 72px !important;
-    align-items: center !important;
-    gap: 12px !important;
-
-    padding: 11px 12px;
-    margin-bottom: 8px;
-
-    border-radius: 14px;
-    background: rgba(248, 250, 252, 0.92);
-    border: 1px solid rgba(226, 232, 240, 0.85);
-
-    transition: all 0.18s ease;
-}
-
-.ranking-row:last-child {
-    margin-bottom: 0;
-}
-
-.ranking-row:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-}
-
-.ranking-row.me {
-    background:
-        linear-gradient(
-            90deg,
-            rgba(244, 197, 66, 0.20),
-            rgba(255,255,255,0.96)
-        );
-
-    border: 1px solid rgba(244, 197, 66, 0.68);
-    box-shadow: 0 10px 25px rgba(244, 197, 66, 0.13);
-}
-
-/* ============================================================
-   POSICIÓN
-   ============================================================ */
-
-.rank-pos {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-family: 'Montserrat', sans-serif;
-    font-size: 13px;
-    font-weight: 900;
-
-    color: #0f172a;
-    background: #e5e7eb;
-
-    flex-shrink: 0;
-}
-
-.rank-pos.gold {
-    background: linear-gradient(135deg, #FFD700, #F4A900);
-    color: #111827;
-}
-
-.rank-pos.silver {
-    background: linear-gradient(135deg, #d1d5db, #9ca3af);
-    color: #111827;
-}
-
-.rank-pos.bronze {
-    background: linear-gradient(135deg, #CD7F32, #9A5A22);
-    color: white;
-}
-
-/* ============================================================
-   INFO DEL JUGADOR
-   ============================================================ */
-
-.player-info {
-    min-width: 0 !important;
-    width: 100% !important;
-    box-sizing: border-box;
-}
-
-.player-name {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 900;
-    color: #0f172a;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.player-sub {
-    margin-top: 3px;
-
-    font-size: 10px;
-    font-weight: 700;
-    color: #64748b;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.player-sub strong {
-    color: #0f172a;
-    font-weight: 900;
-}
-
-/* ============================================================
-   INSIGNIAS MINI
-   ============================================================ */
-
-.ranking-badges-mini {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-
-    gap: 4px !important;
-    margin-top: 5px !important;
-    min-height: 20px;
-
-    width: 100%;
-    overflow: hidden;
-}
-
-.ranking-badge-mini {
-    width: 19px !important;
-    height: 19px !important;
-
-    object-fit: contain !important;
-    display: block !important;
-    flex: 0 0 auto !important;
-
-    filter: drop-shadow(0 2px 4px rgba(15,23,42,0.16));
-}
-
-.ranking-row.me .ranking-badge-mini {
-    width: 21px !important;
-    height: 21px !important;
-}
-
-/* ============================================================
-   PUNTOS
-   ============================================================ */
-
-.rank-points {
-    text-align: right;
-    min-width: 0;
-}
-
-.points-main {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 19px;
-    font-weight: 900;
-    color: #0f172a;
-    line-height: 1;
-}
-
-.points-label {
-    font-size: 9px;
-    font-weight: 800;
-    color: #94a3b8;
-    text-transform: uppercase;
-    margin-top: 2px;
-}
-
-.ranking-row.me .points-main {
-    color: #0f172a;
-}
-
-/* ============================================================
-   MOBILE
-   ============================================================ */
-
-@media (max-width: 768px) {
-    .ranking-panel {
-        padding: 12px;
-        border-radius: 16px;
-    }
-
-    .ranking-panel-title {
-        font-size: 15px;
-    }
-
-    .ranking-scroll {
-        height: 315px;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-    }
-
-    .ranking-row {
-        grid-template-columns: 38px minmax(0, 1fr) 56px !important;
-        gap: 8px !important;
-        padding: 10px;
-        border-radius: 13px;
-    }
-
-    .rank-pos {
-        width: 30px;
-        height: 30px;
-        font-size: 12px;
-    }
-
-    .player-name {
-        font-size: 12px;
-    }
-
-    .player-sub {
-        font-size: 9px;
-    }
-
-    .ranking-badge-mini {
-        width: 17px !important;
-        height: 17px !important;
-    }
-
-    .ranking-row.me .ranking-badge-mini {
-        width: 18px !important;
-        height: 18px !important;
-    }
-
-    .points-main {
-        font-size: 16px;
-    }
-}
-</style>
-""", unsafe_allow_html=True)
+        st.markdown("""
+        <style>
+        .ranking-panel {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        
+        .ranking-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 4px 14px 4px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+        }
+        
+        .ranking-panel-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+        
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        
+            background: rgba(244, 197, 66, 0.16);
+            color: #0f172a;
+            font-size: 16px;
+        
+            flex-shrink: 0;
+        }
+        
+        .ranking-panel-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 17px;
+            font-weight: 900;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+        }
+        
+        /* ============================================================
+           SCROLL VERTICAL REAL
+           ============================================================ */
+        
+        .ranking-scroll {
+            display: block !important;
+        
+            width: 100% !important;
+            height: 315px;
+        
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        
+            padding-right: 6px;
+            box-sizing: border-box;
+        
+            white-space: normal !important;
+        }
+        
+        .ranking-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .ranking-scroll::-webkit-scrollbar-track {
+            background: rgba(226, 232, 240, 0.55);
+            border-radius: 999px;
+        }
+        
+        .ranking-scroll::-webkit-scrollbar-thumb {
+            background: rgba(15, 23, 42, 0.22);
+            border-radius: 999px;
+        }
+        
+        /* ============================================================
+           FILAS DEL RANKING
+           ============================================================ */
+        
+        .ranking-row {
+            width: 100% !important;
+            box-sizing: border-box !important;
+        
+            display: grid !important;
+            grid-template-columns: 42px minmax(0, 1fr) 72px !important;
+            align-items: center !important;
+            gap: 12px !important;
+        
+            padding: 11px 12px;
+            margin-bottom: 8px;
+        
+            border-radius: 14px;
+            background: rgba(248, 250, 252, 0.92);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+        
+            transition: all 0.18s ease;
+        }
+        
+        .ranking-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .ranking-row:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        }
+        
+        .ranking-row.me {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(244, 197, 66, 0.20),
+                    rgba(255,255,255,0.96)
+                );
+        
+            border: 1px solid rgba(244, 197, 66, 0.68);
+            box-shadow: 0 10px 25px rgba(244, 197, 66, 0.13);
+        }
+        
+        /* ============================================================
+           POSICIÓN
+           ============================================================ */
+        
+        .rank-pos {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+        
+            color: #0f172a;
+            background: #e5e7eb;
+        
+            flex-shrink: 0;
+        }
+        
+        .rank-pos.gold {
+            background: linear-gradient(135deg, #FFD700, #F4A900);
+            color: #111827;
+        }
+        
+        .rank-pos.silver {
+            background: linear-gradient(135deg, #d1d5db, #9ca3af);
+            color: #111827;
+        }
+        
+        .rank-pos.bronze {
+            background: linear-gradient(135deg, #CD7F32, #9A5A22);
+            color: white;
+        }
+        
+        /* ============================================================
+           INFO DEL JUGADOR
+           ============================================================ */
+        
+        .player-info {
+            min-width: 0 !important;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+        
+        .player-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+            color: #0f172a;
+        
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .player-sub {
+            margin-top: 3px;
+        
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+        
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .player-sub strong {
+            color: #0f172a;
+            font-weight: 900;
+        }
+        
+        /* ============================================================
+           INSIGNIAS MINI
+           ============================================================ */
+        
+        .ranking-badges-mini {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+        
+            gap: 4px !important;
+            margin-top: 5px !important;
+            min-height: 20px;
+        
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .ranking-badge-mini {
+            width: 19px !important;
+            height: 19px !important;
+        
+            object-fit: contain !important;
+            display: block !important;
+            flex: 0 0 auto !important;
+        
+            filter: drop-shadow(0 2px 4px rgba(15,23,42,0.16));
+        }
+        
+        .ranking-row.me .ranking-badge-mini {
+            width: 21px !important;
+            height: 21px !important;
+        }
+        
+        /* ============================================================
+           PUNTOS
+           ============================================================ */
+        
+        .rank-points {
+            text-align: right;
+            min-width: 0;
+        }
+        
+        .points-main {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 19px;
+            font-weight: 900;
+            color: #0f172a;
+            line-height: 1;
+        }
+        
+        .points-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        
+        .ranking-row.me .points-main {
+            color: #0f172a;
+        }
+        
+        /* ============================================================
+           MOBILE
+           ============================================================ */
+        
+        @media (max-width: 768px) {
+            .ranking-panel {
+                padding: 12px;
+                border-radius: 16px;
+            }
+        
+            .ranking-panel-title {
+                font-size: 15px;
+            }
+        
+            .ranking-scroll {
+                height: 315px;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+            }
+        
+            .ranking-row {
+                grid-template-columns: 38px minmax(0, 1fr) 56px !important;
+                gap: 8px !important;
+                padding: 10px;
+                border-radius: 13px;
+            }
+        
+            .rank-pos {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+        
+            .player-name {
+                font-size: 12px;
+            }
+        
+            .player-sub {
+                font-size: 9px;
+            }
+        
+            .ranking-badge-mini {
+                width: 17px !important;
+                height: 17px !important;
+            }
+        
+            .ranking-row.me .ranking-badge-mini {
+                width: 18px !important;
+                height: 18px !important;
+            }
+        
+            .points-main {
+                font-size: 16px;
+            }
+        }
+        </style>
+        """, unsafe_allow_html=True)
         
         from html import escape
         
