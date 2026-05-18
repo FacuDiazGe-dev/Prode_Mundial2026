@@ -213,8 +213,17 @@ aplicar_estilos_globales()
 # 3. EJECUCIÓN
 # =============================================================================
 # Asegúrate de que df_usuarios, df_pro y df_res estén cargados antes
-df_ranking = obtener_ranking_global(df_usuarios, df_pro, df_res)
+df_foro = conn.read(
+    worksheet="FORO",
+    ttl=60
+)
 
+df_ranking = obtener_ranking_global(
+    df_users=df_usuarios,
+    df_pro=df_pro,
+    df_res=df_res,
+    df_foro=df_foro
+)
 # ============================================================
 # SIDEBAR PREMIUM
 # ============================================================
