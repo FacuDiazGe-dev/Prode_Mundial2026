@@ -118,3 +118,4 @@ def obtener_ranking_global(df_users, df_pro, df_res):
     
     # Si querés conservar la corona solo en el número 1, dejá esta línea en vez de la anterior:
     # df_rank.insert(0, "Nº", df_rank.index.map(lambda x: "👑" if x == 1 else str(x)))
+    return df_rank
