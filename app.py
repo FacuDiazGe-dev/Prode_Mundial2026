@@ -341,6 +341,13 @@ elif menu == "💬 Foro":
 elif menu == "⚙️ Panel Control":
     # --- VALIDACIÓN DE SEGURIDAD ---
     if st.session_state['user_data']['ROL'] == 'admin':
+
+        st.markdown("## ⚙️ Panel de Control")
+
+        col_principal, col_derecha = st.columns(
+            [1.45, 1],
+            gap="large"
+        )
         
         # 1. COLUMNA PRINCIPAL (Gestión Profesional - 72 Partidos)
         with col_principal:
