@@ -328,6 +328,13 @@ elif menu == "👥 Jugadores":
     )
        
 # ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
+elif menu == "💬 Foro":
+    render_foro(
+        conn=conn,
+        df_usuarios=df_usuarios
+    )
+
+
 
 # ---------- PANEL DE CONTROL ------------------------
 
