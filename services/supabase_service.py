@@ -258,3 +258,298 @@ def get_pronosticos_app():
             df[col] = ""
 
     return df[columnas_necesarias]
+@st.cache_data(ttl=300)
+def get_foro_supabase():
+    supabase = get_supabase_client()
+
+    response = (
+        supabase
+        .table("foro")
+        .select("*")
+        .order("id", desc=True)
+        .execute()
+    )
+
+    data = response.data or []
+
+    return pd.DataFrame(data)
+
+
+@st.cache_data(ttl=300)
+def get_noticias_supabase():
+    supabase = get_supabase_client()
+
+    response = (
+        supabase
+        .table("noticias")
+        .select("*")
+        .order("prioridad")
+        .order("id", desc=True)
+        .execute()
+    )
+
+    data = response.data or []
+
+    return pd.DataFrame(data)
+
+
+def get_foro_app():
+    df = get_foro_supabase()
+
+    columnas_app = [
+        "FECHA",
+        "USUARIO",
+        "NOMBRE",
+        "MENSAJE",
+        "PARTIDO_ID",
+        "LIKES",
+        "DISLIKES",
+        "FORO_IMG_URL"
+    ]
+
+    if df.empty:
+        return pd.DataFrame(columns=columnas_app)
+
+    df = df.rename(
+        columns={
+            "fecha": "FECHA",
+            "usuario": "USUARIO",
+            "nombre": "NOMBRE",
+            "mensaje": "MENSAJE",
+            "partido_id": "PARTIDO_ID",
+            "likes": "LIKES",
+            "dislikes": "DISLIKES",
+            "foro_img_url": "FORO_IMG_URL"
+        }
+    )
+
+    for col in columnas_app:
+        if col not in df.columns:
+            if col in ["PARTIDO_ID", "LIKES", "DISLIKES"]:
+                df[col] = 0
+            else:
+                df[col] = ""
+
+    return df[columnas_app]
+
+
+def get_noticias_app():
+    df = get_noticias_supabase()
+
+    columnas_app = [
+        "FECHA",
+        "TIPO",
+        "TITULO",
+        "TEXTO",
+        "AUTOR",
+        "VISIBLE",
+        "PRIORIDAD",
+        "LINK",
+        "IMAGEN_URL",
+        "FUENTE"
+    ]
+
+    if df.empty:
+        return pd.DataFrame(columns=columnas_app)
+
+    df = df.rename(
+        columns={
+            "fecha": "FECHA",
+            "tipo": "TIPO",
+            "titulo": "TITULO",
+            "texto": "TEXTO",
+            "autor": "AUTOR",
+            "visible": "VISIBLE",
+            "prioridad": "PRIORIDAD",
+            "link": "LINK",
+            "imagen_url": "IMAGEN_URL",
+            "fuente": "FUENTE"
+        }
+    )
+
+    for col in columnas_app:
+        if col not in df.columns:
+            if col == "PRIORIDAD":
+                df[col] = 99
+            elif col == "VISIBLE":
+                df[col] = True
+            else:
+                df[col] = ""
+
+    # Para compatibilidad con tu código actual, dejamos visible como TRUE/FALSE.
+    df["VISIBLE"] = (
+        df["VISIBLE"]
+        .astype(str)
+        .str.upper()
+        .replace(
+            {
+                "TRUE": "TRUE",
+                "FALSE": "FALSE",
+                "1": "TRUE",
+                "0": "FALSE",
+                "NAN": "TRUE",
+                "NONE": "TRUE"
+            }
+        )
+    )
+
+    return df[columnas_app]
+
+
+def guardar_foro_supabase(df_foro):
+    """
+    Guarda la tabla completa del foro en Supabase.
+    Versión compatible con la lógica actual de foro.py.
+    """
+
+    supabase = get_supabase_client()
+
+    if df_foro is None:
+        return False, "No hay datos de foro para guardar."
+
+    df_save = df_foro.copy()
+
+    rename_map = {
+        "FECHA": "fecha",
+        "USUARIO": "usuario",
+        "NOMBRE": "nombre",
+        "MENSAJE": "mensaje",
+        "PARTIDO_ID": "partido_id",
+        "LIKES": "likes",
+        "DISLIKES": "dislikes",
+        "FORO_IMG_URL": "foro_img_url"
+    }
+
+    df_save = df_save.rename(columns=rename_map)
+
+    columnas = [
+        "fecha",
+        "usuario",
+        "nombre",
+        "mensaje",
+        "partido_id",
+        "likes",
+        "dislikes",
+        "foro_img_url"
+    ]
+
+    for col in columnas:
+        if col not in df_save.columns:
+            if col in ["partido_id", "likes", "dislikes"]:
+                df_save[col] = 0
+            else:
+                df_save[col] = ""
+
+    df_save = df_save[columnas].copy()
+
+    df_save["partido_id"] = pd.to_numeric(
+        df_save["partido_id"],
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    df_save["likes"] = pd.to_numeric(
+        df_save["likes"],
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    df_save["dislikes"] = pd.to_numeric(
+        df_save["dislikes"],
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    records = df_save.to_dict(orient="records")
+
+    try:
+        # Reemplazo completo de tabla, compatible con tu lógica actual.
+        supabase.table("foro").delete().neq("id", 0).execute()
+
+        if records:
+            supabase.table("foro").insert(records).execute()
+
+        get_foro_supabase.clear()
+
+        return True, "Foro guardado correctamente en Supabase."
+
+    except Exception as e:
+        return False, f"Error al guardar foro en Supabase: {e}"
+
+
+def guardar_noticias_supabase(df_noticias):
+    """
+    Guarda la tabla completa de noticias en Supabase.
+    Versión compatible con el data_editor actual.
+    """
+
+    supabase = get_supabase_client()
+
+    if df_noticias is None:
+        return False, "No hay datos de noticias para guardar."
+
+    df_save = df_noticias.copy()
+
+    rename_map = {
+        "FECHA": "fecha",
+        "TIPO": "tipo",
+        "TITULO": "titulo",
+        "TEXTO": "texto",
+        "AUTOR": "autor",
+        "VISIBLE": "visible",
+        "PRIORIDAD": "prioridad",
+        "LINK": "link",
+        "IMAGEN_URL": "imagen_url",
+        "FUENTE": "fuente"
+    }
+
+    df_save = df_save.rename(columns=rename_map)
+
+    columnas = [
+        "fecha",
+        "tipo",
+        "titulo",
+        "texto",
+        "autor",
+        "visible",
+        "prioridad",
+        "link",
+        "imagen_url",
+        "fuente"
+    ]
+
+    for col in columnas:
+        if col not in df_save.columns:
+            if col == "prioridad":
+                df_save[col] = 99
+            elif col == "visible":
+                df_save[col] = True
+            else:
+                df_save[col] = ""
+
+    df_save = df_save[columnas].copy()
+
+    df_save["prioridad"] = pd.to_numeric(
+        df_save["prioridad"],
+        errors="coerce"
+    ).fillna(99).astype(int)
+
+    df_save["visible"] = (
+        df_save["visible"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+    )
+
+    records = df_save.to_dict(orient="records")
+
+    try:
+        supabase.table("noticias").delete().neq("id", 0).execute()
+
+        if records:
+            supabase.table("noticias").insert(records).execute()
+
+        get_noticias_supabase.clear()
+
+        return True, "Noticias guardadas correctamente en Supabase."
+
+    except Exception as e:
+        return False, f"Error al guardar noticias en Supabase: {e}"
