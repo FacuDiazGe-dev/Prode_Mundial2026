@@ -297,6 +297,7 @@ def get_foro_app():
     df = get_foro_supabase()
 
     columnas_app = [
+        "ID",
         "FECHA",
         "USUARIO",
         "NOMBRE",
@@ -312,6 +313,7 @@ def get_foro_app():
 
     df = df.rename(
         columns={
+            "id": "ID",
             "fecha": "FECHA",
             "usuario": "USUARIO",
             "nombre": "NOMBRE",
@@ -325,10 +327,30 @@ def get_foro_app():
 
     for col in columnas_app:
         if col not in df.columns:
-            if col in ["PARTIDO_ID", "LIKES", "DISLIKES"]:
+            if col in ["ID", "PARTIDO_ID", "LIKES", "DISLIKES"]:
                 df[col] = 0
             else:
                 df[col] = ""
+
+    df["ID"] = pd.to_numeric(
+        df["ID"],
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    df["PARTIDO_ID"] = pd.to_numeric(
+        df["PARTIDO_ID"],
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    df["LIKES"] = pd.to_numeric(
+        df["LIKES"],
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    df["DISLIKES"] = pd.to_numeric(
+        df["DISLIKES"],
+        errors="coerce"
+    ).fillna(0).astype(int)
 
     return df[columnas_app]
 
@@ -727,3 +749,67 @@ def guardar_noticias_supabase(df_noticias):
 
     except Exception as e:
         return False, f"Error al guardar noticias en Supabase: {e}"
+
+def actualizar_reaccion_foro_supabase(post_id, likes=None, dislikes=None):
+    """
+    Actualiza likes/dislikes de un mensaje puntual del foro.
+    No reemplaza toda la tabla.
+    """
+
+    supabase = get_supabase_client()
+
+    try:
+        post_id = int(post_id)
+
+        if post_id <= 0:
+            return False, "ID de mensaje inválido."
+
+        data_update = {}
+
+        if likes is not None:
+            data_update["likes"] = int(likes)
+
+        if dislikes is not None:
+            data_update["dislikes"] = int(dislikes)
+
+        if not data_update:
+            return False, "No hay datos para actualizar."
+
+        supabase.table("foro").update(data_update).eq(
+            "id",
+            post_id
+        ).execute()
+
+        get_foro_supabase.clear()
+
+        return True, "Reacción actualizada correctamente."
+
+    except Exception as e:
+        return False, f"Error al actualizar reacción: {e}"
+
+
+def borrar_mensaje_foro_supabase(post_id):
+    """
+    Borra un mensaje puntual del foro por ID.
+    No reemplaza toda la tabla.
+    """
+
+    supabase = get_supabase_client()
+
+    try:
+        post_id = int(post_id)
+
+        if post_id <= 0:
+            return False, "ID de mensaje inválido."
+
+        supabase.table("foro").delete().eq(
+            "id",
+            post_id
+        ).execute()
+
+        get_foro_supabase.clear()
+
+        return True, "Mensaje eliminado correctamente."
+
+    except Exception as e:
+        return False, f"Error al borrar mensaje: {e}"
