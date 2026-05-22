@@ -10,12 +10,10 @@ from services.supabase_service import (
     actualizar_rol_usuario_supabase,
     get_config_app,
     actualizar_config_supabase,
-    get_resultados_app,
     guardar_resultados_supabase
 )
 
 def render_panel_control(
-    conn,
     df_res,
     df_usuarios,
     df_pro,
@@ -25,6 +23,7 @@ def render_panel_control(
     registro_permitido_fecha,
     estado_mantenimiento
 ):
+    
     # ============================================================
     # VALIDACIÓN DE SEGURIDAD
     # ============================================================
@@ -323,15 +322,6 @@ def render_panel_control(
                         df_editado_total,
                         ignore_index=True
                     )
-
-                    # Recuperamos columnas fijas que no estaban en el editor si hiciera falta
-                    df_base_extra = df_res_admin[
-                        [
-                            col for col in df_res_admin.columns
-                            if col not in df_final_resultados.columns
-                            and col != "FECHA_NUM"
-                        ]
-                    ].copy()
 
                     ok, msg = guardar_resultados_supabase(df_final_resultados)
 
