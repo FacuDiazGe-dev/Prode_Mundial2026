@@ -1246,4 +1246,160 @@ def actualizar_config_supabase(campo, valor):
     except Exception as e:
         return False, f"Error al actualizar configuración: {e}"
 
+
 def guardar_resultados_supabase(df_resultados):
+    """
+    Actualiza resultados oficiales en Supabase.
+    No inserta partidos nuevos.
+    Actualiza cada partido existente por n_partido.
+    """
+
+    supabase = get_supabase_client()
+
+    if df_resultados is None or df_resultados.empty:
+        return False, "No hay resultados para guardar."
+
+    df_save = df_resultados.copy()
+
+    rename_map = {
+        "N_PARTIDO": "n_partido",
+        "Equipo_1": "equipo_1",
+        "R1": "r1",
+        "Equipo_2": "equipo_2",
+        "R2": "r2",
+        "DIA": "dia",
+        "HORA": "hora",
+        "VIZ": "viz",
+        "FECHA": "fecha"
+    }
+
+    df_save = df_save.rename(columns=rename_map)
+
+    columnas = [
+        "n_partido",
+        "equipo_1",
+        "r1",
+        "equipo_2",
+        "r2",
+        "dia",
+        "hora",
+        "viz",
+        "fecha"
+    ]
+
+    for col in columnas:
+        if col not in df_save.columns:
+            if col in ["r1", "r2", "fecha"]:
+                df_save[col] = None
+            elif col == "viz":
+                df_save[col] = False
+            else:
+                df_save[col] = ""
+
+    df_save = df_save[columnas].copy()
+
+    # ------------------------------------------------------------
+    # N_PARTIDO — entero obligatorio
+    # ------------------------------------------------------------
+
+    df_save["n_partido"] = pd.to_numeric(
+        df_save["n_partido"],
+        errors="coerce"
+    )
+
+    df_save = df_save.dropna(
+        subset=["n_partido"]
+    ).copy()
+
+    df_save["n_partido"] = df_save["n_partido"].apply(
+        lambda x: int(float(x))
+    )
+
+    # ------------------------------------------------------------
+    # R1 / R2 — enteros o NULL
+    # ------------------------------------------------------------
+
+    for col in ["r1", "r2"]:
+        df_save[col] = pd.to_numeric(
+            df_save[col],
+            errors="coerce"
+        )
+
+        df_save[col] = df_save[col].apply(
+            lambda x: int(float(x)) if pd.notna(x) else None
+        )
+
+    # ------------------------------------------------------------
+    # FECHA — tanda 1 / 2 / 3 o NULL
+    # ------------------------------------------------------------
+
+    df_save["fecha"] = pd.to_numeric(
+        df_save["fecha"],
+        errors="coerce"
+    )
+
+    df_save["fecha"] = df_save["fecha"].apply(
+        lambda x: int(float(x)) if pd.notna(x) else None
+    )
+
+    # ------------------------------------------------------------
+    # VIZ — booleano
+    # ------------------------------------------------------------
+
+    df_save["viz"] = (
+        df_save["viz"]
+        .fillna(False)
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+    )
+
+    # ------------------------------------------------------------
+    # Textos visuales
+    # ------------------------------------------------------------
+
+    for col in ["equipo_1", "equipo_2", "dia", "hora"]:
+        df_save[col] = (
+            df_save[col]
+            .fillna("")
+            .astype(str)
+            .replace("nan", "")
+            .replace("None", "")
+        )
+
+    try:
+        actualizados = 0
+
+        for _, row in df_save.iterrows():
+            n_partido = int(row["n_partido"])
+
+            data_update = {
+                "equipo_1": str(row["equipo_1"]).strip(),
+                "r1": None if pd.isna(row["r1"]) else int(row["r1"]),
+                "equipo_2": str(row["equipo_2"]).strip(),
+                "r2": None if pd.isna(row["r2"]) else int(row["r2"]),
+                "dia": str(row["dia"]).strip(),
+                "hora": str(row["hora"]).strip(),
+                "viz": bool(row["viz"]),
+                "fecha": None if pd.isna(row["fecha"]) else int(row["fecha"]),
+            }
+
+            response = (
+                supabase
+                .table("resultados")
+                .update(data_update)
+                .eq("n_partido", n_partido)
+                .select("n_partido")
+                .execute()
+            )
+
+            if response.data:
+                actualizados += 1
+
+        get_resultados_supabase.clear()
+
+        return True, f"Resultados actualizados correctamente. Partidos actualizados: {actualizados}."
+
+    except Exception as e:
+        return False, f"Error al guardar resultados en Supabase: {e}"
