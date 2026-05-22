@@ -21,6 +21,7 @@ def render_inicio(
     df_res,
     mapa_banderas,
     conn,
+    df_foro=None,
     df_noticias=None
 ):
     """
