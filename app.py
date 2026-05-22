@@ -451,7 +451,8 @@ elif menu == "💬 Comunidad":
     render_foro(
         conn=conn,
         df_usuarios=df_usuarios,
-        df_ranking=df_ranking
+        df_ranking=df_ranking,
+        df_foro=df_foro
     )
 # ---------- MENU REGLAS DEL JUEGO ----------------------------------------------------
 
