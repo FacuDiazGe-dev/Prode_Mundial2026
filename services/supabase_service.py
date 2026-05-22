@@ -1245,3 +1245,122 @@ def actualizar_config_supabase(campo, valor):
 
     except Exception as e:
         return False, f"Error al actualizar configuración: {e}"
+
+def guardar_resultados_supabase(df_resultados):
+    """
+    Actualiza resultados oficiales en Supabase.
+    Usa upsert por n_partido.
+    """
+
+    supabase = get_supabase_client()
+
+    if df_resultados is None or df_resultados.empty:
+        return False, "No hay resultados para guardar."
+
+    df_save = df_resultados.copy()
+
+    rename_map = {
+        "N_PARTIDO": "n_partido",
+        "Equipo_1": "equipo_1",
+        "R1": "r1",
+        "Equipo_2": "equipo_2",
+        "R2": "r2",
+        "DIA": "dia",
+        "HORA": "hora",
+        "VIZ": "viz",
+        "FECHA": "fecha"
+    }
+
+    df_save = df_save.rename(columns=rename_map)
+
+    columnas = [
+        "n_partido",
+        "equipo_1",
+        "r1",
+        "equipo_2",
+        "r2",
+        "dia",
+        "hora",
+        "viz",
+        "fecha"
+    ]
+
+    for col in columnas:
+        if col not in df_save.columns:
+            if col in ["r1", "r2"]:
+                df_save[col] = None
+            elif col == "viz":
+                df_save[col] = False
+            else:
+                df_save[col] = ""
+
+    df_save = df_save[columnas].copy()
+
+    df_save["n_partido"] = pd.to_numeric(
+        df_save["n_partido"],
+        errors="coerce"
+    )
+
+    df_save = df_save.dropna(
+        subset=["n_partido"]
+    ).copy()
+
+    df_save["n_partido"] = df_save["n_partido"].astype(int)
+
+    for col in ["r1", "r2"]:
+        df_save[col] = pd.to_numeric(
+            df_save[col],
+            errors="coerce"
+        )
+
+        df_save[col] = df_save[col].where(
+            pd.notnull(df_save[col]),
+            None
+        )
+
+    df_save["viz"] = (
+        df_save["viz"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+    )
+
+    columnas_texto = [
+        "equipo_1",
+        "equipo_2",
+        "dia",
+        "hora",
+        "fecha"
+    ]
+
+    for col in columnas_texto:
+        df_save[col] = (
+            df_save[col]
+            .fillna("")
+            .astype(str)
+            .replace("nan", "")
+            .replace("None", "")
+        )
+
+    df_save = df_save.where(pd.notnull(df_save), None)
+
+    records = df_save.to_dict(orient="records")
+
+    try:
+        response = (
+            supabase
+            .table("resultados")
+            .upsert(
+                records,
+                on_conflict="n_partido"
+            )
+            .execute()
+        )
+
+        get_resultados_supabase.clear()
+
+        return True, "Resultados actualizados correctamente en Supabase."
+
+    except Exception as e:
+        return False, f"Error al guardar resultados en Supabase: {e}"
