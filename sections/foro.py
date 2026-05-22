@@ -6,9 +6,8 @@ from html import escape
 from styles_config import (
     AVATAR_GENERICO,
 )
-from tools import upload_foro_image
 from services.supabase_service import (
-    guardar_foro_supabase,
+    insertar_foro_supabase,
     guardar_noticias_supabase
 )
 
@@ -978,16 +977,42 @@ div[data-testid="stSegmentedControl"] button:hover {
 
         return AVATAR_GENERICO
 
-    def save_foro(df_new):
-        ok, msg = guardar_foro_supabase(df_new)
-    
+def save_foro(df_new):
+    """
+    Guarda solamente los mensajes nuevos del foro.
+    No reemplaza toda la tabla.
+    """
+
+    try:
+        df_base = (
+            df_foro.copy()
+            if df_foro is not None
+            else pd.DataFrame()
+        )
+
+        diferencia = len(df_new) - len(df_base)
+
+        if diferencia <= 0:
+            st.warning(
+                "No se detectaron mensajes nuevos para guardar. "
+                "Las ediciones de likes/dislikes se migrarán en un paso separado."
+            )
+            return
+
+        # Si tu código agrega el mensaje nuevo al final:
+        nuevas_filas = df_new.head(diferencia).copy()
+
+        ok, msg = insertar_foro_supabase(nuevas_filas)
+
         if ok:
             st.cache_data.clear()
-            st.success("✅ Foro actualizado correctamente.")
+            st.success("✅ Mensaje publicado correctamente.")
             st.rerun()
         else:
             st.error(msg)
 
+    except Exception as e:
+        st.error(f"Error al guardar el mensaje: {e}")
     def save_noticias(df_new):
         ok, msg = guardar_noticias_supabase(df_new)
     
@@ -1183,8 +1208,8 @@ div[data-testid="stSegmentedControl"] button:hover {
                         "FORO_IMG_URL": img_url
                     }
 
-                    df_update = pd.concat(
-                        [df_foro, pd.DataFrame([nuevo_msg])],
+                    df_foro_update = pd.concat(
+                        [pd.DataFrame([nuevo_mensaje]), df_foro],
                         ignore_index=True
                     )
 
