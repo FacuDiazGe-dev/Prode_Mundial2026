@@ -595,7 +595,12 @@ div[data-testid="stSegmentedControl"] button:hover {
     font-weight: 650;
     line-height: 1.35;
 }
-
+.news-date {
+    margin-top: 6px;
+    color: #94a3b8;
+    font-size: 9.5px;
+    font-weight: 800;
+}
 /* ============================================================
    5B. MEDALLERO COMPACTO
    ============================================================ */
@@ -873,10 +878,41 @@ div[data-testid="stSegmentedControl"] button:hover {
     user_data = st.session_state["user_data"]
     user_actual = user_data["USUARIO"]
     nombre_actual = user_data["NOMBRE"]
-    rol_actual = user_data.get("ROL", "")
-
+    rol_actual = str(user_data.get("ROL", "")).strip().lower()
+    puede_cargar_noticias = rol_actual in ["admin", "colaborador"]
+    
     if "foro_uploader_key" not in st.session_state:
         st.session_state.foro_uploader_key = 0
+        
+    try:
+        df_noticias = conn.read(
+            worksheet="NOTICIAS",
+            ttl=60
+        )
+    except Exception:
+        df_noticias = pd.DataFrame()
+
+    if df_noticias is None or df_noticias.empty:
+        df_noticias = pd.DataFrame(
+            columns=[
+                "FECHA",
+                "TIPO",
+                "TITULO",
+                "TEXTO",
+                "AUTOR",
+                "VISIBLE",
+                "PRIORIDAD"
+            ]
+        )
+
+    for col in ["FECHA", "TIPO", "TITULO", "TEXTO", "AUTOR", "VISIBLE", "PRIORIDAD"]:
+        if col not in df_noticias.columns:
+            if col == "PRIORIDAD":
+                df_noticias[col] = 99
+            elif col == "VISIBLE":
+                df_noticias[col] = "TRUE"
+            else:
+                df_noticias[col] = ""        
 
     # ============================================================
     # HELPERS
@@ -907,6 +943,14 @@ div[data-testid="stSegmentedControl"] button:hover {
         )
         st.cache_data.clear()
         st.rerun()
+
+    def save_noticias(df_new):
+    conn.update(
+        worksheet="NOTICIAS",
+        data=df_new
+    )
+    st.cache_data.clear()
+    st.rerun()
 
     # ============================================================
     # TÍTULO
@@ -1127,44 +1171,151 @@ div[data-testid="stSegmentedControl"] button:hover {
     # ============================================================
 
     with col_side:
+    
         # ------------------------------------------------------------
-        # CENTRAL DEL PRODE / NOTICIAS — PROVISORIO
+        # NOTICIAS
         # ------------------------------------------------------------
 
-        st.markdown("""
+        noticias_visibles = df_noticias.copy()
+
+        if "VISIBLE" in noticias_visibles.columns:
+            noticias_visibles["VISIBLE_CHECK"] = (
+                noticias_visibles["VISIBLE"]
+                .astype(str)
+                .str.strip()
+                .str.upper()
+            )
+
+            noticias_visibles = noticias_visibles[
+                noticias_visibles["VISIBLE_CHECK"].isin(
+                    ["TRUE", "1", "1.0", "VERDADERO", "T"]
+                )
+            ]
+
+        noticias_visibles["PRIORIDAD_NUM"] = pd.to_numeric(
+            noticias_visibles["PRIORIDAD"],
+            errors="coerce"
+        ).fillna(99)
+
+        noticias_visibles = noticias_visibles.sort_values(
+            by=["PRIORIDAD_NUM", "FECHA"],
+            ascending=[True, False]
+        )
+
+        noticias_html = ""
+
+        if noticias_visibles.empty:
+            noticias_html = """
+<div class="news-card">
+<div class="news-tag">Info</div>
+<div class="news-title">Sin noticias por ahora</div>
+<div class="news-text">Cuando haya novedades del Mundial o del Prode van a aparecer acá.</div>
+</div>
+"""
+        else:
+            for _, n in noticias_visibles.head(8).iterrows():
+                tipo = escape(str(n.get("TIPO", "Info")))
+                titulo = escape(str(n.get("TITULO", "")))
+                texto = escape(str(n.get("TEXTO", "")))
+                fecha = escape(str(n.get("FECHA", "")))
+
+                noticias_html += f"""
+<div class="news-card">
+<div class="news-tag">{tipo}</div>
+<div class="news-title">{titulo}</div>
+<div class="news-text">{texto}</div>
+<div class="news-date">{fecha}</div>
+</div>
+"""
+
+        st.markdown(
+            f"""
 <div class="community-side-panel">
 <div class="community-side-header">
 <div class="community-side-icon">📰</div>
 <div>
-<div class="community-side-title">Central del Prode</div>
-<div class="community-side-subtitle">Avisos, novedades y perlitas del grupo</div>
+<div class="community-side-title">Noticias</div>
+<div class="community-side-subtitle">Avisos, novedades y perlitas del Mundial</div>
 </div>
 </div>
 
 <div class="news-scroll">
-
-<div class="news-card">
-<div class="news-tag">Aviso</div>
-<div class="news-title">Insignias desde el partido 5</div>
-<div class="news-text">El medallero se activa cuando haya suficientes resultados visibles.</div>
-</div>
-
-<div class="news-card">
-<div class="news-tag">Prode</div>
-<div class="news-title">Cargá tus pronósticos a tiempo</div>
-<div class="news-text">La edición se bloquea automáticamente al llegar la fecha límite.</div>
-</div>
-
-<div class="news-card">
-<div class="news-tag">Comunidad</div>
-<div class="news-title">El muro ya está habilitado</div>
-<div class="news-text">Podés subir mensajes, fotos, chicanas y cábalas mundialistas.</div>
-</div>
-
+{noticias_html}
 </div>
 </div>
-""", unsafe_allow_html=True)
+""",
+            unsafe_allow_html=True
+        )
+        
+        #-----CARGA DE NOTICIAS (SOLO ADMIN Y COLAB) ----------------
+        if puede_cargar_noticias:
+            with st.expander("➕ Cargar noticia", expanded=False):
+                with st.form("form_nueva_noticia", clear_on_submit=True):
 
+                    tipo_noticia = st.selectbox(
+                        "Tipo",
+                        [
+                            "Noticia",
+                            "Aviso",
+                            "Prode",
+                            "Comunidad",
+                            "Partido"
+                        ]
+                    )
+
+                    titulo_noticia = st.text_input(
+                        "Título",
+                        max_chars=80
+                    )
+
+                    texto_noticia = st.text_area(
+                        "Texto",
+                        max_chars=240
+                    )
+
+                    visible_noticia = st.toggle(
+                        "Visible",
+                        value=True
+                    )
+
+                    prioridad_noticia = st.number_input(
+                        "Prioridad",
+                        min_value=1,
+                        max_value=99,
+                        value=5,
+                        step=1,
+                        help="1 aparece más arriba. 99 aparece más abajo."
+                    )
+
+                    submit_noticia = st.form_submit_button(
+                        "📰 Publicar noticia",
+                        use_container_width=True
+                    )
+
+                    if submit_noticia:
+                        if not titulo_noticia.strip() or not texto_noticia.strip():
+                            st.warning("Completá título y texto.")
+                            st.stop()
+
+                        nueva_noticia = {
+                            "FECHA": (datetime.now() - timedelta(hours=3)).strftime("%d/%m %H:%M"),
+                            "TIPO": tipo_noticia,
+                            "TITULO": titulo_noticia.strip(),
+                            "TEXTO": texto_noticia.strip(),
+                            "AUTOR": nombre_actual,
+                            "VISIBLE": "TRUE" if visible_noticia else "FALSE",
+                            "PRIORIDAD": prioridad_noticia
+                        }
+
+                        df_noticias_update = pd.concat(
+                            [
+                                df_noticias,
+                                pd.DataFrame([nueva_noticia])
+                            ],
+                            ignore_index=True
+                        )
+
+                        save_noticias(df_noticias_update)
         # ------------------------------------------------------------
         # MEDALLERO DEL PRODE — PROVISORIO
         # ------------------------------------------------------------
@@ -1283,45 +1434,60 @@ div[data-testid="stSegmentedControl"] button:hover {
                     popularidad_html += '<div class="foro-stat-line">🍋 Sin polémicas</div>'
 
         total_mensajes = len(df_foro)
+                if top_com.empty:
+            top_agitador_txt = "Sin mensajes"
+        else:
+            top_nombre = str(top_com.index[0])
+            top_cant = int(top_com.iloc[0])
+            top_agitador_txt = f"💬 {top_nombre} ({top_cant})"
+
+        if top_likes.empty or int(top_likes.iloc[0]) <= 0:
+            mas_bancado_txt = "🌟 Sin likes"
+        else:
+            mas_bancado_txt = f"🌟 {str(top_likes.index[0])}"
+
+        if top_dis.empty or int(top_dis.iloc[0]) <= 0:
+            mas_polemico_txt = "🍋 Sin polémicas"
+        else:
+            mas_polemico_txt = f"🍋 {str(top_dis.index[0])}"
 
         # ------------------------------------------------------------
         # COMUNIDAD — cerrado por defecto
         # ------------------------------------------------------------
+   
+        st.markdown(
+            f"""
+<div class="community-side-panel">
+<div class="community-side-header">
+<div class="community-side-icon">📊</div>
+<div>
+<div class="community-side-title">Pulso de Comunidad</div>
+<div class="community-side-subtitle">Actividad, banca y polémica del grupo</div>
+</div>
+</div>
 
-        with st.expander("📢 Comunidad", expanded=False):
-            st.markdown(
-                f"""
-    <div class="community-side-panel">
-    <div class="community-side-header">
-    <div class="community-side-icon">📊</div>
-    <div>
-    <div class="community-side-title">Pulso de Comunidad</div>
-    <div class="community-side-subtitle">Actividad, banca y polémica del grupo</div>
-    </div>
-    </div>
-    
-    <div class="community-stats-grid">
-    <div class="community-stat-mini">
-    <div class="community-stat-label">Mensajes</div>
-    <div class="community-stat-value">💬 {total_mensajes}</div>
-    </div>
-    
-    <div class="community-stat-mini">
-    <div class="community-stat-label">Top agitador</div>
-    <div class="community-stat-value">{agitadores_html.replace('<div class="foro-stat-line">', '').replace('</div>', '')}</div>
-    </div>
-    
-    <div class="community-stat-mini">
-    <div class="community-stat-label">Más bancado</div>
-    <div class="community-stat-value">{popularidad_html.split('</div>')[0].replace('<div class="foro-stat-line">', '')}</div>
-    </div>
-    
-    <div class="community-stat-mini">
-    <div class="community-stat-label">Polémica</div>
-    <div class="community-stat-value">{popularidad_html.split('</div>')[-2].replace('<div class="foro-stat-line">', '') if '</div>' in popularidad_html else '🍋 Sin polémicas'}</div>
-    </div>
-    </div>
-    </div>
-    """,
-                unsafe_allow_html=True
-            )
+<div class="community-stats-grid">
+<div class="community-stat-mini">
+<div class="community-stat-label">Mensajes</div>
+<div class="community-stat-value">💬 {total_mensajes}</div>
+</div>
+
+<div class="community-stat-mini">
+<div class="community-stat-label">Top agitador</div>
+<div class="community-stat-value">{escape(top_agitador_txt)}</div>
+</div>
+
+<div class="community-stat-mini">
+<div class="community-stat-label">Más bancado</div>
+<div class="community-stat-value">{escape(mas_bancado_txt)}</div>
+</div>
+
+<div class="community-stat-mini">
+<div class="community-stat-label">Polémica</div>
+<div class="community-stat-value">{escape(mas_polemico_txt)}</div>
+</div>
+</div>
+</div>
+""",
+            unsafe_allow_html=True
+        )
