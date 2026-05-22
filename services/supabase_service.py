@@ -526,6 +526,30 @@ def guardar_noticias_supabase(df_noticias):
 
     df_save = df_save[columnas].copy()
 
+    # ------------------------------------------------------------
+    # NORMALIZAR TIPOS Y ELIMINAR NaN ANTES DE ENVIAR A SUPABASE
+    # ------------------------------------------------------------
+
+    columnas_texto = [
+        "fecha",
+        "tipo",
+        "titulo",
+        "texto",
+        "autor",
+        "link",
+        "imagen_url",
+        "fuente"
+    ]
+
+    for col in columnas_texto:
+        df_save[col] = (
+            df_save[col]
+            .fillna("")
+            .astype(str)
+            .replace("nan", "")
+            .replace("None", "")
+        )
+
     df_save["prioridad"] = pd.to_numeric(
         df_save["prioridad"],
         errors="coerce"
@@ -533,11 +557,15 @@ def guardar_noticias_supabase(df_noticias):
 
     df_save["visible"] = (
         df_save["visible"]
+        .fillna(True)
         .astype(str)
         .str.strip()
         .str.upper()
         .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
     )
+
+    # Última limpieza defensiva: cualquier NaN restante pasa a None
+    df_save = df_save.where(pd.notnull(df_save), None)
 
     records = df_save.to_dict(orient="records")
 
