@@ -1250,7 +1250,7 @@ def guardar_resultados_supabase(df_resultados):
     """
     Actualiza resultados oficiales en Supabase.
     Usa upsert por n_partido.
-    Limpia NaN antes de enviar a Supabase.
+    Limpia NaN y normaliza enteros antes de enviar a Supabase.
     """
 
     supabase = get_supabase_client()
@@ -1288,7 +1288,7 @@ def guardar_resultados_supabase(df_resultados):
 
     for col in columnas:
         if col not in df_save.columns:
-            if col in ["r1", "r2"]:
+            if col in ["r1", "r2", "fecha"]:
                 df_save[col] = None
             elif col == "viz":
                 df_save[col] = False
@@ -1298,7 +1298,7 @@ def guardar_resultados_supabase(df_resultados):
     df_save = df_save[columnas].copy()
 
     # ------------------------------------------------------------
-    # N_PARTIDO
+    # N_PARTIDO — entero obligatorio
     # ------------------------------------------------------------
 
     df_save["n_partido"] = pd.to_numeric(
@@ -1310,12 +1310,12 @@ def guardar_resultados_supabase(df_resultados):
         subset=["n_partido"]
     ).copy()
 
-    df_save["n_partido"] = df_save["n_partido"].astype(int)
+    df_save["n_partido"] = df_save["n_partido"].apply(
+        lambda x: int(float(x))
+    )
 
     # ------------------------------------------------------------
-    # RESULTADOS R1 / R2
-    # IMPORTANTE:
-    # Sin resultado cargado debe ir como None, no como NaN.
+    # R1 / R2 — enteros o NULL
     # ------------------------------------------------------------
 
     for col in ["r1", "r2"]:
@@ -1325,11 +1325,25 @@ def guardar_resultados_supabase(df_resultados):
         )
 
         df_save[col] = df_save[col].apply(
-            lambda x: int(x) if pd.notna(x) else None
+            lambda x: int(float(x)) if pd.notna(x) else None
         )
 
     # ------------------------------------------------------------
-    # VISIBLE
+    # FECHA — entero 1 / 2 / 3 o NULL
+    # Esta FECHA no es fecha calendario; es tanda de grupo.
+    # ------------------------------------------------------------
+
+    df_save["fecha"] = pd.to_numeric(
+        df_save["fecha"],
+        errors="coerce"
+    )
+
+    df_save["fecha"] = df_save["fecha"].apply(
+        lambda x: int(float(x)) if pd.notna(x) else None
+    )
+
+    # ------------------------------------------------------------
+    # VIZ — booleano
     # ------------------------------------------------------------
 
     df_save["viz"] = (
@@ -1342,15 +1356,14 @@ def guardar_resultados_supabase(df_resultados):
     )
 
     # ------------------------------------------------------------
-    # TEXTOS
+    # Textos visuales
     # ------------------------------------------------------------
 
     columnas_texto = [
         "equipo_1",
         "equipo_2",
         "dia",
-        "hora",
-        "fecha"
+        "hora"
     ]
 
     for col in columnas_texto:
@@ -1363,28 +1376,25 @@ def guardar_resultados_supabase(df_resultados):
         )
 
     # ------------------------------------------------------------
-    # LIMPIEZA FINAL ANTI-NaN
+    # Convertimos a records limpiando NaN / numpy types
     # ------------------------------------------------------------
 
-    df_save = df_save.replace(
-        {
-            float("inf"): None,
-            float("-inf"): None
+    records = []
+
+    for _, row in df_save.iterrows():
+        record = {
+            "n_partido": int(row["n_partido"]),
+            "equipo_1": str(row["equipo_1"]).strip(),
+            "r1": None if pd.isna(row["r1"]) else int(row["r1"]),
+            "equipo_2": str(row["equipo_2"]).strip(),
+            "r2": None if pd.isna(row["r2"]) else int(row["r2"]),
+            "dia": str(row["dia"]).strip(),
+            "hora": str(row["hora"]).strip(),
+            "viz": bool(row["viz"]),
+            "fecha": None if pd.isna(row["fecha"]) else int(row["fecha"]),
         }
-    )
 
-    df_save = df_save.where(
-        pd.notnull(df_save),
-        None
-    )
-
-    records = df_save.to_dict(orient="records")
-
-    # Segunda limpieza defensiva sobre los diccionarios
-    for record in records:
-        for key, value in record.items():
-            if pd.isna(value):
-                record[key] = None
+        records.append(record)
 
     try:
         supabase.table("resultados").upsert(
