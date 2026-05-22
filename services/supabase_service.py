@@ -473,6 +473,104 @@ def guardar_foro_supabase(df_foro):
     except Exception as e:
         return False, f"Error al guardar foro en Supabase: {e}"
 
+def insertar_foro_supabase(df_nuevo):
+    """
+    Inserta uno o más mensajes nuevos en la tabla foro.
+    No borra ni reemplaza mensajes anteriores.
+    """
+
+    supabase = get_supabase_client()
+
+    if df_nuevo is None:
+        return False, "No hay mensaje para guardar."
+
+    if isinstance(df_nuevo, dict):
+        df_save = pd.DataFrame([df_nuevo])
+    else:
+        df_save = df_nuevo.copy()
+
+    if df_save.empty:
+        return False, "No hay mensaje para guardar."
+
+    rename_map = {
+        "FECHA": "fecha",
+        "USUARIO": "usuario",
+        "NOMBRE": "nombre",
+        "MENSAJE": "mensaje",
+        "PARTIDO_ID": "partido_id",
+        "LIKES": "likes",
+        "DISLIKES": "dislikes",
+        "FORO_IMG_URL": "foro_img_url"
+    }
+
+    df_save = df_save.rename(columns=rename_map)
+
+    columnas = [
+        "fecha",
+        "usuario",
+        "nombre",
+        "mensaje",
+        "partido_id",
+        "likes",
+        "dislikes",
+        "foro_img_url"
+    ]
+
+    for col in columnas:
+        if col not in df_save.columns:
+            if col in ["partido_id", "likes", "dislikes"]:
+                df_save[col] = 0
+            else:
+                df_save[col] = ""
+
+    df_save = df_save[columnas].copy()
+
+    columnas_texto = [
+        "fecha",
+        "usuario",
+        "nombre",
+        "mensaje",
+        "foro_img_url"
+    ]
+
+    for col in columnas_texto:
+        df_save[col] = (
+            df_save[col]
+            .fillna("")
+            .astype(str)
+            .replace("nan", "")
+            .replace("None", "")
+        )
+
+    df_save["partido_id"] = pd.to_numeric(
+        df_save["partido_id"],
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    df_save["likes"] = pd.to_numeric(
+        df_save["likes"],
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    df_save["dislikes"] = pd.to_numeric(
+        df_save["dislikes"],
+        errors="coerce"
+    ).fillna(0).astype(int)
+
+    df_save = df_save.where(pd.notnull(df_save), None)
+
+    records = df_save.to_dict(orient="records")
+
+    try:
+        supabase.table("foro").insert(records).execute()
+
+        get_foro_supabase.clear()
+
+        return True, "Mensaje publicado correctamente en Supabase."
+
+    except Exception as e:
+        return False, f"Error al publicar mensaje en Supabase: {e}"
+
 
 def guardar_noticias_supabase(df_noticias):
     """
