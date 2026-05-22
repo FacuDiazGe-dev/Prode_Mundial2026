@@ -2199,13 +2199,63 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                         use_container_width=True
                     )
 
-                    # ------------------------------------------------------------
-                    # GUARDADO EN SUPABASE
-                    # ------------------------------------------------------------
-                    # Supabase usa upsert sobre usuario + n_partido.
-                    # Si el pronóstico ya existe, lo actualiza.
-                    # Si no existe, lo crea.
-                    # No hace falta leer ni reescribir toda la tabla.
+            # ------------------------------------------------------------
+            # ACCIONES DEL FORMULARIO
+            # ------------------------------------------------------------
+
+            if cancelar:
+                st.session_state.permitir_edicion = False
+                st.session_state.pron_editor_version += 1
+                st.rerun()
+
+            if guardar:
+                try:
+                    df_save = edited_df.copy()
+
+                    df_save["P1"] = pd.to_numeric(
+                        df_save["P1"],
+                        errors="coerce"
+                    )
+
+                    df_save["P2"] = pd.to_numeric(
+                        df_save["P2"],
+                        errors="coerce"
+                    )
+
+                    if df_save["P1"].isna().any() or df_save["P2"].isna().any():
+                        st.error("Hay valores vacíos o inválidos. Revisá P1 y P2.")
+                        st.stop()
+
+                    df_save["P1"] = df_save["P1"].astype(int)
+                    df_save["P2"] = df_save["P2"].astype(int)
+
+                    if (
+                        (df_save["P1"] < 0).any()
+                        or (df_save["P2"] < 0).any()
+                        or (df_save["P1"] > 20).any()
+                        or (df_save["P2"] > 20).any()
+                    ):
+                        st.error("Los goles deben estar entre 0 y 20.")
+                        st.stop()
+
+                    nuevos_pro = df_save[
+                        [
+                            "N_PARTIDO",
+                            "P1",
+                            "P2"
+                        ]
+                    ].copy()
+
+                    nuevos_pro["USUARIO"] = user_actual
+
+                    nuevos_pro = nuevos_pro[
+                        [
+                            "N_PARTIDO",
+                            "USUARIO",
+                            "P1",
+                            "P2"
+                        ]
+                    ].copy()
 
                     ok, msg = guardar_pronosticos_supabase(nuevos_pro)
 
