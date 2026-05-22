@@ -945,13 +945,12 @@ div[data-testid="stSegmentedControl"] button:hover {
         st.rerun()
 
     def save_noticias(df_new):
-    conn.update(
-        worksheet="NOTICIAS",
-        data=df_new
-    )
-    st.cache_data.clear()
-    st.rerun()
-
+        conn.update(
+            worksheet="NOTICIAS",
+            data=df_new
+        )
+        st.cache_data.clear()
+        st.rerun()
     # ============================================================
     # TÍTULO
     # ============================================================
@@ -1434,12 +1433,12 @@ div[data-testid="stSegmentedControl"] button:hover {
                     popularidad_html += '<div class="foro-stat-line">🍋 Sin polémicas</div>'
 
         total_mensajes = len(df_foro)
-                if top_com.empty:
+        if top_com.empty:
             top_agitador_txt = "Sin mensajes"
         else:
             top_nombre = str(top_com.index[0])
             top_cant = int(top_com.iloc[0])
-            top_agitador_txt = f"💬 {top_nombre} ({top_cant})"
+            top_agitador_txt = f"💬 {top_nombre} ({top_cant})
 
         if top_likes.empty or int(top_likes.iloc[0]) <= 0:
             mas_bancado_txt = "🌟 Sin likes"
