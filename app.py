@@ -70,8 +70,7 @@ def leer_sheet_seguro(conn, worksheet, ttl=300):
         )
         return pd.DataFrame()
 
-# Carga maestra (Llama a nuestro nuevo módulo)
-df_res, df_usuarios, df_pro, mapa_banderas = cargar_todo(conn)
+
 # Sobrescribimos los datos principales desde Supabase
 df_res = get_resultados_app()
 df_usuarios = get_usuarios_app()
