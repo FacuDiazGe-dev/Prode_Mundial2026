@@ -2,9 +2,17 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from html import escape
+import plotly.express as px
+import streamlit.components.v1 as components
+from ranking_logic import calcular_detalle
 import re
 
-from styles_config import (AVATAR_GENERICO, HEADER_BACKGROUND, SIDEBAR_BANNER)
+from styles_config import (
+    AVATAR_GENERICO,
+    HEADER_BACKGROUND,
+    SIDEBAR_BANNER,
+    EVOL_HEADER_BACKGROUND
+)
 from tools import upload_profile_picture, get_flag_img
 from ranking_logic import calcular_detalle
 
@@ -1212,6 +1220,524 @@ div[data-testid="stButton"] button {
                 }
             )
 
+            def render_evolucion_puntos_premium(usuario_actual):
+        """
+        Renderiza la evolución de puntos con el mismo estilo visual que Inicio.
+        Muestra usuario actual + Top 5 del ranking.
+        """
+
+        if df_res is None or df_res.empty:
+            st.markdown("""
+<div class="evol-panel">
+<div class="evol-panel-header">
+<div class="evol-panel-icon">📈</div>
+<div class="evol-panel-title">Mi Evolución</div>
+</div>
+<div class="evol-empty">Esperando el silbato inicial para mostrar estadísticas.</div>
+</div>
+""", unsafe_allow_html=True)
+            return
+
+        df_res_check = df_res.copy()
+
+        if "VIZ" not in df_res_check.columns:
+            df_res_check["VIZ"] = "FALSE"
+
+        df_res_check["VIZ_CHECK"] = (
+            df_res_check["VIZ"]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+        )
+
+        partidos_visibles = (
+            df_res_check[
+                df_res_check["VIZ_CHECK"].isin(
+                    ["TRUE", "1", "1.0", "VERDADERO", "T"]
+                )
+            ]
+            .sort_values("N_PARTIDO")
+        )
+
+        evol_html_inicio = (
+            '<div class="evol-panel">'
+            '<div class="evol-panel-header">'
+            '<div class="evol-panel-icon">📈</div>'
+            '<div class="evol-panel-title">Mi Evolución</div>'
+            '</div>'
+        )
+
+        if partidos_visibles.empty:
+            evol_html = evol_html_inicio
+            evol_html += '<div class="evol-empty">Esperando el silbato inicial para mostrar estadísticas.</div>'
+            evol_html += '</div>'
+
+            st.markdown(evol_html, unsafe_allow_html=True)
+            return
+
+        evol_list = []
+        usuarios_lista = df_usuarios["USUARIO"].unique()
+        ids_visibles = partidos_visibles["N_PARTIDO"].tolist()
+
+        for user in usuarios_lista:
+            pts_acc = 0
+            user_pro = df_pro[df_pro["USUARIO"].astype(str) == str(user)]
+
+            for id_p in ids_visibles:
+                part_row = partidos_visibles[
+                    partidos_visibles["N_PARTIDO"] == id_p
+                ]
+
+                u_p = user_pro[
+                    user_pro["N_PARTIDO"] == id_p
+                ]
+
+                if not part_row.empty and not u_p.empty:
+                    r1_g = part_row["R1"].iloc[0]
+                    r2_g = part_row["R2"].iloc[0]
+                    p1_g = u_p["P1"].iloc[0]
+                    p2_g = u_p["P2"].iloc[0]
+
+                    if (
+                        pd.notna(r1_g)
+                        and pd.notna(r2_g)
+                        and pd.notna(p1_g)
+                        and pd.notna(p2_g)
+                    ):
+                        pts_g, _, _ = calcular_detalle(
+                            r1_g,
+                            r2_g,
+                            p1_g,
+                            p2_g
+                        )
+
+                        pts_acc += pts_g
+
+                evol_list.append(
+                    {
+                        "N_Partido": int(id_p),
+                        "Jugador": str(user),
+                        "Puntos": pts_acc
+                    }
+                )
+
+        if not evol_list:
+            evol_html = evol_html_inicio
+            evol_html += '<div class="evol-empty">Todavía no hay datos suficientes para mostrar la evolución.</div>'
+            evol_html += '</div>'
+
+            st.markdown(evol_html, unsafe_allow_html=True)
+            return
+
+        df_ev = pd.DataFrame(evol_list)
+
+        usuario_actual = str(usuario_actual)
+
+        top5_usuarios = (
+            df_ranking
+            .head(5)["USUARIO"]
+            .astype(str)
+            .tolist()
+            if df_ranking is not None and not df_ranking.empty and "USUARIO" in df_ranking.columns
+            else []
+        )
+
+        usuarios_grafico = []
+
+        for u in top5_usuarios:
+            if u not in usuarios_grafico:
+                usuarios_grafico.append(u)
+
+        if usuario_actual not in usuarios_grafico:
+            usuarios_grafico.append(usuario_actual)
+
+        def nombre_visible_usuario(usuario):
+            usuario = str(usuario)
+
+            match_rank = df_ranking[
+                df_ranking["USUARIO"].astype(str) == usuario
+            ] if df_ranking is not None and not df_ranking.empty and "USUARIO" in df_ranking.columns else pd.DataFrame()
+
+            if not match_rank.empty:
+                return str(match_rank.iloc[0].get("JUGADOR", usuario))
+
+            match_user = df_usuarios[
+                df_usuarios["USUARIO"].astype(str) == usuario
+            ]
+
+            if not match_user.empty:
+                return str(match_user.iloc[0].get("NOMBRE", usuario))
+
+            return usuario
+
+        nombre_map = {
+            u: nombre_visible_usuario(u)
+            for u in usuarios_grafico
+        }
+
+        df_ev_plot = df_ev[
+            df_ev["Jugador"].astype(str).isin(usuarios_grafico)
+        ].copy()
+
+        df_ev_plot["Refe"] = (
+            df_ev_plot["Jugador"]
+            .astype(str)
+            .map(nombre_map)
+        )
+
+        df_user_ev = (
+            df_ev[df_ev["Jugador"].astype(str) == usuario_actual]
+            .sort_values("N_Partido")
+        )
+
+        if not df_user_ev.empty:
+            puntos_actuales = int(df_user_ev["Puntos"].iloc[-1])
+
+            if len(df_user_ev) >= 5:
+                puntos_previos = int(df_user_ev["Puntos"].iloc[-5])
+                variacion_reciente = puntos_actuales - puntos_previos
+            else:
+                puntos_previos = int(df_user_ev["Puntos"].iloc[0])
+                variacion_reciente = puntos_actuales - puntos_previos
+        else:
+            puntos_actuales = 0
+            variacion_reciente = 0
+
+        try:
+            row_user_rank = df_ranking[
+                df_ranking["USUARIO"].astype(str) == usuario_actual
+            ]
+
+            posicion_actual = int(row_user_rank.index[0])
+        except Exception:
+            posicion_actual = "-"
+
+        usuario_safe = escape(str(usuario_actual))
+
+        signo_tendencia = "+" if variacion_reciente >= 0 else ""
+
+        evol_header_html = evol_html_inicio
+        evol_header_html += (
+            f'<div class="evol-summary-dark">'
+            f'<div class="evol-user-name">{usuario_safe}</div>'
+            f'<div class="evol-main-row">'
+            f'<div class="evol-main-number">{puntos_actuales}<span>pts</span></div>'
+            f'<div class="evol-position-pill">{posicion_actual}° puesto</div>'
+            f'</div>'
+            f'<div class="evol-meta">Última tendencia: <strong>{signo_tendencia}{variacion_reciente} pts</strong></div>'
+            f'</div>'
+            f'<div class="evol-chart-shell">'
+        )
+
+        paleta_top5 = [
+            "#93C5FD",
+            "#A7F3D0",
+            "#C4B5FD",
+            "#FCA5A5",
+            "#FDBA74",
+        ]
+
+        color_map = {}
+
+        for idx, usuario in enumerate(usuarios_grafico):
+            nombre_label = nombre_map.get(usuario, usuario)
+
+            if usuario == usuario_actual:
+                color_map[nombre_label] = "#F4C542"
+            else:
+                color_map[nombre_label] = paleta_top5[idx % len(paleta_top5)]
+
+        orden_labels = [
+            nombre_map.get(u, u)
+            for u in usuarios_grafico
+        ]
+
+        fig = px.line(
+            df_ev_plot,
+            x="N_Partido",
+            y="Puntos",
+            color="Refe",
+            markers=True,
+            color_discrete_map=color_map,
+            category_orders={
+                "Refe": orden_labels
+            }
+        )
+
+        fig.update_layout(
+            height=255,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(
+                family="Inter, sans-serif",
+                size=11,
+                color="#64748b"
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.04,
+                xanchor="left",
+                x=0,
+                font=dict(
+                    size=10,
+                    color="#475569"
+                ),
+                bgcolor="rgba(255,255,255,0.72)",
+                bordercolor="rgba(226,232,240,0.90)",
+                borderwidth=1
+            ),
+            margin=dict(
+                l=38,
+                r=14,
+                t=42,
+                b=24
+            ),
+            showlegend=True,
+            hovermode=False,
+            dragmode=False
+        )
+
+        fig.update_xaxes(
+            title_text="",
+            showgrid=False,
+            showline=False,
+            zeroline=False,
+            tickmode="linear",
+            dtick=1,
+            fixedrange=True,
+            color="#94a3b8",
+            tickfont=dict(size=10)
+        )
+
+        fig.update_yaxes(
+            title_text="",
+            gridcolor="rgba(148,163,184,0.18)",
+            showline=False,
+            zeroline=False,
+            fixedrange=True,
+            color="#94a3b8",
+            tickfont=dict(size=10)
+        )
+
+        usuario_actual_label = nombre_map.get(usuario_actual, usuario_actual)
+
+        for trace in fig.data:
+            if trace.name == usuario_actual_label:
+                trace.update(
+                    line=dict(
+                        width=5,
+                        color="#F4C542"
+                    ),
+                    marker=dict(
+                        size=8,
+                        color="#F4C542",
+                        line=dict(
+                            width=2,
+                            color="white"
+                        )
+                    ),
+                    opacity=1,
+                    hoverinfo="skip",
+                    hovertemplate=None
+                )
+            else:
+                trace.update(
+                    line=dict(
+                        width=2.4
+                    ),
+                    marker=dict(
+                        size=5,
+                        line=dict(
+                            width=1,
+                            color="white"
+                        )
+                    ),
+                    opacity=0.72,
+                    hoverinfo="skip",
+                    hovertemplate=None
+                )
+
+        plot_html = fig.to_html(
+            full_html=False,
+            include_plotlyjs="cdn",
+            config={
+                "displayModeBar": False,
+                "staticPlot": True,
+                "scrollZoom": False,
+                "responsive": True
+            }
+        )
+
+        evol_component_css = f"""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Montserrat:wght@800;900&display=swap');
+
+        body {{
+            margin: 0;
+            padding: 0;
+            font-family: Inter, Montserrat, sans-serif;
+            background: transparent;
+        }}
+
+        .evol-panel {{
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }}
+
+        .evol-panel-header {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 4px 14px 4px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+        }}
+
+        .evol-panel-icon {{
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(244, 197, 66, 0.16);
+            color: #0f172a;
+            font-size: 16px;
+        }}
+
+        .evol-panel-title {{
+            font-family: Montserrat, Inter, sans-serif;
+            font-size: 17px;
+            font-weight: 900;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.01em;
+        }}
+
+        .evol-empty {{
+            height: 315px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #94a3b8;
+            font-family: Inter, sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+        }}
+
+        .evol-summary-dark {{
+            background-image:
+                linear-gradient(
+                    90deg,
+                    rgba(7,17,31,0.98) 0%,
+                    rgba(7,17,31,0.86) 48%,
+                    rgba(7,17,31,0.50) 100%
+                ),
+                url("{EVOL_HEADER_BACKGROUND}");
+            background-size: cover;
+            background-position: center right;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 15px 15px 0 0;
+            padding: 16px 18px 13px 18px;
+        }}
+
+        .evol-user-name {{
+            font-size: 11px;
+            font-weight: 900;
+            color: rgba(255,255,255,0.58);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 6px;
+        }}
+
+        .evol-main-row {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 14px;
+        }}
+
+        .evol-main-number {{
+            font-family: Montserrat, Inter, sans-serif;
+            font-size: 36px;
+            font-weight: 900;
+            color: #F8FAFC;
+            line-height: 1;
+        }}
+
+        .evol-main-number span {{
+            font-size: 14px;
+            color: rgba(255,255,255,0.55);
+            font-weight: 800;
+            margin-left: 4px;
+        }}
+
+        .evol-position-pill {{
+            background: rgba(244,197,66,0.14);
+            border: 1px solid rgba(244,197,66,0.35);
+            color: #F4C542;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 900;
+            white-space: nowrap;
+        }}
+
+        .evol-meta {{
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.65);
+        }}
+
+        .evol-meta strong {{
+            color: #F4C542;
+        }}
+
+        .evol-chart-shell {{
+            background: rgba(248, 250, 252, 0.96);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-top: none;
+            border-radius: 0 0 15px 15px;
+            padding: 0 8px 4px 8px;
+        }}
+
+        @media (max-width: 768px) {{
+            .evol-panel {{
+                padding: 12px;
+                border-radius: 16px;
+            }}
+
+            .evol-panel-title {{
+                font-size: 15px;
+            }}
+
+            .evol-main-number {{
+                font-size: 30px;
+            }}
+        }}
+        </style>
+        """
+
+        evol_full_html = (
+            evol_component_css
+            + evol_header_html
+            + plot_html
+            + "</div></div>"
+        )
+
+        components.html(
+            evol_full_html,
+            height=495,
+            scrolling=False
+        )
+
         return pd.DataFrame(rows)
 
     BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
@@ -1907,7 +2433,7 @@ Bio:
             # MI EVOLUCIÓN
             # ------------------------------------------------------------
 
-            df_evolucion = calcular_evolucion_usuario(user_actual)
+            render_evolucion_puntos_premium(user_actual)
 
             st.markdown(
                 """
