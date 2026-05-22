@@ -1,49 +1,34 @@
 import streamlit as st
 import pandas as pd
-#import plotly.express as px
-from streamlit_gsheets import GSheetsConnection
-from data_manager import cargar_todo
+
 from datetime import datetime, timedelta
-from google.auth.transport.requests import Request
-from googleapiclient.http import MediaIoBaseUpload
-from ranking_logic import obtener_ranking_global, calcular_detalle
+
+from ranking_logic import obtener_ranking_global
+
 from styles_config import (
     aplicar_estilos_globales,
-    mostrar_decalogo,
     AVATAR_GENERICO,
-    HEADER_BACKGROUND,
-    EVOL_HEADER_BACKGROUND
+    HEADER_BACKGROUND
 )
-from styles_config import dibujar_banner
-from tools import get_flag_img_cached, upload_profile_picture
-from io import BytesIO
-#import textwrap
-#import streamlit.components.v1 as components
+
+from tools import get_flag_img_cached
+
 from sections.inicio import render_inicio
 from sections.mis_pronosticos import render_mis_pronosticos
 from sections.jugadores import render_jugadores
-#from sections.laboratorio import render_laboratorio
 from sections.foro import render_foro
 from sections.reglas import render_reglas
 from sections.panel_control import render_panel_control
 
-from PIL import Image
-import streamlit as st
-import streamlit.components.v1 as components
 from services.supabase_service import (
-    get_resultados_supabase,
-    get_usuarios_supabase,
-    get_pronosticos_supabase,
     get_resultados_app,
     get_usuarios_app,
     get_pronosticos_app,
     get_foro_app,
     get_noticias_app,
     get_config_app,
-    guardar_pronosticos_supabase,
     registrar_usuario_supabase
 )
-
 
 # 1. DEFINE LA URL DE TU BUCKET (La usaremos en ambos lados)
 URL_ICONO = "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP2.png"
@@ -55,28 +40,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-# --- CONEXIÓN ---
-conn = st.connection("gsheets", type=GSheetsConnection)
-
-def leer_sheet_seguro(conn, worksheet, ttl=300):
-    try:
-        df = conn.read(
-            worksheet=worksheet,
-            ttl=ttl
-        )
-
-        if df is None:
-            return pd.DataFrame()
-
-        return df
-
-    except Exception as e:
-        st.warning(
-            f"No se pudo cargar temporalmente la hoja {worksheet}. "
-            "Probá nuevamente en unos minutos."
-        )
-        return pd.DataFrame()
-
+conn = None
 
 # ============================================================
 # DATOS PRINCIPALES DESDE SUPABASE
@@ -137,7 +101,9 @@ for equipo in equipos_unicos:
     except Exception:
         mapa_banderas[equipo] = "⚽"
 
-# --- 2. CONFIGURACIÓN DINÁMICA (Desde GSheets) ---
+# ============================================================
+# CONFIGURACIÓN DINÁMICA DESDE SUPABASE
+# ============================================================
 # 1. Definimos valores por defecto (Si algo falla, la web queda abierta por seguridad)
 estado_mantenimiento = "OFF"
 estado_registro_manual = "ON"
@@ -396,7 +362,7 @@ if not st.session_state['autenticado']:
     st.stop() # Freno para que no cargue el resto de la app sin estar logueado
 
 #---------------------- SI Mantenimiento esta activo ---------------------------
-# Usamos 'estado_mantenimiento' que viene del Excel y '.get' para evitar errores de sesión
+# Usamos estado_mantenimiento desde Supabase y .get para evitar errores de sesión
 if estado_mantenimiento == "ON" and st.session_state.get('user_data', {}).get('ROL') != 'admin':
     st.warning("⚠️ Estamos actualizando los servidores para la próxima fecha. ¡Volvemos en unos minutos!")
     st.info("Solo el Administrador tiene acceso en este momento.")
