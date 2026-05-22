@@ -2136,116 +2136,68 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 
             df_editor = pd.DataFrame(filas_editor)
 
-            edited_df = st.data_editor(
-                df_editor,
-                hide_index=True,
-                use_container_width=True,
-                key=f"pronosticos_editor_{fecha_key}_{st.session_state.pron_editor_version}",
-                disabled=[
-                    "N_PARTIDO",
-                    "Equipo 1",
-                    "Equipo 2",
-                    "DIA",
-                    "HORA"
-                ],
-                column_order=[
-                    "Equipo 1",
-                    "P1",
-                    "P2",
-                    "Equipo 2"
-                ],
-                column_config={
-                    "Equipo 1": st.column_config.TextColumn(
+            with st.form(
+                key=f"form_pronosticos_editor_{fecha_key}_{st.session_state.pron_editor_version}",
+                clear_on_submit=False
+            ):
+
+                edited_df = st.data_editor(
+                    df_editor,
+                    hide_index=True,
+                    use_container_width=True,
+                    key=f"pronosticos_editor_{fecha_key}_{st.session_state.pron_editor_version}",
+                    disabled=[
+                        "N_PARTIDO",
                         "Equipo 1",
-                        width="small"
-                    ),
-                    "P1": st.column_config.NumberColumn(
-                        "P1",
-                        min_value=0,
-                        max_value=20,
-                        step=1,
-                        width="small"
-                    ),
-                    "P2": st.column_config.NumberColumn(
-                        "P2",
-                        min_value=0,
-                        max_value=20,
-                        step=1,
-                        width="small"
-                    ),
-                    "Equipo 2": st.column_config.TextColumn(
                         "Equipo 2",
-                        width="small"
-                    ),
-                }
-            )
-            c_cancelar, c_guardar = st.columns([0.35, 0.65])
-
-            with c_cancelar:
-                cancelar = st.button(
-                    "❌ Cancelar",
-                    use_container_width=True
+                        "DIA",
+                        "HORA"
+                    ],
+                    column_order=[
+                        "Equipo 1",
+                        "P1",
+                        "P2",
+                        "Equipo 2"
+                    ],
+                    column_config={
+                        "Equipo 1": st.column_config.TextColumn(
+                            "Equipo 1",
+                            width="small"
+                        ),
+                        "P1": st.column_config.NumberColumn(
+                            "P1",
+                            min_value=0,
+                            max_value=20,
+                            step=1,
+                            width="small"
+                        ),
+                        "P2": st.column_config.NumberColumn(
+                            "P2",
+                            min_value=0,
+                            max_value=20,
+                            step=1,
+                            width="small"
+                        ),
+                        "Equipo 2": st.column_config.TextColumn(
+                            "Equipo 2",
+                            width="small"
+                        ),
+                    }
                 )
 
-            with c_guardar:
-                guardar = st.button(
-                    f"💾 Guardar cambios de {tanda_seleccionada}",
-                    use_container_width=True
-                )
+                c_cancelar, c_guardar = st.columns([0.35, 0.65])
 
-            if cancelar:
-                st.session_state.permitir_edicion = False
-                st.session_state.pron_editor_version += 1
-                st.rerun()
-
-            if guardar:
-                try:
-                    df_save = edited_df.copy()
-
-                    df_save["P1"] = pd.to_numeric(
-                        df_save["P1"],
-                        errors="coerce"
+                with c_cancelar:
+                    cancelar = st.form_submit_button(
+                        "❌ Cancelar",
+                        use_container_width=True
                     )
 
-                    df_save["P2"] = pd.to_numeric(
-                        df_save["P2"],
-                        errors="coerce"
+                with c_guardar:
+                    guardar = st.form_submit_button(
+                        f"💾 Guardar cambios de {tanda_seleccionada}",
+                        use_container_width=True
                     )
-
-                    if df_save["P1"].isna().any() or df_save["P2"].isna().any():
-                        st.error("Hay valores vacíos o inválidos. Revisá P1 y P2.")
-                        st.stop()
-
-                    df_save["P1"] = df_save["P1"].astype(int)
-                    df_save["P2"] = df_save["P2"].astype(int)
-
-                    if (
-                        (df_save["P1"] < 0).any()
-                        or (df_save["P2"] < 0).any()
-                        or (df_save["P1"] > 20).any()
-                        or (df_save["P2"] > 20).any()
-                    ):
-                        st.error("Los goles deben estar entre 0 y 20.")
-                        st.stop()
-
-                    nuevos_pro = df_save[
-                        [
-                            "N_PARTIDO",
-                            "P1",
-                            "P2"
-                        ]
-                    ].copy()
-
-                    nuevos_pro["USUARIO"] = user_actual
-
-                    nuevos_pro = nuevos_pro[
-                        [
-                            "N_PARTIDO",
-                            "USUARIO",
-                            "P1",
-                            "P2"
-                        ]
-                    ].copy()
 
                     # ------------------------------------------------------------
                     # GUARDADO EN SUPABASE
