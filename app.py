@@ -143,16 +143,23 @@ estado_mantenimiento = "OFF"
 estado_registro_manual = "ON"
 
 try:
-    # Leemos la pestaña CONFIG
-    df_config = conn.read(worksheet="CONFIG", ttl=60)
-    
-    # Validamos que las columnas existan antes de asignar
+    df_config = get_config_app()
+
     if "MANTENIMIENTO" in df_config.columns:
-        estado_mantenimiento = str(df_config["MANTENIMIENTO"].iloc[0]).strip().upper()
+        estado_mantenimiento = (
+            str(df_config["MANTENIMIENTO"].iloc[0])
+            .strip()
+            .upper()
+        )
+
     if "REGISTRO" in df_config.columns:
-        estado_registro_manual = str(df_config["REGISTRO"].iloc[0]).strip().upper()
+        estado_registro_manual = (
+            str(df_config["REGISTRO"].iloc[0])
+            .strip()
+            .upper()
+        )
+
 except Exception as e:
-    # Si falla la lectura de CONFIG, avisamos en consola pero usamos los valores por defecto
     print(f"Aviso: Usando configuración por defecto debido a: {e}")
 
 # --- 3. LÓGICA DE TIEMPOS ---
@@ -186,12 +193,15 @@ if 'registro_exitoso' not in st.session_state:
 if not st.session_state['autenticado']:
     # 1. LEER CONFIGURACIÓN (Solo para no autenticados)
     try:
-        df_config = conn.read(worksheet="CONFIG", ttl=0)
-        estado_registro_manual = str(df_config["REGISTRO"].iloc[0]).strip().upper()
+        df_config = get_config_app()
+        estado_registro_manual = (
+            str(df_config["REGISTRO"].iloc[0])
+            .strip()
+            .upper()
+        )
     except:
         estado_registro_manual = "OFF"
 
-    # --- CASO A: PESTAÑA DE LOGIN ---
 # --- CASO A: PESTAÑA DE LOGIN ---
     if not st.session_state['mostrar_registro']:
         if st.session_state['registro_exitoso']:
