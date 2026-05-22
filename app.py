@@ -335,6 +335,8 @@ df_foro = conn.read(
     worksheet="FORO",
     ttl=60
 )
+if df_foro is None:
+    df_foro = pd.DataFrame()
 
 df_ranking = obtener_ranking_global(
     df_users=df_usuarios,
@@ -430,14 +432,6 @@ elif menu == "📝 Mi Prode":
 # ---------- MENU JUGADORES ----------------------------------------------------
 elif menu == "👥 Plantel":
 
-    df_foro = conn.read(
-    worksheet="FORO",
-    ttl=60
-    )
-    
-    if df_foro is None:
-        df_foro = pd.DataFrame()
-        
     render_jugadores(
         df_usuarios=df_usuarios,
         df_ranking=df_ranking,
