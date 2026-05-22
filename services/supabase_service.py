@@ -177,6 +177,7 @@ def get_usuarios_app():
     if df.empty:
         return pd.DataFrame(
             columns=[
+                "ID",
                 "USUARIO",
                 "NOMBRE",
                 "CONTRASEÑA",
@@ -190,6 +191,7 @@ def get_usuarios_app():
 
     df = df.rename(
         columns={
+            "id": "ID",
             "usuario": "USUARIO",
             "nombre": "NOMBRE",
             "contrasena": "CONTRASEÑA",
@@ -201,47 +203,23 @@ def get_usuarios_app():
         }
     )
 
-    return df[
-        [
-            "USUARIO",
-            "NOMBRE",
-            "CONTRASEÑA",
-            "EQUIPO FAVORITO",
-            "AVATAR_URL",
-            "EDAD",
-            "DESCRIPCION",
-            "ROL"
-        ]
+    columnas_necesarias = [
+        "ID",
+        "USUARIO",
+        "NOMBRE",
+        "CONTRASEÑA",
+        "EQUIPO FAVORITO",
+        "AVATAR_URL",
+        "EDAD",
+        "DESCRIPCION",
+        "ROL"
     ]
 
+    for col in columnas_necesarias:
+        if col not in df.columns:
+            if col == "ID":
+                df[col] = range(1, len(df) + 1)
+            else:
+                df[col] = ""
 
-def get_pronosticos_app():
-    df = get_pronosticos_supabase()
-
-    if df.empty:
-        return pd.DataFrame(
-            columns=[
-                "N_PARTIDO",
-                "USUARIO",
-                "P1",
-                "P2"
-            ]
-        )
-
-    df = df.rename(
-        columns={
-            "n_partido": "N_PARTIDO",
-            "usuario": "USUARIO",
-            "p1": "P1",
-            "p2": "P2"
-        }
-    )
-
-    return df[
-        [
-            "N_PARTIDO",
-            "USUARIO",
-            "P1",
-            "P2"
-        ]
-    ]
+    return df[columnas_necesarias]
