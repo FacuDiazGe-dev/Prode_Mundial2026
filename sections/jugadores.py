@@ -177,8 +177,8 @@ def render_jugadores(
 }
 
 .player-list-avatar {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(244,197,66,0.75);
@@ -192,7 +192,7 @@ def render_jugadores(
 
 .player-list-name {
     color: #0f172a;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 900;
     white-space: nowrap;
     overflow: hidden;
@@ -201,7 +201,7 @@ def render_jugadores(
 
 .player-list-team {
     color: #64748b;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 800;
     white-space: nowrap;
     overflow: hidden;
@@ -212,8 +212,8 @@ def render_jugadores(
     background: rgba(7,17,31,0.96);
     color: #F4C542;
     border-radius: 999px;
-    padding: 5px 8px;
-    font-size: 11px;
+    padding: 4px 7px;
+    font-size: 10px;
     font-weight: 900;
     white-space: nowrap;
 }
@@ -672,8 +672,9 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     }
 
     .player-list-card {
-        padding: 8px;
-        min-height: 50px;
+        padding: 7px 8px;
+        min-height: 46px;
+        border-radius: 0 13px 13px 0;
     }
 
     .player-list-avatar {
@@ -695,8 +696,10 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     }
 
     .player-select-btn button {
-        min-height: 38px !important;
-        font-size: 13px !important;
+        min-height: 46px !important;
+        height: 46px !important;
+        font-size: 12px !important;
+        border-radius: 13px 0 0 13px !important;
     }
 
     .player-avatar {
