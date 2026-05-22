@@ -718,8 +718,8 @@ div[data-testid="stSegmentedControl"] button:hover {
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.72),
-            rgba(248,250,252,0.62)
+            rgba(255,255,255,0.08),
+            rgba(248,250,252,0.15)
         ),
         var(--medallero-bg);
 
