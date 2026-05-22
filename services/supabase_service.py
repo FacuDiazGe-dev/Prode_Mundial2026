@@ -1134,4 +1134,114 @@ def actualizar_rol_usuario_supabase(usuario, nuevo_rol):
 
     except Exception as e:
         return False, f"Error al actualizar rol en Supabase: {e}"
-        
+
+
+@st.cache_data(ttl=300)
+def get_config_supabase():
+    supabase = get_supabase_client()
+
+    response = (
+        supabase
+        .table("config")
+        .select("*")
+        .limit(1)
+        .execute()
+    )
+
+    data = response.data or []
+
+    return pd.DataFrame(data)
+
+
+def get_config_app():
+    df = get_config_supabase()
+
+    columnas_app = [
+        "MANTENIMIENTO",
+        "REGISTRO"
+    ]
+
+    if df.empty:
+        return pd.DataFrame(
+            [
+                {
+                    "MANTENIMIENTO": "OFF",
+                    "REGISTRO": "ON"
+                }
+            ]
+        )
+
+    df = df.rename(
+        columns={
+            "mantenimiento": "MANTENIMIENTO",
+            "registro": "REGISTRO"
+        }
+    )
+
+    for col in columnas_app:
+        if col not in df.columns:
+            if col == "MANTENIMIENTO":
+                df[col] = "OFF"
+            elif col == "REGISTRO":
+                df[col] = "ON"
+
+    df["MANTENIMIENTO"] = (
+        df["MANTENIMIENTO"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+    df["REGISTRO"] = (
+        df["REGISTRO"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+
+    return df[columnas_app]
+
+
+def actualizar_config_supabase(campo, valor):
+    """
+    Actualiza un campo de la tabla config.
+    Campos esperados: mantenimiento, registro.
+    """
+
+    supabase = get_supabase_client()
+
+    campo = str(campo).strip().lower()
+    valor = str(valor).strip().upper()
+
+    campos_validos = [
+        "mantenimiento",
+        "registro"
+    ]
+
+    if campo not in campos_validos:
+        return False, "Campo de configuración inválido."
+
+    if valor not in ["ON", "OFF"]:
+        return False, "Valor inválido. Usá ON u OFF."
+
+    try:
+        response = (
+            supabase
+            .table("config")
+            .update({campo: valor})
+            .eq("id", 1)
+            .select("*")
+            .execute()
+        )
+
+        data = response.data or []
+
+        if len(data) == 0:
+            return False, "No se encontró la fila de configuración con id = 1."
+
+        get_config_supabase.clear()
+
+        return True, "Configuración actualizada correctamente."
+
+    except Exception as e:
+        return False, f"Error al actualizar configuración: {e}"
