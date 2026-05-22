@@ -29,6 +29,7 @@ from sections.reglas import render_reglas
 from PIL import Image
 import streamlit as st
 import streamlit.components.v1 as components
+from services.supabase_service import get_resultados_supabase
 
 # 1. DEFINE LA URL DE TU BUCKET (La usaremos en ambos lados)
 URL_ICONO = "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP2.png"
@@ -536,14 +537,34 @@ elif menu == "⚙️ Panel Control":
 
         st.markdown("## ⚙️ Panel de Control")
 
+        # ============================================================
+        # TEST SUPABASE
+        # ============================================================
+
+        with st.expander("🧪 Test Supabase", expanded=False):
+            try:
+                df_test_supabase = get_resultados_supabase()
+
+                st.success("✅ Conexión con Supabase funcionando.")
+                st.write(
+                    "Filas en resultados Supabase:",
+                    len(df_test_supabase)
+                )
+
+                st.dataframe(
+                    df_test_supabase.head(),
+                    use_container_width=True,
+                    hide_index=True
+                )
+
+            except Exception as e:
+                st.error(f"❌ Error conectando con Supabase: {e}")
+
         col_principal, col_derecha = st.columns(
             [1.45, 1],
             gap="large"
         )
-
-        # ============================================================
-        # 1. COLUMNA PRINCIPAL — GESTIÓN DE PARTIDOS
-        # ============================================================
+#-----------col principal-----------------------------
 
         with col_principal:
             st.subheader("⚽ Gestión de Jornada (72 Partidos)")
