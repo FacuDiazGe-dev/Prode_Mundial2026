@@ -198,7 +198,30 @@ def render_jugadores(
     font-weight: 900;
     white-space: nowrap;
 }
+/* Buscador del plantel */
+div[data-testid="stTextInput"] input {
+    border-radius: 13px !important;
+    border: 1px solid rgba(226,232,240,0.95) !important;
+    background: rgba(248,250,252,0.92) !important;
 
+    color: #0f172a !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+
+    min-height: 42px !important;
+    padding-left: 12px !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.70),
+        0 6px 14px rgba(15,23,42,0.035) !important;
+}
+
+div[data-testid="stTextInput"] input:focus {
+    border-color: rgba(244,197,66,0.75) !important;
+    box-shadow:
+        0 0 0 1px rgba(244,197,66,0.28),
+        0 8px 18px rgba(244,197,66,0.08) !important;
+}
 
 /* ============================================================
    4. BOTÓN SELECTOR DEL LISTADO
@@ -1281,8 +1304,36 @@ def render_jugadores(
 </div>
 """, unsafe_allow_html=True)
 
+            # ------------------------------------------------------------
+            # BUSCADOR DE JUGADORES
+            # ------------------------------------------------------------
+
+            busqueda_jugador = st.text_input(
+                "Buscar jugador",
+                placeholder="Escribí un nombre, usuario o equipo...",
+                key="buscar_jugador_plantel",
+                label_visibility="collapsed"
+            )
+
+            df_usuarios_filtrado = df_usuarios.copy()
+
+            if busqueda_jugador.strip():
+                q = busqueda_jugador.strip().lower()
+
+                df_usuarios_filtrado = df_usuarios_filtrado[
+                    df_usuarios_filtrado["NOMBRE"].fillna("").astype(str).str.lower().str.contains(q, na=False)
+                    |
+                    df_usuarios_filtrado["USUARIO"].fillna("").astype(str).str.lower().str.contains(q, na=False)
+                    |
+                    df_usuarios_filtrado["EQUIPO FAVORITO"].fillna("").astype(str).str.lower().str.contains(q, na=False)
+                ]
+
+            if df_usuarios_filtrado.empty:
+                st.info("No se encontraron jugadores con esa búsqueda.")
+
             with st.container(height=310):
-                for _, u in df_usuarios.iterrows():
+                
+                for _, u in df_usuarios_filtrado.iterrows():
                     foto_mini = get_avatar(u)
 
                     rank_row, idx_rank = get_ranking_row(u)
