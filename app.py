@@ -186,20 +186,24 @@ if not st.session_state['autenticado']:
     }}
     
     .login-hero-title {{
-        margin: 0;
+        margin: 0 !important;
     
-        color: #FFFFFF;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 34px;
-        font-weight: 900;
-        line-height: 1.02;
-        letter-spacing: -0.04em;
+        color: #FFFFFF !important;
+        font-family: 'Montserrat', sans-serif !important;
+        font-size: 34px !important;
+        font-weight: 900 !important;
+        line-height: 1.02 !important;
+        letter-spacing: -0.04em !important;
     
         text-shadow:
-            0 2px 10px rgba(0,0,0,0.45),
-            0 0 18px rgba(255,255,255,0.10);
+            0 2px 8px rgba(0,0,0,0.85),
+            0 0 18px rgba(0,0,0,0.55) !important;
     }}
-    
+
+    .login-hero-banner h1.login-hero-title {{
+        color: #FFFFFF !important;
+    }}
+        
     .login-hero-subtitle {{
         margin-top: 9px;
     
