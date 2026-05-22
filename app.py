@@ -125,9 +125,120 @@ if not st.session_state['autenticado']:
         estado_registro_manual = "OFF"
 
     # --- CASO A: PESTAÑA DE LOGIN ---
+# --- CASO A: PESTAÑA DE LOGIN ---
     if not st.session_state['mostrar_registro']:
         if st.session_state['registro_exitoso']:
             st.success("✅ ¡Registro completado! Ya puedes ingresar.")
+    
+        st.markdown(
+            f"""
+    <style>
+    .login-hero-banner {{
+        position: relative;
+        overflow: hidden;
+    
+        min-height: 210px;
+        margin: 0 auto 24px auto;
+        padding: 28px 22px;
+    
+        border-radius: 22px;
+        border: 1px solid rgba(244,197,66,0.24);
+    
+        background:
+            linear-gradient(
+                135deg,
+                rgba(7,17,31,0.78),
+                rgba(15,23,42,0.45)
+            ),
+            url("{HEADER_BACKGROUND}");
+    
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    
+        box-shadow:
+            0 18px 42px rgba(15,23,42,0.18),
+            inset 0 1px 0 rgba(255,255,255,0.08);
+    }}
+    
+    .login-hero-content {{
+        position: relative;
+        z-index: 2;
+        max-width: 620px;
+    }}
+    
+    .login-hero-kicker {{
+        display: inline-block;
+    
+        margin-bottom: 10px;
+        padding: 5px 10px;
+    
+        border-radius: 999px;
+        background: rgba(244,197,66,0.16);
+        border: 1px solid rgba(244,197,66,0.28);
+    
+        color: #F4C542;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }}
+    
+    .login-hero-title {{
+        margin: 0;
+    
+        color: #F8FAFC;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 34px;
+        font-weight: 900;
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+    
+        text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+    }}
+    
+    .login-hero-subtitle {{
+        margin-top: 9px;
+    
+        color: rgba(248,250,252,0.78);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.35;
+    
+        max-width: 460px;
+    }}
+    
+    @media (max-width: 768px) {{
+        .login-hero-banner {{
+            min-height: 180px;
+            padding: 22px 18px;
+            border-radius: 18px;
+            margin-bottom: 18px;
+        }}
+    
+        .login-hero-title {{
+            font-size: 27px;
+        }}
+    
+        .login-hero-subtitle {{
+            font-size: 12px;
+        }}
+    }}
+    </style>
+    
+    <div class="login-hero-banner">
+        <div class="login-hero-content">
+            <div class="login-hero-kicker">Prode Mundial 2026</div>
+            <h1 class="login-hero-title">La gloria está en tus predicciones</h1>
+            <div class="login-hero-subtitle">
+                Entrá, cargá tus resultados y peleá la punta con la banda.
+            </div>
+        </div>
+    </div>
+    """,
+            unsafe_allow_html=True
+        )
             
         with st.form("login_form"):
             st.subheader("🔐 Iniciar Sesión")
