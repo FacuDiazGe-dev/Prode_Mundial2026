@@ -649,7 +649,7 @@ div[data-testid="stSegmentedControl"] button:hover {
 }
 
 .medallero-title {
-    color: #FFFFFF;
+    color: #07111F;
     font-family: 'Montserrat', sans-serif;
     font-size: 8px;
     font-weight: 900;
@@ -738,6 +738,12 @@ div[data-testid="stSegmentedControl"] button:hover {
 .medallero-side-panel .medallero-grid {
     position: relative;
     z-index: 2;
+}
+.medallero-side-panel .community-side-title {
+    color: #F8FAFC !important;
+    text-shadow:
+        0 2px 8px rgba(0,0,0,0.75),
+        0 0 14px rgba(0,0,0,0.45);
 }
 
 /* ============================================================
