@@ -222,6 +222,28 @@ div[data-testid="stTextInput"] input:focus {
         0 0 0 1px rgba(244,197,66,0.28),
         0 8px 18px rgba(244,197,66,0.08) !important;
 }
+/* Selector de orden del plantel */
+div[data-testid="stSelectbox"] {
+    margin-bottom: 10px !important;
+}
+
+div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+    border-radius: 13px !important;
+    border: 1px solid rgba(226,232,240,0.95) !important;
+    background: rgba(248,250,252,0.92) !important;
+
+    min-height: 42px !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.70),
+        0 6px 14px rgba(15,23,42,0.035) !important;
+}
+
+div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
+    color: #0f172a !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
 
 /* ============================================================
    4. BOTÓN SELECTOR DEL LISTADO
@@ -1305,13 +1327,25 @@ div[data-testid="stTextInput"] input:focus {
 """, unsafe_allow_html=True)
 
             # ------------------------------------------------------------
-            # BUSCADOR DE JUGADORES
+            # BUSCADOR + ORDENAMIENTO DE JUGADORES
             # ------------------------------------------------------------
 
             busqueda_jugador = st.text_input(
                 "Buscar jugador",
                 placeholder="Escribí un nombre, usuario o equipo...",
                 key="buscar_jugador_plantel",
+                label_visibility="collapsed"
+            )
+
+            orden_jugadores = st.selectbox(
+                "Ordenar jugadores",
+                [
+                    "Ranking",
+                    "Nombre",
+                    "Puntos"
+                ],
+                index=0,
+                key="orden_jugadores_plantel",
                 label_visibility="collapsed"
             )
 
@@ -1328,11 +1362,66 @@ div[data-testid="stTextInput"] input:focus {
                     df_usuarios_filtrado["EQUIPO FAVORITO"].fillna("").astype(str).str.lower().str.contains(q, na=False)
                 ]
 
+            # ------------------------------------------------------------
+            # Agregamos columnas auxiliares para ordenar sin romper datos
+            # ------------------------------------------------------------
+
+            ranking_aux = []
+
+            for _, u_aux in df_usuarios_filtrado.iterrows():
+                rank_row_aux, idx_rank_aux = get_ranking_row(u_aux)
+
+                puntos_aux = (
+                    safe_int(rank_row_aux.get("PUNTOS", 0))
+                    if rank_row_aux is not None
+                    else 0
+                )
+
+                try:
+                    posicion_aux = int(idx_rank_aux)
+                except Exception:
+                    posicion_aux = 9999
+
+                ranking_aux.append({
+                    "USUARIO": str(u_aux.get("USUARIO", "")),
+                    "_PUNTOS_AUX": puntos_aux,
+                    "_POS_AUX": posicion_aux
+                })
+
+            df_aux_orden = pd.DataFrame(ranking_aux)
+
+            if not df_aux_orden.empty:
+                df_usuarios_filtrado = df_usuarios_filtrado.merge(
+                    df_aux_orden,
+                    on="USUARIO",
+                    how="left"
+                )
+
+            if orden_jugadores == "Ranking":
+                df_usuarios_filtrado = df_usuarios_filtrado.sort_values(
+                    by=["_POS_AUX", "NOMBRE"],
+                    ascending=[True, True],
+                    na_position="last"
+                )
+
+            elif orden_jugadores == "Nombre":
+                df_usuarios_filtrado = df_usuarios_filtrado.sort_values(
+                    by="NOMBRE",
+                    ascending=True,
+                    na_position="last"
+                )
+
+            elif orden_jugadores == "Puntos":
+                df_usuarios_filtrado = df_usuarios_filtrado.sort_values(
+                    by=["_PUNTOS_AUX", "NOMBRE"],
+                    ascending=[False, True],
+                    na_position="last"
+                )
+
             if df_usuarios_filtrado.empty:
                 st.info("No se encontraron jugadores con esa búsqueda.")
 
             with st.container(height=310):
-                
                 for _, u in df_usuarios_filtrado.iterrows():
                     foto_mini = get_avatar(u)
 
