@@ -1438,7 +1438,7 @@ div[data-testid="stSegmentedControl"] button:hover {
         else:
             top_nombre = str(top_com.index[0])
             top_cant = int(top_com.iloc[0])
-            top_agitador_txt = f"💬 {top_nombre} ({top_cant})
+            top_agitador_txt = f"💬 {top_nombre} ({top_cant})"
 
         if top_likes.empty or int(top_likes.iloc[0]) <= 0:
             mas_bancado_txt = "🌟 Sin likes"
