@@ -379,8 +379,8 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     background:
         linear-gradient(
             90deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.10)
+            rgba(7,17,31,0.50),
+            rgba(7,17,31,0.22)
         ),
         var(--player-hero-bg);
 
@@ -388,20 +388,23 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     background-position: center;
     background-repeat: no-repeat;
 
-    border: 1px solid rgba(226,232,240,0.85);
-    border-radius: 16px;
-    padding: 18px 16px 14px 16px;
+    border: 1px solid rgba(244,197,66,0.22);
+    border-radius: 18px;
+    padding: 18px 16px 15px 16px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 12px 26px rgba(15,23,42,0.16);
 }
 
 .player-hero-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 170px;
+    align-items: center;
     gap: 18px;
 }
 
 .player-hero-profile {
-    flex: 1;
     min-width: 0;
     text-align: center;
 }
@@ -426,23 +429,26 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     align-items: center;
     justify-content: center;
 
-    border-radius: 12px;
-    background: rgba(255,255,255,0.66);
-    border: 1px solid rgba(226,232,240,0.90);
+    border-radius: 13px;
+    background: rgba(255,255,255,0.62);
+    border: 1px solid rgba(255,255,255,0.70);
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.72),
-        0 6px 14px rgba(15,23,42,0.05);
+        0 6px 14px rgba(15,23,42,0.16);
 }
 
 .player-badge-mini.earned {
+    border-color: rgba(244,197,66,0.42);
+    background: rgba(255,255,255,0.72);
+
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.82),
-        0 8px 18px rgba(15,23,42,0.08);
+        0 8px 18px rgba(244,197,66,0.12);
 }
 
 .player-badge-mini.locked {
-    opacity: 0.92;
+    opacity: 0.88;
 }
 
 .player-badge-mini-img {
@@ -466,16 +472,17 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     color: #64748b;
 }
 
-
 .player-avatar {
-    width: 118px;
-    height: 118px;
+    width: 108px;
+    height: 108px;
     object-fit: cover;
     border-radius: 50%;
+
     border: 5px solid #F4C542;
+
     box-shadow:
-        0 14px 34px rgba(15,23,42,0.18),
-        0 0 26px rgba(244,197,66,0.30);
+        0 14px 34px rgba(15,23,42,0.28),
+        0 0 28px rgba(244,197,66,0.32);
 }
 
 .player-name {
@@ -483,15 +490,20 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     font-size: 24px;
     font-weight: 900;
     color: #F8FAFC;
-    margin-top: 13px;
+
+    margin-top: 11px;
     line-height: 1.05;
+
+    text-shadow: 0 2px 8px rgba(0,0,0,0.60);
 }
 
 .player-team {
-    color: #64748b;
+    color: rgba(226,232,240,0.78);
     font-size: 13px;
     font-weight: 900;
     margin-top: 4px;
+
+    text-shadow: 0 1px 6px rgba(0,0,0,0.50);
 }
 
 .player-rank-pill {
@@ -500,40 +512,61 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     justify-content: center;
     gap: 6px;
 
-    margin-top: 12px;
+    margin-top: 11px;
     padding: 7px 12px;
 
-    background: rgba(7,17,31,0.96);
-    border: 1px solid rgba(244,197,66,0.24);
+    background: rgba(7,17,31,0.92);
+    border: 1px solid rgba(244,197,66,0.34);
     border-radius: 999px;
 
     color: #F8FAFC;
     font-size: 12px;
     font-weight: 900;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 8px 18px rgba(15,23,42,0.16);
 }
 
 .player-rank-pill strong {
     color: #F4C542;
 }
 
-
 /* ============================================================
    6. ESTADÍSTICAS DEL JUGADOR
-   Puntos, exactos y generales.
+   Integradas dentro del hero.
    ============================================================ */
 
 .player-stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    margin: 14px 0;
+
+    margin: 15px 0 0 0;
+    padding: 10px;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(7,17,31,0.78),
+            rgba(15,23,42,0.58)
+        );
+
+    border: 1px solid rgba(244,197,66,0.18);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 8px 18px rgba(15,23,42,0.12);
 }
 
 .player-stat {
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 14px;
-    padding: 10px 6px;
-    background: rgba(248,250,252,0.78);
+    border: 0;
+    border-radius: 13px;
+    padding: 8px 6px;
+
+    background: rgba(255,255,255,0.055);
     text-align: center;
     min-width: 0;
 }
@@ -546,26 +579,72 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
 
 .player-stat-number {
     font-family: 'Montserrat', sans-serif;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 900;
-    color: #0f172a;
+    color: #F8FAFC;
     line-height: 1;
+
+    text-shadow: 0 2px 8px rgba(0,0,0,0.65);
 }
 
 .player-stat-label {
     margin-top: 4px;
     font-size: 9px;
-    color: #64748b;
+    color: rgba(226,232,240,0.72);
     font-weight: 900;
     text-transform: uppercase;
 }
 
-
 /* ============================================================
    7. BIO DEL JUGADOR
-   Texto breve dentro de la ficha.
+   Bio integrada dentro del hero.
    ============================================================ */
 
+.player-hero-bio {
+    margin-top: 11px;
+    padding: 11px 13px;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(7,17,31,0.82),
+            rgba(15,23,42,0.62)
+        );
+
+    border: 1px solid rgba(244,197,66,0.22);
+
+    color: rgba(248,250,252,0.86);
+    font-size: 12.5px;
+    font-weight: 650;
+    line-height: 1.42;
+
+    text-align: left;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 8px 18px rgba(15,23,42,0.10);
+}
+
+.player-hero-bio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-right: 5px;
+
+    color: #F4C542;
+    font-weight: 900;
+}
+
+.player-hero-bio-icon {
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* Se conserva para mensajes auxiliares, por ejemplo:
+   "Sin pronósticos cargados todavía." */
 .player-bio {
     margin-top: 12px;
     padding: 12px;
@@ -577,13 +656,6 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     font-weight: 700;
     line-height: 1.35;
 }
-
-
-/* ============================================================
-   8. MURO DE INSIGNIAS / LOGROS
-   Grid HTML responsive + estilo medallero premium.
-   ============================================================ */
-
 
 
 /* ============================================================
@@ -744,6 +816,48 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
         width: 38px;
         height: 38px;
     }
+    .player-hero {
+        padding: 15px 13px 13px 13px;
+        border-radius: 16px;
+    }
+
+    .player-hero-top {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: 14px;
+    }
+
+    .player-hero-profile {
+        width: 100%;
+    }
+
+    .player-badges-side {
+        width: 100%;
+        max-width: 210px;
+    }
+
+    .player-badges-mini {
+        gap: 6px;
+    }
+
+    .player-badge-mini {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+    }
+
+    .player-badge-mini-img {
+        width: 38px;
+        height: 38px;
+    }
+
+    .player-hero-bio {
+        margin-top: 10px;
+        padding: 10px 11px;
+        font-size: 12px;
+        line-height: 1.36;
+    }
+    
 }
 
 </style>
@@ -1224,7 +1338,7 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     st.markdown("""
 <div class="players-title">
 <h1>👥 Plantel</h1>
-<p>Plantel, logros y pronósticos de la banda del Prode.</p>
+<p>Perfiles y pronósticos de la banda del Prode.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1654,6 +1768,7 @@ Sin pronósticos cargados todavía.
 <div class="player-detail-section-title">👤 Perfil</div>
 
 <div class="player-hero" style="--player-hero-bg: url('{PLAYER_HERO_BG_URL}');">
+
 <div class="player-hero-top">
 <div class="player-hero-profile">
 <img src="{foto_perfil}" class="player-avatar">
@@ -1669,7 +1784,6 @@ Sin pronósticos cargados todavía.
 <div class="player-badges-side">
 <div class="player-badges-mini">
 {player_badges_mini_html}
-</div>
 </div>
 </div>
 </div>
@@ -1694,8 +1808,14 @@ Sin pronósticos cargados todavía.
 </div>
 </div>
 
-<div class="player-bio">
-<strong>Bio:</strong> {bio}
+<div class="player-hero-bio">
+<span class="player-hero-bio-label">
+<span class="player-hero-bio-icon">💬</span>
+Bio:
+</span>
+{bio}
+</div>
+
 </div>
 </div>
 
