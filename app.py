@@ -551,27 +551,27 @@ elif menu == "⚙️ Panel Control":
                 df_resultados_sb = get_resultados_supabase()
                 df_usuarios_sb = get_usuarios_supabase()
                 df_pronosticos_sb = get_pronosticos_supabase()
-        
+
                 st.success("✅ Conexión con Supabase funcionando.")
-        
+
                 st.write("Filas en resultados Supabase:", len(df_resultados_sb))
                 st.write("Filas en usuarios Supabase:", len(df_usuarios_sb))
                 st.write("Filas en pronósticos Supabase:", len(df_pronosticos_sb))
-        
+
                 st.markdown("#### Resultados")
                 st.dataframe(
                     df_resultados_sb.head(),
                     use_container_width=True,
                     hide_index=True
                 )
-        
+
                 st.markdown("#### Usuarios")
                 st.dataframe(
                     df_usuarios_sb.head(),
                     use_container_width=True,
                     hide_index=True
                 )
-        
+
                 st.markdown("#### Pronósticos")
                 st.dataframe(
                     df_pronosticos_sb.head(),
@@ -579,58 +579,68 @@ elif menu == "⚙️ Panel Control":
                     hide_index=True
                 )
 
-            st.markdown("---")
-            st.markdown("#### Test de escritura controlado")
-    
-            usuario_test = st.text_input(
-                "Usuario test",
-                value=st.session_state["user_data"]["USUARIO"],
-                key="sb_usuario_test"
-            )
-    
-            partido_test = st.number_input(
-                "Partido test",
-                min_value=1,
-                max_value=72,
-                value=1,
-                step=1,
-                key="sb_partido_test"
-            )
-    
-            p1_test = st.number_input(
-                "P1 test",
-                min_value=0,
-                max_value=20,
-                value=0,
-                step=1,
-                key="sb_p1_test"
-            )
-    
-            p2_test = st.number_input(
-                "P2 test",
-                min_value=0,
-                max_value=20,
-                value=0,
-                step=1,
-                key="sb_p2_test"
-            )
-    
-            if st.button("🧪 Probar guardado en Supabase", use_container_width=True):
-                df_test_guardado = pd.DataFrame(
-                    [
-                        {
-                            "USUARIO": usuario_test,
-                            "N_PARTIDO": partido_test,
-                            "P1": p1_test,
-                            "P2": p2_test
-                        }
-                    ]
+                # ------------------------------------------------------------
+                # TEST DE ESCRITURA CONTROLADO
+                # ------------------------------------------------------------
+
+                st.markdown("---")
+                st.markdown("#### Test de escritura controlado")
+
+                usuario_test = st.text_input(
+                    "Usuario test",
+                    value=st.session_state["user_data"]["USUARIO"],
+                    key="sb_usuario_test"
                 )
-    
-                ok, msg = guardar_pronosticos_supabase(df_test_guardado)
-    
-                if ok:
-                    st.success(msg)
+
+                partido_test = st.number_input(
+                    "Partido test",
+                    min_value=1,
+                    max_value=72,
+                    value=1,
+                    step=1,
+                    key="sb_partido_test"
+                )
+
+                p1_test = st.number_input(
+                    "P1 test",
+                    min_value=0,
+                    max_value=20,
+                    value=0,
+                    step=1,
+                    key="sb_p1_test"
+                )
+
+                p2_test = st.number_input(
+                    "P2 test",
+                    min_value=0,
+                    max_value=20,
+                    value=0,
+                    step=1,
+                    key="sb_p2_test"
+                )
+
+                if st.button(
+                    "🧪 Probar guardado en Supabase",
+                    use_container_width=True
+                ):
+                    df_test_guardado = pd.DataFrame(
+                        [
+                            {
+                                "USUARIO": usuario_test,
+                                "N_PARTIDO": partido_test,
+                                "P1": p1_test,
+                                "P2": p2_test
+                            }
+                        ]
+                    )
+
+                    ok, msg = guardar_pronosticos_supabase(df_test_guardado)
+
+                    if ok:
+                        st.success(msg)
+                    else:
+                        st.error(msg)
+
             except Exception as e:
                 st.error(f"❌ Error conectando con Supabase: {e}")
 
@@ -638,7 +648,8 @@ elif menu == "⚙️ Panel Control":
             [1.45, 1],
             gap="large"
         )
-#-----------col principal-----------------------------
+
+        # ----------- col principal -----------------------------
 
         with col_principal:
             st.subheader("⚽ Gestión de Jornada (72 Partidos)")
