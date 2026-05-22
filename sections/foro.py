@@ -12,7 +12,13 @@ from services.supabase_service import (
 )
 
 
-def render_foro(conn, df_usuarios, df_ranking, df_foro, df_noticias):
+def render_foro(
+    conn,
+    df_usuarios,
+    df_ranking,
+    df_foro,
+    df_noticias
+):
     
     # ============================================================
     # ESTILOS — FORO
