@@ -8,7 +8,9 @@ from styles_config import (
 )
 from services.supabase_service import (
     insertar_foro_supabase,
-    guardar_noticias_supabase
+    guardar_noticias_supabase,
+    actualizar_reaccion_foro_supabase,
+    borrar_mensaje_foro_supabase
 )
 
 
@@ -906,6 +908,7 @@ div[data-testid="stSegmentedControl"] button:hover {
     if df_foro is None or df_foro.empty:
         df_foro = pd.DataFrame(
             columns=[
+                "ID",
                 "FECHA",
                 "USUARIO",
                 "NOMBRE",
@@ -917,9 +920,9 @@ div[data-testid="stSegmentedControl"] button:hover {
             ]
         )
 
-    for col in ["FECHA", "USUARIO", "NOMBRE", "MENSAJE", "PARTIDO_ID", "LIKES", "DISLIKES", "FORO_IMG_URL"]:
+    for col in ["ID", "FECHA", "USUARIO", "NOMBRE", "MENSAJE", "PARTIDO_ID", "LIKES", "DISLIKES", "FORO_IMG_URL"]:
         if col not in df_foro.columns:
-            if col in ["LIKES", "DISLIKES"]:
+            if col in ["LIKES", "DISLIKES","PARTIDO_ID"]:
                 df_foro[col] = 0
             elif col == "PARTIDO_ID":
                 df_foro[col] = 0
@@ -1311,17 +1314,47 @@ div[data-testid="stSegmentedControl"] button:hover {
                     )
 
                     if accion is not None:
+                        post_id = safe_int(m.get("ID", 0))
+                    
+                        if post_id <= 0:
+                            st.error("No se pudo identificar el mensaje.")
+                            st.stop()
+                    
                         if accion.startswith("👍"):
-                            df_foro.at[idx, "LIKES"] = l_count + 1
-                            save_foro(df_foro)
-
+                            ok, msg = actualizar_reaccion_foro_supabase(
+                                post_id=post_id,
+                                likes=l_count + 1,
+                                dislikes=d_count
+                            )
+                    
+                            if ok:
+                                st.cache_data.clear()
+                                st.rerun()
+                            else:
+                                st.error(msg)
+                    
                         elif accion.startswith("👎"):
-                            df_foro.at[idx, "DISLIKES"] = d_count + 1
-                            save_foro(df_foro)
-
+                            ok, msg = actualizar_reaccion_foro_supabase(
+                                post_id=post_id,
+                                likes=l_count,
+                                dislikes=d_count + 1
+                            )
+                    
+                            if ok:
+                                st.cache_data.clear()
+                                st.rerun()
+                            else:
+                                st.error(msg)
+                    
                         elif accion.startswith("🗑️"):
-                            df_new = df_foro.drop(idx).reset_index(drop=True)
-                            save_foro(df_new)
+                            ok, msg = borrar_mensaje_foro_supabase(post_id)
+                    
+                            if ok:
+                                st.cache_data.clear()
+                                st.success("✅ Mensaje eliminado.")
+                                st.rerun()
+                            else:
+                                st.error(msg)
 
             st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
