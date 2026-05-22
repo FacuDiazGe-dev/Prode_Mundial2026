@@ -72,6 +72,10 @@ def leer_sheet_seguro(conn, worksheet, ttl=300):
 
 # Carga maestra (Llama a nuestro nuevo módulo)
 df_res, df_usuarios, df_pro, mapa_banderas = cargar_todo(conn)
+# Sobrescribimos los datos principales desde Supabase
+df_res = get_resultados_app()
+df_usuarios = get_usuarios_app()
+df_pro = get_pronosticos_app()
 
 if df_res is None:
     st.stop() # Si falla la carga, detenemos la app con el error del módulo
