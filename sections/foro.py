@@ -482,6 +482,256 @@ div[data-testid="stSegmentedControl"] button:hover {
 /* ============================================================
    5. COMUNIDAD / STATS 
    ============================================================ */
+/* ============================================================
+   5A. CENTRAL DEL PRODE / NOTICIAS
+   ============================================================ */
+
+.community-side-panel {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.94),
+            rgba(248,250,252,0.90)
+        );
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 12px;
+
+    box-shadow:
+        0 10px 24px rgba(15,23,42,0.06),
+        inset 0 1px 0 rgba(255,255,255,0.65);
+}
+
+.community-side-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+
+    border-bottom: 1px solid rgba(226,232,240,0.75);
+}
+
+.community-side-icon {
+    width: 31px;
+    height: 31px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(244,197,66,0.16);
+    color: #0f172a;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.community-side-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: #07111F;
+    line-height: 1.05;
+}
+
+.community-side-subtitle {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 750;
+    margin-top: 2px;
+}
+
+.news-scroll {
+    max-height: 178px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.news-card {
+    background: rgba(255,255,255,0.84);
+    border: 1px solid rgba(226,232,240,0.90);
+    border-radius: 14px;
+    padding: 10px 11px;
+    margin-bottom: 8px;
+
+    box-shadow: 0 6px 14px rgba(15,23,42,0.035);
+}
+
+.news-card:last-child {
+    margin-bottom: 0;
+}
+
+.news-tag {
+    display: inline-block;
+
+    margin-bottom: 5px;
+    padding: 3px 7px;
+
+    border-radius: 999px;
+    background: rgba(7,17,31,0.95);
+    color: #F4C542;
+
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.news-title {
+    color: #07111F;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12.5px;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 4px;
+}
+
+.news-text {
+    color: #475569;
+    font-size: 11.5px;
+    font-weight: 650;
+    line-height: 1.35;
+}
+
+/* ============================================================
+   5B. MEDALLERO COMPACTO
+   ============================================================ */
+
+.medallero-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.medallero-card {
+    min-width: 0;
+    min-height: 124px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.66),
+            rgba(248,250,252,0.46)
+        );
+
+    border: 1px solid rgba(226,232,240,0.95);
+    border-radius: 15px;
+
+    padding: 7px 5px 8px 5px;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 8px 18px rgba(15,23,42,0.04),
+        inset 0 1px 0 rgba(255,255,255,0.65);
+}
+
+.medallero-img {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    display: block;
+    margin-bottom: 2px;
+
+    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.18));
+}
+
+.medallero-title {
+    color: #07111F;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 8px;
+    font-weight: 900;
+    line-height: 1.02;
+    text-transform: uppercase;
+    letter-spacing: 0.015em;
+
+    margin-bottom: 2px;
+
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.medallero-winner {
+    color: #0f172a;
+    font-size: 8.8px;
+    font-weight: 900;
+    line-height: 1.05;
+
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.medallero-detail {
+    display: inline-block;
+
+    margin-top: 4px;
+    padding: 3px 7px;
+
+    border-radius: 999px;
+
+    background: rgba(7,17,31,0.96);
+    border: 1px solid rgba(244,197,66,0.18);
+
+    color: #F4C542;
+
+    font-size: 7.3px;
+    font-weight: 900;
+    line-height: 1.05;
+
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   5C. PULSO DE COMUNIDAD
+   ============================================================ */
+
+.community-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.community-stat-mini {
+    background: rgba(248,250,252,0.86);
+    border: 1px solid rgba(226,232,240,0.88);
+    border-radius: 14px;
+    padding: 10px 8px;
+    min-width: 0;
+}
+
+.community-stat-label {
+    color: #64748b;
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+}
+
+.community-stat-value {
+    color: #07111F;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.1;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .foro-stat-box {
     background: rgba(248,250,252,0.82);
@@ -550,7 +800,40 @@ div[data-testid="stSegmentedControl"] button:hover {
         max-width: 100%;
         max-height: 230px;
     }
+    .news-scroll {
+        max-height: 160px;
+    }
+
+    .medallero-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .medallero-card {
+        min-height: 112px;
+        padding: 6px 4px;
+    }
+
+    .medallero-img {
+        width: 66px;
+        height: 66px;
+    }
+
+    .medallero-title {
+        font-size: 7.2px;
+    }
+
+    .medallero-winner {
+        font-size: 8px;
+    }
+
+    .medallero-detail {
+        font-size: 6.8px;
+        padding: 3px 6px;
+    }
+    
 }
+
     
 </style>
 """, unsafe_allow_html=True)
@@ -840,11 +1123,96 @@ div[data-testid="stSegmentedControl"] button:hover {
             st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
     # ============================================================
-    # COLUMNA DERECHA — DATOS DE COMUNIDAD
+    # COLUMNA DERECHA — NOTICIAS / MEDALLERO / STATS
     # ============================================================
 
     with col_side:
+        # ------------------------------------------------------------
+        # CENTRAL DEL PRODE / NOTICIAS — PROVISORIO
+        # ------------------------------------------------------------
 
+        st.markdown("""
+<div class="community-side-panel">
+<div class="community-side-header">
+<div class="community-side-icon">📰</div>
+<div>
+<div class="community-side-title">Central del Prode</div>
+<div class="community-side-subtitle">Avisos, novedades y perlitas del grupo</div>
+</div>
+</div>
+
+<div class="news-scroll">
+
+<div class="news-card">
+<div class="news-tag">Aviso</div>
+<div class="news-title">Insignias desde el partido 5</div>
+<div class="news-text">El medallero se activa cuando haya suficientes resultados visibles.</div>
+</div>
+
+<div class="news-card">
+<div class="news-tag">Prode</div>
+<div class="news-title">Cargá tus pronósticos a tiempo</div>
+<div class="news-text">La edición se bloquea automáticamente al llegar la fecha límite.</div>
+</div>
+
+<div class="news-card">
+<div class="news-tag">Comunidad</div>
+<div class="news-title">El muro ya está habilitado</div>
+<div class="news-text">Podés subir mensajes, fotos, chicanas y cábalas mundialistas.</div>
+</div>
+
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+        # ------------------------------------------------------------
+        # MEDALLERO DEL PRODE — PROVISORIO
+        # ------------------------------------------------------------
+
+        BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
+
+        medallero_items = [
+            ("Puntero", "puntero/PUNTERO_LARGE_GRAY_512.png"),
+            ("Sr. Prode", "srprode/SRPRODE_LARGE_GRAY_512.png"),
+            ("Siempre Suma", "suma/SUMA_LARGE_GRAY_512.png"),
+            ("Optimista del Gol", "optimista/OPTIMISTA_LARGE_GRAY_512.png"),
+            ("El Cholo", "elcholo/ELCHOLO_LARGE_GRAY_512.png"),
+            ("Rey del Empate", "empate/EMPATE_LARGE_GRAY_512.png"),
+            ("El Macaya", "macaya/MACAYA_LARGE_GRAY_512.png"),
+            ("El Misterioso", "misterioso/MISTERIOSO_LARGE_GRAY_512.png"),
+            ("El Distinto", "distinto/DISTINTO_LARGE_GRAY_512.png"),
+        ]
+
+        medallero_html = ""
+
+        for title, img_path in medallero_items:
+            medallero_html += f"""
+<div class="medallero-card">
+<img src="{BADGE_ASSET_BASE_URL}/{img_path}" class="medallero-img" loading="lazy">
+<div class="medallero-title">{escape(title)}</div>
+<div class="medallero-winner">🔒 Sin dueño</div>
+<div class="medallero-detail">Desde partido 5</div>
+</div>
+"""
+
+        st.markdown(
+            f"""
+<div class="community-side-panel">
+<div class="community-side-header">
+<div class="community-side-icon">🏅</div>
+<div>
+<div class="community-side-title">Medallero del Prode</div>
+<div class="community-side-subtitle">Reconocimientos y gloria comunitaria</div>
+</div>
+</div>
+
+<div class="medallero-grid">
+{medallero_html}
+</div>
+</div>
+""",
+            unsafe_allow_html=True
+        )
         # ------------------------------------------------------------
         # DATOS DE COMUNIDAD
         # ------------------------------------------------------------
@@ -923,20 +1291,37 @@ div[data-testid="stSegmentedControl"] button:hover {
         with st.expander("📢 Comunidad", expanded=False):
             st.markdown(
                 f"""
-<div class="foro-stat-box">
-<div class="foro-stat-title">Resumen</div>
-<div class="foro-stat-line">💬 Mensajes totales: {total_mensajes}</div>
-</div>
-
-<div class="foro-stat-box">
-<div class="foro-stat-title">Top agitadores</div>
-{agitadores_html}
-</div>
-
-<div class="foro-stat-box">
-<div class="foro-stat-title">Popularidad</div>
-{popularidad_html}
-</div>
-""",
+    <div class="community-side-panel">
+    <div class="community-side-header">
+    <div class="community-side-icon">📊</div>
+    <div>
+    <div class="community-side-title">Pulso de Comunidad</div>
+    <div class="community-side-subtitle">Actividad, banca y polémica del grupo</div>
+    </div>
+    </div>
+    
+    <div class="community-stats-grid">
+    <div class="community-stat-mini">
+    <div class="community-stat-label">Mensajes</div>
+    <div class="community-stat-value">💬 {total_mensajes}</div>
+    </div>
+    
+    <div class="community-stat-mini">
+    <div class="community-stat-label">Top agitador</div>
+    <div class="community-stat-value">{agitadores_html.replace('<div class="foro-stat-line">', '').replace('</div>', '')}</div>
+    </div>
+    
+    <div class="community-stat-mini">
+    <div class="community-stat-label">Más bancado</div>
+    <div class="community-stat-value">{popularidad_html.split('</div>')[0].replace('<div class="foro-stat-line">', '')}</div>
+    </div>
+    
+    <div class="community-stat-mini">
+    <div class="community-stat-label">Polémica</div>
+    <div class="community-stat-value">{popularidad_html.split('</div>')[-2].replace('<div class="foro-stat-line">', '') if '</div>' in popularidad_html else '🍋 Sin polémicas'}</div>
+    </div>
+    </div>
+    </div>
+    """,
                 unsafe_allow_html=True
             )
