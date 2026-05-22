@@ -8,6 +8,7 @@ from styles_config import (
 )
 from services.supabase_service import (
     insertar_foro_supabase,
+    insertar_noticia_supabase,
     guardar_noticias_supabase,
     actualizar_reaccion_foro_supabase,
     borrar_mensaje_foro_supabase
@@ -1521,15 +1522,14 @@ div[data-testid="stSegmentedControl"] button:hover {
                             "FUENTE": noticia_fuente.strip()
                         }
 
-                        df_noticias_update = pd.concat(
-                            [
-                                df_noticias,
-                                pd.DataFrame([nueva_noticia])
-                            ],
-                            ignore_index=True
-                        )
-
-                        save_noticias(df_noticias_update)
+                        ok, msg = insertar_noticia_supabase(nueva_noticia)
+                        
+                        if ok:
+                            st.cache_data.clear()
+                            st.success("✅ Noticia publicada correctamente.")
+                            st.rerun()
+                        else:
+                            st.error(msg)
                         
             with st.expander("🛠️ Gestionar noticias", expanded=False):
 
