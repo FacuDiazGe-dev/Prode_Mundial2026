@@ -1385,16 +1385,21 @@ div[data-testid="stSegmentedControl"] button:hover {
                 )
             ]
 
-        noticias_visibles["PRIORIDAD_NUM"] = pd.to_numeric(
-            noticias_visibles["PRIORIDAD"],
-            errors="coerce"
-        ).fillna(99)
-
-        noticias_visibles = noticias_visibles.sort_values(
-            by=["PRIORIDAD_NUM", "FECHA"],
-            ascending=[True, False]
-        )
-
+            if "ID" in noticias_visibles.columns:
+                noticias_visibles["ID_NUM"] = pd.to_numeric(
+                    noticias_visibles["ID"],
+                    errors="coerce"
+                ).fillna(0)
+            
+                noticias_visibles = noticias_visibles.sort_values(
+                    by=["PRIORIDAD_NUM", "ID_NUM"],
+                    ascending=[True, False]
+                )
+            else:
+                noticias_visibles = noticias_visibles.sort_values(
+                    by=["PRIORIDAD_NUM", "FECHA"],
+                    ascending=[True, False]
+                )
         noticias_html = ""
 
         if noticias_visibles.empty:
