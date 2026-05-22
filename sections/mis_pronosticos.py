@@ -457,7 +457,7 @@ def render_mis_pronosticos(
     }
 }
 /* ============================================================
-   MI PERFIL — CARD PREMIUM / MISMO LENGUAJE QUE JUGADORES
+   MI PERFIL — CARD PREMIUM / MISMO LENGUAJE QUE PLANTEL
    ============================================================ */
 
 .profile-panel {
@@ -475,8 +475,8 @@ def render_mis_pronosticos(
     background:
         linear-gradient(
             90deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.10)
+            rgba(7,17,31,0.50),
+            rgba(7,17,31,0.22)
         ),
         var(--profile-hero-bg);
 
@@ -484,20 +484,23 @@ def render_mis_pronosticos(
     background-position: center;
     background-repeat: no-repeat;
 
-    border: 1px solid rgba(226,232,240,0.85);
-    border-radius: 16px;
-    padding: 18px 16px 14px 16px;
+    border: 1px solid rgba(244,197,66,0.22);
+    border-radius: 18px;
+    padding: 18px 16px 15px 16px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 12px 26px rgba(15,23,42,0.16);
 }
 
 .profile-hero-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 170px;
+    align-items: center;
     gap: 18px;
 }
 
 .profile-hero-main {
-    flex: 1;
     min-width: 0;
     text-align: center;
 }
@@ -522,23 +525,26 @@ def render_mis_pronosticos(
     align-items: center;
     justify-content: center;
 
-    border-radius: 12px;
-    background: rgba(255,255,255,0.66);
-    border: 1px solid rgba(226,232,240,0.90);
+    border-radius: 13px;
+    background: rgba(255,255,255,0.62);
+    border: 1px solid rgba(255,255,255,0.70);
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.72),
-        0 6px 14px rgba(15,23,42,0.05);
+        0 6px 14px rgba(15,23,42,0.16);
 }
 
 .profile-badge-mini.earned {
+    border-color: rgba(244,197,66,0.42);
+    background: rgba(255,255,255,0.72);
+
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.82),
-        0 8px 18px rgba(15,23,42,0.08);
+        0 8px 18px rgba(244,197,66,0.12);
 }
 
 .profile-badge-mini.locked {
-    opacity: 0.92;
+    opacity: 0.88;
 }
 
 .profile-badge-mini-img {
@@ -563,14 +569,16 @@ def render_mis_pronosticos(
 }
 
 .profile-avatar {
-    width: 118px;
-    height: 118px;
+    width: 108px;
+    height: 108px;
     object-fit: cover;
     border-radius: 50%;
+
     border: 5px solid #F4C542;
+
     box-shadow:
-        0 14px 34px rgba(15,23,42,0.18),
-        0 0 26px rgba(244,197,66,0.30);
+        0 14px 34px rgba(15,23,42,0.28),
+        0 0 28px rgba(244,197,66,0.32);
 }
 
 .profile-name {
@@ -578,15 +586,20 @@ def render_mis_pronosticos(
     font-size: 24px;
     font-weight: 900;
     color: #F8FAFC;
-    margin-top: 13px;
+
+    margin-top: 11px;
     line-height: 1.05;
+
+    text-shadow: 0 2px 8px rgba(0,0,0,0.60);
 }
 
 .profile-user {
-    color: #cbd5e1;
+    color: rgba(226,232,240,0.78);
     font-size: 13px;
     font-weight: 900;
     margin-top: 4px;
+
+    text-shadow: 0 1px 6px rgba(0,0,0,0.50);
 }
 
 .profile-rank-pill {
@@ -595,34 +608,58 @@ def render_mis_pronosticos(
     justify-content: center;
     gap: 6px;
 
-    margin-top: 12px;
+    margin-top: 11px;
     padding: 7px 12px;
 
-    background: rgba(7,17,31,0.96);
-    border: 1px solid rgba(244,197,66,0.24);
+    background: rgba(7,17,31,0.92);
+    border: 1px solid rgba(244,197,66,0.34);
     border-radius: 999px;
 
     color: #F8FAFC;
     font-size: 12px;
     font-weight: 900;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 8px 18px rgba(15,23,42,0.16);
 }
 
 .profile-rank-pill strong {
     color: #F4C542;
 }
 
+/* Stats integrados al hero */
+
 .profile-stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    margin: 14px 0 14px 0;
+
+    margin: 15px 0 0 0;
+    padding: 10px;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(7,17,31,0.78),
+            rgba(15,23,42,0.58)
+        );
+
+    border: 1px solid rgba(244,197,66,0.18);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 8px 18px rgba(15,23,42,0.12);
 }
 
 .profile-stat {
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 14px;
-    padding: 10px 6px;
-    background: rgba(248,250,252,0.78);
+    border: 0;
+    border-radius: 13px;
+    padding: 8px 6px;
+
+    background: rgba(255,255,255,0.055);
     text-align: center;
     min-width: 0;
 }
@@ -635,20 +672,68 @@ def render_mis_pronosticos(
 
 .profile-stat-number {
     font-family: 'Montserrat', sans-serif;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 900;
-    color: #0f172a;
+    color: #F8FAFC;
     line-height: 1;
+
+    text-shadow: 0 2px 8px rgba(0,0,0,0.65);
 }
 
 .profile-stat-label {
     margin-top: 4px;
     font-size: 9px;
-    color: #64748b;
+    color: rgba(226,232,240,0.72);
     font-weight: 900;
     text-transform: uppercase;
 }
 
+/* Bio integrada al hero */
+
+.profile-hero-bio {
+    margin-top: 11px;
+    padding: 11px 13px;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(7,17,31,0.82),
+            rgba(15,23,42,0.62)
+        );
+
+    border: 1px solid rgba(244,197,66,0.22);
+
+    color: rgba(248,250,252,0.86);
+    font-size: 12.5px;
+    font-weight: 650;
+    line-height: 1.42;
+
+    text-align: left;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 8px 18px rgba(15,23,42,0.10);
+}
+
+.profile-hero-bio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-right: 5px;
+
+    color: #F4C542;
+    font-weight: 900;
+}
+
+.profile-hero-bio-icon {
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* Se conserva por seguridad para usos auxiliares */
 .profile-info {
     border-top: 1px solid rgba(226,232,240,0.85);
     margin-top: 12px;
@@ -696,9 +781,14 @@ def render_mis_pronosticos(
 }
 
 @media (max-width: 768px) {
+    .profile-hero {
+        padding: 15px 13px 13px 13px;
+        border-radius: 16px;
+    }
+
     .profile-hero-top {
-        flex-direction: column;
-        align-items: center;
+        grid-template-columns: 1fr;
+        justify-items: center;
         gap: 14px;
     }
 
@@ -738,6 +828,7 @@ def render_mis_pronosticos(
     .profile-stats {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 6px;
+        padding: 8px;
     }
 
     .profile-stat {
@@ -750,6 +841,13 @@ def render_mis_pronosticos(
 
     .profile-stat-label {
         font-size: 7px;
+    }
+
+    .profile-hero-bio {
+        margin-top: 10px;
+        padding: 10px 11px;
+        font-size: 12px;
+        line-height: 1.36;
     }
 
     .profile-info-row {
@@ -1079,8 +1177,8 @@ div[data-testid="stButton"] button {
 
     st.markdown("""
 <div class="page-section-title">
-    <h1>Mis Pronósticos / Mi Perfil</h1>
-    <p>Gestioná tus predicciones y tu información personal.</p>
+    <h1>Mi Prode</h1>
+    <p>Tu tablero personal: perfil, predicciones y estado en el juego.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1503,12 +1601,13 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 </div>
 
 <div class="profile-hero" style="--profile-hero-bg: url('{PROFILE_HERO_BG_URL}');">
+
 <div class="profile-hero-top">
 
 <div class="profile-hero-main">
 <img src="{foto}" class="profile-avatar">
 <div class="profile-name">{nombre}</div>
-<div class="profile-user">@{usuario} · {equipo}</div>
+<div class="profile-user">@{usuario} ({edad} años) · {equipo}</div>
 
 <div class="profile-rank-pill">
 <span>📊 Posición actual</span>
@@ -1522,7 +1621,6 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 </div>
 </div>
 
-</div>
 </div>
 
 <div class="profile-stats">
@@ -1545,20 +1643,14 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 </div>
 </div>
 
-<div class="profile-info">
-<div class="profile-info-row">
-<div class="profile-info-label">⚽ Equipo favorito</div>
-<div class="profile-info-value">{equipo}</div>
+<div class="profile-hero-bio">
+<span class="profile-hero-bio-label">
+<span class="profile-hero-bio-icon">💬</span>
+Bio:
+</span>
+{bio}
 </div>
 
-<div class="profile-info-row">
-<div class="profile-info-label">🎂 Edad</div>
-<div class="profile-info-value">{edad} años</div>
-</div>
-</div>
-
-<div class="profile-bio">
-<strong>Bio:</strong> {bio}
 </div>
 
 </div>
