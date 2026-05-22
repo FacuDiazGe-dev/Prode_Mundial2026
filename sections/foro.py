@@ -1214,8 +1214,11 @@ div[data-testid="stSegmentedControl"] button:hover {
                         "FORO_IMG_URL": img_url
                     }
 
-                    df_foro_update = pd.concat(
-                        [pd.DataFrame([nuevo_mensaje]), df_foro],
+                    df_update = pd.concat(
+                        [
+                            df_foro,
+                            pd.DataFrame([nuevo_msg])
+                        ],
                         ignore_index=True
                     )
 
