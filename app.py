@@ -39,6 +39,7 @@ from services.supabase_service import (
     get_pronosticos_app,
     get_foro_app,
     get_noticias_app,
+    get_config_app,
     guardar_pronosticos_supabase,
     registrar_usuario_supabase
 )
