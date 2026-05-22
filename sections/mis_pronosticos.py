@@ -14,7 +14,6 @@ from styles_config import (
     EVOL_HEADER_BACKGROUND
 )
 from tools import upload_profile_picture, get_flag_img
-from ranking_logic import calcular_detalle
 
 
 def render_mis_pronosticos(
@@ -1115,112 +1114,7 @@ div[data-testid="stButton"] button {
             "exactos": int(row.get("EXACTOS", 0)),
             "generales": int(row.get("GENERALES", 0))
         }
-    def calcular_evolucion_usuario(usuario):
-        """
-        Calcula la evolución acumulada de puntos del usuario
-        partido por partido, tomando solo partidos visibles y con resultado.
-        """
-
-        if df_res is None or df_res.empty or df_pro is None or df_pro.empty:
-            return pd.DataFrame(
-                columns=[
-                    "Partido",
-                    "Puntos partido",
-                    "Puntos acumulados"
-                ]
-            )
-
-        df_res_check = df_res.copy()
-
-        if "VIZ" in df_res_check.columns:
-            viz_check = (
-                df_res_check["VIZ"]
-                .astype(str)
-                .str.strip()
-                .str.upper()
-            )
-
-            df_res_check = df_res_check[
-                viz_check.isin(
-                    ["TRUE", "1", "1.0", "VERDADERO", "T"]
-                )
-            ]
-
-        if "R1" not in df_res_check.columns or "R2" not in df_res_check.columns:
-            return pd.DataFrame(
-                columns=[
-                    "Partido",
-                    "Puntos partido",
-                    "Puntos acumulados"
-                ]
-            )
-
-        df_res_check = df_res_check[
-            df_res_check["R1"].notna()
-            & df_res_check["R2"].notna()
-        ].copy()
-
-        if df_res_check.empty:
-            return pd.DataFrame(
-                columns=[
-                    "Partido",
-                    "Puntos partido",
-                    "Puntos acumulados"
-                ]
-            )
-
-        df_user_pro = df_pro[
-            df_pro["USUARIO"].astype(str) == str(usuario)
-        ].copy()
-
-        if df_user_pro.empty:
-            return pd.DataFrame(
-                columns=[
-                    "Partido",
-                    "Puntos partido",
-                    "Puntos acumulados"
-                ]
-            )
-
-        rows = []
-        acumulado = 0
-
-        for _, partido in df_res_check.sort_values("N_PARTIDO").iterrows():
-            id_p = int(partido["N_PARTIDO"])
-
-            pron = df_user_pro[
-                df_user_pro["N_PARTIDO"].astype(int) == id_p
-            ]
-
-            puntos_partido = 0
-
-            if not pron.empty:
-                p = pron.iloc[0]
-
-                if (
-                    pd.notna(partido.get("R1"))
-                    and pd.notna(partido.get("R2"))
-                    and pd.notna(p.get("P1"))
-                    and pd.notna(p.get("P2"))
-                ):
-                    puntos_partido, _, _ = calcular_detalle(
-                        partido["R1"],
-                        partido["R2"],
-                        p["P1"],
-                        p["P2"]
-                    )
-
-            acumulado += puntos_partido
-
-            rows.append(
-                {
-                    "Partido": id_p,
-                    "Puntos partido": puntos_partido,
-                    "Puntos acumulados": acumulado
-                }
-            )
-
-            def render_evolucion_puntos_premium(usuario_actual):
+    def render_evolucion_puntos_premium(usuario_actual):
         """
         Renderiza la evolución de puntos con el mismo estilo visual que Inicio.
         Muestra usuario actual + Top 5 del ranking.
@@ -1281,7 +1175,9 @@ div[data-testid="stButton"] button {
 
         for user in usuarios_lista:
             pts_acc = 0
-            user_pro = df_pro[df_pro["USUARIO"].astype(str) == str(user)]
+            user_pro = df_pro[
+                df_pro["USUARIO"].astype(str) == str(user)
+            ]
 
             for id_p in ids_visibles:
                 part_row = partidos_visibles[
@@ -1338,7 +1234,9 @@ div[data-testid="stButton"] button {
             .head(5)["USUARIO"]
             .astype(str)
             .tolist()
-            if df_ranking is not None and not df_ranking.empty and "USUARIO" in df_ranking.columns
+            if df_ranking is not None
+            and not df_ranking.empty
+            and "USUARIO" in df_ranking.columns
             else []
         )
 
@@ -1354,9 +1252,16 @@ div[data-testid="stButton"] button {
         def nombre_visible_usuario(usuario):
             usuario = str(usuario)
 
-            match_rank = df_ranking[
-                df_ranking["USUARIO"].astype(str) == usuario
-            ] if df_ranking is not None and not df_ranking.empty and "USUARIO" in df_ranking.columns else pd.DataFrame()
+            if (
+                df_ranking is not None
+                and not df_ranking.empty
+                and "USUARIO" in df_ranking.columns
+            ):
+                match_rank = df_ranking[
+                    df_ranking["USUARIO"].astype(str) == usuario
+                ]
+            else:
+                match_rank = pd.DataFrame()
 
             if not match_rank.empty:
                 return str(match_rank.iloc[0].get("JUGADOR", usuario))
@@ -1413,7 +1318,6 @@ div[data-testid="stButton"] button {
             posicion_actual = "-"
 
         usuario_safe = escape(str(usuario_actual))
-
         signo_tendencia = "+" if variacion_reciente >= 0 else ""
 
         evol_header_html = evol_html_inicio
@@ -1445,7 +1349,9 @@ div[data-testid="stButton"] button {
             if usuario == usuario_actual:
                 color_map[nombre_label] = "#F4C542"
             else:
-                color_map[nombre_label] = paleta_top5[idx % len(paleta_top5)]
+                color_map[nombre_label] = paleta_top5[
+                    idx % len(paleta_top5)
+                ]
 
         orden_labels = [
             nombre_map.get(u, u)
@@ -1737,10 +1643,8 @@ div[data-testid="stButton"] button {
             height=495,
             scrolling=False
         )
-
-        return pd.DataFrame(rows)
-
     BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
+    
 
     badge_order = [
         "Puntero",
@@ -2430,81 +2334,10 @@ Bio:
                 st.rerun()
 
             # ------------------------------------------------------------
-            # MI EVOLUCIÓN
+            # MI EVOLUCIÓN — MISMO COMPONENTE QUE INICIO
             # ------------------------------------------------------------
 
             render_evolucion_puntos_premium(user_actual)
-
-            st.markdown(
-                """
-<div class="evolution-panel">
-<div class="evolution-header">
-<div class="evolution-icon">📈</div>
-<div>
-<div class="evolution-title">Mi Evolución</div>
-<div class="evolution-subtitle">Puntos acumulados partido a partido</div>
-</div>
-</div>
-""",
-                unsafe_allow_html=True
-            )
-
-            if df_evolucion.empty:
-                st.markdown(
-                    """
-<div class="evolution-empty">
-Todavía no hay partidos visibles con resultado. Cuando empiecen a cargarse resultados oficiales, tu evolución aparecerá acá.
-</div>
-</div>
-""",
-                    unsafe_allow_html=True
-                )
-
-            else:
-                chart_df = df_evolucion.set_index("Partido")[
-                    ["Puntos acumulados"]
-                ]
-
-                st.line_chart(
-                    chart_df,
-                    use_container_width=True,
-                    height=210
-                )
-
-                puntos_actuales = int(
-                    df_evolucion["Puntos acumulados"].iloc[-1]
-                )
-
-                mejor_partido = int(
-                    df_evolucion["Puntos partido"].max()
-                )
-
-                partidos_con_puntos = int(
-                    (df_evolucion["Puntos partido"] > 0).sum()
-                )
-
-                st.markdown(
-                    f"""
-<div class="evolution-stats">
-<div class="evolution-stat">
-<div class="evolution-stat-number">{puntos_actuales}</div>
-<div class="evolution-stat-label">Puntos</div>
-</div>
-
-<div class="evolution-stat">
-<div class="evolution-stat-number">{mejor_partido}</div>
-<div class="evolution-stat-label">Mejor partido</div>
-</div>
-
-<div class="evolution-stat">
-<div class="evolution-stat-number">{partidos_con_puntos}</div>
-<div class="evolution-stat-label">Partidos sumando</div>
-</div>
-</div>
-</div>
-""",
-                    unsafe_allow_html=True
-                )
 
         else:
             st.markdown("""
