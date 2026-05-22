@@ -376,9 +376,10 @@ with st.sidebar:
 
     opciones = [
         "🏠 Inicio",
-        "📝 Mis Pronósticos",
-        "👥 Jugadores",
-        "💬 Foro"#,
+        "📝 Mi Prode",
+        "👥 Plantel",
+        "💬 Comunidad",
+        "📜 Reglas del Juego"#,
         #"🧪 Laboratorio"
     ]
 
@@ -415,7 +416,7 @@ if menu == "🏠 Inicio":
 
 #---------- MENU MIS PRONOSTICOS (CÓDIGO CORREGIDO Y COMPLETO) ----------------------------------
 
-elif menu == "📝 Mis Pronósticos":
+elif menu == "📝 Mi Prode":
     render_mis_pronosticos(
         df_res=df_res,
         df_usuarios=df_usuarios,
@@ -426,7 +427,7 @@ elif menu == "📝 Mis Pronósticos":
     )
 
 # ---------- MENU JUGADORES ----------------------------------------------------
-elif menu == "👥 Jugadores":
+elif menu == "👥 Plantel":
 
     df_foro = conn.read(
     worksheet="FORO",
@@ -445,12 +446,16 @@ elif menu == "👥 Jugadores":
     )
        
 # ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
-elif menu == "💬 Foro":
+elif menu == "💬 Comunidad":
     render_foro(
         conn=conn,
         df_usuarios=df_usuarios
     )
+# ---------- MENU REGLAS DEL JUEGO ----------------------------------------------------
 
+elif menu == "📜 Reglas del Juego":
+    st.markdown("## 📜 Reglas del Juego")
+    st.info("Sección en preparación. Acá vamos a mover el Decálogo del Prode y las Preguntas Frecuentes.")
 
 
 # ---------- PANEL DE CONTROL ------------------------
