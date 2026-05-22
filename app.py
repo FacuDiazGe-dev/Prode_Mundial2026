@@ -185,7 +185,7 @@ if not st.session_state['autenticado']:
         letter-spacing: 0.08em;
     }}
     
-    .login-hero-title {
+    .login-hero-title {{
         margin: 0;
     
         color: #FFFFFF;
@@ -198,7 +198,7 @@ if not st.session_state['autenticado']:
         text-shadow:
             0 2px 10px rgba(0,0,0,0.45),
             0 0 18px rgba(255,255,255,0.10);
-    }
+    }}
     
     .login-hero-subtitle {{
         margin-top: 9px;
