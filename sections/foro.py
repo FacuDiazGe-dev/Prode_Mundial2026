@@ -983,51 +983,51 @@ div[data-testid="stSegmentedControl"] button:hover {
 
         return AVATAR_GENERICO
 
-def save_foro(df_new):
-    """
-    Guarda solamente los mensajes nuevos del foro.
-    No reemplaza toda la tabla.
-    """
-
-    try:
-        df_base = (
-            df_foro.copy()
-            if df_foro is not None
-            else pd.DataFrame()
-        )
-
-        diferencia = len(df_new) - len(df_base)
-
-        if diferencia <= 0:
-            st.warning(
-                "No se detectaron mensajes nuevos para guardar. "
-                "Las ediciones de likes/dislikes se migrarán en un paso separado."
-            )
-            return
-
-        # Si tu código agrega el mensaje nuevo al final:
-        nuevas_filas = df_new.head(diferencia).copy()
-
-        ok, msg = insertar_foro_supabase(nuevas_filas)
-
-        if ok:
-            st.cache_data.clear()
-            st.success("✅ Mensaje publicado correctamente.")
-            st.rerun()
-        else:
-            st.error(msg)
-
-    except Exception as e:
-        st.error(f"Error al guardar el mensaje: {e}")
-    def save_noticias(df_new):
-        ok, msg = guardar_noticias_supabase(df_new)
+    def save_foro(df_new):
+        """
+        Guarda solamente los mensajes nuevos del foro.
+        No reemplaza toda la tabla.
+        """
     
-        if ok:
-            st.cache_data.clear()
-            st.success("✅ Noticias actualizadas correctamente.")
-            st.rerun()
-        else:
-            st.error(msg)
+        try:
+            df_base = (
+                df_foro.copy()
+                if df_foro is not None
+                else pd.DataFrame()
+            )
+    
+            diferencia = len(df_new) - len(df_base)
+    
+            if diferencia <= 0:
+                st.warning(
+                    "No se detectaron mensajes nuevos para guardar. "
+                    "Las ediciones de likes/dislikes se migrarán en un paso separado."
+                )
+                return
+    
+            # Si tu código agrega el mensaje nuevo al final:
+            nuevas_filas = df_new.head(diferencia).copy()
+    
+            ok, msg = insertar_foro_supabase(nuevas_filas)
+    
+            if ok:
+                st.cache_data.clear()
+                st.success("✅ Mensaje publicado correctamente.")
+                st.rerun()
+            else:
+                st.error(msg)
+    
+        except Exception as e:
+            st.error(f"Error al guardar el mensaje: {e}")
+        def save_noticias(df_new):
+            ok, msg = guardar_noticias_supabase(df_new)
+        
+            if ok:
+                st.cache_data.clear()
+                st.success("✅ Noticias actualizadas correctamente.")
+                st.rerun()
+            else:
+                st.error(msg)
 
     def normalizar_badges(valor):
         if valor is None:
