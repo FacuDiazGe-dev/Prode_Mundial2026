@@ -71,13 +71,64 @@ def leer_sheet_seguro(conn, worksheet, ttl=300):
         return pd.DataFrame()
 
 
-# Sobrescribimos los datos principales desde Supabase
+# ============================================================
+# DATOS PRINCIPALES DESDE SUPABASE
+# ============================================================
+
 df_res = get_resultados_app()
 df_usuarios = get_usuarios_app()
 df_pro = get_pronosticos_app()
 
-if df_res is None:
-    st.stop() # Si falla la carga, detenemos la app con el error del módulo
+if df_res is None or df_res.empty:
+    st.error("No se pudieron cargar los resultados desde Supabase.")
+    st.stop()
+
+# ============================================================
+# MAPA DE BANDERAS
+# Antes venía desde cargar_todo(conn).
+# Ahora lo reconstruimos desde df_res.
+# ============================================================
+
+equipos_1 = (
+    df_res["Equipo_1"]
+    .dropna()
+    .astype(str)
+    .tolist()
+    if "Equipo_1" in df_res.columns
+    else []
+)
+
+equipos_2 = (
+    df_res["Equipo_2"]
+    .dropna()
+    .astype(str)
+    .tolist()
+    if "Equipo_2" in df_res.columns
+    else []
+)
+
+equipos_unicos = sorted(
+    set(equipos_1 + equipos_2)
+)
+
+mapa_banderas = {}
+
+for equipo in equipos_unicos:
+    equipo = str(equipo).strip()
+
+    if equipo == "" or equipo.lower() == "nan":
+        continue
+
+    try:
+        bandera = get_flag_img_cached(equipo)
+
+        if bandera is None or str(bandera).strip() == "":
+            bandera = "⚽"
+
+        mapa_banderas[equipo] = bandera
+
+    except Exception:
+        mapa_banderas[equipo] = "⚽"
 
 # --- 2. CONFIGURACIÓN DINÁMICA (Desde GSheets) ---
 # 1. Definimos valores por defecto (Si algo falla, la web queda abierta por seguridad)
