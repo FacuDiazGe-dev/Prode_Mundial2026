@@ -315,13 +315,6 @@ def render_reglas():
 
     with col_decalogo:
 
-        st.markdown("""
-<div class="reglas-panel">
-<div class="reglas-panel-header">
-<div class="reglas-panel-icon">📜</div>
-</div>
-""", unsafe_allow_html=True)
-
         mostrar_decalogo()
 
         st.markdown("</div>", unsafe_allow_html=True)
