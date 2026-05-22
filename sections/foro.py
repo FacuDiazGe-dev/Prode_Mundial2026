@@ -921,7 +921,7 @@ div[data-testid="stSegmentedControl"] button:hover {
 </div>
 """, unsafe_allow_html=True)
 
-    col_main, col_side = st.columns([1, 1], gap="large")
+    col_main, col_side = st.columns([1.6, 1], gap="large")
 
     # ============================================================
     # COLUMNA PRINCIPAL — MURO
