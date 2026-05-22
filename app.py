@@ -24,6 +24,7 @@ from sections.mis_pronosticos import render_mis_pronosticos
 from sections.jugadores import render_jugadores
 #from sections.laboratorio import render_laboratorio
 from sections.foro import render_foro
+from sections.reglas import render_reglas
 
 from PIL import Image
 import streamlit as st
@@ -454,8 +455,7 @@ elif menu == "💬 Comunidad":
 # ---------- MENU REGLAS DEL JUEGO ----------------------------------------------------
 
 elif menu == "📜 Reglas del Juego":
-    st.markdown("## 📜 Reglas del Juego")
-    st.info("Sección en preparación. Acá vamos a mover el Decálogo del Prode y las Preguntas Frecuentes.")
+    render_reglas()
 
 
 # ---------- PANEL DE CONTROL ------------------------
