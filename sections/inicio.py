@@ -1884,10 +1884,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         """, unsafe_allow_html=True)
         
         from html import escape
-        
-        # Leer foro
-        df_foro = conn.read(worksheet="FORO", ttl=10)
-        
+               
         columnas_foro = [
             "FECHA",
             "USUARIO",
