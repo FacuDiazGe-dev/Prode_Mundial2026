@@ -934,547 +934,449 @@ def render_inicio(
         ranking_html += '</div>'
         
         st.markdown(ranking_html, unsafe_allow_html=True)
-        
+         # ============================================================
+        # NOTICIAS Y AVISOS — CARD EDITORIAL
+        # Reemplaza Evolución de Puntos en Inicio
         # ============================================================
-        # EVOLUCIÓN DE PUNTOS — CARD INTEGRADA
-        # ============================================================
-                
+
         st.markdown("""
-        <style>
-        .evol-panel {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 14px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-            overflow: hidden;
-        }
-        
-        .evol-panel-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 4px 4px 14px 4px;
-            margin-bottom: 8px;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
-        }
-        
-        .evol-panel-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 10px;
-        
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        
-            background: rgba(244, 197, 66, 0.16);
-            color: #0f172a;
-            font-size: 16px;
-        }
-        
-        .evol-panel-title {
-            font-family: 'Montserrat', 'Inter', sans-serif;
-            font-size: 17px;
-            font-weight: 900;
-            color: #0f172a;
-            text-transform: uppercase;
-            letter-spacing: 0.01em;
-        }
-        
-        .evol-empty {
-            height: 315px;
-        
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        
-            text-align: center;
-            color: #94a3b8;
-        
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 800;
-        }
-        
-        @media (max-width: 768px) {
-            .evol-panel {
-                padding: 12px;
-                border-radius: 16px;
-            }
-        
-            .evol-panel-title {
-                font-size: 15px;
-            }
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        
-        df_res["VIZ_CHECK"] = df_res["VIZ"].astype(str).str.strip().str.upper()
-        
-        partidos_visibles = (
-            df_res[
-                df_res["VIZ_CHECK"].isin(
+<style>
+.news-home-panel {
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+}
+
+.news-home-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 4px 14px 4px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+}
+
+.news-home-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(244, 197, 66, 0.16);
+    color: #0f172a;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.news-home-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+}
+
+.news-featured-card {
+    position: relative;
+    overflow: hidden;
+
+    min-height: 150px;
+
+    border-radius: 15px;
+    margin-bottom: 10px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(7,17,31,0.92) 0%,
+            rgba(7,17,31,0.72) 48%,
+            rgba(7,17,31,0.22) 100%
+        ),
+        var(--news-featured-img);
+
+    background-size: cover;
+    background-position: center right;
+
+    border: 1px solid rgba(255,255,255,0.10);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 8px 18px rgba(15,23,42,0.12);
+}
+
+.news-featured-content {
+    padding: 14px 15px;
+    max-width: 72%;
+}
+
+.news-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 4px 8px;
+    margin-bottom: 9px;
+
+    border-radius: 999px;
+
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.news-tag.aviso {
+    background: rgba(244,197,66,0.18);
+    color: #F4C542;
+    border: 1px solid rgba(244,197,66,0.38);
+}
+
+.news-tag.mundial {
+    background: rgba(34,197,94,0.16);
+    color: #86efac;
+    border: 1px solid rgba(34,197,94,0.34);
+}
+
+.news-tag.prode {
+    background: rgba(59,130,246,0.16);
+    color: #93c5fd;
+    border: 1px solid rgba(59,130,246,0.34);
+}
+
+.news-tag.comunidad {
+    background: rgba(168,85,247,0.16);
+    color: #d8b4fe;
+    border: 1px solid rgba(168,85,247,0.34);
+}
+
+.news-tag.partido {
+    background: rgba(249,115,22,0.16);
+    color: #fdba74;
+    border: 1px solid rgba(249,115,22,0.34);
+}
+
+.news-featured-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #F8FAFC;
+    line-height: 1.12;
+    margin-bottom: 7px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.65);
+}
+
+.news-featured-text {
+    color: rgba(248,250,252,0.78);
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.32;
+    margin-bottom: 9px;
+}
+
+.news-date {
+    color: rgba(226,232,240,0.52);
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.news-secondary-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 78px;
+    gap: 10px;
+    align-items: center;
+
+    background: rgba(248,250,252,0.92);
+    border: 1px solid rgba(226,232,240,0.88);
+    border-radius: 14px;
+
+    padding: 10px;
+    margin-bottom: 9px;
+
+    box-shadow: 0 6px 14px rgba(15,23,42,0.035);
+}
+
+.news-secondary-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12.5px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.14;
+    margin-bottom: 4px;
+}
+
+.news-secondary-text {
+    color: #64748b;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.28;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+
+.news-secondary-img {
+    width: 78px;
+    height: 58px;
+    border-radius: 10px;
+    object-fit: cover;
+
+    border: 1px solid rgba(226,232,240,0.9);
+    box-shadow: 0 4px 10px rgba(15,23,42,0.12);
+}
+
+.news-home-footer {
+    margin-top: 4px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-radius: 13px;
+    border: 1px solid rgba(226,232,240,0.88);
+    background: rgba(248,250,252,0.86);
+
+    padding: 10px 12px;
+
+    color: #334155;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.news-empty {
+    height: 315px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    color: #94a3b8;
+
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+
+    background: rgba(248,250,252,0.74);
+    border: 1px solid rgba(226,232,240,0.85);
+    border-radius: 15px;
+}
+
+@media (max-width: 768px) {
+    .news-home-panel {
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    .news-home-title {
+        font-size: 15px;
+    }
+
+    .news-featured-card {
+        min-height: 145px;
+    }
+
+    .news-featured-content {
+        max-width: 82%;
+    }
+
+    .news-featured-title {
+        font-size: 16px;
+    }
+
+    .news-featured-text {
+        font-size: 11px;
+    }
+
+    .news-secondary-card {
+        grid-template-columns: minmax(0, 1fr) 66px;
+    }
+
+    .news-secondary-img {
+        width: 66px;
+        height: 50px;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
+        NEWS_FALLBACK_IMG = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
+
+        if df_noticias is None or df_noticias.empty:
+            noticias_visibles = pd.DataFrame()
+        else:
+            noticias_visibles = df_noticias.copy()
+
+            columnas_noticias = [
+                "FECHA",
+                "TIPO",
+                "TITULO",
+                "TEXTO",
+                "AUTOR",
+                "VISIBLE",
+                "PRIORIDAD",
+                "LINK",
+                "IMAGEN_URL",
+                "FUENTE"
+            ]
+
+            for col in columnas_noticias:
+                if col not in noticias_visibles.columns:
+                    if col == "VISIBLE":
+                        noticias_visibles[col] = "TRUE"
+                    elif col == "PRIORIDAD":
+                        noticias_visibles[col] = 99
+                    else:
+                        noticias_visibles[col] = ""
+
+            noticias_visibles["VISIBLE_CHECK"] = (
+                noticias_visibles["VISIBLE"]
+                .astype(str)
+                .str.strip()
+                .str.upper()
+            )
+
+            noticias_visibles = noticias_visibles[
+                noticias_visibles["VISIBLE_CHECK"].isin(
                     ["TRUE", "1", "1.0", "VERDADERO", "T"]
                 )
             ]
-            .sort_values("N_PARTIDO")
-        )
-        
-        evol_html_inicio = (
-            '<div class="evol-panel">'
-            '<div class="evol-panel-header">'
-            '<div class="evol-panel-icon">📈</div>'
-            '<div class="evol-panel-title">Evolución de Puntos</div>'
-            '</div>'
-        )
-        
-        if partidos_visibles.empty:
-            evol_html = evol_html_inicio
-            evol_html += '<div class="evol-empty">Esperando el silbato inicial para mostrar estadísticas.</div>'
-            evol_html += '</div>'
-        
-            st.markdown(evol_html, unsafe_allow_html=True)
-        
+
+            noticias_visibles["PRIORIDAD_NUM"] = pd.to_numeric(
+                noticias_visibles["PRIORIDAD"],
+                errors="coerce"
+            ).fillna(99)
+
+            noticias_visibles = noticias_visibles.sort_values(
+                by=["PRIORIDAD_NUM", "FECHA"],
+                ascending=[True, False]
+            )
+
+        news_html = """
+<div class="news-home-panel">
+<div class="news-home-header">
+<div class="news-home-icon">📣</div>
+<div class="news-home-title">Noticias y Avisos</div>
+</div>
+"""
+
+        if noticias_visibles.empty:
+            news_html += """
+<div class="news-empty">
+Todavía no hay noticias visibles.<br>
+Cuando haya novedades del Prode o del Mundial aparecerán acá.
+</div>
+</div>
+"""
         else:
-            evol_list = []
-            usuarios_lista = df_usuarios["USUARIO"].unique()
-            ids_visibles = partidos_visibles["N_PARTIDO"].tolist()
-        
-            for user in usuarios_lista:
-                pts_acc = 0
-                user_pro = df_pro[df_pro["USUARIO"] == user]
-        
-                for id_p in ids_visibles:
-                    part_row = partidos_visibles[
-                        partidos_visibles["N_PARTIDO"] == id_p
-                    ]
-        
-                    u_p = user_pro[
-                        user_pro["N_PARTIDO"] == id_p
-                    ]
-        
-                    if not part_row.empty and not u_p.empty:
-                        r1_g = part_row["R1"].iloc[0]
-                        r2_g = part_row["R2"].iloc[0]
-                        p1_g = u_p["P1"].iloc[0]
-                        p2_g = u_p["P2"].iloc[0]
-        
-                        if pd.notna(r1_g) and pd.notna(r2_g):
-                            pts_g, _, _ = calcular_detalle(
-                                r1_g,
-                                r2_g,
-                                p1_g,
-                                p2_g
-                            )
-        
-                            pts_acc += pts_g
-        
-                    evol_list.append(
-                        {
-                            "N_Partido": int(id_p),
-                            "Jugador": user,
-                            "Puntos": pts_acc
-                        }
-                    )
-        
-            if not evol_list:
-                evol_html = evol_html_inicio
-                evol_html += '<div class="evol-empty">Todavía no hay datos suficientes para mostrar la evolución.</div>'
-                evol_html += '</div>'
-        
-                st.markdown(evol_html, unsafe_allow_html=True)
-        
-            else:
-                df_ev = pd.DataFrame(evol_list)
-                
-                usuario_actual = str(st.session_state["user_data"]["USUARIO"])
-                
-                # ------------------------------------------------------------
-                # Usuarios visibles en el gráfico:
-                # Top 5 del ranking + usuario logueado si no está en Top 5
-                # ------------------------------------------------------------
-                
-                top5_usuarios = (
-                    df_ranking
-                    .head(5)["USUARIO"]
-                    .astype(str)
-                    .tolist()
-                )
-                
-                usuarios_grafico = []
-                
-                for u in top5_usuarios:
-                    if u not in usuarios_grafico:
-                        usuarios_grafico.append(u)
-                
-                if usuario_actual not in usuarios_grafico:
-                    usuarios_grafico.append(usuario_actual)
-                
-                
-                def nombre_visible_usuario(usuario):
-                    usuario = str(usuario)
-                
-                    match_rank = df_ranking[
-                        df_ranking["USUARIO"].astype(str) == usuario
-                    ]
-                
-                    if not match_rank.empty:
-                        nombre = str(match_rank.iloc[0].get("JUGADOR", usuario))
-                        return nombre
-                
-                    match_user = df_usuarios[
-                        df_usuarios["USUARIO"].astype(str) == usuario
-                    ]
-                
-                    if not match_user.empty:
-                        return str(match_user.iloc[0].get("NOMBRE", usuario))
-                
-                    return usuario
-                
-                
-                nombre_map = {
-                    u: nombre_visible_usuario(u)
-                    for u in usuarios_grafico
-                }
-                
-                df_ev_plot = df_ev[
-                    df_ev["Jugador"].astype(str).isin(usuarios_grafico)
-                ].copy()
-                
-                df_ev_plot["Refe"] = (
-                    df_ev_plot["Jugador"]
-                    .astype(str)
-                    .map(nombre_map)
-                )
-                
-                df_user_ev = (
-                    df_ev[df_ev["Jugador"].astype(str) == usuario_actual]
-                    .sort_values("N_Partido")
-                )
-        
-                if not df_user_ev.empty:
-                    puntos_actuales = int(df_user_ev["Puntos"].iloc[-1])
-        
-                    if len(df_user_ev) >= 5:
-                        puntos_previos = int(df_user_ev["Puntos"].iloc[-5])
-                        variacion_reciente = puntos_actuales - puntos_previos
-                    else:
-                        puntos_previos = int(df_user_ev["Puntos"].iloc[0])
-                        variacion_reciente = puntos_actuales - puntos_previos
-                else:
-                    puntos_actuales = 0
-                    variacion_reciente = 0
-        
-                try:
-                    row_user_rank = df_ranking[
-                        df_ranking["USUARIO"] == usuario_actual
-                    ]
-        
-                    posicion_actual = int(row_user_rank.index[0])
-                except:
-                    posicion_actual = "-"
-        
-                usuario_safe = escape(str(usuario_actual))
-        
-                evol_header_html = evol_html_inicio
-                evol_header_html += (
-                    f'<div class="evol-summary-dark">'
-                    f'<div class="evol-user-name">{usuario_safe}</div>'
-                    f'<div class="evol-main-row">'
-                    f'<div class="evol-main-number">{puntos_actuales}<span>pts</span></div>'
-                    f'<div class="evol-position-pill">{posicion_actual}° puesto</div>'
-                    f'</div>'
-                    f'<div class="evol-meta">Última tendencia: <strong>+{variacion_reciente} pts</strong></div>'
-                    f'</div>'
-                    f'<div class="evol-chart-shell">'
+            noticias_home = noticias_visibles.head(3).copy()
+
+            noticia_principal = noticias_home.iloc[0]
+
+            tipo_raw = str(noticia_principal.get("TIPO", "Aviso")).strip()
+            tipo_class = tipo_raw.lower()
+            tipo_class = (
+                tipo_class
+                .replace("á", "a")
+                .replace("é", "e")
+                .replace("í", "i")
+                .replace("ó", "o")
+                .replace("ú", "u")
+                .replace(" ", "-")
+            )
+
+            titulo = escape(str(noticia_principal.get("TITULO", "")))
+            texto = escape(str(noticia_principal.get("TEXTO", "")))
+            fecha = escape(str(noticia_principal.get("FECHA", "")))
+            link = str(noticia_principal.get("LINK", "")).strip()
+
+            img = str(noticia_principal.get("IMAGEN_URL", "")).strip()
+            if img == "" or img.lower() == "nan":
+                img = NEWS_FALLBACK_IMG
+
+            card_open = ""
+            card_close = ""
+
+            if link and link.lower() != "nan":
+                card_open = f'<a href="{escape(link, quote=True)}" target="_blank" style="text-decoration:none;">'
+                card_close = "</a>"
+
+            news_html += f"""
+{card_open}
+<div class="news-featured-card" style="--news-featured-img: url('{escape(img, quote=True)}');">
+<div class="news-featured-content">
+<div class="news-tag {escape(tipo_class)}">{escape(tipo_raw)}</div>
+<div class="news-featured-title">{titulo}</div>
+<div class="news-featured-text">{texto}</div>
+<div class="news-date">{fecha}</div>
+</div>
+</div>
+{card_close}
+"""
+
+            for _, n in noticias_home.iloc[1:3].iterrows():
+                tipo_raw = str(n.get("TIPO", "Prode")).strip()
+                tipo_class = tipo_raw.lower()
+                tipo_class = (
+                    tipo_class
+                    .replace("á", "a")
+                    .replace("é", "e")
+                    .replace("í", "i")
+                    .replace("ó", "o")
+                    .replace("ú", "u")
+                    .replace(" ", "-")
                 )
 
-                # ------------------------------------------------------------
-                # Colores del gráfico
-                # Usuario logueado: dorado
-                # Top 5: colores suaves/pálidos
-                # --
-                
-                paleta_top5 = [
-                    "#93C5FD",  # azul suave
-                    "#A7F3D0",  # verde agua suave
-                    "#C4B5FD",  # violeta suave
-                    "#FCA5A5",  # rojo suave
-                    "#FDBA74",  # naranja suave
-                ]
-                
-                color_map = {}
-                
-                for idx, usuario in enumerate(usuarios_grafico):
-                    nombre_label = nombre_map.get(usuario, usuario)
-                
-                    if usuario == usuario_actual:
-                        color_map[nombre_label] = "#F4C542"
-                    else:
-                        color_map[nombre_label] = paleta_top5[idx % len(paleta_top5)]
-                
-                
-                orden_labels = [
-                    nombre_map.get(u, u)
-                    for u in usuarios_grafico
-                ]
-                
-                fig = px.line(
-                    df_ev_plot,
-                    x="N_Partido",
-                    y="Puntos",
-                    color="Refe",
-                    markers=True,
-                    color_discrete_map=color_map,
-                    category_orders={
-                        "Refe": orden_labels
-                    }
-                )
-        
-                fig.update_layout(
-                    height=255,
-                    paper_bgcolor="rgba(0,0,0,0)",
-                    plot_bgcolor="rgba(0,0,0,0)",
-                    font=dict(
-                        family="Inter, sans-serif",
-                        size=11,
-                        color="#64748b"
-                    ),
-                    legend=dict(
-                    orientation="h",
-                    yanchor="bottom",
-                    y=1.04,
-                    xanchor="left",
-                    x=0,
-                    font=dict(
-                        size=10,
-                        color="#475569"
-                    ),
-                    bgcolor="rgba(255,255,255,0.72)",
-                    bordercolor="rgba(226,232,240,0.90)",
-                    borderwidth=1
-                ),
-                    margin=dict(
-                        l=38,
-                        r=14,
-                        t=42,
-                        b=24
-                    ),
-                    showlegend=True,
-                    hovermode=False,
-                    dragmode=False
-                )
-        
-                fig.update_xaxes(
-                    title_text="",
-                    showgrid=False,
-                    showline=False,
-                    zeroline=False,
-                    tickmode="linear",
-                    dtick=1,
-                    fixedrange=True,
-                    color="#94a3b8",
-                    tickfont=dict(size=10)
-                )
-        
-                fig.update_yaxes(
-                    title_text="",
-                    gridcolor="rgba(148,163,184,0.18)",
-                    showline=False,
-                    zeroline=False,
-                    fixedrange=True,
-                    color="#94a3b8",
-                    tickfont=dict(size=10)
-                )    
-                
-                usuario_actual_label = nombre_map.get(usuario_actual, usuario_actual)
-                
-                for trace in fig.data:
-                    if trace.name == usuario_actual_label:
-                        trace.update(
-                            line=dict(
-                                width=5,
-                                color="#F4C542"
-                            ),
-                            marker=dict(
-                                size=8,
-                                color="#F4C542",
-                                line=dict(
-                                    width=2,
-                                    color="white"
-                                )
-                            ),
-                            opacity=1,
-                            hoverinfo="skip",
-                            hovertemplate=None
-                        )
-                    else:
-                        trace.update(
-                            line=dict(
-                                width=2.4
-                            ),
-                            marker=dict(
-                                size=5,
-                                line=dict(
-                                    width=1,
-                                    color="white"
-                                )
-                            ),
-                            opacity=0.72,
-                            hoverinfo="skip",
-                            hovertemplate=None
-                        )
-        
-                plot_html = fig.to_html(
-                    full_html=False,
-                    include_plotlyjs="cdn",
-                    config={
-                        "displayModeBar": False,
-                        "staticPlot": True,
-                        "scrollZoom": False,
-                        "responsive": True
-                    }
-                )
-        
-                evol_component_css = f"""
-                <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Montserrat:wght@800;900&display=swap');
-                
-                body {{
-                    margin: 0;
-                    padding: 0;
-                    font-family: Inter, Montserrat, sans-serif;
-                    background: transparent;
-                }}
-                
-                .evol-panel {{
-                    background: rgba(255, 255, 255, 0.94);
-                    border: 1px solid rgba(226, 232, 240, 0.9);
-                    border-radius: 18px;
-                    padding: 14px;
-                    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-                    overflow: hidden;
-                }}
-                
-                .evol-panel-header {{
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    padding: 4px 4px 14px 4px;
-                    margin-bottom: 8px;
-                    border-bottom: 1px solid rgba(226, 232, 240, 0.75);
-                }}
-                
-                .evol-panel-icon {{
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 10px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: rgba(244, 197, 66, 0.16);
-                    color: #0f172a;
-                    font-size: 16px;
-                }}
-                
-                .evol-panel-title {{
-                    font-family: Montserrat, Inter, sans-serif;
-                    font-size: 17px;
-                    font-weight: 900;
-                    color: #0f172a;
-                    text-transform: uppercase;
-                    letter-spacing: 0.01em;
-                }}
-                
-                .evol-summary-dark {{
-                    background-image:
-                        linear-gradient(
-                            90deg,
-                            rgba(7,17,31,0.98) 0%,
-                            rgba(7,17,31,0.86) 48%,
-                            rgba(7,17,31,0.50) 100%
-                        ),
-                        url("{EVOL_HEADER_BACKGROUND}");
-                    background-size: cover;
-                    background-position: center right;
-                    border: 1px solid rgba(255,255,255,0.08);
-                    border-radius: 15px 15px 0 0;
-                    padding: 16px 18px 13px 18px;
-                }}
-                
-                .evol-user-name {{
-                    font-size: 11px;
-                    font-weight: 900;
-                    color: rgba(255,255,255,0.58);
-                    text-transform: uppercase;
-                    letter-spacing: 0.07em;
-                    margin-bottom: 6px;
-                }}
-                
-                .evol-main-row {{
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-end;
-                    gap: 14px;
-                }}
-                
-                .evol-main-number {{
-                    font-family: Montserrat, Inter, sans-serif;
-                    font-size: 36px;
-                    font-weight: 900;
-                    color: #F8FAFC;
-                    line-height: 1;
-                }}
-                
-                .evol-main-number span {{
-                    font-size: 14px;
-                    color: rgba(255,255,255,0.55);
-                    font-weight: 800;
-                    margin-left: 4px;
-                }}
-                
-                .evol-position-pill {{
-                    background: rgba(244,197,66,0.14);
-                    border: 1px solid rgba(244,197,66,0.35);
-                    color: #F4C542;
-                    border-radius: 999px;
-                    padding: 6px 10px;
-                    font-size: 11px;
-                    font-weight: 900;
-                    white-space: nowrap;
-                }}
-                
-                .evol-meta {{
-                    margin-top: 10px;
-                    font-size: 12px;
-                    font-weight: 700;
-                    color: rgba(255,255,255,0.65);
-                }}
-                
-                .evol-meta strong {{
-                    color: #F4C542;
-                }}
-                
-                .evol-chart-shell {{
-                    background: rgba(248, 250, 252, 0.96);
-                    border: 1px solid rgba(226, 232, 240, 0.9);
-                    border-top: none;
-                    border-radius: 0 0 15px 15px;
-                    padding: 0 8px 4px 8px;
-                }}
-                </style>
-                """
-                
-                evol_full_html = evol_component_css + evol_header_html + plot_html + "</div></div>"
-                
-                components.html(
-                    evol_full_html,
-                    height=495,
-                    scrolling=False
-                )
-                        
+                titulo = escape(str(n.get("TITULO", "")))
+                texto = escape(str(n.get("TEXTO", "")))
+                fecha = escape(str(n.get("FECHA", "")))
+                link = str(n.get("LINK", "")).strip()
+
+                img = str(n.get("IMAGEN_URL", "")).strip()
+                if img == "" or img.lower() == "nan":
+                    img = NEWS_FALLBACK_IMG
+
+                card_open = ""
+                card_close = ""
+
+                if link and link.lower() != "nan":
+                    card_open = f'<a href="{escape(link, quote=True)}" target="_blank" style="text-decoration:none;">'
+                    card_close = "</a>"
+
+                news_html += f"""
+{card_open}
+<div class="news-secondary-card">
+<div>
+<div class="news-tag {escape(tipo_class)}">{escape(tipo_raw)}</div>
+<div class="news-secondary-title">{titulo}</div>
+<div class="news-secondary-text">{texto}</div>
+<div class="news-date">{fecha}</div>
+</div>
+<img src="{escape(img, quote=True)}" class="news-secondary-img">
+</div>
+{card_close}
+"""
+
+            news_html += """
+<div class="news-home-footer">
+<span>Ver más en Comunidad</span>
+<span>›</span>
+</div>
+</div>
+"""
+
+        st.markdown(news_html, unsafe_allow_html=True)       
+
 # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
     with c_der:
 # ============================================================
