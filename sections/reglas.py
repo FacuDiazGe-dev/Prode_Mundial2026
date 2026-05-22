@@ -148,6 +148,34 @@ def render_reglas():
     margin-bottom: 0;
 }
 
+/* ============================================================
+   AJUSTES DECÁLOGO DENTRO DE REGLAS DEL JUEGO
+   ============================================================ */
+
+.decalogo-number,
+.decalogo-rule-number {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.decalogo-rule-title,
+.decalogo-content h3 {
+    margin-bottom: 2px !important;
+}
+
+.decalogo-rule-text,
+.decalogo-content p {
+    margin-top: 0 !important;
+    line-height: 1.42 !important;
+}
+
+.decalogo-item,
+.decalogo-rule {
+    gap: 10px !important;
+}
+
 @media (max-width: 768px) {
     .reglas-title h1 {
         font-size: 28px;
@@ -194,10 +222,21 @@ def render_reglas():
 """, unsafe_allow_html=True)
 
     # ============================================================
-    # DECÁLOGO
+    # LAYOUT EN DOS COLUMNAS
     # ============================================================
 
-    st.markdown("""
+    col_decalogo, col_faq = st.columns(
+        [1, 1],
+        gap="large"
+    )
+
+    # ============================================================
+    # COLUMNA IZQUIERDA — DECÁLOGO
+    # ============================================================
+
+    with col_decalogo:
+
+        st.markdown("""
 <div class="reglas-panel">
 <div class="reglas-panel-header">
 <div class="reglas-panel-icon">📜</div>
@@ -208,15 +247,17 @@ def render_reglas():
 </div>
 """, unsafe_allow_html=True)
 
-    mostrar_decalogo()
+        mostrar_decalogo()
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # ============================================================
-    # FAQ
+    # COLUMNA DERECHA — FAQ
     # ============================================================
 
-    st.markdown("""
+    with col_faq:
+
+        st.markdown("""
 <div class="reglas-panel">
 <div class="reglas-panel-header">
 <div class="reglas-panel-icon">📘</div>
