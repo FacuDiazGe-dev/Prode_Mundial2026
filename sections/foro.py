@@ -7,6 +7,10 @@ from styles_config import (
     AVATAR_GENERICO,
 )
 from tools import upload_foro_image
+from services.supabase_service import (
+    guardar_foro_supabase,
+    guardar_noticias_supabase
+)
 
 
 def render_foro(conn, df_usuarios, df_ranking, df_foro, df_noticias):
@@ -975,20 +979,24 @@ div[data-testid="stSegmentedControl"] button:hover {
         return AVATAR_GENERICO
 
     def save_foro(df_new):
-        conn.update(
-            worksheet="FORO",
-            data=df_new
-        )
-        st.cache_data.clear()
-        st.rerun()
+        ok, msg = guardar_foro_supabase(df_new)
+    
+        if ok:
+            st.cache_data.clear()
+            st.success("✅ Foro actualizado correctamente.")
+            st.rerun()
+        else:
+            st.error(msg)
 
     def save_noticias(df_new):
-        conn.update(
-            worksheet="NOTICIAS",
-            data=df_new
-        )
-        st.cache_data.clear()
-        st.rerun()
+        ok, msg = guardar_noticias_supabase(df_new)
+    
+        if ok:
+            st.cache_data.clear()
+            st.success("✅ Noticias actualizadas correctamente.")
+            st.rerun()
+        else:
+            st.error(msg)
 
     def normalizar_badges(valor):
         if valor is None:
