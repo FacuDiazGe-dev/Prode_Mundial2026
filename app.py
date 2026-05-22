@@ -344,6 +344,16 @@ df_ranking = obtener_ranking_global(
     df_res=df_res,
     df_foro=df_foro
 )
+try:
+    df_noticias = conn.read(
+        worksheet="NOTICIAS",
+        ttl=120
+    )
+except Exception:
+    df_noticias = pd.DataFrame()
+
+if df_noticias is None:
+    df_noticias = pd.DataFrame()
 # ============================================================
 # SIDEBAR PREMIUM
 # ============================================================
@@ -414,7 +424,8 @@ if menu == "🏠 Inicio":
         df_pro=df_pro,
         df_res=df_res,
         mapa_banderas=mapa_banderas,
-        conn=conn
+        conn=conn,
+        df_noticias=df_noticias
     )
 
 #---------- MENU MIS PRONOSTICOS (CÓDIGO CORREGIDO Y COMPLETO) ----------------------------------
