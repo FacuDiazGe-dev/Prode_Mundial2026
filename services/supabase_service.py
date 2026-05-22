@@ -1250,6 +1250,7 @@ def guardar_resultados_supabase(df_resultados):
     """
     Actualiza resultados oficiales en Supabase.
     Usa upsert por n_partido.
+    Limpia NaN antes de enviar a Supabase.
     """
 
     supabase = get_supabase_client()
@@ -1296,6 +1297,10 @@ def guardar_resultados_supabase(df_resultados):
 
     df_save = df_save[columnas].copy()
 
+    # ------------------------------------------------------------
+    # N_PARTIDO
+    # ------------------------------------------------------------
+
     df_save["n_partido"] = pd.to_numeric(
         df_save["n_partido"],
         errors="coerce"
@@ -1307,24 +1312,38 @@ def guardar_resultados_supabase(df_resultados):
 
     df_save["n_partido"] = df_save["n_partido"].astype(int)
 
+    # ------------------------------------------------------------
+    # RESULTADOS R1 / R2
+    # IMPORTANTE:
+    # Sin resultado cargado debe ir como None, no como NaN.
+    # ------------------------------------------------------------
+
     for col in ["r1", "r2"]:
         df_save[col] = pd.to_numeric(
             df_save[col],
             errors="coerce"
         )
 
-        df_save[col] = df_save[col].where(
-            pd.notnull(df_save[col]),
-            None
+        df_save[col] = df_save[col].apply(
+            lambda x: int(x) if pd.notna(x) else None
         )
+
+    # ------------------------------------------------------------
+    # VISIBLE
+    # ------------------------------------------------------------
 
     df_save["viz"] = (
         df_save["viz"]
+        .fillna(False)
         .astype(str)
         .str.strip()
         .str.upper()
         .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
     )
+
+    # ------------------------------------------------------------
+    # TEXTOS
+    # ------------------------------------------------------------
 
     columnas_texto = [
         "equipo_1",
@@ -1343,20 +1362,35 @@ def guardar_resultados_supabase(df_resultados):
             .replace("None", "")
         )
 
-    df_save = df_save.where(pd.notnull(df_save), None)
+    # ------------------------------------------------------------
+    # LIMPIEZA FINAL ANTI-NaN
+    # ------------------------------------------------------------
+
+    df_save = df_save.replace(
+        {
+            float("inf"): None,
+            float("-inf"): None
+        }
+    )
+
+    df_save = df_save.where(
+        pd.notnull(df_save),
+        None
+    )
 
     records = df_save.to_dict(orient="records")
 
+    # Segunda limpieza defensiva sobre los diccionarios
+    for record in records:
+        for key, value in record.items():
+            if pd.isna(value):
+                record[key] = None
+
     try:
-        response = (
-            supabase
-            .table("resultados")
-            .upsert(
-                records,
-                on_conflict="n_partido"
-            )
-            .execute()
-        )
+        supabase.table("resultados").upsert(
+            records,
+            on_conflict="n_partido"
+        ).execute()
 
         get_resultados_supabase.clear()
 
