@@ -9,7 +9,7 @@ from styles_config import (
 from tools import upload_foro_image
 
 
-def render_foro(conn, df_usuarios):
+def render_foro(conn, df_usuarios, df_ranking):
 
     # ============================================================
     # ESTILOS — FORO
@@ -698,6 +698,19 @@ div[data-testid="stSegmentedControl"] button:hover {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.medallero-card.earned {
+    border-color: rgba(244,197,66,0.38);
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.78),
+            rgba(255,251,235,0.58)
+        );
+}
+
+.medallero-card.locked {
+    opacity: 0.92;
+}
 
 /* ============================================================
    5C. PULSO DE COMUNIDAD
@@ -951,6 +964,85 @@ div[data-testid="stSegmentedControl"] button:hover {
         )
         st.cache_data.clear()
         st.rerun()
+
+    def normalizar_badges(valor):
+        if valor is None:
+            return []
+
+        if isinstance(valor, list):
+            return valor
+
+        if isinstance(valor, str):
+            limpio = (
+                valor
+                .replace("[", "")
+                .replace("]", "")
+                .replace("'", "")
+                .replace('"', "")
+            )
+
+            return [
+                b.strip()
+                for b in limpio.split(",")
+                if b.strip()
+            ]
+
+        return []
+
+    def buscar_ganador_badge(nombre_badge):
+        if df_ranking is None or df_ranking.empty:
+            return None
+
+        if "BADGES" not in df_ranking.columns:
+            return None
+
+        for _, row in df_ranking.iterrows():
+            badges_usuario = normalizar_badges(
+                row.get("BADGES", [])
+            )
+
+            if nombre_badge in badges_usuario:
+                return row
+
+        return None
+
+    def detalle_badge(nombre_badge, row):
+        if row is None:
+            return "Desde partido 5"
+
+        puntos = int(row.get("PUNTOS", 0))
+        exactos = int(row.get("EXACTOS", 0))
+        generales = int(row.get("GENERALES", 0))
+
+        if nombre_badge == "Puntero":
+            return f"{puntos} pts"
+
+        if nombre_badge == "Sr. Prode":
+            return f"{exactos} exactos"
+
+        if nombre_badge == "Siempre Suma":
+            return f"{generales} generales"
+
+        if nombre_badge == "Optimista del Gol":
+            return "Mucho gol"
+
+        if nombre_badge == "El Cholo":
+            return "Modo bilardista"
+
+        if nombre_badge == "Rey del Empate":
+            return "Empató todo"
+
+        if nombre_badge == "El Macaya":
+            return "Analista del grupo"
+
+        if nombre_badge == "El Misterioso":
+            return "Perfil bajo"
+
+        if nombre_badge == "El Distinto":
+            return "Contra la corriente"
+
+        return "Logro desbloqueado"
+    
     # ============================================================
     # TÍTULO
     # ============================================================
@@ -1423,27 +1515,80 @@ div[data-testid="stSegmentedControl"] button:hover {
 
         BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
 
-        medallero_items = [
-            ("Puntero", "puntero/PUNTERO_LARGE_GRAY_512.png"),
-            ("Sr. Prode", "srprode/SRPRODE_LARGE_GRAY_512.png"),
-            ("Siempre Suma", "suma/SUMA_LARGE_GRAY_512.png"),
-            ("Optimista del Gol", "optimista/OPTIMISTA_LARGE_GRAY_512.png"),
-            ("El Cholo", "elcholo/ELCHOLO_LARGE_GRAY_512.png"),
-            ("Rey del Empate", "empate/EMPATE_LARGE_GRAY_512.png"),
-            ("El Macaya", "macaya/MACAYA_LARGE_GRAY_512.png"),
-            ("El Misterioso", "misterioso/MISTERIOSO_LARGE_GRAY_512.png"),
-            ("El Distinto", "distinto/DISTINTO_LARGE_GRAY_512.png"),
+        badge_asset_map = {
+            "Puntero": {
+                "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
+                "gray_large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_GRAY_512.png",
+            },
+            "Sr. Prode": {
+                "large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_512.png",
+                "gray_large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_GRAY_512.png",
+            },
+            "Siempre Suma": {
+                "large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_512.png",
+                "gray_large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_GRAY_512.png",
+            },
+            "Optimista del Gol": {
+                "large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_512.png",
+                "gray_large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_GRAY_512.png",
+            },
+            "El Cholo": {
+                "large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_512.png",
+                "gray_large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_GRAY_512.png",
+            },
+            "Rey del Empate": {
+                "large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_512.png",
+                "gray_large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_GRAY_512.png",
+            },
+            "El Macaya": {
+                "large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_512.png",
+                "gray_large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_GRAY_512.png",
+            },
+            "El Misterioso": {
+                "large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_512.png",
+                "gray_large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_GRAY_512.png",
+            },
+            "El Distinto": {
+                "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
+                "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_GRAY_512.png",
+            },
+        }
+
+        badge_order = [
+            "Puntero",
+            "Sr. Prode",
+            "Siempre Suma",
+            "Optimista del Gol",
+            "El Cholo",
+            "Rey del Empate",
+            "El Macaya",
+            "El Misterioso",
+            "El Distinto",
         ]
 
         medallero_html = ""
 
-        for title, img_path in medallero_items:
+        for title in badge_order:
+            ganador_row = buscar_ganador_badge(title)
+            assets = badge_asset_map.get(title, {})
+
+            if ganador_row is None:
+                badge_img = assets.get("gray_large", "")
+                winner_txt = "🔒 Sin dueño"
+                detail_txt = "Desde partido 5"
+                state_class = "locked"
+            else:
+                badge_img = assets.get("large", "") or assets.get("gray_large", "")
+                winner_txt = f"👤 {str(ganador_row.get('JUGADOR', '-'))}"
+                detail_txt = detalle_badge(title, ganador_row)
+                state_class = "earned"
+
             medallero_html += f"""
-<div class="medallero-card">
-<img src="{BADGE_ASSET_BASE_URL}/{img_path}" class="medallero-img" loading="lazy">
+<div class="medallero-card {state_class}">
+<img src="{escape(badge_img, quote=True)}" class="medallero-img" loading="lazy" alt="{escape(title)}">
 <div class="medallero-title">{escape(title)}</div>
-<div class="medallero-winner">🔒 Sin dueño</div>
-<div class="medallero-detail">Desde partido 5</div>
+<div class="medallero-winner">{escape(winner_txt)}</div>
+<div class="medallero-detail">{escape(detail_txt)}</div>
 </div>
 """
 
