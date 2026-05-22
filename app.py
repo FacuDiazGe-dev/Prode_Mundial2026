@@ -577,7 +577,6 @@ elif menu == "📜 Reglas del Juego":
 
 elif menu == "⚙️ Panel Control":
     render_panel_control(
-        conn=conn,
         df_res=df_res,
         df_usuarios=df_usuarios,
         df_pro=df_pro,
