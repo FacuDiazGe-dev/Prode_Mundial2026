@@ -1618,7 +1618,7 @@ div[data-testid="stSegmentedControl"] button:hover {
 
         st.markdown(
             f"""
-<div class="community-side-panel">
+<div class="community-side-panel medallero-side-panel" style="--medallero-bg: url('{BADGES_WALL_BG_URL}');">
 <div class="community-side-header">
 <div class="community-side-icon">🏅</div>
 <div>
