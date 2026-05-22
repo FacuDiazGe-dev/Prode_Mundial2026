@@ -131,30 +131,49 @@ def render_jugadores(
 }
 
 .player-list-card {
-    background: rgba(248,250,252,0.92);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 14px;
-    padding: 9px 10px;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.96),
+            rgba(248,250,252,0.92)
+        );
+
+    border: 1px solid rgba(226,232,240,0.92);
+    border-left: 0;
+
+    border-radius: 0 14px 14px 0;
+    padding: 7px 10px 7px 8px;
 
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
 
-    min-height: 54px;
-    transition: all 0.16s ease;
+    min-height: 48px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.68),
+        0 6px 14px rgba(15,23,42,0.035);
+
+    transition:
+        background 0.16s ease,
+        border-color 0.16s ease,
+        box-shadow 0.16s ease;
 }
 
 .player-list-card.selected {
-    border: 1px solid rgba(244,197,66,0.85);
+    border-color: rgba(244,197,66,0.72);
+    border-left: 0;
+
     background:
         linear-gradient(
             90deg,
             rgba(244,197,66,0.20),
-            rgba(248,250,252,0.96)
+            rgba(255,255,255,0.96)
         );
+
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.6),
-        0 8px 18px rgba(244,197,66,0.10);
+        inset 0 1px 0 rgba(255,255,255,0.72),
+        0 8px 18px rgba(244,197,66,0.11);
 }
 
 .player-list-avatar {
@@ -251,30 +270,62 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
    ============================================================ */
 
 .player-select-btn button {
-    border-radius: 12px !important;
-    min-height: 42px !important;
-    font-size: 15px !important;
+    border-radius: 14px 0 0 14px !important;
+    min-height: 48px !important;
+    height: 48px !important;
+
+    padding: 0 !important;
+
+    font-size: 14px !important;
     font-weight: 900 !important;
 
-    border: 1px solid rgba(244,197,66,0.38) !important;
-    background: rgba(255,255,255,0.88) !important;
+    border: 1px solid rgba(226,232,240,0.92) !important;
+    border-right: 0 !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.96),
+            rgba(248,250,252,0.92)
+        ) !important;
+
     color: #07111F !important;
 
-    box-shadow: 0 6px 14px rgba(15,23,42,0.05) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.68),
+        0 6px 14px rgba(15,23,42,0.035) !important;
 }
 
 .player-select-btn button:hover {
-    background: rgba(244,197,66,0.14) !important;
-    border-color: rgba(244,197,66,0.45) !important;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.20),
+            rgba(255,255,255,0.94)
+        ) !important;
+
+    border-color: rgba(244,197,66,0.62) !important;
     color: #07111F !important;
 }
 
 .player-select-btn button:disabled {
-    background: rgba(255,255,255,0.88) !important;
-    color: #64748b !important;
-    border: 1px solid rgba(226,232,240,0.95) !important;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.24),
+            rgba(255,255,255,0.94)
+        ) !important;
+
+    color: #07111F !important;
+
+    border: 1px solid rgba(244,197,66,0.72) !important;
+    border-right: 0 !important;
+
     opacity: 1 !important;
-    box-shadow: 0 6px 14px rgba(15,23,42,0.04) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.72),
+        0 8px 18px rgba(244,197,66,0.10) !important;
 }
 
 /* ============================================================
@@ -1443,7 +1494,7 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
 
                     selected_class = "selected" if es_seleccionado else ""
 
-                    c_btn, c_card = st.columns([0.16, 0.84], gap="small")
+                    c_btn, c_card = st.columns([0.13, 0.87], gap="small")
 
                     with c_btn:
                         st.markdown(
