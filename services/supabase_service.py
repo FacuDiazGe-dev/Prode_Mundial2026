@@ -1049,4 +1049,89 @@ def registrar_usuario_supabase(
 
     except Exception as e:
         return False, f"Error al registrar usuario en Supabase: {e}"
+
+def eliminar_usuario_supabase(usuario):
+    """
+    Elimina un usuario y sus pronósticos asociados.
+    No elimina mensajes del foro ni noticias.
+    """
+
+    supabase = get_supabase_client()
+
+    if not usuario:
+        return False, "Usuario inválido."
+
+    usuario = str(usuario).strip()
+
+    try:
+        # Primero borramos pronósticos asociados
+        supabase.table("pronosticos").delete().eq(
+            "usuario",
+            usuario
+        ).execute()
+
+        # Después borramos el usuario
+        response = (
+            supabase
+            .table("usuarios")
+            .delete()
+            .eq("usuario", usuario)
+            .select("*")
+            .execute()
+        )
+
+        data = response.data or []
+
+        if len(data) == 0:
+            return False, f"No se encontró el usuario '{usuario}' para eliminar."
+
+        get_usuarios_supabase.clear()
+        get_pronosticos_supabase.clear()
+
+        return True, f"Usuario '{usuario}' eliminado correctamente."
+
+    except Exception as e:
+        return False, f"Error al eliminar usuario en Supabase: {e}"
+
+
+def actualizar_rol_usuario_supabase(usuario, nuevo_rol):
+    """
+    Cambia el rol de un usuario.
+    Roles esperados: jugador, colaborador, admin.
+    """
+
+    supabase = get_supabase_client()
+
+    if not usuario:
+        return False, "Usuario inválido."
+
+    usuario = str(usuario).strip()
+    nuevo_rol = str(nuevo_rol).strip().lower()
+
+    roles_validos = ["jugador", "colaborador", "admin"]
+
+    if nuevo_rol not in roles_validos:
+        return False, "Rol inválido."
+
+    try:
+        response = (
+            supabase
+            .table("usuarios")
+            .update({"rol": nuevo_rol})
+            .eq("usuario", usuario)
+            .select("*")
+            .execute()
+        )
+
+        data = response.data or []
+
+        if len(data) == 0:
+            return False, f"No se encontró el usuario '{usuario}'."
+
+        get_usuarios_supabase.clear()
+
+        return True, f"Rol de '{usuario}' actualizado a '{nuevo_rol}'."
+
+    except Exception as e:
+        return False, f"Error al actualizar rol en Supabase: {e}"
         
