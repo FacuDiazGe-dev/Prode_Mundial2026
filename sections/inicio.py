@@ -20,7 +20,6 @@ def render_inicio(
     df_pro,
     df_res,
     mapa_banderas,
-    conn,
     df_foro=None,
     df_noticias=None
 ):
