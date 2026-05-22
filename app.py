@@ -450,7 +450,8 @@ elif menu == "👥 Plantel":
 elif menu == "💬 Comunidad":
     render_foro(
         conn=conn,
-        df_usuarios=df_usuarios
+        df_usuarios=df_usuarios,
+        df_ranking=df_ranking
     )
 # ---------- MENU REGLAS DEL JUEGO ----------------------------------------------------
 
