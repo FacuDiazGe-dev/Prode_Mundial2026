@@ -5,7 +5,6 @@ from html import escape
 
 from styles_config import (
     AVATAR_GENERICO,
-    mostrar_decalogo
 )
 from tools import upload_foro_image
 
@@ -481,44 +480,8 @@ div[data-testid="stSegmentedControl"] button:hover {
 }
 
 /* ============================================================
-   5. COMUNIDAD / STATS / REGLAS
+   5. COMUNIDAD / STATS 
    ============================================================ */
-
-/* ============================================================
-   5A. DECÁLOGO
-   ============================================================ */
-
-.decalogo-hero-header {
-    margin-top: 0;
-    margin-bottom: 8px;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.01)
-        ),
-        linear-gradient(
-            135deg,
-            rgba(7,17,31,0.82),
-            rgba(15,23,42,0.72)
-        ),
-        var(--foro-header-bg);
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-
-    border: 1px solid rgba(244,197,66,0.28);
-    border-radius: 18px;
-    padding: 16px;
-    margin-bottom: 10px;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.08),
-        0 0 18px rgba(244,197,66,0.16),
-        0 10px 22px rgba(15,23,42,0.16);
-}
 
 .foro-stat-box {
     background: rgba(248,250,252,0.82);
@@ -549,134 +512,6 @@ div[data-testid="stSegmentedControl"] button:hover {
     font-size: 13px;
     font-weight: 700;
     line-height: 1.45;
-}
-/* ============================================================
-   5B. REGLAS Y FAQ
-   ============================================================ */
-
-.faq-panel {
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.96),
-            rgba(248,250,252,0.94)
-        );
-    border: 1px solid rgba(226,232,240,0.92);
-    border-radius: 18px;
-    padding: 14px;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.72),
-        0 10px 24px rgba(15,23,42,0.06);
-}
-
-.faq-intro {
-    margin-bottom: 12px;
-    padding: 11px 12px;
-    border-radius: 14px;
-    background: rgba(7,17,31,0.035);
-    border: 1px solid rgba(226,232,240,0.82);
-}
-
-.faq-intro-title {
-    color: #07111F;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
-    font-weight: 900;
-    line-height: 1.2;
-    margin-bottom: 3px;
-}
-
-.faq-intro-text {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.35;
-}
-
-.faq-item {
-    background: rgba(255,255,255,0.78);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 15px;
-    padding: 13px 13px 12px 13px;
-    margin-bottom: 10px;
-    box-shadow: 0 6px 14px rgba(15,23,42,0.035);
-}
-
-.faq-item:last-child {
-    margin-bottom: 0;
-}
-
-.faq-question {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 8px;
-
-    color: #07111F;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 13.5px;
-    font-weight: 900;
-    line-height: 1.25;
-}
-
-.faq-question-icon {
-    width: 22px;
-    height: 22px;
-    border-radius: 8px;
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: rgba(7,17,31,0.92);
-    color: #F4C542;
-    font-size: 11px;
-    font-weight: 900;
-}
-
-.faq-list {
-    margin: 0;
-    padding-left: 18px;
-
-    color: #334155;
-    font-size: 12.5px;
-    font-weight: 600;
-    line-height: 1.48;
-}
-
-.faq-list li {
-    margin-bottom: 6px;
-}
-
-.faq-list li:last-child {
-    margin-bottom: 0;
-}
-
-.faq-list strong {
-    color: #07111F;
-    font-weight: 900;
-}
-
-@media (max-width: 768px) {
-    .faq-panel {
-        padding: 12px;
-        border-radius: 16px;
-    }
-
-    .faq-item {
-        padding: 12px;
-        border-radius: 14px;
-    }
-
-    .faq-question {
-        font-size: 13px;
-    }
-
-    .faq-list {
-        font-size: 12px;
-        line-height: 1.45;
-    }
 }
 
 /* ============================================================
@@ -795,11 +630,10 @@ div[data-testid="stSegmentedControl"] button:hover {
     # ============================================================
 
     FORO_MURO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
-    FORO_DECALOGO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
     
     st.markdown("""
 <div class="foro-title">
-<h1>💬 Foro del Prode</h1>
+<h1>💬 Comunidad</h1>
 <p>El vestuario, el bar y el VAR emocional del grupo.</p>
 </div>
 """, unsafe_allow_html=True)
@@ -1006,32 +840,11 @@ div[data-testid="stSegmentedControl"] button:hover {
             st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
     # ============================================================
-    # COLUMNA DERECHA — DECÁLOGO / COMUNIDAD / REGLAS
+    # COLUMNA DERECHA — DATOS DE COMUNIDAD
     # ============================================================
 
     with col_side:
 
-        # ------------------------------------------------------------
-        # DECÁLOGO
-        # ------------------------------------------------------------
-      
-        st.markdown(
-            f"""
-<div class="foro-hero-header decalogo-hero-header" style="--foro-header-bg: url('{FORO_DECALOGO_BG_URL}');">
-<div class="foro-hero-row">
-<div class="foro-hero-icon">📜</div>
-<div>
-<div class="foro-hero-title">Decálogo del Prode</div>
-<div class="foro-hero-subtitle">“La pelota no se mancha”</div>
-</div>
-</div>
-</div>
-        """,
-            unsafe_allow_html=True
-        )
-        
-        with st.expander("Ver decálogo", expanded=True):
-            mostrar_decalogo()
         # ------------------------------------------------------------
         # DATOS DE COMUNIDAD
         # ------------------------------------------------------------
@@ -1127,100 +940,3 @@ div[data-testid="stSegmentedControl"] button:hover {
 """,
                 unsafe_allow_html=True
             )
-
-        # ------------------------------------------------------------
-        # REGLAS Y FAQ — cerrado por defecto
-        # ------------------------------------------------------------
-
-        with st.expander("📘 Reglas y preguntas frecuentes", expanded=False):
-            st.markdown("""
-<div class="faq-panel">
-<div class="faq-intro">
-<div class="faq-intro-title">📘 Reglas y preguntas frecuentes</div>
-<div class="faq-intro-text">Guía rápida para entender cómo se juega, cómo se puntúa y qué pasa con los pronósticos.</div>
-</div>
-
-<div class="faq-item">
-<div class="faq-question">
-<div class="faq-question-icon">1</div>
-<div>¿Cómo se suman puntos?</div>
-</div>
-<ul class="faq-list">
-<li><strong>0 puntos:</strong> Si no acertás el resultado.</li>
-<li><strong>1 punto:</strong> Por acertar el resultado general (Ganador o Empate).</li>
-<li><strong>2 puntos adicionales:</strong> Por acertar el resultado exacto.</li>
-<li><strong>3 puntos:</strong> Es la cantidad máxima por partido.</li>
-</ul>
-</div>
-
-<div class="faq-item">
-<div class="faq-question">
-<div class="faq-question-icon">2</div>
-<div>¿Hasta cuándo puedo cargar mis pronósticos?</div>
-</div>
-<ul class="faq-list">
-<li>Hasta la fecha límite indicada en la sección "Mis Pronósticos".</li>
-<li>Pasada esa hora, la edición se bloquea automáticamente. Es una falta de respeto total pedirle al Admin que te lo cargue.</li>
-</ul>
-</div>
-
-<div class="faq-item">
-<div class="faq-question">
-<div class="faq-question-icon">3</div>
-<div>¿Cómo se determina el ganador?</div>
-</div>
-<ul class="faq-list">
-<li>El GANADOR será el jugador que sume la mayor cantidad de puntos al finalizar la fase de grupos</li>
-<li>En caso de EMPATE TÉCNICO, define quien tenga más resultados exactos. Si persiste, define quien tenga más resultados generales.</li>
-<li>Si el empate sigue, siguiendo, se define a Piedra, Papel o Tijera en un duelo a mejor de 3 rondas, con al menos 3 participantes del PRODE como testigos. ¡He dicho!</li>
-</ul>
-</div>
-
-<div class="faq-item">
-<div class="faq-question">
-<div class="faq-question-icon">4</div>
-<div>¿Cuánto hay que poner?</div>
-</div>
-<ul class="faq-list">
-<li>La tarasca, la guita, la biyuya... El monto final lo decidirá el Comité Organizador mediante votación en el grupo de WhatsApp.</li>
-<li>Definido el Aporte, se comunicará el alias y la fecha límite para transferir..</li>
-<li>Si pasa la fecha límite y no pusiste un peso, se elimina tu cuenta y tus pronósticos quedan sin efecto. A llorar al campito.</li>
-</ul>
-</div>
-
-<div class="faq-item">
-<div class="faq-question">
-<div class="faq-question-icon">5</div>
-<div>¿Puedo modificar mis pronósticos?¿donde?</div>
-</div>
-<ul class="faq-list">
-<li>Sí, mientras la edición esté abierta. en la seccion Mis Pronosticos.</li>
-<li>Una vez bloqueados, ya no se pueden editar.</li>
-<li>Opción analógica: Si la tecnología te supera, pedile al Admin la plantilla de Excel para que el Comité lo cargue por vos. Somos inclusivos.</li>
-<li>Opción prehistórica: Si el Excel tampoco es lo tuyo, podés mandar tu predicción escrita a mano en un papelito.</li>
-<li>Aviso importante: Lo que carga la administración lo hace un ser humano más distraído de lo que imaginás. Revisá tus datos a tiempo. La organización no se responsabiliza por sus propios errores. Besis.</li>
-</ul>
-</div>
-
-<div class="faq-item">
-<div class="faq-question">
-<div class="faq-question-icon">6</div>
-<div>¿Qué pasa si no cargo un partido?</div>
-</div>
-<ul class="faq-list">
-<li>Nada. Queda sin pronóstico o con el valor por defecto que defina la Organizacion.</li>
-</ul>
-</div>
-
-<div class="faq-item">
-<div class="faq-question">
-<div class="faq-question-icon">7</div>
-<div>¿Puedo ser eliminado o expulsado?</div>
-</div>
-<ul class="faq-list">
-<li>¡Sí, sin dudarlo! En este juego familiar prima la buena onda. Cualquier comportamiento inapropiado, exceso, trampa o falta de respeto hacia otro miembro del grupo te dejará fuera de competencia. Esto significa la eliminación total de tu cuenta y de tus pronósticos guardados. No hay lola.</li>
-</ul>
-</div>
-
-</div>
-""", unsafe_allow_html=True)
