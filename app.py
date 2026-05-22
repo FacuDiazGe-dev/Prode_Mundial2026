@@ -579,7 +579,7 @@ elif menu == "⚙️ Panel Control":
                 )
         
             except Exception as e:
-                st.error(f"❌ Error conectando con Supabase: {e}"))
+                st.error(f"❌ Error conectando con Supabase: {e}")
 
         col_principal, col_derecha = st.columns(
             [1.45, 1],
