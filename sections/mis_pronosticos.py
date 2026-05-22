@@ -1876,6 +1876,54 @@ div[data-testid="stButton"] button {
             st.session_state.pron_editor_version = 0
 
         # ------------------------------------------------------------
+        # SELECTOR DE FECHA / TANDA DE CARGA
+        # Usa la columna FECHA de la hoja RESULTADOS
+        # ------------------------------------------------------------
+
+        tanda_seleccionada = st.radio(
+            "Fecha de fase de grupos",
+            [
+                "Fecha 1",
+                "Fecha 2",
+                "Fecha 3"
+            ],
+            horizontal=True,
+            key="tanda_pronosticos_mi_prode"
+        )
+
+        fecha_num = int(
+            tanda_seleccionada.replace("Fecha ", "")
+        )
+
+        df_res_tanda = df_res.copy()
+
+        if "FECHA" not in df_res_tanda.columns:
+            st.error("No se encontró la columna FECHA en la hoja RESULTADOS.")
+            st.stop()
+
+        df_res_tanda["FECHA_NUM"] = pd.to_numeric(
+            df_res_tanda["FECHA"],
+            errors="coerce"
+        )
+
+        df_res_tanda = df_res_tanda[
+            df_res_tanda["FECHA_NUM"] == fecha_num
+        ].copy()
+
+        df_res_tanda["N_PARTIDO"] = pd.to_numeric(
+            df_res_tanda["N_PARTIDO"],
+            errors="coerce"
+        )
+
+        df_res_tanda = df_res_tanda.dropna(
+            subset=["N_PARTIDO"]
+        ).copy()
+
+        df_res_tanda["N_PARTIDO"] = df_res_tanda["N_PARTIDO"].astype(int)
+
+        fecha_key = f"fecha_{fecha_num}"
+
+        # ------------------------------------------------------------
         # HEADER DEL PANEL
         # ------------------------------------------------------------
 
@@ -1884,7 +1932,7 @@ div[data-testid="stButton"] button {
 <div class="pred-panel-title-row">
 <div class="panel-icon">📝</div>
 <div>
-<div class="panel-title">Mis Pronósticos</div>
+<div class="panel-title">Mis Pronósticos · {tanda_seleccionada}</div>
 <div class="pred-panel-subtitle {estado_class}">{estado_txt}</div>
 </div>
 </div>
@@ -1898,7 +1946,7 @@ div[data-testid="stButton"] button {
         lista_pronosticos_actuales = []
         filas_editor = []
 
-        for _, row in df_res.sort_values("N_PARTIDO").iterrows():
+        for _, row in df_res_tanda.sort_values("N_PARTIDO").iterrows():
             id_p = int(row["N_PARTIDO"])
             match = df_user_pro[df_user_pro["N_PARTIDO"] == id_p]
 
@@ -1954,7 +2002,7 @@ div[data-testid="stButton"] button {
 
             with st.container(height=520):
 
-                for _, row in df_res.sort_values("N_PARTIDO").iterrows():
+                for _, row in df_res_tanda.sort_values("N_PARTIDO").iterrows():
                     id_p = int(row["N_PARTIDO"])
                     match = df_user_pro[df_user_pro["N_PARTIDO"] == id_p]
 
@@ -2019,7 +2067,7 @@ div[data-testid="stButton"] button {
 
             if es_tiempo_valido:
                 if st.button(
-                    "✏️ Editar pronósticos",
+                    f"✏️ Editar pronósticos de {tanda_seleccionada}",
                     use_container_width=True
                 ):
                     st.session_state.permitir_edicion = True
@@ -2091,7 +2139,7 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                 df_editor,
                 hide_index=True,
                 use_container_width=True,
-                key=f"pronosticos_editor_{st.session_state.pron_editor_version}",
+                key=f"pronosticos_editor_{fecha_key}_{st.session_state.pron_editor_version}",
                 disabled=[
                     "N_PARTIDO",
                     "Equipo 1",
@@ -2140,7 +2188,7 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 
             with c_guardar:
                 guardar = st.button(
-                    "💾 Guardar cambios",
+                    f"💾 Guardar cambios de {tanda_seleccionada}",
                     use_container_width=True
                 )
 
@@ -2203,9 +2251,34 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                         ttl=5
                     )
 
+                    ids_tanda = df_res_tanda["N_PARTIDO"].astype(int).tolist()
+
+                    df_pro_full = df_pro_full.copy()
+
+                    df_pro_full["N_PARTIDO_NUM"] = pd.to_numeric(
+                        df_pro_full["N_PARTIDO"],
+                        errors="coerce"
+                    )
+
+                    mask_usuario_actual = (
+                        df_pro_full["USUARIO"].astype(str) == str(user_actual)
+                    )
+
+                    mask_tanda_actual = (
+                        df_pro_full["N_PARTIDO_NUM"].isin(ids_tanda)
+                    )
+
+                    # Conserva:
+                    # - pronósticos de otros usuarios
+                    # - pronósticos del usuario actual en otras fechas
                     df_otros = df_pro_full[
-                        df_pro_full["USUARIO"] != user_actual
-                    ]
+                        ~(mask_usuario_actual & mask_tanda_actual)
+                    ].copy()
+
+                    df_otros = df_otros.drop(
+                        columns=["N_PARTIDO_NUM"],
+                        errors="ignore"
+                    )
 
                     df_final = pd.concat(
                         [df_otros, nuevos_pro],
