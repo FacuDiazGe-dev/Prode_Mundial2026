@@ -813,3 +813,111 @@ def borrar_mensaje_foro_supabase(post_id):
 
     except Exception as e:
         return False, f"Error al borrar mensaje: {e}"
+
+def insertar_noticia_supabase(noticia):
+    """
+    Inserta una noticia nueva en Supabase.
+    No borra ni modifica noticias anteriores.
+    """
+
+    supabase = get_supabase_client()
+
+    if noticia is None:
+        return False, "No hay noticia para guardar."
+
+    if isinstance(noticia, dict):
+        df_save = pd.DataFrame([noticia])
+    else:
+        df_save = noticia.copy()
+
+    if df_save.empty:
+        return False, "No hay noticia para guardar."
+
+    rename_map = {
+        "ID": "id",
+        "FECHA": "fecha",
+        "TIPO": "tipo",
+        "TITULO": "titulo",
+        "TEXTO": "texto",
+        "AUTOR": "autor",
+        "VISIBLE": "visible",
+        "PRIORIDAD": "prioridad",
+        "LINK": "link",
+        "IMAGEN_URL": "imagen_url",
+        "FUENTE": "fuente"
+    }
+
+    df_save = df_save.rename(columns=rename_map)
+
+    columnas = [
+        "fecha",
+        "tipo",
+        "titulo",
+        "texto",
+        "autor",
+        "visible",
+        "prioridad",
+        "link",
+        "imagen_url",
+        "fuente"
+    ]
+
+    for col in columnas:
+        if col not in df_save.columns:
+            if col == "prioridad":
+                df_save[col] = 99
+            elif col == "visible":
+                df_save[col] = True
+            else:
+                df_save[col] = ""
+
+    df_save = df_save[columnas].copy()
+
+    columnas_texto = [
+        "fecha",
+        "tipo",
+        "titulo",
+        "texto",
+        "autor",
+        "link",
+        "imagen_url",
+        "fuente"
+    ]
+
+    for col in columnas_texto:
+        df_save[col] = (
+            df_save[col]
+            .fillna("")
+            .astype(str)
+            .replace("nan", "")
+            .replace("None", "")
+        )
+
+    df_save["prioridad"] = pd.to_numeric(
+        df_save["prioridad"],
+        errors="coerce"
+    ).fillna(99).astype(int)
+
+    df_save["visible"] = (
+        df_save["visible"]
+        .fillna(True)
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+    )
+
+    df_save = df_save.where(pd.notnull(df_save), None)
+
+    records = df_save.to_dict(orient="records")
+
+    try:
+        supabase.table("noticias").insert(records).execute()
+
+        get_noticias_supabase.clear()
+
+        return True, "Noticia publicada correctamente en Supabase."
+
+    except Exception as e:
+        return False, f"Error al publicar noticia en Supabase: {e}"
+        
