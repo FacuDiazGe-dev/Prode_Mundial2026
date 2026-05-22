@@ -32,7 +32,8 @@ import streamlit.components.v1 as components
 from services.supabase_service import (
     get_resultados_supabase,
     get_usuarios_supabase,
-    get_pronosticos_supabase
+    get_pronosticos_supabase,
+    guardar_pronosticos_supabase
 )
 
 # 1. DEFINE LA URL DE TU BUCKET (La usaremos en ambos lados)
