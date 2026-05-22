@@ -20,7 +20,8 @@ def render_inicio(
     df_pro,
     df_res,
     mapa_banderas,
-    conn
+    conn,
+    df_noticias=None
 ):
     """
     Renderiza la pantalla principal de Inicio.
