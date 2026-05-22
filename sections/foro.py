@@ -1466,6 +1466,7 @@ def save_foro(df_new):
                             st.stop()
 
                         nueva_noticia = {
+                            "ID": None,
                             "FECHA": (datetime.now() - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M"),
                             "TIPO": tipo_noticia,
                             "TITULO": titulo_noticia.strip(),
@@ -1497,6 +1498,7 @@ def save_foro(df_new):
                     df_editor_noticias = df_noticias.copy()
 
                     columnas_editor = [
+                        "ID",
                         "FECHA",
                         "TIPO",
                         "TITULO",
@@ -1566,6 +1568,11 @@ def save_foro(df_new):
                             "AUTOR"
                         ],
                         column_config={
+                            "ID": st.column_config.NumberColumn(
+                                "ID",
+                                disabled=True,
+                                width="small"
+                            ),
                             "FECHA": st.column_config.TextColumn(
                                 "Fecha",
                                 disabled=True,
