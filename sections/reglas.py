@@ -30,6 +30,10 @@ def render_reglas():
     font-weight: 600;
 }
 
+/* ============================================================
+   PANEL BASE — REGLAS
+   ============================================================ */
+
 .reglas-panel {
     background: rgba(255,255,255,0.94);
     border: 1px solid rgba(226,232,240,0.9);
@@ -37,14 +41,17 @@ def render_reglas():
     padding: 16px;
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
     margin-bottom: 18px;
+    height: 100%;
 }
 
 .reglas-panel-header {
     display: flex;
     align-items: center;
     gap: 10px;
+
     padding: 4px 4px 14px 4px;
     margin-bottom: 12px;
+
     border-bottom: 1px solid rgba(226,232,240,0.75);
 }
 
@@ -69,13 +76,14 @@ def render_reglas():
     font-size: 18px;
     font-weight: 900;
     color: #0f172a;
+    line-height: 1.05;
 }
 
 .reglas-panel-subtitle {
     color: #64748b;
     font-size: 12px;
     font-weight: 700;
-    margin-top: 2px;
+    margin-top: 3px;
 }
 
 /* ============================================================
@@ -91,7 +99,7 @@ def render_reglas():
     background: rgba(248,250,252,0.86);
     border: 1px solid rgba(226,232,240,0.88);
     border-radius: 15px;
-    padding: 13px 14px;
+    padding: 12px 13px;
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.55),
@@ -105,11 +113,11 @@ def render_reglas():
 
     color: #0f172a;
     font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 900;
-    line-height: 1.2;
+    line-height: 1.18;
 
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 }
 
 .faq-question-icon {
@@ -135,13 +143,13 @@ def render_reglas():
     padding-left: 33px;
 
     color: #334155;
-    font-size: 13px;
-    font-weight: 650;
-    line-height: 1.48;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.42;
 }
 
 .faq-list li {
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 }
 
 .faq-list li:last-child {
@@ -152,29 +160,73 @@ def render_reglas():
    AJUSTES DECÁLOGO DENTRO DE REGLAS DEL JUEGO
    ============================================================ */
 
+/* Centrado real de números */
 .decalogo-number,
-.decalogo-rule-number {
+.decalogo-rule-number,
+.decalogo-item-number {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+}
+
+/* Si el número está dentro de span/div, también lo centra */
+.decalogo-number *,
+.decalogo-rule-number *,
+.decalogo-item-number * {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     text-align: center !important;
 }
 
+/* Reduce aire entre título y descripción */
 .decalogo-rule-title,
-.decalogo-content h3 {
-    margin-bottom: 2px !important;
-}
-
-.decalogo-rule-text,
-.decalogo-content p {
+.decalogo-content h3,
+.decalogo-item h3 {
     margin-top: 0 !important;
-    line-height: 1.42 !important;
+    margin-bottom: 1px !important;
+    line-height: 1.16 !important;
 }
 
+/* Descripción más cercana al título */
+.decalogo-rule-text,
+.decalogo-content p,
+.decalogo-item p {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    line-height: 1.36 !important;
+}
+
+/* Compacta cada regla */
 .decalogo-item,
 .decalogo-rule {
-    gap: 10px !important;
+    gap: 9px !important;
+    margin-bottom: 8px !important;
 }
+
+/* Compacta el bloque interno de texto */
+.decalogo-content,
+.decalogo-rule-content {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1px !important;
+}
+
+/* Si el decálogo usa listas, reduce separación */
+.decalogo-list {
+    gap: 8px !important;
+}
+
+.decalogo-card {
+    padding: 18px 16px !important;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 
 @media (max-width: 768px) {
     .reglas-title h1 {
@@ -188,6 +240,7 @@ def render_reglas():
     .reglas-panel {
         padding: 13px;
         border-radius: 16px;
+        margin-bottom: 14px;
     }
 
     .reglas-panel-title {
@@ -205,6 +258,32 @@ def render_reglas():
     .faq-list {
         font-size: 12px;
         padding-left: 30px;
+    }
+
+    .faq-item {
+        padding: 11px 12px;
+    }
+
+    .decalogo-card {
+        padding: 16px 13px !important;
+    }
+
+    .decalogo-item,
+    .decalogo-rule {
+        gap: 8px !important;
+        margin-bottom: 7px !important;
+    }
+
+    .decalogo-rule-title,
+    .decalogo-content h3,
+    .decalogo-item h3 {
+        margin-bottom: 1px !important;
+    }
+
+    .decalogo-rule-text,
+    .decalogo-content p,
+    .decalogo-item p {
+        line-height: 1.34 !important;
     }
 }
 </style>
@@ -240,10 +319,6 @@ def render_reglas():
 <div class="reglas-panel">
 <div class="reglas-panel-header">
 <div class="reglas-panel-icon">📜</div>
-<div>
-<div class="reglas-panel-title">Decálogo del Prode</div>
-<div class="reglas-panel-subtitle">Las reglas sagradas del grupo</div>
-</div>
 </div>
 """, unsafe_allow_html=True)
 
