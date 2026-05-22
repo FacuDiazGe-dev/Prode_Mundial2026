@@ -393,13 +393,12 @@ aplicar_estilos_globales()
 # =============================================================================
 # 3. EJECUCIÓN — DATOS COMPARTIDOS
 # =============================================================================
+# ============================================================
+# FORO Y NOTICIAS DESDE SUPABASE
+# ============================================================
 
 df_foro = get_foro_app()
-# df_foro = leer_sheet_seguro(
-#     conn,
-#     worksheet="FORO",
-#     ttl=300
-# )
+df_noticias = get_noticias_app()
 
 
 if df_foro.empty:
@@ -432,12 +431,6 @@ for col in [
         else:
             df_foro[col] = ""
 
-df_noticias = get_noticias_app()
-# df_noticias = leer_sheet_seguro(
-#     conn,
-#     worksheet="NOTICIAS",
-#     ttl=300
-# )
 
 if df_noticias.empty:
     df_noticias = pd.DataFrame(
