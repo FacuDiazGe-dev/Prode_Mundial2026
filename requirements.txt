@@ -8,3 +8,4 @@ google-cloud-storage
 plotly
 streamlit-antd-components
 streamlit-elements==0.1.*
+supabase
