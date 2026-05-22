@@ -1315,6 +1315,34 @@ div[data-testid="stSegmentedControl"] button:hover {
                         )
 
                         save_noticias(df_noticias_update)
+                        
+            with st.expander("🛠️ Gestionar noticias", expanded=False):
+
+                if df_noticias.empty:
+                    st.info("Todavía no hay noticias cargadas.")
+
+                else:
+                    df_gestion_noticias = df_noticias.copy()
+
+                    columnas_gestion = [
+                        "FECHA",
+                        "TIPO",
+                        "TITULO",
+                        "AUTOR",
+                        "VISIBLE",
+                        "PRIORIDAD"
+                    ]
+
+                    columnas_existentes = [
+                        col for col in columnas_gestion
+                        if col in df_gestion_noticias.columns
+                    ]
+
+                    st.dataframe(
+                        df_gestion_noticias[columnas_existentes].iloc[::-1],
+                        use_container_width=True,
+                        hide_index=True
+                    )
         # ------------------------------------------------------------
         # MEDALLERO DEL PRODE — PROVISORIO
         # ------------------------------------------------------------
