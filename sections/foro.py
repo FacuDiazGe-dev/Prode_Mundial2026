@@ -929,7 +929,7 @@ div[data-testid="stSegmentedControl"] button:hover {
     try:
         df_noticias = conn.read(
             worksheet="NOTICIAS",
-            ttl=60
+            ttl=300
         )
     except Exception:
         df_noticias = pd.DataFrame()
@@ -1397,20 +1397,7 @@ div[data-testid="stSegmentedControl"] button:hover {
                         max_chars=240
                     )
 
-                    visible_noticia = st.toggle(
-                        "Visible",
-                        value=True
-                    )
-
-                    prioridad_noticia = st.number_input(
-                        "Prioridad",
-                        min_value=1,
-                        max_value=99,
-                        value=5,
-                        step=1,
-                        help="1 aparece más arriba. 99 aparece más abajo."
-                    )
-                                        noticia_fuente = st.text_input(
+                    noticia_fuente = st.text_input(
                         "Fuente",
                         placeholder="Ej: Prode Mundial 2026, FIFA, TyC, Olé...",
                         key="noticia_fuente"
@@ -1428,6 +1415,20 @@ div[data-testid="stSegmentedControl"] button:hover {
                         key="noticia_imagen_url"
                     )
 
+                    visible_noticia = st.toggle(
+                        "Visible",
+                        value=True
+                    )
+
+                    prioridad_noticia = st.number_input(
+                        "Prioridad",
+                        min_value=1,
+                        max_value=99,
+                        value=5,
+                        step=1,
+                        help="1 aparece más arriba. 99 aparece más abajo."
+                    )
+
                     submit_noticia = st.form_submit_button(
                         "📰 Publicar noticia",
                         use_container_width=True
@@ -1439,13 +1440,13 @@ div[data-testid="stSegmentedControl"] button:hover {
                             st.stop()
 
                         nueva_noticia = {
-                            "FECHA": ahora.strftime("%Y-%m-%d %H:%M"),
-                            "TIPO": noticia_tipo,
-                            "TITULO": noticia_titulo.strip(),
-                            "TEXTO": noticia_texto.strip(),
+                            "FECHA": (datetime.now() - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M"),
+                            "TIPO": tipo_noticia,
+                            "TITULO": titulo_noticia.strip(),
+                            "TEXTO": texto_noticia.strip(),
                             "AUTOR": nombre_actual,
-                            "VISIBLE": "TRUE",
-                            "PRIORIDAD": noticia_prioridad,
+                            "VISIBLE": "TRUE" if visible_noticia else "FALSE",
+                            "PRIORIDAD": prioridad_noticia,
                             "LINK": noticia_link.strip(),
                             "IMAGEN_URL": noticia_imagen_url.strip(),
                             "FUENTE": noticia_fuente.strip()
@@ -1474,12 +1475,12 @@ div[data-testid="stSegmentedControl"] button:hover {
                         "TIPO",
                         "TITULO",
                         "TEXTO",
-                        "AUTOR",
-                        "VISIBLE",
-                        "PRIORIDAD",
+                        "FUENTE",
                         "LINK",
                         "IMAGEN_URL",
-                        "FUENTE"
+                        "AUTOR",
+                        "VISIBLE",
+                        "PRIORIDAD"
                     ]
 
                     for col in columnas_editor:
@@ -1491,7 +1492,42 @@ div[data-testid="stSegmentedControl"] button:hover {
                             else:
                                 df_editor_noticias[col] = ""
 
-                    df_editor_noticias = df_editor_noticias[columnas_editor]
+                    # ------------------------------------------------------------
+                    # NORMALIZAR TIPOS PARA st.data_editor
+                    # ------------------------------------------------------------
+
+                    columnas_texto_editor = [
+                        "FECHA",
+                        "TIPO",
+                        "TITULO",
+                        "TEXTO",
+                        "AUTOR",
+                        "VISIBLE",
+                        "LINK",
+                        "IMAGEN_URL",
+                        "FUENTE"
+                    ]
+
+                    for col in columnas_texto_editor:
+                        if col in df_editor_noticias.columns:
+                            df_editor_noticias[col] = (
+                                df_editor_noticias[col]
+                                .fillna("")
+                                .astype(str)
+                            )
+
+                    if "PRIORIDAD" in df_editor_noticias.columns:
+                        df_editor_noticias["PRIORIDAD"] = (
+                            pd.to_numeric(
+                                df_editor_noticias["PRIORIDAD"],
+                                errors="coerce"
+                            )
+                            .fillna(99)
+                            .astype(int)
+                        )
+
+                    df_editor_noticias = df_editor_noticias[columnas_editor].copy()
+
 
                     edited_noticias = st.data_editor(
                         df_editor_noticias,
@@ -1555,16 +1591,16 @@ div[data-testid="stSegmentedControl"] button:hover {
                                 max_chars=80,
                                 width="medium"
                             ),
-                            "LINK": st.column_config.LinkColumn(
+                            "LINK": st.column_config.TextColumn(
                                 "Link",
-                                width="medium",
-                                display_text="Abrir link"
+                                max_chars=300,
+                                width="medium"
                             ),
-                            "IMAGEN_URL": st.column_config.LinkColumn(
-                                "Imagen",
-                                width="medium",
-                                display_text="Ver imagen"
-                            ),                            
+                            "IMAGEN_URL": st.column_config.TextColumn(
+                                "Imagen URL",
+                                max_chars=300,
+                                width="medium"
+                            ),                         
                         }
                     )
 
