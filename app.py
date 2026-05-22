@@ -40,31 +40,28 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-# 3. INYECTAR LA ETIQUETA PARA APPLE (Se ejecuta después de configurar la página)
-components.html(
-    f"""
-    <script>
-        const link = window.parent.document.createElement('link');
-        link.rel = 'apple-touch-icon';
-        link.href = '{URL_ICONO}'; 
-        window.parent.document.head.appendChild(link);
-    </script>
-    """,
-    height=0,  # Invisible en la interfaz
-)
-
-
-# # --- CONFIGURACIÓN DE PÁGINA ---
-# st.set_page_config(
-#     page_title="Prode Mundial 2026", 
-#     page_icon="https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP.png", 
-#     layout="wide"
-# )
-
 # --- CONEXIÓN ---
-# Conexión única
 conn = st.connection("gsheets", type=GSheetsConnection)
+
+def leer_sheet_seguro(conn, worksheet, ttl=300):
+    try:
+        df = conn.read(
+            worksheet=worksheet,
+            ttl=ttl
+        )
+
+        if df is None:
+            return pd.DataFrame()
+
+        return df
+
+    except Exception as e:
+        st.warning(
+            f"No se pudo cargar temporalmente la hoja {worksheet}. "
+            "Probá nuevamente en unos minutos."
+        )
+        return pd.DataFrame()
+
 # Carga maestra (Llama a nuestro nuevo módulo)
 df_res, df_usuarios, df_pro, mapa_banderas = cargar_todo(conn)
 
@@ -78,7 +75,7 @@ estado_registro_manual = "ON"
 
 try:
     # Leemos la pestaña CONFIG
-    df_config = conn.read(worksheet="CONFIG", ttl=0)
+    df_config = conn.read(worksheet="CONFIG", ttl=60)
     
     # Validamos que las columnas existan antes de asignar
     if "MANTENIMIENTO" in df_config.columns:
@@ -328,15 +325,88 @@ aplicar_estilos_globales()
 
 
 # =============================================================================
-# 3. EJECUCIÓN
+# 3. EJECUCIÓN — DATOS COMPARTIDOS
 # =============================================================================
-# Asegúrate de que df_usuarios, df_pro y df_res estén cargados antes
-df_foro = conn.read(
+
+df_foro = leer_sheet_seguro(
+    conn,
     worksheet="FORO",
-    ttl=60
+    ttl=300
 )
-if df_foro is None:
-    df_foro = pd.DataFrame()
+
+if df_foro.empty:
+    df_foro = pd.DataFrame(
+        columns=[
+            "FECHA",
+            "USUARIO",
+            "NOMBRE",
+            "MENSAJE",
+            "PARTIDO_ID",
+            "LIKES",
+            "DISLIKES",
+            "FORO_IMG_URL"
+        ]
+    )
+
+for col in [
+    "FECHA",
+    "USUARIO",
+    "NOMBRE",
+    "MENSAJE",
+    "PARTIDO_ID",
+    "LIKES",
+    "DISLIKES",
+    "FORO_IMG_URL"
+]:
+    if col not in df_foro.columns:
+        if col in ["LIKES", "DISLIKES", "PARTIDO_ID"]:
+            df_foro[col] = 0
+        else:
+            df_foro[col] = ""
+
+
+df_noticias = leer_sheet_seguro(
+    conn,
+    worksheet="NOTICIAS",
+    ttl=300
+)
+
+if df_noticias.empty:
+    df_noticias = pd.DataFrame(
+        columns=[
+            "FECHA",
+            "TIPO",
+            "TITULO",
+            "TEXTO",
+            "AUTOR",
+            "VISIBLE",
+            "PRIORIDAD",
+            "LINK",
+            "IMAGEN_URL",
+            "FUENTE"
+        ]
+    )
+
+for col in [
+    "FECHA",
+    "TIPO",
+    "TITULO",
+    "TEXTO",
+    "AUTOR",
+    "VISIBLE",
+    "PRIORIDAD",
+    "LINK",
+    "IMAGEN_URL",
+    "FUENTE"
+]:
+    if col not in df_noticias.columns:
+        if col == "PRIORIDAD":
+            df_noticias[col] = 99
+        elif col == "VISIBLE":
+            df_noticias[col] = "TRUE"
+        else:
+            df_noticias[col] = ""
+
 
 df_ranking = obtener_ranking_global(
     df_users=df_usuarios,
@@ -344,16 +414,6 @@ df_ranking = obtener_ranking_global(
     df_res=df_res,
     df_foro=df_foro
 )
-try:
-    df_noticias = conn.read(
-        worksheet="NOTICIAS",
-        ttl=120
-    )
-except Exception:
-    df_noticias = pd.DataFrame()
-
-if df_noticias is None:
-    df_noticias = pd.DataFrame()
 # ============================================================
 # SIDEBAR PREMIUM
 # ============================================================
@@ -425,6 +485,7 @@ if menu == "🏠 Inicio":
         df_res=df_res,
         mapa_banderas=mapa_banderas,
         conn=conn,
+        df_foro=df_foro,
         df_noticias=df_noticias
     )
 
@@ -457,7 +518,8 @@ elif menu == "💬 Comunidad":
         conn=conn,
         df_usuarios=df_usuarios,
         df_ranking=df_ranking,
-        df_foro=df_foro
+        df_foro=df_foro,
+        df_noticias=df_noticias
     )
 # ---------- MENU REGLAS DEL JUEGO ----------------------------------------------------
 
