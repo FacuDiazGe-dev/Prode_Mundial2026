@@ -920,4 +920,70 @@ def insertar_noticia_supabase(noticia):
 
     except Exception as e:
         return False, f"Error al publicar noticia en Supabase: {e}"
+
+def actualizar_usuario_supabase(usuario, datos):
+    """
+    Actualiza datos de un usuario en Supabase.
+    No modifica otros usuarios.
+    """
+
+    supabase = get_supabase_client()
+
+    if not usuario:
+        return False, "Usuario inválido."
+
+    if datos is None or not isinstance(datos, dict):
+        return False, "No hay datos para actualizar."
+
+    rename_map = {
+        "USUARIO": "usuario",
+        "NOMBRE": "nombre",
+        "CONTRASEÑA": "contrasena",
+        "EQUIPO FAVORITO": "equipo_favorito",
+        "AVATAR_URL": "avatar_url",
+        "EDAD": "edad",
+        "DESCRIPCION": "descripcion",
+        "ROL": "rol"
+    }
+
+    data_update = {}
+
+    for key, value in datos.items():
+        col = rename_map.get(key, key)
+
+        if col in [
+            "nombre",
+            "contrasena",
+            "equipo_favorito",
+            "avatar_url",
+            "edad",
+            "descripcion",
+            "rol"
+        ]:
+            if pd.isna(value):
+                value = None
+
+            if col == "edad":
+                try:
+                    value = int(value)
+                except Exception:
+                    value = None
+
+            data_update[col] = value
+
+    if not data_update:
+        return False, "No hay campos válidos para actualizar."
+
+    try:
+        supabase.table("usuarios").update(data_update).eq(
+            "usuario",
+            str(usuario)
+        ).execute()
+
+        get_usuarios_supabase.clear()
+
+        return True, "Usuario actualizado correctamente en Supabase."
+
+    except Exception as e:
+        return False, f"Error al actualizar usuario en Supabase: {e}"
         
