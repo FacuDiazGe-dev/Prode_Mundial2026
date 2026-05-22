@@ -14,7 +14,10 @@ from styles_config import (
     EVOL_HEADER_BACKGROUND
 )
 from tools import upload_profile_picture, get_flag_img
-from services.supabase_service import guardar_pronosticos_supabase
+from services.supabase_service import (
+    guardar_pronosticos_supabase,
+    actualizar_usuario_supabase
+)
 
 
 def render_mis_pronosticos(
@@ -2393,4 +2396,165 @@ Bio:
     <div class="panel-title">Editar Perfil</div>
 </div>
 <div class="profile-edit-box">
+""", unsafe_allow_html=True)
+
+            nombre_actual_form = str(u_data.get("NOMBRE", ""))
+            equipo_actual_form = str(u_data.get("EQUIPO FAVORITO", ""))
+            edad_actual_form = u_data.get("EDAD", 0)
+            descripcion_actual_form = str(u_data.get("DESCRIPCION", ""))
+            avatar_actual_form = str(u_data.get("AVATAR_URL", ""))
+
+            try:
+                edad_actual_form = int(float(edad_actual_form))
+            except Exception:
+                edad_actual_form = 0
+
+            with st.form("form_editar_perfil", clear_on_submit=False):
+
+                nuevo_nombre = st.text_input(
+                    "Nombre",
+                    value=nombre_actual_form
+                )
+
+                nuevo_equipo = st.selectbox(
+                    "Equipo favorito",
+                    [
+                        "Argentina",
+                        "Brasil",
+                        "Uruguay",
+                        "México",
+                        "España",
+                        "Francia",
+                        "Alemania",
+                        "Italia",
+                        "Inglaterra",
+                        "Portugal",
+                        "Otro"
+                    ],
+                    index=(
+                        [
+                            "Argentina",
+                            "Brasil",
+                            "Uruguay",
+                            "México",
+                            "España",
+                            "Francia",
+                            "Alemania",
+                            "Italia",
+                            "Inglaterra",
+                            "Portugal",
+                            "Otro"
+                        ].index(equipo_actual_form)
+                        if equipo_actual_form in [
+                            "Argentina",
+                            "Brasil",
+                            "Uruguay",
+                            "México",
+                            "España",
+                            "Francia",
+                            "Alemania",
+                            "Italia",
+                            "Inglaterra",
+                            "Portugal",
+                            "Otro"
+                        ]
+                        else 0
+                    )
+                )
+
+                nueva_edad = st.number_input(
+                    "Edad",
+                    min_value=0,
+                    max_value=120,
+                    value=edad_actual_form,
+                    step=1
+                )
+
+                nueva_descripcion = st.text_area(
+                    "Bio / descripción",
+                    value=(
+                        "" 
+                        if descripcion_actual_form.lower() == "nan" 
+                        else descripcion_actual_form
+                    ),
+                    max_chars=240
+                )
+
+                nueva_foto_file = st.file_uploader(
+                    "Cambiar foto de perfil",
+                    type=["jpg", "jpeg", "png", "webp"]
+                )
+
+                c_cancelar_perfil, c_guardar_perfil = st.columns([0.35, 0.65])
+
+                with c_cancelar_perfil:
+                    cancelar_perfil = st.form_submit_button(
+                        "❌ Cancelar",
+                        use_container_width=True
+                    )
+
+                with c_guardar_perfil:
+                    guardar_perfil = st.form_submit_button(
+                        "💾 Guardar perfil",
+                        use_container_width=True
+                    )
+
+            if cancelar_perfil:
+                st.session_state.editando_perfil = False
+                st.rerun()
+
+            if guardar_perfil:
+                try:
+                    if not nuevo_nombre.strip():
+                        st.error("El nombre no puede quedar vacío.")
+                        st.stop()
+
+                    nueva_foto_url = avatar_actual_form
+
+                    if nueva_foto_file is not None:
+                        nueva_foto_url = upload_profile_picture(
+                            nueva_foto_file,
+                            user_actual
+                        )
+
+                        if str(nueva_foto_url).startswith("Error:"):
+                            st.error(nueva_foto_url)
+                            st.stop()
+
+                    datos_update = {
+                        "NOMBRE": nuevo_nombre.strip(),
+                        "EQUIPO FAVORITO": nuevo_equipo,
+                        "EDAD": int(nueva_edad),
+                        "DESCRIPCION": nueva_descripcion.strip(),
+                        "AVATAR_URL": nueva_foto_url
+                    }
+
+                    ok, msg = actualizar_usuario_supabase(
+                        usuario=user_actual,
+                        datos=datos_update
+                    )
+
+                    if ok:
+                        st.cache_data.clear()
+
+                        st.session_state["user_data"]["NOMBRE"] = nuevo_nombre.strip()
+                        st.session_state["user_data"]["EQUIPO FAVORITO"] = nuevo_equipo
+                        st.session_state["user_data"]["EDAD"] = int(nueva_edad)
+                        st.session_state["user_data"]["DESCRIPCION"] = nueva_descripcion.strip()
+                        st.session_state["user_data"]["AVATAR_URL"] = nueva_foto_url
+
+                        st.session_state.editando_perfil = False
+
+                        st.success("✅ Perfil actualizado correctamente.")
+                        st.rerun()
+
+                    else:
+                        st.error(msg)
+
+                except Exception as e:
+                    st.error(f"Error al actualizar perfil: {e}")
+
+            st.markdown("""
+</div>
+</div>
 """, unsafe_allow_html=True)
