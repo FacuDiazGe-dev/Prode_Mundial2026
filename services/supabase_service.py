@@ -123,3 +123,125 @@ def guardar_pronosticos_supabase(df_nuevos):
 
     except Exception as e:
         return False, f"Error al guardar en Supabase: {e}"
+        
+def get_resultados_app():
+    df = get_resultados_supabase()
+
+    if df.empty:
+        return pd.DataFrame(
+            columns=[
+                "N_PARTIDO",
+                "Equipo_1",
+                "R1",
+                "Equipo_2",
+                "R2",
+                "DIA",
+                "HORA",
+                "VIZ",
+                "FECHA"
+            ]
+        )
+
+    df = df.rename(
+        columns={
+            "n_partido": "N_PARTIDO",
+            "equipo_1": "Equipo_1",
+            "r1": "R1",
+            "equipo_2": "Equipo_2",
+            "r2": "R2",
+            "dia": "DIA",
+            "hora": "HORA",
+            "viz": "VIZ",
+            "fecha": "FECHA"
+        }
+    )
+
+    return df[
+        [
+            "N_PARTIDO",
+            "Equipo_1",
+            "R1",
+            "Equipo_2",
+            "R2",
+            "DIA",
+            "HORA",
+            "VIZ",
+            "FECHA"
+        ]
+    ]
+
+
+def get_usuarios_app():
+    df = get_usuarios_supabase()
+
+    if df.empty:
+        return pd.DataFrame(
+            columns=[
+                "USUARIO",
+                "NOMBRE",
+                "CONTRASEÑA",
+                "EQUIPO FAVORITO",
+                "AVATAR_URL",
+                "EDAD",
+                "DESCRIPCION",
+                "ROL"
+            ]
+        )
+
+    df = df.rename(
+        columns={
+            "usuario": "USUARIO",
+            "nombre": "NOMBRE",
+            "contrasena": "CONTRASEÑA",
+            "equipo_favorito": "EQUIPO FAVORITO",
+            "avatar_url": "AVATAR_URL",
+            "edad": "EDAD",
+            "descripcion": "DESCRIPCION",
+            "rol": "ROL"
+        }
+    )
+
+    return df[
+        [
+            "USUARIO",
+            "NOMBRE",
+            "CONTRASEÑA",
+            "EQUIPO FAVORITO",
+            "AVATAR_URL",
+            "EDAD",
+            "DESCRIPCION",
+            "ROL"
+        ]
+    ]
+
+
+def get_pronosticos_app():
+    df = get_pronosticos_supabase()
+
+    if df.empty:
+        return pd.DataFrame(
+            columns=[
+                "N_PARTIDO",
+                "USUARIO",
+                "P1",
+                "P2"
+            ]
+        )
+
+    df = df.rename(
+        columns={
+            "n_partido": "N_PARTIDO",
+            "usuario": "USUARIO",
+            "p1": "P1",
+            "p2": "P2"
+        }
+    )
+
+    return df[
+        [
+            "N_PARTIDO",
+            "USUARIO",
+            "P1",
+            "P2"
+        ]
+    ]
