@@ -188,7 +188,7 @@ if not st.session_state['autenticado']:
     .login-hero-title {{
         margin: 0;
     
-        color: #F8FAFC;
+        color: #FFFFFF;
         font-family: 'Montserrat', sans-serif;
         font-size: 34px;
         font-weight: 900;
