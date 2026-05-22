@@ -1006,7 +1006,7 @@ div[data-testid="stSegmentedControl"] button:hover {
                 return
     
             # Si tu código agrega el mensaje nuevo al final:
-            nuevas_filas = df_new.head(diferencia).copy()
+            nuevas_filas = df_new.tail(diferencia).copy()
     
             ok, msg = insertar_foro_supabase(nuevas_filas)
     
@@ -1237,7 +1237,7 @@ div[data-testid="stSegmentedControl"] button:hover {
                 st.info("Todavía no hay mensajes en el foro.")
 
             else:
-                for idx, m in df_foro.iloc[::-1].iterrows():
+                for idx, m in df_foro.iterrows():
                     usuario_msg = str(m.get("USUARIO", ""))
                     es_mio = usuario_msg == str(user_actual)
 
