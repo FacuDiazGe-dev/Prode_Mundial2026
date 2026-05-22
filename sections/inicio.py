@@ -1,17 +1,13 @@
 #------------------------------------------------MENU INICIO-----------------------------------------------
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import textwrap
+
 from html import escape
-from datetime import datetime
-import streamlit.components.v1 as components
-from ranking_logic import calcular_detalle
 
 from styles_config import (
     AVATAR_GENERICO,
-    HEADER_BACKGROUND,
-    EVOL_HEADER_BACKGROUND
+    HEADER_BACKGROUND
 )
 
 def render_inicio(
