@@ -986,4 +986,67 @@ def actualizar_usuario_supabase(usuario, datos):
 
     except Exception as e:
         return False, f"Error al actualizar usuario en Supabase: {e}"
+
+def registrar_usuario_supabase(
+    nombre,
+    usuario,
+    contrasena,
+    avatar_url,
+    equipo_favorito,
+    rol="jugador"
+):
+    """
+    Registra un usuario nuevo en Supabase.
+    No usa Google Sheets.
+    """
+
+    supabase = get_supabase_client()
+
+    nombre = str(nombre).strip()
+    usuario = str(usuario).strip()
+    contrasena = str(contrasena).strip()
+    equipo_favorito = str(equipo_favorito).strip()
+
+    if not nombre or not usuario or not contrasena:
+        return False, "Nombre, usuario y contraseña son obligatorios."
+
+    try:
+        existente = (
+            supabase
+            .table("usuarios")
+            .select("usuario")
+            .eq("usuario", usuario)
+            .execute()
+        )
+
+        if existente.data:
+            return False, "Ese usuario ya existe. Elegí otro nick."
+
+        nuevo_usuario = {
+            "usuario": usuario,
+            "nombre": nombre,
+            "contrasena": contrasena,
+            "equipo_favorito": equipo_favorito,
+            "avatar_url": avatar_url,
+            "edad": None,
+            "descripcion": "",
+            "rol": rol
+        }
+
+        response = (
+            supabase
+            .table("usuarios")
+            .insert(nuevo_usuario)
+            .execute()
+        )
+
+        if not response.data:
+            return False, "No se pudo registrar el usuario."
+
+        get_usuarios_supabase.clear()
+
+        return True, "Usuario registrado correctamente."
+
+    except Exception as e:
+        return False, f"Error al registrar usuario en Supabase: {e}"
         
