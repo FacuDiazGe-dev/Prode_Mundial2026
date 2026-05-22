@@ -9,8 +9,8 @@ from styles_config import (
 from tools import upload_foro_image
 
 
-def render_foro(conn, df_usuarios, df_ranking, df_foro):
-
+def render_foro(conn, df_usuarios, df_ranking, df_foro, df_noticias):
+    
     # ============================================================
     # ESTILOS — FORO
     # ============================================================
@@ -925,14 +925,7 @@ div[data-testid="stSegmentedControl"] button:hover {
     
     if "foro_uploader_key" not in st.session_state:
         st.session_state.foro_uploader_key = 0
-        
-    try:
-        df_noticias = conn.read(
-            worksheet="NOTICIAS",
-            ttl=300
-        )
-    except Exception:
-        df_noticias = pd.DataFrame()
+    
 
     if df_noticias is None or df_noticias.empty:
         df_noticias = pd.DataFrame(
