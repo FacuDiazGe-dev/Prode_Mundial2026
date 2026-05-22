@@ -15,7 +15,7 @@ from styles_config import (
     EVOL_HEADER_BACKGROUND
 )
 from styles_config import dibujar_banner
-from tools import get_flag_img_cached, upload_profile_picture, registrar_usuario
+from tools import get_flag_img_cached, upload_profile_picture
 from io import BytesIO
 #import textwrap
 #import streamlit.components.v1 as components
@@ -38,7 +38,8 @@ from services.supabase_service import (
     get_pronosticos_app,
     get_foro_app,
     get_noticias_app,
-    guardar_pronosticos_supabase
+    guardar_pronosticos_supabase,
+    registrar_usuario_supabase
 )
 
 
@@ -318,8 +319,8 @@ if not st.session_state['autenticado']:
             if st.form_submit_button("Entrar", use_container_width=True):
                 # Normalización para ignorar mayúsculas
                 user_match = df_usuarios[
-                    (df_usuarios['USUARIO'].astype(str).str.lower() == u.lower().strip()) & 
-                    (df_usuarios['CONTRASEÑA'].astype(str) == str(p))
+                    (df_usuarios["USUARIO"].astype(str).str.lower().str.strip() == u.lower().strip()) &
+                    (df_usuarios["CONTRASEÑA"].astype(str).str.strip() == str(p).strip())
                 ]
                 
                 if not user_match.empty:
@@ -358,7 +359,13 @@ if not st.session_state['autenticado']:
                 if registro_permitido_fecha and estado_registro_manual == "ON":
                     if r_u and r_p and r_n:
                         # Usamos la función del módulo TOOLS
-                        exito, mensaje = registrar_usuario(conn, r_n, r_u, r_p, AVATAR_GENERICO, r_f)
+                        exito, mensaje = registrar_usuario_supabase(
+                            nombre=r_n,
+                            usuario=r_u,
+                            contrasena=r_p,
+                            avatar_url=AVATAR_GENERICO,
+                            equipo_favorito=r_f
+                        )
                         if exito:
                             st.session_state['registro_exitoso'] = True
                             st.session_state['mostrar_registro'] = False 
