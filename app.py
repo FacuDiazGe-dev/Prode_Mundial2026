@@ -530,7 +530,6 @@ if menu == "🏠 Inicio":
         df_pro=df_pro,
         df_res=df_res,
         mapa_banderas=mapa_banderas,
-        conn=conn,
         df_foro=df_foro,
         df_noticias=df_noticias
     )
