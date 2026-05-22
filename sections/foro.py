@@ -711,6 +711,34 @@ div[data-testid="stSegmentedControl"] button:hover {
 .medallero-card.locked {
     opacity: 0.92;
 }
+.medallero-side-panel {
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.72),
+            rgba(248,250,252,0.62)
+        ),
+        var(--medallero-bg);
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    border: 1px solid rgba(244,197,66,0.22);
+}
+
+.medallero-side-panel .community-side-header {
+    position: relative;
+    z-index: 2;
+}
+
+.medallero-side-panel .medallero-grid {
+    position: relative;
+    z-index: 2;
+}
 
 /* ============================================================
    5C. PULSO DE COMUNIDAD
@@ -1043,6 +1071,7 @@ div[data-testid="stSegmentedControl"] button:hover {
     # ============================================================
 
     FORO_MURO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
+    BADGES_WALL_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png"
     
     st.markdown("""
 <div class="foro-title">
