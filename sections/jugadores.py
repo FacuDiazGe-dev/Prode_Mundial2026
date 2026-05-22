@@ -77,14 +77,6 @@ def render_jugadores(
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
 }
 
-.badges-wall-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    color: #F8FAFC;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-}
 
 .player-preds-panel {
     background: rgba(255,255,255,0.94);
@@ -496,238 +488,7 @@ def render_jugadores(
    Grid HTML responsive + estilo medallero premium.
    ============================================================ */
 
-.badges-desktop {
-    display: block;
-    margin-top: 18px;
-}
 
-.badges-mobile {
-    display: none;
-}
-
-/* Panel general del muro */
-.badges-wall-panel {
-    position: relative;
-    overflow: hidden;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.08),
-            rgba(255,255,255,0.10)
-        ),
-        var(--badges-wall-bg);
-
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
-    padding: 16px;
-
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
-}
-/* Grid real de insignias */
-.badges-grid {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 10px;
-}
-
-/* Card de cada insignia */
-.badge-card {
-    min-width: 0;
-    min-height: 112px;
-    
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.70),
-            rgba(248,250,252,0.50)
-        );
-
-    border: 1px solid rgba(226,232,240,0.95);
-    border-radius: 16px;
-
-    padding: 8px 6px;
-    text-align: center;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    box-shadow:
-        0 8px 18px rgba(15,23,42,0.04),
-        inset 0 1px 0 rgba(255,255,255,0.65);
-
-    transition:
-        transform 0.16s ease,
-        box-shadow 0.16s ease,
-        border-color 0.16s ease;
-}
-
-.badge-card:hover {
-    transform: translateY(-1px);
-    border-color: rgba(244,197,66,0.62);
-
-    box-shadow:
-        0 10px 22px rgba(244,197,66,0.12),
-        inset 0 1px 0 rgba(255,255,255,0.75);
-}
-
-/* =====================================================
-   BADGES - MEDALLAS CON IMAGEN
-   ===================================================== */
-
-.badge-medal-wrap {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 6px;
-}
-
-.badge-medal-img {
-    width: 86px;
-    height: 86px;
-    object-fit: contain;
-    display: block;
-    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.18));
-    transition: transform 0.18s ease, filter 0.18s ease;
-}
-
-.badge-card:hover .badge-medal-img {
-    transform: translateY(-2px) scale(1.035);
-    filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.26));
-}
-
-.badge-icon-fallback {
-    width: 118px;
-    height: 118px;
-    margin: 0 auto 6px auto;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 58px;
-    background: radial-gradient(circle at 30% 20%, #ffffff 0%, #eef3fb 38%, #dce5f3 100%);
-    box-shadow: 0 10px 18px rgba(8, 25, 52, 0.16);
-}
-
-
-.badge-title {
-    color: #07111F;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 8.5px;
-    font-weight: 900;
-    line-height: 1.05;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-
-    margin-bottom: 4px;
-
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.badge-winner {
-    color: #0f172a;
-    font-size: 9.5px;
-    font-weight: 900;
-    line-height: 1.1;
-
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.badge-detail {
-    display: inline-block;
-
-    margin-top: 7.5px;
-    padding: 3px 7px;
-
-    border-radius: 999px;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(7,17,31,0.98),
-            rgba(15,23,42,0.96)
-        );
-
-    border: 1px solid rgba(244,197,66,0.18);
-
-    color: #F4C542;
-
-    font-size: 8px;
-    font-weight: 900;
-    line-height: 1.1;
-
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Mobile: 2 columnas reales */
-@media (max-width: 768px) {
-    .badges-desktop {
-        display: none;
-    }
-
-    .badges-mobile {
-        display: block;
-        margin-top: 18px;
-    }
-
-    .badges-wall-panel {
-        padding: 13px;
-        border-radius: 16px;
-    }
-
-    .badges-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 8px;
-    }
-
-    .badge-card {
-        min-height: 104px;
-        padding: 7px 5px;
-        border-radius: 13px;
-    }
-
-    .badge-medal-img {
-        width: 74px;
-        height: 74px;
-    }
-
-    .badge-icon-fallback {
-        width: 92px;
-        height: 92px;
-        font-size: 44px;
-    }
-
-    .badge-title {
-        font-size: 0.62rem;
-        line-height: 1.05;
-    }
-
-    .badge-winner {
-        font-size: 0.62rem;
-    }
-
-    .badge-detail {
-        font-size: 0.58rem;
-        padding: 3px 6px;
-    }
-}
 
 /* ============================================================
    9. PRONÓSTICOS DEL JUGADOR
@@ -1363,7 +1124,7 @@ def render_jugadores(
 
     st.markdown("""
 <div class="players-title">
-<h1>👥 Jugadores</h1>
+<h1>👥 Plantel</h1>
 <p>Plantel, logros y pronósticos de la banda del Prode.</p>
 </div>
 """, unsafe_allow_html=True)
@@ -1389,7 +1150,6 @@ def render_jugadores(
 
     BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
     PLAYER_HERO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
-    BADGES_WALL_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png"
 
     
     badge_asset_map = {
@@ -1449,17 +1209,6 @@ def render_jugadores(
         },
     }
 
-    badge_class_map = {
-        "Puntero": "puntero",
-        "Sr. Prode": "prode",
-        "Siempre Suma": "suma",
-        "Optimista del Gol": "gol",
-        "El Cholo": "cholo",
-        "Rey del Empate": "empate",
-        "El Macaya": "macaya",
-        "El Misterioso": "misterioso",
-        "El Distinto": "distinto",
-    }
 
     def normalizar_texto(valor):
         return str(valor).strip().lower()
@@ -1508,85 +1257,6 @@ def render_jugadores(
             )
 
         return "".join(items)
-    badges_habilitadas = get_partidos_con_resultado_visible() >= 5
-
-    if badges_habilitadas:
-        logros_muro = logros
-    else:
-        logros_muro = [
-            {
-                "icon": "🏅",
-                "title": title,
-                "winner": "-",
-                "detail": "Desde partido 5",
-                "locked": True
-            }
-            for title in badge_order
-        ]
-
-    badges_html = ""
-
-    for logro in logros_muro:
-        badge_title = str(logro.get("title", ""))
-        badge_type = badge_class_map.get(badge_title, "default")
-
-        assets = badge_asset_map.get(
-            badge_title,
-            {}
-        )
-
-        if logro.get("locked", False):
-            badge_img = assets.get("gray_large", "") or assets.get("gray", "") or assets.get("large", "")
-        else:
-            badge_img = assets.get("large", "")
-            
-        badge_icon_fallback = str(logro.get("icon", "🏅"))
-
-        if badge_img:
-            badge_visual_html = f"""
-<div class="badge-medal-wrap">
-<img 
-class="badge-medal-img" 
-src="{escape(badge_img)}" 
-alt="{escape(badge_title)}"
-loading="lazy"
->
-</div>
-            """
-        else:
-            badge_visual_html = f"""
-<div class="badge-icon-fallback">{escape(badge_icon_fallback)}</div>
-            """
-
-        winner_html = (
-            "🔒 Sin dueño"
-            if logro.get("locked", False)
-            else f'👤 {escape(str(logro.get("winner", "-")))}'
-        )
-
-        badges_html += f"""
-<div class="badge-card badge-{badge_type}">
-{badge_visual_html}
-<div class="badge-title">{escape(badge_title)}</div>
-<div class="badge-winner">{winner_html}</div>
-<div class="badge-detail">{escape(str(logro.get("detail", "")))}</div>
-</div>
-        """
-    badges_panel_html = f"""
-<div class="badges-wall-panel" style="--badges-wall-bg: url('{BADGES_WALL_BG_URL}');">
-<div class="players-panel-header">
-<div class="players-panel-icon">🏅</div>
-<div>
-<div class="badges-wall-title">Muro de Insignias</div>
-<div class="players-panel-subtitle">Logros destacados del Prode</div>
-</div>
-</div>
-
-<div class="badges-grid">
-{badges_html}
-</div>
-</div>
-    """
 
     # ============================================================
     # ESTRUCTURA PRINCIPAL
@@ -1686,16 +1356,6 @@ loading="lazy"
                 else None
             )
 
-        # Muro visible solo en desktop.
-        # Va fuera del container de lista, pero dentro de la columna izquierda.
-        st.markdown(
-            f"""
-<div class="badges-desktop">
-{badges_panel_html}
-</div>
-""",
-            unsafe_allow_html=True
-        )
 
     with c_detalle:
         if user_sel is None:
@@ -1857,16 +1517,3 @@ Sin pronósticos cargados todavía.
 """,
             unsafe_allow_html=True
         )
-    # ============================================================
-    # MURO MOBILE
-    # Visible solo en mobile, después de perfil + pronósticos.
-    # ============================================================
-
-    st.markdown(
-        f"""
-<div class="badges-mobile">
-{badges_panel_html}
-</div>
-""",
-        unsafe_allow_html=True
-    )
