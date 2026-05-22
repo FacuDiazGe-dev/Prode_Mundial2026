@@ -547,22 +547,39 @@ elif menu == "⚙️ Panel Control":
 
         with st.expander("🧪 Test Supabase", expanded=False):
             try:
-                df_test_supabase = get_resultados_supabase()
-
+                df_resultados_sb = get_resultados_supabase()
+                df_usuarios_sb = get_usuarios_supabase()
+                df_pronosticos_sb = get_pronosticos_supabase()
+        
                 st.success("✅ Conexión con Supabase funcionando.")
-                st.write(
-                    "Filas en resultados Supabase:",
-                    len(df_test_supabase)
-                )
-
+        
+                st.write("Filas en resultados Supabase:", len(df_resultados_sb))
+                st.write("Filas en usuarios Supabase:", len(df_usuarios_sb))
+                st.write("Filas en pronósticos Supabase:", len(df_pronosticos_sb))
+        
+                st.markdown("#### Resultados")
                 st.dataframe(
-                    df_test_supabase.head(),
+                    df_resultados_sb.head(),
                     use_container_width=True,
                     hide_index=True
                 )
-
+        
+                st.markdown("#### Usuarios")
+                st.dataframe(
+                    df_usuarios_sb.head(),
+                    use_container_width=True,
+                    hide_index=True
+                )
+        
+                st.markdown("#### Pronósticos")
+                st.dataframe(
+                    df_pronosticos_sb.head(),
+                    use_container_width=True,
+                    hide_index=True
+                )
+        
             except Exception as e:
-                st.error(f"❌ Error conectando con Supabase: {e}")
+                st.error(f"❌ Error conectando con Supabase: {e}"))
 
         col_principal, col_derecha = st.columns(
             [1.45, 1],
