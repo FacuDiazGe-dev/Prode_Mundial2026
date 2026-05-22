@@ -1322,27 +1322,101 @@ div[data-testid="stSegmentedControl"] button:hover {
                     st.info("Todavía no hay noticias cargadas.")
 
                 else:
-                    df_gestion_noticias = df_noticias.copy()
+                    df_editor_noticias = df_noticias.copy()
 
-                    columnas_gestion = [
+                    columnas_editor = [
                         "FECHA",
                         "TIPO",
                         "TITULO",
+                        "TEXTO",
                         "AUTOR",
                         "VISIBLE",
                         "PRIORIDAD"
                     ]
 
-                    columnas_existentes = [
-                        col for col in columnas_gestion
-                        if col in df_gestion_noticias.columns
-                    ]
+                    for col in columnas_editor:
+                        if col not in df_editor_noticias.columns:
+                            if col == "PRIORIDAD":
+                                df_editor_noticias[col] = 99
+                            elif col == "VISIBLE":
+                                df_editor_noticias[col] = "TRUE"
+                            else:
+                                df_editor_noticias[col] = ""
 
-                    st.dataframe(
-                        df_gestion_noticias[columnas_existentes].iloc[::-1],
+                    df_editor_noticias = df_editor_noticias[columnas_editor]
+
+                    edited_noticias = st.data_editor(
+                        df_editor_noticias,
                         use_container_width=True,
-                        hide_index=True
+                        hide_index=True,
+                        num_rows="fixed",
+                        key="editor_gestion_noticias",
+                        disabled=[
+                            "FECHA",
+                            "AUTOR"
+                        ],
+                        column_config={
+                            "FECHA": st.column_config.TextColumn(
+                                "Fecha",
+                                disabled=True,
+                                width="small"
+                            ),
+                            "TIPO": st.column_config.SelectboxColumn(
+                                "Tipo",
+                                options=[
+                                    "Noticia",
+                                    "Aviso",
+                                    "Prode",
+                                    "Comunidad",
+                                    "Partido"
+                                ],
+                                width="small"
+                            ),
+                            "TITULO": st.column_config.TextColumn(
+                                "Título",
+                                max_chars=80,
+                                width="medium"
+                            ),
+                            "TEXTO": st.column_config.TextColumn(
+                                "Texto",
+                                max_chars=240,
+                                width="large"
+                            ),
+                            "AUTOR": st.column_config.TextColumn(
+                                "Autor",
+                                disabled=True,
+                                width="small"
+                            ),
+                            "VISIBLE": st.column_config.SelectboxColumn(
+                                "Visible",
+                                options=[
+                                    "TRUE",
+                                    "FALSE"
+                                ],
+                                width="small"
+                            ),
+                            "PRIORIDAD": st.column_config.NumberColumn(
+                                "Prioridad",
+                                min_value=1,
+                                max_value=99,
+                                step=1,
+                                width="small"
+                            ),
+                        }
                     )
+
+                    if st.button(
+                        "💾 Guardar cambios en noticias",
+                        use_container_width=True
+                    ):
+                        conn.update(
+                            worksheet="NOTICIAS",
+                            data=edited_noticias
+                        )
+
+                        st.cache_data.clear()
+                        st.success("✅ Noticias actualizadas correctamente.")
+                        st.rerun()
         # ------------------------------------------------------------
         # MEDALLERO DEL PRODE — PROVISORIO
         # ------------------------------------------------------------
