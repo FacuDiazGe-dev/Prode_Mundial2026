@@ -29,7 +29,11 @@ from sections.reglas import render_reglas
 from PIL import Image
 import streamlit as st
 import streamlit.components.v1 as components
-from services.supabase_service import get_resultados_supabase
+from services.supabase_service import (
+    get_resultados_supabase,
+    get_usuarios_supabase,
+    get_pronosticos_supabase
+)
 
 # 1. DEFINE LA URL DE TU BUCKET (La usaremos en ambos lados)
 URL_ICONO = "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP2.png"
