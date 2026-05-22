@@ -9,7 +9,7 @@ from styles_config import (
 from tools import upload_foro_image
 
 
-def render_foro(conn, df_usuarios, df_ranking):
+def render_foro(conn, df_usuarios, df_ranking, df_foro):
 
     # ============================================================
     # ESTILOS — FORO
@@ -859,11 +859,6 @@ div[data-testid="stSegmentedControl"] button:hover {
     # ============================================================
     # DATOS BASE
     # ============================================================
-
-    df_foro = conn.read(
-        worksheet="FORO",
-        ttl=60
-    )
 
     if df_foro is None or df_foro.empty:
         df_foro = pd.DataFrame(
