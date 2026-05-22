@@ -36,8 +36,12 @@ from services.supabase_service import (
     get_resultados_app,
     get_usuarios_app,
     get_pronosticos_app,
+    get_foro_app,
+    get_noticias_app,
     guardar_pronosticos_supabase
 )
+
+
 # 1. DEFINE LA URL DE TU BUCKET (La usaremos en ambos lados)
 URL_ICONO = "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP2.png"
 
@@ -390,11 +394,13 @@ aplicar_estilos_globales()
 # 3. EJECUCIÓN — DATOS COMPARTIDOS
 # =============================================================================
 
-df_foro = leer_sheet_seguro(
-    conn,
-    worksheet="FORO",
-    ttl=300
-)
+df_foro = get_foro_app()
+# df_foro = leer_sheet_seguro(
+#     conn,
+#     worksheet="FORO",
+#     ttl=300
+# )
+
 
 if df_foro.empty:
     df_foro = pd.DataFrame(
@@ -426,12 +432,12 @@ for col in [
         else:
             df_foro[col] = ""
 
-
-df_noticias = leer_sheet_seguro(
-    conn,
-    worksheet="NOTICIAS",
-    ttl=300
-)
+df_noticias = get_noticias_app()
+# df_noticias = leer_sheet_seguro(
+#     conn,
+#     worksheet="NOTICIAS",
+#     ttl=300
+# )
 
 if df_noticias.empty:
     df_noticias = pd.DataFrame(
