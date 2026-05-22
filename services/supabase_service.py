@@ -283,7 +283,7 @@ def get_noticias_supabase():
         supabase
         .table("noticias")
         .select("*")
-        .order("prioridad")
+        .order("prioridad", desc=False)
         .order("id", desc=True)
         .execute()
     )
