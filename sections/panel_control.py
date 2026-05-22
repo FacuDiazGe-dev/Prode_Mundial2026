@@ -7,7 +7,11 @@ from services.supabase_service import (
     get_pronosticos_supabase,
     guardar_pronosticos_supabase,
     eliminar_usuario_supabase,
-    actualizar_rol_usuario_supabase
+    actualizar_rol_usuario_supabase,
+    get_config_app,
+    actualizar_config_supabase,
+    get_resultados_app,
+    guardar_resultados_supabase
 )
 
 def render_panel_control(
@@ -156,24 +160,33 @@ def render_panel_control(
     # ============================================================
 
     with tab_resultados:
-        st.subheader("⚽ Gestión de Resultados")
+        st.subheader("⚽ Gestión de Resultados Oficiales")
 
-        st.info(
-            "Esta sección todavía conserva la lógica anterior de Google Sheets. "
-            "El próximo paso será migrar la escritura de resultados a Supabase."
-        )
+        df_res_admin = df_res.copy()
 
-        df_res_admin = conn.read(
-            worksheet="RESULTADOS",
-            ttl=5
-        )
+        if df_res_admin is None or df_res_admin.empty:
+            st.error("No se pudieron cargar los resultados desde Supabase.")
+        else:
+            df_res_admin["N_PARTIDO"] = pd.to_numeric(
+                df_res_admin["N_PARTIDO"],
+                errors="coerce"
+            )
 
-        with st.form("form_admin_master_72"):
+            df_res_admin = df_res_admin.dropna(
+                subset=["N_PARTIDO"]
+            ).copy()
 
-            df_to_update = df_res_admin.copy()
-            df_to_update["VIZ"] = df_to_update["VIZ"].astype(object)
+            df_res_admin["N_PARTIDO"] = df_res_admin["N_PARTIDO"].astype(int)
 
-            t1, t2, t3 = st.tabs(
+            if "FECHA" not in df_res_admin.columns:
+                df_res_admin["FECHA"] = 1
+
+            df_res_admin["FECHA_NUM"] = pd.to_numeric(
+                df_res_admin["FECHA"],
+                errors="coerce"
+            ).fillna(1).astype(int)
+
+            tabs_fechas = st.tabs(
                 [
                     "Fecha 1",
                     "Fecha 2",
@@ -181,136 +194,157 @@ def render_panel_control(
                 ]
             )
 
-            def renderizar_bloque(df_grupo, contenedor):
-                with contenedor:
-                    for idx_df, row in df_grupo.iterrows():
-                        id_p = int(row["N_PARTIDO"])
+            df_editado_total = []
 
-                        r1_curr = (
-                            int(row["R1"])
-                            if pd.notna(row["R1"])
-                            else 0
-                        )
-
-                        r2_curr = (
-                            int(row["R2"])
-                            if pd.notna(row["R2"])
-                            else 0
-                        )
-
-                        viz_act = (
-                            str(row["VIZ"])
-                            .strip()
-                            .upper()
-                            in [
-                                "TRUE",
-                                "1",
-                                "1.0",
-                                "VERDADERO"
-                            ]
-                        )
-
-                        st.markdown(
-                            f"**P{id_p}:** {row['Equipo_1']} vs {row['Equipo_2']}"
-                        )
-
-                        c1, c_vs, c2, c_viz = st.columns(
-                            [1, 0.2, 1, 1.2]
-                        )
-
-                        with c1:
-                            r1_val = st.number_input(
-                                f"G1_{id_p}",
-                                0,
-                                20,
-                                r1_curr,
-                                key=f"r1_{id_p}",
-                                label_visibility="collapsed"
-                            )
-
-                        with c_vs:
-                            st.write(
-                                "<div style='text-align:center; padding-top:5px;'>:</div>",
-                                unsafe_allow_html=True
-                            )
-
-                        with c2:
-                            r2_val = st.number_input(
-                                f"G2_{id_p}",
-                                0,
-                                20,
-                                r2_curr,
-                                key=f"r2_{id_p}",
-                                label_visibility="collapsed"
-                            )
-
-                        with c_viz:
-                            viz_val = st.toggle(
-                                "Visible",
-                                value=viz_act,
-                                key=f"viz_{id_p}"
-                            )
-
-                            finalizado = st.checkbox(
-                                "Fin",
-                                value=pd.notna(row["R1"]),
-                                key=f"fin_{id_p}"
-                            )
-
-                        df_to_update.at[idx_df, "R1"] = (
-                            r1_val
-                            if finalizado
-                            else None
-                        )
-
-                        df_to_update.at[idx_df, "R2"] = (
-                            r2_val
-                            if finalizado
-                            else None
-                        )
-
-                        df_to_update.at[idx_df, "VIZ"] = (
-                            "TRUE"
-                            if viz_val
-                            else "FALSE"
-                        )
-
-                        st.markdown("---")
-
-            renderizar_bloque(
-                df_to_update.iloc[0:24],
-                t1
-            )
-
-            renderizar_bloque(
-                df_to_update.iloc[24:48],
-                t2
-            )
-
-            renderizar_bloque(
-                df_to_update.iloc[48:72],
-                t3
-            )
-
-            submit = st.form_submit_button(
-                "💾 GUARDAR LOS 72 PARTIDOS",
-                use_container_width=True
-            )
-
-            if submit:
-                try:
-                    conn.update(
-                        worksheet="RESULTADOS",
-                        data=df_to_update
+            for fecha_num, tab in zip([1, 2, 3], tabs_fechas):
+                with tab:
+                    df_fecha = (
+                        df_res_admin[
+                            df_res_admin["FECHA_NUM"] == fecha_num
+                        ]
+                        .sort_values("N_PARTIDO")
+                        .copy()
                     )
 
-                    st.cache_data.clear()
-                    st.success("✅ ¡Los 72 partidos han sido actualizados!")
-                    st.balloons()
-                    st.rerun()
+                    if df_fecha.empty:
+                        st.info(f"No hay partidos cargados para Fecha {fecha_num}.")
+                        continue
+
+                    columnas_editor = [
+                        "N_PARTIDO",
+                        "Equipo_1",
+                        "R1",
+                        "R2",
+                        "Equipo_2",
+                        "DIA",
+                        "HORA",
+                        "VIZ"
+                    ]
+
+                    for col in columnas_editor:
+                        if col not in df_fecha.columns:
+                            if col in ["R1", "R2"]:
+                                df_fecha[col] = None
+                            elif col == "VIZ":
+                                df_fecha[col] = False
+                            else:
+                                df_fecha[col] = ""
+
+                    df_fecha_editor = df_fecha[columnas_editor].copy()
+
+                    df_fecha_editor["R1"] = pd.to_numeric(
+                        df_fecha_editor["R1"],
+                        errors="coerce"
+                    )
+
+                    df_fecha_editor["R2"] = pd.to_numeric(
+                        df_fecha_editor["R2"],
+                        errors="coerce"
+                    )
+
+                    df_fecha_editor["VIZ"] = (
+                        df_fecha_editor["VIZ"]
+                        .astype(str)
+                        .str.strip()
+                        .str.upper()
+                        .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+                    )
+
+                    edited_fecha = st.data_editor(
+                        df_fecha_editor,
+                        use_container_width=True,
+                        hide_index=True,
+                        key=f"editor_resultados_fecha_{fecha_num}",
+                        disabled=[
+                            "N_PARTIDO",
+                            "Equipo_1",
+                            "Equipo_2",
+                            "DIA",
+                            "HORA"
+                        ],
+                        column_config={
+                            "N_PARTIDO": st.column_config.NumberColumn(
+                                "N°",
+                                width="small"
+                            ),
+                            "Equipo_1": st.column_config.TextColumn(
+                                "Equipo 1",
+                                width="medium"
+                            ),
+                            "R1": st.column_config.NumberColumn(
+                                "R1",
+                                min_value=0,
+                                max_value=20,
+                                step=1,
+                                width="small"
+                            ),
+                            "R2": st.column_config.NumberColumn(
+                                "R2",
+                                min_value=0,
+                                max_value=20,
+                                step=1,
+                                width="small"
+                            ),
+                            "Equipo_2": st.column_config.TextColumn(
+                                "Equipo 2",
+                                width="medium"
+                            ),
+                            "DIA": st.column_config.TextColumn(
+                                "Día",
+                                width="small"
+                            ),
+                            "HORA": st.column_config.TextColumn(
+                                "Hora",
+                                width="small"
+                            ),
+                            "VIZ": st.column_config.CheckboxColumn(
+                                "Visible",
+                                width="small"
+                            ),
+                        }
+                    )
+
+                    edited_fecha["FECHA"] = fecha_num
+                    df_editado_total.append(edited_fecha)
+
+            st.markdown("---")
+
+            if st.button(
+                "💾 Guardar resultados oficiales",
+                use_container_width=True,
+                type="primary"
+            ):
+                try:
+                    if not df_editado_total:
+                        st.warning("No hay resultados para guardar.")
+                        st.stop()
+
+                    df_final_resultados = pd.concat(
+                        df_editado_total,
+                        ignore_index=True
+                    )
+
+                    # Recuperamos columnas fijas que no estaban en el editor si hiciera falta
+                    df_base_extra = df_res_admin[
+                        [
+                            col for col in df_res_admin.columns
+                            if col not in df_final_resultados.columns
+                            and col != "FECHA_NUM"
+                        ]
+                    ].copy()
+
+                    ok, msg = guardar_resultados_supabase(df_final_resultados)
+
+                    if ok:
+                        st.cache_data.clear()
+                        st.success("✅ Resultados oficiales actualizados.")
+                        st.balloons()
+                        st.rerun()
+                    else:
+                        st.error(msg)
 
                 except Exception as e:
-                    st.error(f"❌ Error al conectar: {e}")
+                    st.error(f"Error al guardar resultados: {e}")
 
     # ============================================================
     # TAB 3 — USUARIOS
@@ -468,14 +502,23 @@ def render_panel_control(
     with tab_config:
         st.subheader("🚦 Configuración del Prode")
 
-        df_config = conn.read(
-            worksheet="CONFIG",
-            ttl=10
-        )
+        try:
+            df_config = get_config_app()
+            estado_manual = (
+                str(df_config.iloc[0]["REGISTRO"])
+                .strip()
+                .upper()
+            )
+            estado_mant = (
+                str(df_config.iloc[0]["MANTENIMIENTO"])
+                .strip()
+                .upper()
+            )
 
-        estado_manual = str(
-            df_config.iloc[0]["REGISTRO"]
-        ).strip().upper()
+        except Exception as e:
+            st.error(f"No se pudo cargar CONFIG desde Supabase: {e}")
+            estado_manual = "OFF"
+            estado_mant = "OFF"
 
         st.markdown("### 🚫 Control de Inscripciones")
 
@@ -486,16 +529,17 @@ def render_panel_control(
                 "🔴 CERRAR REGISTRO MANUALMENTE",
                 use_container_width=True
             ):
-                df_config.at[0, "REGISTRO"] = "OFF"
-
-                conn.update(
-                    worksheet="CONFIG",
-                    data=df_config
+                ok, msg = actualizar_config_supabase(
+                    campo="registro",
+                    valor="OFF"
                 )
 
-                st.cache_data.clear()
-                st.success("Registro cerrado con éxito")
-                st.rerun()
+                if ok:
+                    st.cache_data.clear()
+                    st.success("Registro cerrado con éxito")
+                    st.rerun()
+                else:
+                    st.error(msg)
 
         else:
             st.error("⛔ Inscripciones CERRADAS")
@@ -505,16 +549,17 @@ def render_panel_control(
                     "🟢 ABRIR REGISTRO MANUALMENTE",
                     use_container_width=True
                 ):
-                    df_config.at[0, "REGISTRO"] = "ON"
-
-                    conn.update(
-                        worksheet="CONFIG",
-                        data=df_config
+                    ok, msg = actualizar_config_supabase(
+                        campo="registro",
+                        valor="ON"
                     )
 
-                    st.cache_data.clear()
-                    st.success("Registro abierto con éxito")
-                    st.rerun()
+                    if ok:
+                        st.cache_data.clear()
+                        st.success("Registro abierto con éxito")
+                        st.rerun()
+                    else:
+                        st.error(msg)
 
             else:
                 st.warning(
@@ -524,43 +569,37 @@ def render_panel_control(
         st.markdown("---")
         st.markdown("### 🚧 Mantenimiento")
 
-        if estado_mantenimiento == "ON":
+        if estado_mant == "ON":
             st.error("WEB BLOQUEADA")
 
             if st.button("✅ ABRIR WEB"):
-                df_config = conn.read(
-                    worksheet="CONFIG",
-                    ttl=0
+                ok, msg = actualizar_config_supabase(
+                    campo="mantenimiento",
+                    valor="OFF"
                 )
 
-                df_config.at[0, "MANTENIMIENTO"] = "OFF"
-
-                conn.update(
-                    worksheet="CONFIG",
-                    data=df_config
-                )
-
-                st.cache_data.clear()
-                st.rerun()
+                if ok:
+                    st.cache_data.clear()
+                    st.success("Web abierta correctamente")
+                    st.rerun()
+                else:
+                    st.error(msg)
 
         else:
             st.success("WEB ACTIVA")
 
             if st.button("🚫 CERRAR WEB"):
-                df_config = conn.read(
-                    worksheet="CONFIG",
-                    ttl=0
+                ok, msg = actualizar_config_supabase(
+                    campo="mantenimiento",
+                    valor="ON"
                 )
 
-                df_config.at[0, "MANTENIMIENTO"] = "ON"
-
-                conn.update(
-                    worksheet="CONFIG",
-                    data=df_config
-                )
-
-                st.cache_data.clear()
-                st.rerun()
+                if ok:
+                    st.cache_data.clear()
+                    st.success("Web cerrada por mantenimiento")
+                    st.rerun()
+                else:
+                    st.error(msg)
 
     # ============================================================
     # TAB 5 — TÉCNICO
