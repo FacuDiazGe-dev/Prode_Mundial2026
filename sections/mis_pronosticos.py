@@ -14,6 +14,7 @@ from styles_config import (
     EVOL_HEADER_BACKGROUND
 )
 from tools import upload_profile_picture, get_flag_img
+from services.supabase_service import guardar_pronosticos_supabase
 
 
 def render_mis_pronosticos(
@@ -2244,59 +2245,29 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                             "P1",
                             "P2"
                         ]
-                    ]
-
-                    df_pro_full = conn.read(
-                        worksheet="PRONOSTICOS",
-                        ttl=5
-                    )
-
-                    ids_tanda = df_res_tanda["N_PARTIDO"].astype(int).tolist()
-
-                    df_pro_full = df_pro_full.copy()
-
-                    df_pro_full["N_PARTIDO_NUM"] = pd.to_numeric(
-                        df_pro_full["N_PARTIDO"],
-                        errors="coerce"
-                    )
-
-                    mask_usuario_actual = (
-                        df_pro_full["USUARIO"].astype(str) == str(user_actual)
-                    )
-
-                    mask_tanda_actual = (
-                        df_pro_full["N_PARTIDO_NUM"].isin(ids_tanda)
-                    )
-
-                    # Conserva:
-                    # - pronósticos de otros usuarios
-                    # - pronósticos del usuario actual en otras fechas
-                    df_otros = df_pro_full[
-                        ~(mask_usuario_actual & mask_tanda_actual)
                     ].copy()
 
-                    df_otros = df_otros.drop(
-                        columns=["N_PARTIDO_NUM"],
-                        errors="ignore"
-                    )
+                    # ------------------------------------------------------------
+                    # GUARDADO EN SUPABASE
+                    # ------------------------------------------------------------
+                    # Supabase usa upsert sobre usuario + n_partido.
+                    # Si el pronóstico ya existe, lo actualiza.
+                    # Si no existe, lo crea.
+                    # No hace falta leer ni reescribir toda la tabla.
 
-                    df_final = pd.concat(
-                        [df_otros, nuevos_pro],
-                        ignore_index=True
-                    )
+                    ok, msg = guardar_pronosticos_supabase(nuevos_pro)
 
-                    conn.update(
-                        worksheet="PRONOSTICOS",
-                        data=df_final
-                    )
+                    if ok:
+                        st.cache_data.clear()
+                        st.session_state.permitir_edicion = False
+                        st.session_state.pron_editor_version += 1
 
-                    st.cache_data.clear()
-                    st.session_state.permitir_edicion = False
-                    st.session_state.pron_editor_version += 1
+                        st.success("✅ ¡Pronósticos guardados correctamente!")
+                        st.balloons()
+                        st.rerun()
 
-                    st.success("✅ ¡Pronósticos guardados correctamente!")
-                    st.balloons()
-                    st.rerun()
+                    else:
+                        st.error(msg)
 
                 except Exception as e:
                     st.error(f"Error al guardar: {e}")
