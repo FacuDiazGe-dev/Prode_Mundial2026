@@ -6,6 +6,7 @@ import re
 
 from styles_config import (AVATAR_GENERICO, HEADER_BACKGROUND, SIDEBAR_BANNER)
 from tools import upload_profile_picture, get_flag_img
+from ranking_logic import calcular_detalle
 
 
 def render_mis_pronosticos(
@@ -854,6 +855,140 @@ def render_mis_pronosticos(
         grid-template-columns: 1fr;
         gap: 2px;
     }
+/* ============================================================
+   MI EVOLUCIÓN — PANEL COMPACTO
+   ============================================================ */
+
+.evolution-panel {
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(226,232,240,0.9);
+    border-radius: 18px;
+    padding: 16px;
+    margin-top: 14px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
+
+.evolution-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 4px 4px 12px 4px;
+    margin-bottom: 10px;
+
+    border-bottom: 1px solid rgba(226,232,240,0.75);
+}
+
+.evolution-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(244,197,66,0.16);
+    color: #0f172a;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.evolution-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.05;
+}
+
+.evolution-subtitle {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 3px;
+}
+
+.evolution-empty {
+    background: rgba(248,250,252,0.86);
+    border: 1px solid rgba(226,232,240,0.88);
+    border-radius: 14px;
+    padding: 12px;
+
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.35;
+}
+
+.evolution-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.evolution-stat {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(7,17,31,0.98),
+            rgba(15,23,42,0.94)
+        );
+
+    border: 1px solid rgba(244,197,66,0.16);
+    border-radius: 13px;
+    padding: 9px 6px;
+    text-align: center;
+}
+
+.evolution-stat-number {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    font-weight: 900;
+    color: #F8FAFC;
+    line-height: 1;
+}
+
+.evolution-stat-label {
+    margin-top: 4px;
+    color: rgba(226,232,240,0.64);
+    font-size: 8px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+@media (max-width: 768px) {
+    .evolution-panel {
+        padding: 13px;
+        border-radius: 16px;
+    }
+
+    .evolution-title {
+        font-size: 16px;
+    }
+
+    .evolution-subtitle {
+        font-size: 11px;
+    }
+
+    .evolution-stats {
+        gap: 6px;
+    }
+
+    .evolution-stat {
+        padding: 8px 4px;
+    }
+
+    .evolution-stat-number {
+        font-size: 14px;
+    }
+
+    .evolution-stat-label {
+        font-size: 7px;
+    }
+}
 }
 /* Botón normal de Streamlit usado en Editar Perfil */
 div[data-testid="stButton"] button {
@@ -972,6 +1107,112 @@ div[data-testid="stButton"] button {
             "exactos": int(row.get("EXACTOS", 0)),
             "generales": int(row.get("GENERALES", 0))
         }
+    def calcular_evolucion_usuario(usuario):
+        """
+        Calcula la evolución acumulada de puntos del usuario
+        partido por partido, tomando solo partidos visibles y con resultado.
+        """
+
+        if df_res is None or df_res.empty or df_pro is None or df_pro.empty:
+            return pd.DataFrame(
+                columns=[
+                    "Partido",
+                    "Puntos partido",
+                    "Puntos acumulados"
+                ]
+            )
+
+        df_res_check = df_res.copy()
+
+        if "VIZ" in df_res_check.columns:
+            viz_check = (
+                df_res_check["VIZ"]
+                .astype(str)
+                .str.strip()
+                .str.upper()
+            )
+
+            df_res_check = df_res_check[
+                viz_check.isin(
+                    ["TRUE", "1", "1.0", "VERDADERO", "T"]
+                )
+            ]
+
+        if "R1" not in df_res_check.columns or "R2" not in df_res_check.columns:
+            return pd.DataFrame(
+                columns=[
+                    "Partido",
+                    "Puntos partido",
+                    "Puntos acumulados"
+                ]
+            )
+
+        df_res_check = df_res_check[
+            df_res_check["R1"].notna()
+            & df_res_check["R2"].notna()
+        ].copy()
+
+        if df_res_check.empty:
+            return pd.DataFrame(
+                columns=[
+                    "Partido",
+                    "Puntos partido",
+                    "Puntos acumulados"
+                ]
+            )
+
+        df_user_pro = df_pro[
+            df_pro["USUARIO"].astype(str) == str(usuario)
+        ].copy()
+
+        if df_user_pro.empty:
+            return pd.DataFrame(
+                columns=[
+                    "Partido",
+                    "Puntos partido",
+                    "Puntos acumulados"
+                ]
+            )
+
+        rows = []
+        acumulado = 0
+
+        for _, partido in df_res_check.sort_values("N_PARTIDO").iterrows():
+            id_p = int(partido["N_PARTIDO"])
+
+            pron = df_user_pro[
+                df_user_pro["N_PARTIDO"].astype(int) == id_p
+            ]
+
+            puntos_partido = 0
+
+            if not pron.empty:
+                p = pron.iloc[0]
+
+                if (
+                    pd.notna(partido.get("R1"))
+                    and pd.notna(partido.get("R2"))
+                    and pd.notna(p.get("P1"))
+                    and pd.notna(p.get("P2"))
+                ):
+                    puntos_partido, _, _ = calcular_detalle(
+                        partido["R1"],
+                        partido["R2"],
+                        p["P1"],
+                        p["P2"]
+                    )
+
+            acumulado += puntos_partido
+
+            rows.append(
+                {
+                    "Partido": id_p,
+                    "Puntos partido": puntos_partido,
+                    "Puntos acumulados": acumulado
+                }
+            )
+
+        return pd.DataFrame(rows)
 
     BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
 
@@ -1662,6 +1903,83 @@ Bio:
                 st.session_state.editando_perfil = True
                 st.rerun()
 
+            # ------------------------------------------------------------
+            # MI EVOLUCIÓN
+            # ------------------------------------------------------------
+
+            df_evolucion = calcular_evolucion_usuario(user_actual)
+
+            st.markdown(
+                """
+<div class="evolution-panel">
+<div class="evolution-header">
+<div class="evolution-icon">📈</div>
+<div>
+<div class="evolution-title">Mi Evolución</div>
+<div class="evolution-subtitle">Puntos acumulados partido a partido</div>
+</div>
+</div>
+""",
+                unsafe_allow_html=True
+            )
+
+            if df_evolucion.empty:
+                st.markdown(
+                    """
+<div class="evolution-empty">
+Todavía no hay partidos visibles con resultado. Cuando empiecen a cargarse resultados oficiales, tu evolución aparecerá acá.
+</div>
+</div>
+""",
+                    unsafe_allow_html=True
+                )
+
+            else:
+                chart_df = df_evolucion.set_index("Partido")[
+                    ["Puntos acumulados"]
+                ]
+
+                st.line_chart(
+                    chart_df,
+                    use_container_width=True,
+                    height=210
+                )
+
+                puntos_actuales = int(
+                    df_evolucion["Puntos acumulados"].iloc[-1]
+                )
+
+                mejor_partido = int(
+                    df_evolucion["Puntos partido"].max()
+                )
+
+                partidos_con_puntos = int(
+                    (df_evolucion["Puntos partido"] > 0).sum()
+                )
+
+                st.markdown(
+                    f"""
+<div class="evolution-stats">
+<div class="evolution-stat">
+<div class="evolution-stat-number">{puntos_actuales}</div>
+<div class="evolution-stat-label">Puntos</div>
+</div>
+
+<div class="evolution-stat">
+<div class="evolution-stat-number">{mejor_partido}</div>
+<div class="evolution-stat-label">Mejor partido</div>
+</div>
+
+<div class="evolution-stat">
+<div class="evolution-stat-number">{partidos_con_puntos}</div>
+<div class="evolution-stat-label">Partidos sumando</div>
+</div>
+</div>
+</div>
+""",
+                    unsafe_allow_html=True
+                )
+
         else:
             st.markdown("""
 <div class="profile-panel">
@@ -1671,98 +1989,3 @@ Bio:
 </div>
 <div class="profile-edit-box">
 """, unsafe_allow_html=True)
-
-            with st.form("form_edit_perfil_v4"):
-                archivo_perfil = st.file_uploader(
-                    "Actualizar foto de perfil",
-                    type=["jpg", "jpeg", "png"]
-                )
-
-                n_nom = st.text_input(
-                    "Nombre Real",
-                    value=str(u_data.get("NOMBRE", ""))
-                )
-
-                equipos = [
-                    "Argentina",
-                    "México",
-                    "España",
-                    "Brasil",
-                    "Uruguay",
-                    "Colombia",
-                    "Otro"
-                ]
-
-                equipo_actual = u_data.get("EQUIPO FAVORITO", "Argentina")
-                idx_equipo = equipos.index(equipo_actual) if equipo_actual in equipos else 0
-
-                n_equ = st.selectbox(
-                    "Hincha de",
-                    equipos,
-                    index=idx_equipo
-                )
-
-                n_bio = st.text_area(
-                    "Bio",
-                    value=str(u_data.get("DESCRIPCION", "")),
-                    max_chars=100
-                )
-
-                c_b1, c_b2 = st.columns(2)
-
-                guardar = c_b1.form_submit_button("✅ Guardar")
-                cancelar = c_b2.form_submit_button("❌ Cancelar")
-
-                if guardar:
-                    nueva_url = u_data.get("AVATAR_URL", AVATAR_GENERICO)
-
-                    if archivo_perfil:
-                        with st.spinner("Subiendo foto al servidor..."):
-                            ts = datetime.now().strftime("%H%M%S")
-                            nombre_archivo = f"perfil_{u_data['USUARIO']}_{ts}.jpg"
-                            res_url = upload_profile_picture(
-                                archivo_perfil,
-                                nombre_archivo
-                            )
-
-                            if res_url and "Error" not in res_url:
-                                nueva_url = res_url
-                            else:
-                                st.error(f"Error al subir: {res_url}")
-
-                    try:
-                        df_u = conn.read(worksheet="USUARIOS", ttl=10)
-
-                        df_u.loc[
-                            df_u["USUARIO"] == u_data["USUARIO"],
-                            ["NOMBRE", "AVATAR_URL", "EQUIPO FAVORITO", "DESCRIPCION"]
-                        ] = [n_nom, nueva_url, n_equ, n_bio]
-
-                        conn.update(
-                            worksheet="USUARIOS",
-                            data=df_u
-                        )
-
-                        st.session_state["user_data"].update(
-                            {
-                                "NOMBRE": n_nom,
-                                "AVATAR_URL": nueva_url,
-                                "EQUIPO FAVORITO": n_equ,
-                                "DESCRIPCION": n_bio
-                            }
-                        )
-
-                        st.session_state.editando_perfil = False
-                        st.cache_data.clear()
-
-                        st.success("¡Perfil actualizado!")
-                        st.rerun()
-
-                    except Exception as e:
-                        st.error(f"Error: {e}")
-
-                if cancelar:
-                    st.session_state.editando_perfil = False
-                    st.rerun()
-
-            st.markdown("</div></div>", unsafe_allow_html=True)
