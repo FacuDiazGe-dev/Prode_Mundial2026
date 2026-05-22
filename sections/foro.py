@@ -649,7 +649,7 @@ div[data-testid="stSegmentedControl"] button:hover {
 }
 
 .medallero-title {
-    color: #07111F;
+    color: #FFFFFF;
     font-family: 'Montserrat', sans-serif;
     font-size: 8px;
     font-weight: 900;
