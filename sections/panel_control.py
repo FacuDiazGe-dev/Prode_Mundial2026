@@ -5,9 +5,10 @@ from services.supabase_service import (
     get_resultados_supabase,
     get_usuarios_supabase,
     get_pronosticos_supabase,
-    guardar_pronosticos_supabase
+    guardar_pronosticos_supabase,
+    eliminar_usuario_supabase,
+    actualizar_rol_usuario_supabase
 )
-
 
 def render_panel_control(
     conn,
@@ -318,53 +319,147 @@ def render_panel_control(
     with tab_usuarios:
         st.subheader("👥 Gestión de Usuarios")
 
-        st.info(
-            "Esta sección será la próxima en migrarse completamente a Supabase: "
-            "eliminar usuario, borrar pronósticos y cambiar rol."
-        )
-
-        usuarios_borrables = df_usuarios[
-            df_usuarios["USUARIO"]
-            != st.session_state["user_data"]["USUARIO"]
-        ]
-
-        if usuarios_borrables.empty:
-            st.info("No hay otros usuarios para gestionar.")
-
+        if df_usuarios is None or df_usuarios.empty:
+            st.info("No hay usuarios registrados.")
         else:
+            df_users_panel = df_usuarios.copy()
+
+            if "ROL" not in df_users_panel.columns:
+                df_users_panel["ROL"] = "jugador"
+
+            conteo_pro = (
+                df_pro["USUARIO"]
+                .value_counts()
+                .reset_index()
+                if df_pro is not None and not df_pro.empty
+                else pd.DataFrame(columns=["USUARIO", "COMPLETADOS"])
+            )
+
+            if not conteo_pro.empty:
+                conteo_pro.columns = ["USUARIO", "COMPLETADOS"]
+
+            df_users_panel = pd.merge(
+                df_users_panel,
+                conteo_pro,
+                on="USUARIO",
+                how="left"
+            )
+
+            df_users_panel["COMPLETADOS"] = (
+                df_users_panel["COMPLETADOS"]
+                .fillna(0)
+                .astype(int)
+            )
+
+            columnas_vista = [
+                "USUARIO",
+                "NOMBRE",
+                "ROL",
+                "EQUIPO FAVORITO",
+                "COMPLETADOS"
+            ]
+
+            for col in columnas_vista:
+                if col not in df_users_panel.columns:
+                    df_users_panel[col] = ""
+
             st.dataframe(
-                df_usuarios[["USUARIO", "NOMBRE", "ROL", "EQUIPO FAVORITO"]],
+                df_users_panel[columnas_vista],
                 use_container_width=True,
                 hide_index=True
             )
 
-            user_a_eliminar = st.selectbox(
-                "Selecciona un jugador para eliminar:",
-                usuarios_borrables["USUARIO"].tolist(),
+            st.markdown("---")
+            st.markdown("### 🛡️ Cambiar rol")
+
+            usuarios_roles = df_users_panel["USUARIO"].astype(str).tolist()
+
+            usuario_rol = st.selectbox(
+                "Usuario",
+                usuarios_roles,
                 index=None,
-                placeholder="Elegir usuario..."
+                placeholder="Elegir usuario...",
+                key="admin_usuario_rol"
             )
 
-            if user_a_eliminar:
-                st.warning(
-                    f"⚠️ Estás por borrar a **{user_a_eliminar}**."
+            nuevo_rol = st.selectbox(
+                "Nuevo rol",
+                ["jugador", "colaborador", "admin"],
+                key="admin_nuevo_rol"
+            )
+
+            if st.button(
+                "💾 Actualizar rol",
+                use_container_width=True,
+                disabled=not usuario_rol
+            ):
+                ok, msg = actualizar_rol_usuario_supabase(
+                    usuario=usuario_rol,
+                    nuevo_rol=nuevo_rol
                 )
 
-                confirmado = st.checkbox(
-                    "Confirmo borrar usuario y sus pronósticos",
-                    key="conf_borrar"
+                if ok:
+                    st.cache_data.clear()
+
+                    if (
+                        usuario_rol
+                        == st.session_state["user_data"]["USUARIO"]
+                    ):
+                        st.session_state["user_data"]["ROL"] = nuevo_rol
+
+                    st.success(msg)
+                    st.rerun()
+                else:
+                    st.error(msg)
+
+            st.markdown("---")
+            st.markdown("### 🗑️ Eliminar usuario")
+
+            usuarios_borrables = df_users_panel[
+                df_users_panel["USUARIO"]
+                != st.session_state["user_data"]["USUARIO"]
+            ]
+
+            if usuarios_borrables.empty:
+                st.info("No hay otros usuarios para eliminar.")
+            else:
+                user_a_eliminar = st.selectbox(
+                    "Selecciona un jugador para eliminar:",
+                    usuarios_borrables["USUARIO"].astype(str).tolist(),
+                    index=None,
+                    placeholder="Elegir usuario...",
+                    key="admin_user_eliminar"
                 )
 
-                if st.button(
-                    "❌ BORRAR PERMANENTEMENTE",
-                    type="primary",
-                    use_container_width=True,
-                    disabled=not confirmado
-                ):
-                    st.error(
-                        "Todavía no migramos el borrado a Supabase. "
-                        "Lo hacemos en el próximo paso."
+                if user_a_eliminar:
+                    nombre_eliminar = usuarios_borrables[
+                        usuarios_borrables["USUARIO"] == user_a_eliminar
+                    ]["NOMBRE"].iloc[0]
+
+                    st.warning(
+                        f"⚠️ Estás por borrar a **{nombre_eliminar}** "
+                        f"(@{user_a_eliminar}) y todos sus pronósticos."
                     )
+
+                    confirmado = st.checkbox(
+                        "Confirmo borrar usuario y sus pronósticos",
+                        key="conf_borrar_supabase"
+                    )
+
+                    if st.button(
+                        "❌ BORRAR PERMANENTEMENTE",
+                        type="primary",
+                        use_container_width=True,
+                        disabled=not confirmado
+                    ):
+                        ok, msg = eliminar_usuario_supabase(user_a_eliminar)
+
+                        if ok:
+                            st.cache_data.clear()
+                            st.success(msg)
+                            st.rerun()
+                        else:
+                            st.error(msg)
 
     # ============================================================
     # TAB 4 — CONFIGURACIÓN
