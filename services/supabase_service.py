@@ -337,6 +337,7 @@ def get_noticias_app():
     df = get_noticias_supabase()
 
     columnas_app = [
+        "ID",
         "FECHA",
         "TIPO",
         "TITULO",
@@ -354,6 +355,7 @@ def get_noticias_app():
 
     df = df.rename(
         columns={
+            "id": "ID",
             "fecha": "FECHA",
             "tipo": "TIPO",
             "titulo": "TITULO",
@@ -369,7 +371,9 @@ def get_noticias_app():
 
     for col in columnas_app:
         if col not in df.columns:
-            if col == "PRIORIDAD":
+            if col == "ID":
+                df[col] = None
+            elif col == "PRIORIDAD":
                 df[col] = 99
             elif col == "VISIBLE":
                 df[col] = True
@@ -574,8 +578,11 @@ def insertar_foro_supabase(df_nuevo):
 
 def guardar_noticias_supabase(df_noticias):
     """
-    Guarda la tabla completa de noticias en Supabase.
-    Versión compatible con el data_editor actual.
+    Guarda noticias sin borrar la tabla completa.
+
+    - Si la fila tiene ID: actualiza esa noticia.
+    - Si la fila no tiene ID: inserta una noticia nueva.
+    - No borra noticias anteriores.
     """
 
     supabase = get_supabase_client()
@@ -586,6 +593,7 @@ def guardar_noticias_supabase(df_noticias):
     df_save = df_noticias.copy()
 
     rename_map = {
+        "ID": "id",
         "FECHA": "fecha",
         "TIPO": "tipo",
         "TITULO": "titulo",
@@ -601,6 +609,7 @@ def guardar_noticias_supabase(df_noticias):
     df_save = df_save.rename(columns=rename_map)
 
     columnas = [
+        "id",
         "fecha",
         "tipo",
         "titulo",
@@ -615,7 +624,9 @@ def guardar_noticias_supabase(df_noticias):
 
     for col in columnas:
         if col not in df_save.columns:
-            if col == "prioridad":
+            if col == "id":
+                df_save[col] = None
+            elif col == "prioridad":
                 df_save[col] = 99
             elif col == "visible":
                 df_save[col] = True
@@ -625,7 +636,7 @@ def guardar_noticias_supabase(df_noticias):
     df_save = df_save[columnas].copy()
 
     # ------------------------------------------------------------
-    # NORMALIZAR TIPOS Y ELIMINAR NaN ANTES DE ENVIAR A SUPABASE
+    # NORMALIZAR TEXTO
     # ------------------------------------------------------------
 
     columnas_texto = [
@@ -648,6 +659,10 @@ def guardar_noticias_supabase(df_noticias):
             .replace("None", "")
         )
 
+    # ------------------------------------------------------------
+    # NORMALIZAR NÚMEROS Y BOOLEANOS
+    # ------------------------------------------------------------
+
     df_save["prioridad"] = pd.to_numeric(
         df_save["prioridad"],
         errors="coerce"
@@ -662,16 +677,49 @@ def guardar_noticias_supabase(df_noticias):
         .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
     )
 
-    # Última limpieza defensiva: cualquier NaN restante pasa a None
+    df_save["id"] = pd.to_numeric(
+        df_save["id"],
+        errors="coerce"
+    )
+
+    # Limpieza final contra NaN
     df_save = df_save.where(pd.notnull(df_save), None)
 
-    records = df_save.to_dict(orient="records")
-
     try:
-        supabase.table("noticias").delete().neq("id", 0).execute()
+        # ------------------------------------------------------------
+        # ACTUALIZAR FILAS EXISTENTES
+        # ------------------------------------------------------------
 
-        if records:
-            supabase.table("noticias").insert(records).execute()
+        df_existentes = df_save[
+            df_save["id"].notna()
+        ].copy()
+
+        for _, row in df_existentes.iterrows():
+            noticia_id = int(row["id"])
+
+            record = row.drop(labels=["id"]).to_dict()
+
+            supabase.table("noticias").update(record).eq(
+                "id",
+                noticia_id
+            ).execute()
+
+        # ------------------------------------------------------------
+        # INSERTAR FILAS NUEVAS
+        # ------------------------------------------------------------
+
+        df_nuevas = df_save[
+            df_save["id"].isna()
+        ].copy()
+
+        if not df_nuevas.empty:
+            records_nuevos = (
+                df_nuevas
+                .drop(columns=["id"], errors="ignore")
+                .to_dict(orient="records")
+            )
+
+            supabase.table("noticias").insert(records_nuevos).execute()
 
         get_noticias_supabase.clear()
 
