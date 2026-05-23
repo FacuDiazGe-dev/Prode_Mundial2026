@@ -1092,7 +1092,6 @@ def get_config_supabase():
         supabase
         .table("config")
         .select("*")
-        .limit(1)
         .execute()
     )
 
@@ -1104,84 +1103,61 @@ def get_config_supabase():
 def get_config_app():
     df = get_config_supabase()
 
-    columnas_app = [
-        "MANTENIMIENTO",
-        "REGISTRO",
-        "PRONOSTICOS_ESTADO",
-        "CIERRE_PRONOSTICOS"
-    ]
+    valores_default = {
+        "mantenimiento": "OFF",
+        "registro": "ON",
+        "pronosticos_estado": "ON",
+        "cierre_pronosticos": "2026-06-11 15:00"
+    }
 
-    if df.empty:
-        return pd.DataFrame(
-            [
-                {
-                    "MANTENIMIENTO": "OFF",
-                    "REGISTRO": "ON",
-                    "PRONOSTICOS_ESTADO": "ON",
-                    "CIERRE_PRONOSTICOS": "2026-06-11 15:00"
-                }
-            ]
-        )
+    config_dict = valores_default.copy()
 
-    df = df.rename(
-        columns={
-            "mantenimiento": "MANTENIMIENTO",
-            "registro": "REGISTRO",
-            "pronosticos_estado": "PRONOSTICOS_ESTADO",
-            "cierre_pronosticos": "CIERRE_PRONOSTICOS"
-        }
+    if df is not None and not df.empty:
+        if "clave" in df.columns and "valor" in df.columns:
+            for _, row in df.iterrows():
+                clave = str(row.get("clave", "")).strip().lower()
+                valor = str(row.get("valor", "")).strip()
+
+                if clave in config_dict and valor != "":
+                    config_dict[clave] = valor
+
+    mantenimiento = str(config_dict["mantenimiento"]).strip().upper()
+    registro = str(config_dict["registro"]).strip().upper()
+    pronosticos_estado = str(config_dict["pronosticos_estado"]).strip().upper()
+    cierre_pronosticos = str(config_dict["cierre_pronosticos"]).strip()
+
+    if mantenimiento not in ["ON", "OFF"]:
+        mantenimiento = "OFF"
+
+    if registro not in ["ON", "OFF"]:
+        registro = "ON"
+
+    if pronosticos_estado not in ["ON", "OFF"]:
+        pronosticos_estado = "ON"
+
+    if cierre_pronosticos == "":
+        cierre_pronosticos = "2026-06-11 15:00"
+
+    return pd.DataFrame(
+        [
+            {
+                "MANTENIMIENTO": mantenimiento,
+                "REGISTRO": registro,
+                "PRONOSTICOS_ESTADO": pronosticos_estado,
+                "CIERRE_PRONOSTICOS": cierre_pronosticos
+            }
+        ]
     )
-
-    for col in columnas_app:
-        if col not in df.columns:
-            if col == "MANTENIMIENTO":
-                df[col] = "OFF"
-            elif col == "REGISTRO":
-                df[col] = "ON"
-            elif col == "PRONOSTICOS_ESTADO":
-                df[col] = "ON"
-            elif col == "CIERRE_PRONOSTICOS":
-                df[col] = "2026-06-11 15:00"
-
-    df["MANTENIMIENTO"] = (
-        df["MANTENIMIENTO"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
-
-    df["REGISTRO"] = (
-        df["REGISTRO"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
-
-    df["PRONOSTICOS_ESTADO"] = (
-        df["PRONOSTICOS_ESTADO"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
-
-    df["CIERRE_PRONOSTICOS"] = (
-        df["CIERRE_PRONOSTICOS"]
-        .fillna("2026-06-11 15:00")
-        .astype(str)
-        .str.strip()
-    )
-
-    return df[columnas_app]
 
 
 def actualizar_config_supabase(campo, valor):
     """
-    Actualiza un campo de la tabla config.
-    Campos esperados:
-    - mantenimiento: ON/OFF
-    - registro: ON/OFF
-    - pronosticos_estado: ON/OFF
-    - cierre_pronosticos: texto con fecha/hora
+    Actualiza un valor de configuración en tabla config tipo clave/valor.
+
+    Estructura esperada:
+    - clave
+    - valor
+    - updated_at
     """
 
     supabase = get_supabase_client()
@@ -1218,16 +1194,15 @@ def actualizar_config_supabase(campo, valor):
         response = (
             supabase
             .table("config")
-            .update({campo: valor})
-            .eq("id", 1)
-            .select("*")
+            .upsert(
+                {
+                    "clave": campo,
+                    "valor": valor
+                },
+                on_conflict="clave"
+            )
             .execute()
         )
-
-        data = response.data or []
-
-        if len(data) == 0:
-            return False, "No se encontró la fila de configuración con id = 1."
 
         get_config_supabase.clear()
 
