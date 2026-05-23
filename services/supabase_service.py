@@ -1116,7 +1116,9 @@ def get_config_app():
             [
                 {
                     "MANTENIMIENTO": "OFF",
-                    "REGISTRO": "ON"
+                    "REGISTRO": "ON",
+                    "PRONOSTICOS_ESTADO": "ON",
+                    "CIERRE_PRONOSTICOS": "2026-06-11 15:00"
                 }
             ]
         )
@@ -1126,7 +1128,7 @@ def get_config_app():
             "mantenimiento": "MANTENIMIENTO",
             "registro": "REGISTRO",
             "pronosticos_estado": "PRONOSTICOS_ESTADO",
-            "cierre_pronosticos": "CIERRE_PRONOSTICOS
+            "cierre_pronosticos": "CIERRE_PRONOSTICOS"
         }
     )
 
@@ -1154,13 +1156,14 @@ def get_config_app():
         .str.strip()
         .str.upper()
     )
+
     df["PRONOSTICOS_ESTADO"] = (
         df["PRONOSTICOS_ESTADO"]
         .astype(str)
         .str.strip()
         .str.upper()
     )
-    
+
     df["CIERRE_PRONOSTICOS"] = (
         df["CIERRE_PRONOSTICOS"]
         .fillna("2026-06-11 15:00")
@@ -1174,35 +1177,42 @@ def get_config_app():
 def actualizar_config_supabase(campo, valor):
     """
     Actualiza un campo de la tabla config.
-    Campos esperados: mantenimiento, registro.
+    Campos esperados:
+    - mantenimiento: ON/OFF
+    - registro: ON/OFF
+    - pronosticos_estado: ON/OFF
+    - cierre_pronosticos: texto con fecha/hora
     """
 
     supabase = get_supabase_client()
 
     campo = str(campo).strip().lower()
-    valor = str(valor).strip().upper()
-    
+
     campos_validos = [
         "mantenimiento",
         "registro",
         "pronosticos_estado",
         "cierre_pronosticos"
     ]
-    
-    if campo in ["mantenimiento", "registro", "pronosticos_estado"]:
-        valor = str(valor).strip().upper()
-    
-        if valor not in ["ON", "OFF"]:
-            return False, "Valor inválido. Usá ON u OFF."
-    
-    elif campo == "cierre_pronosticos":
-        valor = str(valor).strip()
-    
-        if not valor:
-            return False, "La fecha de cierre de pronósticos no puede estar vacía."
-            
+
     if campo not in campos_validos:
         return False, "Campo de configuración inválido."
+
+    if campo in [
+        "mantenimiento",
+        "registro",
+        "pronosticos_estado"
+    ]:
+        valor = str(valor).strip().upper()
+
+        if valor not in ["ON", "OFF"]:
+            return False, "Valor inválido. Usá ON u OFF."
+
+    elif campo == "cierre_pronosticos":
+        valor = str(valor).strip()
+
+        if not valor:
+            return False, "La fecha de cierre de pronósticos no puede estar vacía."
 
     try:
         response = (
