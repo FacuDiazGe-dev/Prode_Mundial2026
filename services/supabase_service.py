@@ -713,7 +713,7 @@ def actualizar_reaccion_foro_supabase(post_id, likes=None, dislikes=None):
 def borrar_mensaje_foro_supabase(post_id):
     """
     Borra un mensaje puntual del foro por ID.
-    No reemplaza toda la tabla.
+    No reemplaza ni limpia toda la tabla.
     """
 
     supabase = get_supabase_client()
@@ -724,10 +724,19 @@ def borrar_mensaje_foro_supabase(post_id):
         if post_id <= 0:
             return False, "ID de mensaje inválido."
 
-        supabase.table("foro").delete().eq(
-            "id",
-            post_id
-        ).execute()
+        response = (
+            supabase
+            .table("foro")
+            .delete()
+            .eq("id", post_id)
+            .select("id")
+            .execute()
+        )
+
+        data = response.data or []
+
+        if len(data) == 0:
+            return False, f"No se encontró el mensaje con ID {post_id}."
 
         get_foro_supabase.clear()
 
