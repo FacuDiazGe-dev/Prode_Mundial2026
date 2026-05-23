@@ -624,6 +624,8 @@ div[data-testid="stSegmentedControl"] button:hover {
 }
 
 .medallero-card {
+    position: relative;
+
     min-width: 0;
     min-height: 124px;
 
@@ -648,6 +650,91 @@ div[data-testid="stSegmentedControl"] button:hover {
     box-shadow:
         0 8px 18px rgba(15,23,42,0.04),
         inset 0 1px 0 rgba(255,255,255,0.65);
+
+    cursor: help;
+
+    transition:
+        transform 0.22s ease,
+        box-shadow 0.22s ease,
+        border-color 0.22s ease,
+        background 0.22s ease;
+
+    z-index: 1;
+}
+
+.medallero-card:hover {
+    transform: scale(1.08);
+    border-color: rgba(244,197,66,0.70);
+    box-shadow:
+        0 14px 28px rgba(15,23,42,0.18),
+        0 0 18px rgba(244,197,66,0.34),
+        inset 0 1px 0 rgba(255,255,255,0.75);
+
+    z-index: 20;
+}
+
+.medallero-card::after {
+    content: attr(data-tooltip);
+
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%) translateY(6px);
+
+    width: max-content;
+    max-width: 230px;
+
+    padding: 9px 11px;
+    border-radius: 12px;
+
+    background: rgba(7,17,31,0.97);
+    border: 1px solid rgba(244,197,66,0.48);
+
+    color: #F8FAFC;
+    font-size: 10.5px;
+    font-weight: 800;
+    line-height: 1.3;
+    text-align: center;
+
+    box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease;
+
+    z-index: 99;
+}
+
+.medallero-card::before {
+    content: "";
+
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 4px);
+    transform: translateX(-50%);
+
+    border-width: 7px 7px 0 7px;
+    border-style: solid;
+    border-color: rgba(244,197,66,0.55) transparent transparent transparent;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.18s ease;
+
+    z-index: 98;
+}
+
+.medallero-card:hover::after,
+.medallero-card:hover::before {
+    opacity: 1;
+}
+
+.medallero-card:hover::after {
+    transform: translateX(-50%) translateY(0);
 }
 
 .medallero-img {
@@ -658,6 +745,17 @@ div[data-testid="stSegmentedControl"] button:hover {
     margin-bottom: 2px;
 
     filter: drop-shadow(0 8px 10px rgba(0,0,0,0.18));
+
+    transition:
+        transform 0.22s ease,
+        filter 0.22s ease;
+}
+
+.medallero-card:hover .medallero-img {
+    transform: scale(1.10) rotate(-2deg);
+    filter:
+        drop-shadow(0 10px 14px rgba(0,0,0,0.26))
+        brightness(1.08);
 }
 
 .medallero-title {
@@ -725,7 +823,7 @@ div[data-testid="stSegmentedControl"] button:hover {
 }
 .medallero-side-panel {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 
     background:
         linear-gradient(
@@ -1097,6 +1195,24 @@ div[data-testid="stSegmentedControl"] button:hover {
             return "Contra la corriente"
 
         return "Logro desbloqueado"
+        
+    def descripcion_badge(nombre_badge):
+        descripciones = {
+            "Puntero": "Se obtiene siendo líder del ranking general.",
+            "Sr. Prode": "Se obtiene acumulando la mayor cantidad de resultados exactos.",
+            "Siempre Suma": "Se obtiene sumando muchos aciertos generales, aunque no sean exactos.",
+            "Optimista del Gol": "Se obtiene por pronosticar partidos con muchos goles.",
+            "El Cholo": "Se obtiene por apostar a partidos cerrados y resultados cortos.",
+            "Rey del Empate": "Se obtiene por elegir muchos empates.",
+            "El Macaya": "Se obtiene por destacarse como analista del grupo.",
+            "El Misterioso": "Se obtiene manteniendo perfil bajo o poca actividad visible.",
+            "El Distinto": "Se obtiene por ir contra la corriente en los pronósticos.",
+        }
+    
+        return descripciones.get(
+            nombre_badge,
+            "Insignia especial del Prode Mundial 2026."
+        )
     
     # ============================================================
     # TÍTULO
@@ -1780,8 +1896,10 @@ div[data-testid="stSegmentedControl"] button:hover {
                 detail_txt = detalle_badge(title, ganador_row)
                 state_class = "earned"
 
+            tooltip_txt = descripcion_badge(title)
+            
             medallero_html += f"""
-<div class="medallero-card {state_class}">
+<div class="medallero-card {state_class}" data-tooltip="{escape(tooltip_txt, quote=True)}">
 <img src="{escape(badge_img, quote=True)}" class="medallero-img" loading="lazy" alt="{escape(title)}">
 <div class="medallero-title">{escape(title)}</div>
 <div class="medallero-winner">{escape(winner_txt)}</div>
