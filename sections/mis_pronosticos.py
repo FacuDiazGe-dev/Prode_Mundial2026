@@ -22,6 +22,15 @@ from services.supabase_service import (
     guardar_pronosticos_supabase,
     actualizar_usuario_supabase
 )
+
+
+def render_mis_pronosticos(
+    df_res,
+    df_usuarios,
+    df_pro,
+    df_ranking,
+    mapa_banderas
+):
     # ============================================================
     # ESTILOS — MIS PRONÓSTICOS / MI PERFIL
     # ============================================================
