@@ -1198,14 +1198,14 @@ div[data-testid="stSegmentedControl"] button:hover {
         
     def descripcion_badge(nombre_badge):
         descripciones = {
-            "Puntero": "Se obtiene siendo líder del ranking general.",
-            "Sr. Prode": "Se obtiene acumulando la mayor cantidad de resultados exactos.",
-            "Siempre Suma": "Se obtiene sumando muchos aciertos generales, aunque no sean exactos.",
-            "Optimista del Gol": "Se obtiene por pronosticar partidos con muchos goles.",
-            "El Cholo": "Se obtiene por apostar a partidos cerrados y resultados cortos.",
-            "Rey del Empate": "Se obtiene por elegir muchos empates.",
-            "El Macaya": "Se obtiene por destacarse como analista del grupo.",
-            "El Misterioso": "Se obtiene manteniendo perfil bajo o poca actividad visible.",
+            "Puntero": "Se obtiene por ser el Lider del Ranking.",
+            "Sr. Prode": "Se obtiene por tener la mayor cantidad de resultados exactos.",
+            "Siempre Suma": "Se obtiene por tener la mayor cantidad de aciertos generales.",
+            "Optimista del Gol": "Se obtiene por pronosticar la mayor cantidad de goles.",
+            "El Cholo": "Se obtiene por pronosticar la menor cantidad de goles.",
+            "Rey del Empate": "Se obtiene por pronosticar la mayor cantidad de empates.",
+            "El Macaya": "Se obtiene por ser el mas hablador de la comunidad.",
+            "El Misterioso": "Se obtiene por ser el mas fantasma.",
             "El Distinto": "Se obtiene por ir contra la corriente en los pronósticos.",
         }
     
