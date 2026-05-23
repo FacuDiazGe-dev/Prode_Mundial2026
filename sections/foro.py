@@ -1730,16 +1730,8 @@ div[data-testid="stSegmentedControl"] button:hover {
                         "💾 Guardar cambios en noticias",
                         use_container_width=True
                     ):
-                        edited_noticias = edited_noticias[columnas_editor]
-                        
-                        conn.update(
-                            worksheet="NOTICIAS",
-                            data=edited_noticias
-                        )
-
-                        st.cache_data.clear()
-                        st.success("✅ Noticias actualizadas correctamente.")
-                        st.rerun()
+                        edited_noticias = edited_noticias[columnas_editor].copy()
+                        save_noticias(edited_noticias)
         # ------------------------------------------------------------
         # MEDALLERO DEL PRODE — PROVISORIO
         # ------------------------------------------------------------
