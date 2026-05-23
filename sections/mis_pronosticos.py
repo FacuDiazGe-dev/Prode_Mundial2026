@@ -1,24 +1,23 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
-from html import escape
 import plotly.express as px
-import streamlit.components.v1 as components
-from ranking_logic import calcular_detalle
 import re
 
+from html import escape
+
+from ranking_logic import calcular_detalle
+
 from styles_config import (
-    AVATAR_GENERICO,
     HEADER_BACKGROUND,
-    SIDEBAR_BANNER,
-    EVOL_HEADER_BACKGROUND
+    SIDEBAR_BANNER
 )
-from tools import upload_profile_picture, get_flag_img
+
+from tools import upload_profile_picture
+
 from services.supabase_service import (
     guardar_pronosticos_supabase,
     actualizar_usuario_supabase
 )
-
 
 def render_mis_pronosticos(
     df_res,
