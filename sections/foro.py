@@ -1338,54 +1338,46 @@ div[data-testid="stSegmentedControl"] button:hover {
 
                     if accion is not None:
                         post_id = safe_int(m.get("ID", 0))
-                    
+
                         if post_id <= 0:
                             st.error("No se pudo identificar el mensaje.")
                             st.stop()
-                    
+
                         if accion.startswith("👍"):
                             ok, msg = actualizar_reaccion_foro_supabase(
                                 post_id=post_id,
                                 likes=l_count + 1,
                                 dislikes=d_count
                             )
-                    
+
                             if ok:
                                 st.cache_data.clear()
                                 st.rerun()
                             else:
                                 st.error(msg)
-                    
+
                         elif accion.startswith("👎"):
                             ok, msg = actualizar_reaccion_foro_supabase(
                                 post_id=post_id,
                                 likes=l_count,
                                 dislikes=d_count + 1
                             )
-                    
+
                             if ok:
                                 st.cache_data.clear()
                                 st.rerun()
                             else:
                                 st.error(msg)
-                    
-                            elif accion.startswith("🗑️"):
-                                post_id = safe_int(m.get("ID", 0))
-                            
-                                if post_id <= 0:
-                                    st.error(
-                                        "No se pudo borrar el mensaje porque no tiene un ID válido."
-                                    )
-                                    st.stop()
-                            
-                                ok, msg = borrar_mensaje_foro_supabase(post_id)
-                            
-                                if ok:
-                                    st.cache_data.clear()
-                                    st.success("✅ Mensaje eliminado.")
-                                    st.rerun()
-                                else:
-                                    st.error(msg)
+
+                        elif accion.startswith("🗑️"):
+                            ok, msg = borrar_mensaje_foro_supabase(post_id)
+
+                            if ok:
+                                st.cache_data.clear()
+                                st.success("✅ Mensaje eliminado.")
+                                st.rerun()
+                            else:
+                                st.error(msg)
 
             st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
