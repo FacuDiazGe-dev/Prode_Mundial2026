@@ -20,7 +20,8 @@ from tools import upload_profile_picture
 
 from services.supabase_service import (
     guardar_pronosticos_supabase,
-    actualizar_usuario_supabase
+    actualizar_usuario_supabase,
+    get_config_app
 )
 
 
@@ -1846,8 +1847,66 @@ div[data-testid="stButton"] button {
     df_user_pro = df_pro[df_pro["USUARIO"] == user_actual]
 
     ahora_arg = datetime.utcnow() - timedelta(hours=3)
-    fecha_limite = datetime(2026, 6, 8, 23, 59, 59)
-    es_tiempo_valido = ahora_arg < fecha_limite
+    
+    # ============================================================
+    # CONFIGURACIÓN DE CIERRE DE PRONÓSTICOS
+    # Se controla desde Supabase / Panel de Control.
+    # ============================================================
+    
+    def parse_fecha_cierre(valor):
+        """
+        Convierte el texto guardado en config a datetime.
+        Formatos aceptados:
+        - 2026-06-11 15:00
+        - 2026-06-11 15:00:00
+        - 11/06/2026 15:00
+        """
+    
+        valor = str(valor).strip()
+    
+        formatos = [
+            "%Y-%m-%d %H:%M",
+            "%Y-%m-%d %H:%M:%S",
+            "%d/%m/%Y %H:%M",
+            "%d/%m/%Y %H:%M:%S",
+        ]
+    
+        for formato in formatos:
+            try:
+                return datetime.strptime(valor, formato)
+            except Exception:
+                pass
+    
+        # Fallback seguro si la fecha está mal escrita.
+        return datetime(2026, 6, 11, 15, 0, 0)
+    
+    
+    try:
+        df_config_pronosticos = get_config_app()
+    
+        estado_pronosticos = (
+            str(df_config_pronosticos.iloc[0].get("PRONOSTICOS_ESTADO", "ON"))
+            .strip()
+            .upper()
+        )
+    
+        cierre_pronosticos_txt = (
+            str(df_config_pronosticos.iloc[0].get("CIERRE_PRONOSTICOS", "2026-06-11 15:00"))
+            .strip()
+        )
+    
+    except Exception:
+        estado_pronosticos = "ON"
+        cierre_pronosticos_txt = "2026-06-11 15:00"
+    
+    fecha_limite = parse_fecha_cierre(cierre_pronosticos_txt)
+    
+    fecha_limite_visible = fecha_limite.strftime("%d/%m/%Y %H:%M")
+    
+    es_tiempo_valido = (
+        estado_pronosticos == "ON"
+        and ahora_arg < fecha_limite
+    )
 
     # ============================================================
     # TÍTULO DE PÁGINA
@@ -1871,12 +1930,17 @@ div[data-testid="stButton"] button {
         modo_edicion = st.session_state.permitir_edicion
 
         if not es_tiempo_valido:
-            estado_txt = "Plazo finalizado · modo lectura"
+            if estado_pronosticos != "ON":
+                estado_txt = "Carga cerrada por administración · modo lectura"
+            else:
+                estado_txt = f"Plazo finalizado el {fecha_limite_visible} · modo lectura"
+        
             estado_class = "locked"
             modo_edicion = False
             st.session_state.permitir_edicion = False
+        
         else:
-            estado_txt = "Edición abierta hasta el 08/06/2026"
+            estado_txt = f"Edición abierta hasta el {fecha_limite_visible}"
             estado_class = "open"
 
         if "pron_editor_version" not in st.session_state:
@@ -2080,8 +2144,13 @@ div[data-testid="stButton"] button {
                     st.session_state.permitir_edicion = True
                     st.rerun()
             else:
+                st.warning(
+                    f"⛔ La carga de pronósticos está cerrada. "
+                    f"Podés ver tus pronósticos, pero ya no editarlos."
+                )
+            
                 st.button(
-                    "Lectura — edición deshabilitada",
+                    "🔒 Edición de pronósticos bloqueada",
                     use_container_width=True,
                     disabled=True
                 )
@@ -2216,6 +2285,21 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 
             if guardar:
                 try:
+                    # Segunda validación de seguridad:
+                    # evita guardar si el cierre ocurrió mientras el formulario estaba abierto.
+                    ahora_arg_guardar = datetime.utcnow() - timedelta(hours=3)
+            
+                    if estado_pronosticos != "ON" or ahora_arg_guardar >= fecha_limite:
+                        st.session_state.permitir_edicion = False
+                        st.session_state.pron_editor_version += 1
+            
+                        st.error(
+                            "⛔ La carga de pronósticos ya está cerrada. "
+                            "No se guardaron los cambios."
+                        )
+            
+                        st.rerun()
+            
                     df_save = edited_df.copy()
 
                     df_save["P1"] = pd.to_numeric(
