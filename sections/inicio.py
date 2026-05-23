@@ -1275,7 +1275,7 @@ def render_inicio(
                 by=["PRIORIDAD_NUM", "ID_NUM"],
                 ascending=[True, False]
             )
-        
+            
         news_html = """
 <div class="news-home-panel">
 <div class="news-home-header">
