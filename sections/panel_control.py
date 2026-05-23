@@ -549,6 +549,86 @@ def render_panel_control(
                     st.rerun()
                 else:
                     st.error(msg)
+
+
+        st.markdown("---")
+        st.markdown("### 📝 Control de Pronósticos")
+        
+        try:
+            estado_pronosticos = (
+                str(df_config.iloc[0].get("PRONOSTICOS_ESTADO", "ON"))
+                .strip()
+                .upper()
+            )
+        
+            cierre_pronosticos_actual = (
+                str(df_config.iloc[0].get("CIERRE_PRONOSTICOS", "2026-06-11 15:00"))
+                .strip()
+            )
+        
+        except Exception:
+            estado_pronosticos = "ON"
+            cierre_pronosticos_actual = "2026-06-11 15:00"
+        
+        if estado_pronosticos == "ON":
+            st.success("✅ Carga de pronósticos ABIERTA")
+        else:
+            st.error("⛔ Carga de pronósticos CERRADA")
+        
+        nueva_fecha_cierre = st.text_input(
+            "Fecha y hora de cierre de pronósticos",
+            value=cierre_pronosticos_actual,
+            help="Formato recomendado: 2026-06-11 15:00",
+            key="admin_cierre_pronosticos"
+        )
+        
+        col_prono_1, col_prono_2 = st.columns(2)
+        
+        with col_prono_1:
+            if st.button(
+                "💾 Guardar fecha de cierre",
+                use_container_width=True
+            ):
+                ok, msg = actualizar_config_supabase(
+                    campo="cierre_pronosticos",
+                    valor=nueva_fecha_cierre
+                )
+        
+                if ok:
+                    st.cache_data.clear()
+                    st.success("Fecha de cierre de pronósticos actualizada.")
+                    st.rerun()
+                else:
+                    st.error(msg)
+        
+        with col_prono_2:
+            nuevo_estado_pronosticos = (
+                "OFF"
+                if estado_pronosticos == "ON"
+                else "ON"
+            )
+        
+            texto_boton_pronosticos = (
+                "🔴 CERRAR PRONÓSTICOS"
+                if estado_pronosticos == "ON"
+                else "🟢 ABRIR PRONÓSTICOS"
+            )
+        
+            if st.button(
+                texto_boton_pronosticos,
+                use_container_width=True
+            ):
+                ok, msg = actualizar_config_supabase(
+                    campo="pronosticos_estado",
+                    valor=nuevo_estado_pronosticos
+                )
+        
+                if ok:
+                    st.cache_data.clear()
+                    st.success("Estado de pronósticos actualizado.")
+                    st.rerun()
+                else:
+                    st.error(msg)
                     
         st.markdown("---")
         st.markdown("### 🚧 Mantenimiento")
