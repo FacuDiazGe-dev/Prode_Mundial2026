@@ -535,7 +535,15 @@ def guardar_noticias_supabase(df_noticias):
         return False, "No hay datos de noticias para guardar."
 
     df_save = df_noticias.copy()
-
+    
+    # Evita guardar filas completamente vacías generadas por el editor.
+    df_save = df_save.dropna(
+        how="all"
+    ).copy()
+    
+    if df_save.empty:
+        return False, "No hay noticias válidas para guardar."
+    
     rename_map = {
         "ID": "id",
         "FECHA": "fecha",
@@ -577,7 +585,16 @@ def guardar_noticias_supabase(df_noticias):
             else:
                 df_save[col] = ""
 
-    df_save = df_save[columnas].copy()
+    # Validación mínima: no insertar noticias totalmente vacías.
+    df_save["titulo"] = df_save["titulo"].fillna("").astype(str).str.strip()
+    df_save["texto"] = df_save["texto"].fillna("").astype(str).str.strip()
+    
+    df_save = df_save[
+        (df_save["titulo"] != "") | (df_save["texto"] != "")
+    ].copy()
+    
+    if df_save.empty:
+        return False, "La noticia debe tener al menos título o texto."
 
     # ------------------------------------------------------------
     # NORMALIZAR TEXTO
