@@ -1326,18 +1326,20 @@ div[data-testid="stSegmentedControl"] button:hover {
                         if rol_actual == "admin":
                             opciones_accion.append("🗑️ Borrar")
 
+                    post_id = safe_int(m.get("ID", 0))
+                    accion_key = f"foro_accion_post_{post_id}"
+
                     accion = st.segmented_control(
                         "Acciones del mensaje",
                         options=opciones_accion,
                         selection_mode="single",
                         default=None,
-                        key=f"foro_accion_{idx}",
+                        key=accion_key,
                         label_visibility="collapsed",
                         width="stretch"
                     )
 
                     if accion is not None:
-                        post_id = safe_int(m.get("ID", 0))
 
                         if post_id <= 0:
                             st.error("No se pudo identificar el mensaje.")
@@ -1351,6 +1353,9 @@ div[data-testid="stSegmentedControl"] button:hover {
                             )
 
                             if ok:
+                                if accion_key in st.session_state:
+                                    del st.session_state[accion_key]
+
                                 st.cache_data.clear()
                                 st.rerun()
                             else:
@@ -1364,6 +1369,9 @@ div[data-testid="stSegmentedControl"] button:hover {
                             )
 
                             if ok:
+                                if accion_key in st.session_state:
+                                    del st.session_state[accion_key]
+
                                 st.cache_data.clear()
                                 st.rerun()
                             else:
@@ -1373,12 +1381,14 @@ div[data-testid="stSegmentedControl"] button:hover {
                             ok, msg = borrar_mensaje_foro_supabase(post_id)
 
                             if ok:
+                                if accion_key in st.session_state:
+                                    del st.session_state[accion_key]
+
                                 st.cache_data.clear()
                                 st.success("✅ Mensaje eliminado.")
                                 st.rerun()
                             else:
                                 st.error(msg)
-
             st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
     # ============================================================
