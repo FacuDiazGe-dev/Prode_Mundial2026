@@ -510,52 +510,46 @@ def render_panel_control(
             estado_manual = "OFF"
             estado_mant = "OFF"
 
-        st.markdown("### 🚫 Control de Inscripciones")
+st.markdown("### 🚫 Control de Inscripciones")
 
-        if registro_permitido_fecha and estado_manual == "ON":
-            st.success("✅ Inscripciones ABIERTAS")
+if estado_manual == "ON":
+    st.success("✅ Inscripciones ABIERTAS")
 
+    if st.button(
+        "🔴 CERRAR REGISTRO MANUALMENTE",
+        use_container_width=True
+    ):
+        ok, msg = actualizar_config_supabase(
+            campo="registro",
+            valor="OFF"
+        )
+
+        if ok:
+            st.cache_data.clear()
+            st.success("Registro cerrado con éxito")
+            st.rerun()
+        else:
+            st.error(msg)
+
+        else:
+            st.error("⛔ Inscripciones CERRADAS")
+        
             if st.button(
-                "🔴 CERRAR REGISTRO MANUALMENTE",
+                "🟢 ABRIR REGISTRO MANUALMENTE",
                 use_container_width=True
             ):
                 ok, msg = actualizar_config_supabase(
                     campo="registro",
-                    valor="OFF"
+                    valor="ON"
                 )
-
+        
                 if ok:
                     st.cache_data.clear()
-                    st.success("Registro cerrado con éxito")
+                    st.success("Registro abierto con éxito")
                     st.rerun()
                 else:
                     st.error(msg)
-
-        else:
-            st.error("⛔ Inscripciones CERRADAS")
-
-            if registro_permitido_fecha:
-                if st.button(
-                    "🟢 ABRIR REGISTRO MANUALMENTE",
-                    use_container_width=True
-                ):
-                    ok, msg = actualizar_config_supabase(
-                        campo="registro",
-                        valor="ON"
-                    )
-
-                    if ok:
-                        st.cache_data.clear()
-                        st.success("Registro abierto con éxito")
-                        st.rerun()
-                    else:
-                        st.error(msg)
-
-            else:
-                st.warning(
-                    "No se puede abrir manualmente: ya pasó la fecha límite (07/06)."
-                )
-
+                    
         st.markdown("---")
         st.markdown("### 🚧 Mantenimiento")
 
