@@ -1106,7 +1106,9 @@ def get_config_app():
 
     columnas_app = [
         "MANTENIMIENTO",
-        "REGISTRO"
+        "REGISTRO",
+        "PRONOSTICOS_ESTADO",
+        "CIERRE_PRONOSTICOS"
     ]
 
     if df.empty:
@@ -1122,7 +1124,9 @@ def get_config_app():
     df = df.rename(
         columns={
             "mantenimiento": "MANTENIMIENTO",
-            "registro": "REGISTRO"
+            "registro": "REGISTRO",
+            "pronosticos_estado": "PRONOSTICOS_ESTADO",
+            "cierre_pronosticos": "CIERRE_PRONOSTICOS
         }
     )
 
@@ -1132,6 +1136,10 @@ def get_config_app():
                 df[col] = "OFF"
             elif col == "REGISTRO":
                 df[col] = "ON"
+            elif col == "PRONOSTICOS_ESTADO":
+                df[col] = "ON"
+            elif col == "CIERRE_PRONOSTICOS":
+                df[col] = "2026-06-11 15:00"
 
     df["MANTENIMIENTO"] = (
         df["MANTENIMIENTO"]
@@ -1145,6 +1153,19 @@ def get_config_app():
         .astype(str)
         .str.strip()
         .str.upper()
+    )
+    df["PRONOSTICOS_ESTADO"] = (
+        df["PRONOSTICOS_ESTADO"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+    )
+    
+    df["CIERRE_PRONOSTICOS"] = (
+        df["CIERRE_PRONOSTICOS"]
+        .fillna("2026-06-11 15:00")
+        .astype(str)
+        .str.strip()
     )
 
     return df[columnas_app]
@@ -1160,17 +1181,28 @@ def actualizar_config_supabase(campo, valor):
 
     campo = str(campo).strip().lower()
     valor = str(valor).strip().upper()
-
+    
     campos_validos = [
         "mantenimiento",
-        "registro"
+        "registro",
+        "pronosticos_estado",
+        "cierre_pronosticos"
     ]
-
+    
+    if campo in ["mantenimiento", "registro", "pronosticos_estado"]:
+        valor = str(valor).strip().upper()
+    
+        if valor not in ["ON", "OFF"]:
+            return False, "Valor inválido. Usá ON u OFF."
+    
+    elif campo == "cierre_pronosticos":
+        valor = str(valor).strip()
+    
+        if not valor:
+            return False, "La fecha de cierre de pronósticos no puede estar vacía."
+            
     if campo not in campos_validos:
         return False, "Campo de configuración inválido."
-
-    if valor not in ["ON", "OFF"]:
-        return False, "Valor inválido. Usá ON u OFF."
 
     try:
         response = (
