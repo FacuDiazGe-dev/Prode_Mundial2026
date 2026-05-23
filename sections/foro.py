@@ -13,6 +13,7 @@ from services.supabase_service import (
     actualizar_reaccion_foro_supabase,
     borrar_mensaje_foro_supabase
 )
+from tools import upload_foro_image
 
 
 def render_foro(
