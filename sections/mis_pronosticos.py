@@ -25,8 +25,7 @@ def render_mis_pronosticos(
     df_usuarios,
     df_pro,
     df_ranking,
-    mapa_banderas,
-    conn
+    mapa_banderas
 ):
     # ============================================================
     # ESTILOS — MIS PRONÓSTICOS / MI PERFIL
