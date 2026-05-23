@@ -40,7 +40,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-conn = None
 
 # ============================================================
 # DATOS PRINCIPALES DESDE SUPABASE
@@ -542,8 +541,7 @@ elif menu == "📝 Mi Prode":
         df_usuarios=df_usuarios,
         df_pro=df_pro,
         df_ranking=df_ranking,
-        mapa_banderas=mapa_banderas,
-        conn=conn
+        mapa_banderas=mapa_banderas
     )
 
 # ---------- MENU JUGADORES ----------------------------------------------------
@@ -560,7 +558,6 @@ elif menu == "👥 Plantel":
 # ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
 elif menu == "💬 Comunidad":
     render_foro(
-        conn=conn,
         df_usuarios=df_usuarios,
         df_ranking=df_ranking,
         df_foro=df_foro,
