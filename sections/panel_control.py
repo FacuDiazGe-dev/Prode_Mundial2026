@@ -510,27 +510,27 @@ def render_panel_control(
             estado_manual = "OFF"
             estado_mant = "OFF"
 
-st.markdown("### 🚫 Control de Inscripciones")
-
-if estado_manual == "ON":
-    st.success("✅ Inscripciones ABIERTAS")
-
-    if st.button(
-        "🔴 CERRAR REGISTRO MANUALMENTE",
-        use_container_width=True
-    ):
-        ok, msg = actualizar_config_supabase(
-            campo="registro",
-            valor="OFF"
-        )
-
-        if ok:
-            st.cache_data.clear()
-            st.success("Registro cerrado con éxito")
-            st.rerun()
-        else:
-            st.error(msg)
-
+        st.markdown("### 🚫 Control de Inscripciones")
+        
+        if estado_manual == "ON":
+            st.success("✅ Inscripciones ABIERTAS")
+        
+            if st.button(
+                "🔴 CERRAR REGISTRO MANUALMENTE",
+                use_container_width=True
+            ):
+                ok, msg = actualizar_config_supabase(
+                    campo="registro",
+                    valor="OFF"
+                )
+        
+                if ok:
+                    st.cache_data.clear()
+                    st.success("Registro cerrado con éxito")
+                    st.rerun()
+                else:
+                    st.error(msg)
+        
         else:
             st.error("⛔ Inscripciones CERRADAS")
         
