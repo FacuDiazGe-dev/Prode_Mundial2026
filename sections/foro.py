@@ -1241,18 +1241,17 @@ div[data-testid="stSegmentedControl"] button:hover {
                         "FORO_IMG_URL": img_url
                     }
 
-                    df_update = pd.concat(
-                        [
-                            df_foro,
-                            pd.DataFrame([nuevo_msg])
-                        ],
-                        ignore_index=True
-                    )
-
-                    st.session_state.foro_uploader_key += 1
-
-                    save_foro(df_update)
-
+                    df_nuevo_msg = pd.DataFrame([nuevo_msg])
+                    
+                    ok, msg = insertar_foro_supabase(df_nuevo_msg)
+                    
+                    if ok:
+                        st.session_state.foro_uploader_key += 1
+                        st.cache_data.clear()
+                        st.success("✅ Mensaje publicado correctamente.")
+                        st.rerun()
+                    else:
+                        st.error(msg)
         # ------------------------------------------------------------
         # FEED CON SCROLL
         # ------------------------------------------------------------
@@ -1370,15 +1369,23 @@ div[data-testid="stSegmentedControl"] button:hover {
                             else:
                                 st.error(msg)
                     
-                        elif accion.startswith("🗑️"):
-                            ok, msg = borrar_mensaje_foro_supabase(post_id)
-                    
-                            if ok:
-                                st.cache_data.clear()
-                                st.success("✅ Mensaje eliminado.")
-                                st.rerun()
-                            else:
-                                st.error(msg)
+                            elif accion.startswith("🗑️"):
+                                post_id = safe_int(m.get("ID", 0))
+                            
+                                if post_id <= 0:
+                                    st.error(
+                                        "No se pudo borrar el mensaje porque no tiene un ID válido."
+                                    )
+                                    st.stop()
+                            
+                                ok, msg = borrar_mensaje_foro_supabase(post_id)
+                            
+                                if ok:
+                                    st.cache_data.clear()
+                                    st.success("✅ Mensaje eliminado.")
+                                    st.rerun()
+                                else:
+                                    st.error(msg)
 
             st.markdown("</div>", unsafe_allow_html=True)  # cierra foro-feed
 
