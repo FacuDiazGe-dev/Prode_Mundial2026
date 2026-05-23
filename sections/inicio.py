@@ -1229,12 +1229,18 @@ def render_inicio(
 
             for col in columnas_noticias:
                 if col not in noticias_visibles.columns:
-                    if col == "VISIBLE":
+                    if col == "ID":
+                        noticias_visibles[col] = 0
+                    elif col == "VISIBLE":
                         noticias_visibles[col] = "TRUE"
                     elif col == "PRIORIDAD":
                         noticias_visibles[col] = 99
                     else:
                         noticias_visibles[col] = ""
+
+            # ------------------------------------------------------------
+            # FILTRO DE VISIBILIDAD
+            # ------------------------------------------------------------
 
             noticias_visibles["VISIBLE_CHECK"] = (
                 noticias_visibles["VISIBLE"]
@@ -1247,23 +1253,28 @@ def render_inicio(
                 noticias_visibles["VISIBLE_CHECK"].isin(
                     ["TRUE", "1", "1.0", "VERDADERO", "T"]
                 )
-            ]
+            ].copy()
 
-            if "ID" in noticias_visibles.columns:
-                noticias_visibles["ID_NUM"] = pd.to_numeric(
-                    noticias_visibles["ID"],
-                    errors="coerce"
-                ).fillna(0)
-            
-                noticias_visibles = noticias_visibles.sort_values(
-                    by=["PRIORIDAD_NUM", "ID_NUM"],
-                    ascending=[True, False]
-                )
-            else:
-                noticias_visibles = noticias_visibles.sort_values(
-                    by=["PRIORIDAD_NUM", "FECHA"],
-                    ascending=[True, False]
-                )
+            # ------------------------------------------------------------
+            # ORDENAMIENTO
+            # Prioridad menor arriba.
+            # Dentro de la misma prioridad, última publicada primero.
+            # ------------------------------------------------------------
+
+            noticias_visibles["PRIORIDAD_NUM"] = pd.to_numeric(
+                noticias_visibles["PRIORIDAD"],
+                errors="coerce"
+            ).fillna(99)
+
+            noticias_visibles["ID_NUM"] = pd.to_numeric(
+                noticias_visibles["ID"],
+                errors="coerce"
+            ).fillna(0)
+
+            noticias_visibles = noticias_visibles.sort_values(
+                by=["PRIORIDAD_NUM", "ID_NUM"],
+                ascending=[True, False]
+            )
         
         news_html = """
 <div class="news-home-panel">
