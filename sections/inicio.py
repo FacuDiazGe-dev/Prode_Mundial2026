@@ -9,6 +9,7 @@ from styles_config import (
     AVATAR_GENERICO,
     HEADER_BACKGROUND
 )
+from services.supabase_service import insertar_foro_supabase
 
 def render_inicio(
     df_ranking,
@@ -1991,39 +1992,34 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
             if enviar and nuevo_msg.strip():
                 usuario_actual = st.session_state["user_data"]["USUARIO"]
-        
+
                 try:
-                    nombre_actual = st.session_state["user_data"].get("NOMBRE", usuario_actual)
+                    nombre_actual = st.session_state["user_data"].get(
+                        "NOMBRE",
+                        usuario_actual
+                    )
                 except:
                     nombre_actual = usuario_actual
-        
+
                 ahora = datetime.now()
-        
+
                 nuevo_reg = {
                     "FECHA": ahora.strftime("%Y-%m-%d"),
                     "USUARIO": usuario_actual,
                     "NOMBRE": nombre_actual,
                     "MENSAJE": nuevo_msg.strip(),
-                    "PARTIDO_ID": "",
+                    "PARTIDO_ID": 0,
                     "LIKES": 0,
                     "DISLIKES": 0,
-                    "HORA": ahora.strftime("%H:%M")
+                    "FORO_IMG_URL": ""
                 }
-        
-                df_nuevo_reg = pd.DataFrame([nuevo_reg], columns=columnas_foro)
-        
-                if df_foro.empty:
-                    df_nuevo = df_nuevo_reg
+
+                df_nuevo_reg = pd.DataFrame([nuevo_reg])
+
+                ok, msg = insertar_foro_supabase(df_nuevo_reg)
+
+                if ok:
+                    st.cache_data.clear()
+                    st.rerun()
                 else:
-                    df_nuevo = pd.concat(
-                        [df_foro[columnas_foro], df_nuevo_reg],
-                        ignore_index=True
-                    )
-        
-                conn.update(
-                    worksheet="FORO",
-                    data=df_nuevo
-                )
-        
-                st.cache_data.clear()
-                st.rerun()
+                    st.error(msg)
