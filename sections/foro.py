@@ -920,11 +920,19 @@ div[data-testid="stSegmentedControl"] button:hover {
             ]
         )
 
-    for col in ["ID", "FECHA", "USUARIO", "NOMBRE", "MENSAJE", "PARTIDO_ID", "LIKES", "DISLIKES", "FORO_IMG_URL"]:
+    for col in [
+        "ID",
+        "FECHA",
+        "USUARIO",
+        "NOMBRE",
+        "MENSAJE",
+        "PARTIDO_ID",
+        "LIKES",
+        "DISLIKES",
+        "FORO_IMG_URL"
+    ]:
         if col not in df_foro.columns:
-            if col in ["LIKES", "DISLIKES","PARTIDO_ID"]:
-                df_foro[col] = 0
-            elif col == "PARTIDO_ID":
+            if col in ["ID", "LIKES", "DISLIKES", "PARTIDO_ID"]:
                 df_foro[col] = 0
             else:
                 df_foro[col] = ""
@@ -942,6 +950,7 @@ div[data-testid="stSegmentedControl"] button:hover {
     if df_noticias is None or df_noticias.empty:
         df_noticias = pd.DataFrame(
             columns=[
+                "ID",
                 "FECHA",
                 "TIPO",
                 "TITULO",
@@ -955,14 +964,28 @@ div[data-testid="stSegmentedControl"] button:hover {
             ]
         )
 
-    for col in ["FECHA", "TIPO", "TITULO", "TEXTO", "AUTOR", "VISIBLE", "PRIORIDAD","LINK","IMAGEN_URL","FUENTE"]:
+    for col in [
+        "ID",
+        "FECHA",
+        "TIPO",
+        "TITULO",
+        "TEXTO",
+        "AUTOR",
+        "VISIBLE",
+        "PRIORIDAD",
+        "LINK",
+        "IMAGEN_URL",
+        "FUENTE"
+    ]:
         if col not in df_noticias.columns:
-            if col == "PRIORIDAD":
+            if col == "ID":
+                df_noticias[col] = None
+            elif col == "PRIORIDAD":
                 df_noticias[col] = 99
             elif col == "VISIBLE":
                 df_noticias[col] = "TRUE"
             else:
-                df_noticias[col] = ""        
+                df_noticias[col] = ""     
 
     # ============================================================
     # HELPERS
@@ -991,46 +1014,46 @@ div[data-testid="stSegmentedControl"] button:hover {
         Guarda solamente los mensajes nuevos del foro.
         No reemplaza toda la tabla.
         """
-    
+
         try:
             df_base = (
                 df_foro.copy()
                 if df_foro is not None
                 else pd.DataFrame()
             )
-    
+
             diferencia = len(df_new) - len(df_base)
-    
+
             if diferencia <= 0:
                 st.warning(
-                    "No se detectaron mensajes nuevos para guardar. "
-                    "Las ediciones de likes/dislikes se migrarán en un paso separado."
+                    "No se detectaron mensajes nuevos para guardar."
                 )
                 return
-    
-            # Si tu código agrega el mensaje nuevo al final:
+
             nuevas_filas = df_new.tail(diferencia).copy()
-    
+
             ok, msg = insertar_foro_supabase(nuevas_filas)
-    
+
             if ok:
                 st.cache_data.clear()
                 st.success("✅ Mensaje publicado correctamente.")
                 st.rerun()
             else:
                 st.error(msg)
-    
+
         except Exception as e:
             st.error(f"Error al guardar el mensaje: {e}")
-        def save_noticias(df_new):
-            ok, msg = guardar_noticias_supabase(df_new)
-        
-            if ok:
-                st.cache_data.clear()
-                st.success("✅ Noticias actualizadas correctamente.")
-                st.rerun()
-            else:
-                st.error(msg)
+
+
+    def save_noticias(df_new):
+        ok, msg = guardar_noticias_supabase(df_new)
+
+        if ok:
+            st.cache_data.clear()
+            st.success("✅ Noticias actualizadas correctamente.")
+            st.rerun()
+        else:
+            st.error(msg)
 
     def normalizar_badges(valor):
         if valor is None:
