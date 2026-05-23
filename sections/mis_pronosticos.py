@@ -3,13 +3,16 @@ import pandas as pd
 import plotly.express as px
 import re
 
+from datetime import datetime, timedelta
 from html import escape
 
 from ranking_logic import calcular_detalle
 
 from styles_config import (
+    AVATAR_GENERICO,
     HEADER_BACKGROUND,
-    SIDEBAR_BANNER
+    SIDEBAR_BANNER,
+    EVOL_HEADER_BACKGROUND
 )
 
 from tools import upload_profile_picture
@@ -18,14 +21,6 @@ from services.supabase_service import (
     guardar_pronosticos_supabase,
     actualizar_usuario_supabase
 )
-
-def render_mis_pronosticos(
-    df_res,
-    df_usuarios,
-    df_pro,
-    df_ranking,
-    mapa_banderas
-):
     # ============================================================
     # ESTILOS — MIS PRONÓSTICOS / MI PERFIL
     # ============================================================
