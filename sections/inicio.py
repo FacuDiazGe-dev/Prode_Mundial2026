@@ -1862,8 +1862,8 @@ def render_inicio(
             es_usuario_actual = usuario == usuario_actual
         
             clase_usuario = "me" if es_usuario_actual else ""
-            medalla = clase_medalla(posicion_num).
-
+            medalla = clase_medalla(posicion_num)
+            
             if posicion_num == 1:
                 clase_tier = "top-1"
             elif posicion_num == 2:
