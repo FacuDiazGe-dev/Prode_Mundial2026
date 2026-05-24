@@ -2093,8 +2093,8 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             background:
                 linear-gradient(
                     180deg,
-                    rgba(255,255,255,0.92),
-                    rgba(248,250,252,0.88)
+                    rgba(255,255,255,0.76),
+                    rgba(248,250,252,0.46)
                 ),
                 url('{FONDO_CARD_INICIO}');
         
