@@ -75,8 +75,6 @@ def render_inicio(
     # Máximo 3 visibles + contador si hay más.
     # ============================================================
 
-    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
-
     usuario_actual = st.session_state["user_data"]["USUARIO"]
 
     BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
@@ -2077,7 +2075,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
 # RESULTADOS / PARTIDOS VISUALES CON SCROLL
 # Reemplaza el bloque actual de Resultados de la Fecha
 # ============================================================
-
+        FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
         # ============================================================
         # RESULTADOS DE LA FECHA — CARD INTEGRADA
         # ============================================================
