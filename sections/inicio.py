@@ -854,6 +854,13 @@ def render_inicio(
         line-height: 1;
     }
     
+    .podium-section .pod-rank-badge,
+    .podium-section .pod-rank-badge.gold,
+    .podium-section .pod-rank-badge.silver,
+    .podium-section .pod-rank-badge.bronze {
+        border-radius: 50% !important;
+    }
+    
     @media (max-width: 768px) {
         .hero-container {
             border-radius: 16px;
