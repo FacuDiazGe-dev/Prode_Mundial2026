@@ -528,9 +528,11 @@ def render_inicio(
         font-family: inter; #'Montserrat', sans-serif;
         font-size: 15px;
         font-weight: 900;
-        letter-spacing: 0.34em;
+        letter-spacing: 0.28em;
         color: rgba(244,197,66,0.72);
-    
+        
+        opacity: 0.78;
+        
         text-shadow:
             0 2px 8px rgba(0,0,0,0.75),
             0 0 12px rgba(244,197,66,0.18);
