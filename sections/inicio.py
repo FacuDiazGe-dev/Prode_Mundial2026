@@ -2482,8 +2482,6 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
 </div>
 {card_close}
 """
-        st.markdown(news_html, unsafe_allow_html=True)       
-
         if st.button(
             "Ver más en Comunidad ›",
             use_container_width=True,
@@ -2491,6 +2489,10 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         ):
             st.session_state["seccion"] = "Comunidad"
             st.rerun()
+            
+        st.markdown(news_html, unsafe_allow_html=True)       
+
+
             
 
 # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
