@@ -2200,7 +2200,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
            MINI CARD DE PARTIDO
         ============================================================ */
         
-        .match-card {
+        .match-card {{
             position: relative;
             overflow: hidden;
         
@@ -2231,9 +2231,9 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 transform 0.18s ease,
                 box-shadow 0.18s ease,
                 border-color 0.18s ease;
-        }
+        }}
         
-        .match-card::before {
+        .match-card::before {{
             content: "";
         
             position: absolute;
@@ -2252,7 +2252,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 );
         
             pointer-events: none;
-        }
+        }}
         
         .match-card:hover {{
             transform: translateY(-1px);
