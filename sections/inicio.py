@@ -2007,21 +2007,21 @@ def render_inicio(
         
             subtitulo = "Tu posición actual" if es_usuario_actual else "Participante"
 
-            # TEST TEMPORAL RANKING BADGES — BORRAR O COMENTAR DESPUÉS DE PROBAR
-            if usuario == usuario_actual:
-                badges_html = build_ranking_badges_html(
-                    [
-                        "Puntero",
-                        "Sr. Prode",
-                        "Siempre Suma",
-                        "Optimista del Gol",
-                        "El Cholo",
-                        "Rey del Empate",
-                        "El Macaya",
-                        "El Misterioso",
-                        "El Distinto",
-                    ]
-                )
+            # # TEST TEMPORAL RANKING BADGES — BORRAR O COMENTAR DESPUÉS DE PROBAR
+            # if usuario == usuario_actual:
+            #     badges_html = build_ranking_badges_html(
+            #         [
+            #             "Puntero",
+            #             "Sr. Prode",
+            #             "Siempre Suma",
+            #             "Optimista del Gol",
+            #             "El Cholo",
+            #             "Rey del Empate",
+            #             "El Macaya",
+            #             "El Misterioso",
+            #             "El Distinto",
+            #         ]
+            #     )
             else:
                 badges_html = build_ranking_badges_html(
                     row.get("BADGES", [])
