@@ -2503,7 +2503,6 @@ def render_inicio(
         news_css = (
             news_css
             .replace("__FONDO_CARD_INICIO__",FONDO_CARD_INICIO)
-            .replace("__FONDO_CARD_INICIO2__",FONDO_CARD_INICIO2)
             )
                 
         st.markdown(news_css, unsafe_allow_html=True)
@@ -3330,7 +3329,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                     rgba(255,255,255,0.78),
                     rgba(248,250,252,0.64)
                 ),
-                url('__FONDO_CARD_INICIO2__');
+                url('__FONDO_CARD_INICIO__');
         
             background-size: cover;
             background-position: center;
