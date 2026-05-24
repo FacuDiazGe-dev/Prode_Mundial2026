@@ -1304,18 +1304,46 @@ def render_inicio(
             white-space: normal !important;
         }
         
+        .ranking-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #0F2D63 rgba(226,232,240,0.55);
+        }
+        
         .ranking-scroll::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
         
         .ranking-scroll::-webkit-scrollbar-track {
-            background: rgba(226,232,240,0.55);
+            background: linear-gradient(
+                180deg,
+                rgba(226,232,240,0.55),
+                rgba(241,245,249,0.85)
+            );
             border-radius: 999px;
+            box-shadow: inset 0 0 0 1px rgba(148,163,184,0.18);
         }
         
         .ranking-scroll::-webkit-scrollbar-thumb {
-            background: rgba(15,23,42,0.24);
+            background: linear-gradient(
+                180deg,
+                #0F2D63 0%,
+                #173F86 55%,
+                #D4A017 100%
+            );
             border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.45);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.25),
+                0 2px 6px rgba(15,23,42,0.18);
+        }
+        
+        .ranking-scroll::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(
+                180deg,
+                #173F86 0%,
+                #1D4FA8 55%,
+                #E2B93B 100%
+            );
         }
         
         /* ============================================================
@@ -1583,8 +1611,8 @@ def render_inicio(
             color: #111827;
         
             box-shadow:
-                0 8px 16px rgba(244,197,66,0.30),
-                inset 0 1px 0 rgba(255,255,255,0.36);
+                0 8px 18px rgba(244,197,66,0.34),
+                inset 0 1px 0 rgba(255,255,255,0.38);
         }
         
         .rank-pos.silver {
@@ -1595,10 +1623,10 @@ def render_inicio(
             color: #111827;
         
             box-shadow:
-                0 7px 14px rgba(148,163,184,0.20),
+                0 7px 15px rgba(148,163,184,0.22),
                 inset 0 1px 0 rgba(255,255,255,0.34);
         }
-                
+        
         .rank-pos.bronze {
             width: 38px;
             height: 38px;
@@ -1607,7 +1635,7 @@ def render_inicio(
             color: white;
         
             box-shadow:
-                0 7px 14px rgba(205,127,50,0.22),
+                0 7px 15px rgba(205,127,50,0.24),
                 inset 0 1px 0 rgba(255,255,255,0.22);
         }
         
@@ -1637,17 +1665,22 @@ def render_inicio(
         .ranking-row.top-3 .player-name {
             font-size: 15px;
             font-weight: 900;
+            letter-spacing: -0.01em;
         }
+        
         .ranking-row.top-1 .player-name {
-            color: #7c4a03;
+            color: #7A4A00;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.38);
         }
         
         .ranking-row.top-2 .player-name {
             color: #334155;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.30);
         }
         
         .ranking-row.top-3 .player-name {
-            color: #8a4b22;
+            color: #8C4F2A;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.25);
         }
         
         .player-sub {
@@ -1665,6 +1698,21 @@ def render_inicio(
         .player-sub strong {
             color: #0f172a;
             font-weight: 900;
+        }
+        
+        .ranking-row.top-1 .player-sub {
+            color: #9A6B18;
+            font-weight: 800;
+        }
+        
+        .ranking-row.top-2 .player-sub {
+            color: #64748B;
+            font-weight: 800;
+        }
+        
+        .ranking-row.top-3 .player-sub {
+            color: #9A6543;
+            font-weight: 800;
         }
         
         /* ============================================================
@@ -1721,18 +1769,23 @@ def render_inicio(
         .ranking-row.top-1 .points-main,
         .ranking-row.top-2 .points-main,
         .ranking-row.top-3 .points-main {
-            font-size: 26px;
+            font-size: 28px;
+            line-height: 1;
         }
+        
         .ranking-row.top-1 .points-main {
-            color: #7c4a03;
+            color: #7A4A00;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.32);
         }
         
         .ranking-row.top-2 .points-main {
             color: #334155;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.24);
         }
         
         .ranking-row.top-3 .points-main {
-            color: #8a4b22;
+            color: #8C4F2A;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.22);
         }
         
         .points-label {
@@ -1742,9 +1795,29 @@ def render_inicio(
             text-transform: uppercase;
             margin-top: 2px;
         }
+
+        .ranking-row.top-1 .points-label {
+            color: rgba(180,83,9,0.78);
+        }
+        
+        .ranking-row.top-2 .points-label {
+            color: rgba(71,85,105,0.74);
+        }
+        
+        .ranking-row.top-3 .points-label {
+            color: rgba(154,82,34,0.76);
+        }
         
         .ranking-row.top-1 .points-label {
             color: rgba(180,83,9,0.72);
+        }
+
+        .ranking-row.top-1 .ranking-badge-mini,
+        .ranking-row.top-2 .ranking-badge-mini,
+        .ranking-row.top-3 .ranking-badge-mini {
+            width: 20px !important;
+            height: 20px !important;
+            filter: drop-shadow(0 2px 5px rgba(15,23,42,0.22));
         }
         
         /* ============================================================
@@ -2533,19 +2606,47 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             padding-right: 6px;
         }}
         
-        .matches-scroll::-webkit-scrollbar {{
-            width: 6px;
-        }}
+        .matches-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #0F2D63 rgba(226,232,240,0.55);
+        }
         
-        .matches-scroll::-webkit-scrollbar-track {{
-            background: rgba(226,232,240,0.55);
-            border-radius: 999px;
-        }}
+        .matches-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
         
-        .matches-scroll::-webkit-scrollbar-thumb {{
-            background: rgba(15,23,42,0.24);
+        .matches-scroll::-webkit-scrollbar-track {
+            background: linear-gradient(
+                180deg,
+                rgba(226,232,240,0.55),
+                rgba(241,245,249,0.85)
+            );
             border-radius: 999px;
-        }}
+            box-shadow: inset 0 0 0 1px rgba(148,163,184,0.18);
+        }
+        
+        .matches-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(
+                180deg,
+                #0F2D63 0%,
+                #173F86 55%,
+                #D4A017 100%
+            );
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.45);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.25),
+                0 2px 6px rgba(15,23,42,0.18);
+        }
+        
+        .matches-scroll::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(
+                180deg,
+                #173F86 0%,
+                #1D4FA8 55%,
+                #E2B93B 100%
+            );
+        }
         
         /* ============================================================
            MINI CARD DE PARTIDO
