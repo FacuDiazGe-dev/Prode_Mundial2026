@@ -635,23 +635,11 @@ def render_inicio(
             0 0 18px rgba(244,197,66,0.18);
     }
 
-    .pod-avatar-wrap {
-        position: absolute;
-        top: -48px;
-        left: 50%;
-        transform: translateX(-50%);
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .pod-card.first .pod-avatar-wrap {
-        top: -62px;
-    }
-
-    .pod-avatar.gold {
+    .pod-avatar {
         display: block !important;
+    
+        width: 100% !important;
+        height: 100% !important;
     
         aspect-ratio: 1 / 1 !important;
         border-radius: 50% !important;
@@ -660,84 +648,104 @@ def render_inicio(
         object-position: center !important;
     
         box-sizing: border-box !important;
+    
         background: #F8FAFC;
     
         max-width: none !important;
-        min-width: 0 !important;
-        min-height: 0 !important;
+        max-height: none !important;
     
         flex: 0 0 auto !important;
-        align-self: center !important;
     
         box-shadow:
             0 12px 30px rgba(0,0,0,0.58),
             inset 0 1px 0 rgba(255,255,255,0.25);
     }
 
+    .pod-avatar-wrap {
+        position: absolute;
+        top: -48px;
+        left: 50%;
+        transform: translateX(-50%);
+    
+        width: 88px;
+        height: 88px;
+    
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    
+        overflow: visible;
+        z-index: 5;
+    }
+    
+    .pod-card.first .pod-avatar-wrap {
+        top: -62px;
+    
+        width: 112px;
+        height: 112px;
+    }
+
     .pod-avatar.gold {
-        width: 112px !important;
-        height: 112px !important;
-        min-width: 112px !important;
-        min-height: 112px !important;
-        max-width: 112px !important;
-        max-height: 112px !important;
-
         border: 6px solid #F4C542;
-
+    
         box-shadow:
             0 14px 34px rgba(0,0,0,0.64),
             0 0 30px rgba(244,197,66,0.52),
             inset 0 1px 0 rgba(255,255,255,0.30);
     }
-
+    
     .pod-avatar.silver {
-        width: 88px !important;
-        height: 88px !important;
-        min-width: 88px !important;
-        min-height: 88px !important;
-        max-width: 88px !important;
-        max-height: 88px !important;
-
         border: 5px solid #E5E7EB;
-
+    
         box-shadow:
             0 12px 28px rgba(0,0,0,0.56),
             0 0 18px rgba(229,231,235,0.30);
     }
-
+    
     .pod-avatar.bronze {
-        width: 88px !important;
-        height: 88px !important;
-        min-width: 88px !important;
-        min-height: 88px !important;
-        max-width: 88px !important;
-        max-height: 88px !important;
-
         border: 5px solid #CD7F32;
-
+    
         box-shadow:
             0 12px 28px rgba(0,0,0,0.56),
             0 0 18px rgba(205,127,50,0.34);
     }
 
     .pod-rank-badge {
-        width: 22px !important;
-        height: 22px !important;
-        min-width: 22px !important;
-        min-height: 22px !important;
-        max-width: 22px !important;
-        max-height: 22px !important;
+        position: absolute !important;
+        top: -4px !important;
+        right: -6px !important;
+    
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        max-width: 28px !important;
+        max-height: 28px !important;
     
         aspect-ratio: 1 / 1 !important;
         border-radius: 50% !important;
     
-        font-size: 10px;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    
+        box-sizing: border-box !important;
+    
+        font-family: 'Montserrat', sans-serif;
+        font-size: 13px;
+        font-weight: 900;
         line-height: 1 !important;
     
-        top: -2px !important;
-        right: -5px !important;
-    
         padding: 0 !important;
+        margin: 0 !important;
+    
+        overflow: hidden !important;
+    
+        z-index: 8 !important;
+    
+        box-shadow:
+            0 6px 12px rgba(0,0,0,0.36),
+            inset 0 1px 0 rgba(255,255,255,0.30);
     }
 
     .pod-rank-badge.gold {
@@ -987,30 +995,24 @@ def render_inicio(
 
         .pod-avatar-wrap {
             top: -34px;
+        
+            width: 66px;
+            height: 66px;
         }
-
+        
         .pod-card.first .pod-avatar-wrap {
             top: -44px;
+        
+            width: 82px;
+            height: 82px;
         }
 
         .pod-avatar.gold {
-            width: 82px !important;
-            height: 82px !important;
-            min-width: 82px !important;
-            min-height: 82px !important;
-            max-width: 82px !important;
-            max-height: 82px !important;
             border-width: 5px;
         }
         
         .pod-avatar.silver,
         .pod-avatar.bronze {
-            width: 66px !important;
-            height: 66px !important;
-            min-width: 66px !important;
-            min-height: 66px !important;
-            max-width: 66px !important;
-            max-height: 66px !important;
             border-width: 4px;
         }
         .pod-rank-badge {
