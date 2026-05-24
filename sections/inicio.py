@@ -117,6 +117,25 @@ def render_inicio(
         return []
 
     def get_user_badges_inicio(usuario):
+        # TEST TEMPORAL HERO BADGES — BORRAR DESPUÉS DE PROBAR
+        if str(usuario) == str(st.session_state["user_data"]["USUARIO"]):
+            return [
+                "Puntero",
+                "Sr. Prode",
+                "Siempre Suma",
+                "Optimista del Gol",
+                "El Cholo",
+                "Rey del Empate",
+                "El Macaya",
+                "El Misterioso",
+                "El Distinto",
+            ]
+
+        if df_ranking is None or df_ranking.empty:
+            return []
+
+        if "BADGES" not in df_ranking.columns:
+            return []
         if df_ranking is None or df_ranking.empty:
             return []
 
