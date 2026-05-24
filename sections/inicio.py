@@ -518,7 +518,7 @@ def render_inicio(
     }
 
     .podium-section::after {
-        content: "TOP 3";
+        content: "PRODE TOP 3";
     
         position: absolute;
         left: 50%;
@@ -526,7 +526,7 @@ def render_inicio(
         transform: translateX(-50%);
     
         font-family: 'Montserrat', sans-serif;
-        font-size: 9px;
+        font-size: 15px;
         font-weight: 900;
         letter-spacing: 0.34em;
         color: rgba(244,197,66,0.72);
