@@ -525,7 +525,7 @@ def render_inicio(
         bottom: 22px;
         transform: translateX(-50%);
     
-        font-family: 'Montserrat', sans-serif;
+        font-family: inter; #'Montserrat', sans-serif;
         font-size: 15px;
         font-weight: 900;
         letter-spacing: 0.34em;
