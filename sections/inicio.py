@@ -248,7 +248,7 @@ def render_inicio(
     
     .header-top {
         text-align: center;
-        padding: 18px 20px 10px 20px;
+        padding: 18px 20px 4px 20px;
     }
     
     .title-main {
@@ -267,11 +267,11 @@ def render_inicio(
     
     .title-sub {
         font-size: 11px;
-        opacity: 0.48;
+        opacity: 0.56;
         letter-spacing: 2px;
-        margin-top: 8px;
+        margin-top: 5px;
         text-transform: uppercase;
-        font-weight: 700;
+        font-weight: 800;
     }
     
     .divider-h {
@@ -279,24 +279,24 @@ def render_inicio(
         background: linear-gradient(
             90deg,
             transparent,
-            rgba(255,255,255,0.18),
+            rgba(255,255,255,0.16),
             transparent
         );
-        margin: 12px 60px 0 60px;
+        margin: 8px 60px 0 60px;
     }
     
     .content-bottom {
         display: grid;
-        grid-template-columns: 25% 75%;
+        grid-template-columns: 22% 58% 20%;
         align-items: center;
-        min-height: 190px;
-        padding: 8px 24px 24px 24px;
-        gap: 22px;
+        min-height: 230px;
+        padding: 0 26px 26px 26px;
+        gap: 18px;
     }
 
     .pos-section {
-        min-height: 148px;
-
+        min-height: 156px;
+        max-width: 360px;
         background:
             radial-gradient(
                 circle at 0% 0%,
@@ -311,7 +311,7 @@ def render_inicio(
 
         border: 1px solid rgba(244,197,66,0.30);
         border-radius: 20px;
-        padding: 18px 18px;
+        padding: 18px 16px;
 
         box-shadow:
             0 0 28px rgba(244,197,66,0.13),
@@ -327,7 +327,7 @@ def render_inicio(
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
     }
 
     .pos-section.no-badges {
@@ -475,58 +475,66 @@ def render_inicio(
         align-items: flex-end;
         gap: 22px;
     
-        padding: 54px 12px 20px 12px;
-        min-height: 230px;
+        padding: 58px 10px 42px 10px;
+        min-height: 250px;
     
-        transform: translateX(-18px);
+        transform: translateX(-42px);
     }
-
     .podium-section::before {
         content: "";
-
+    
         position: absolute;
         left: 50%;
         bottom: 8px;
         transform: translateX(-50%);
-
-        width: 78%;
-        height: 42px;
-
+    
+        width: 86%;
+        height: 58px;
+    
         border-radius: 999px;
-
+    
         background:
+            radial-gradient(
+                circle at 50% 0%,
+                rgba(244,197,66,0.16),
+                transparent 45%
+            ),
             linear-gradient(
                 180deg,
-                rgba(255,255,255,0.08),
-                rgba(7,17,31,0.92)
+                rgba(255,255,255,0.10),
+                rgba(15,23,42,0.92) 46%,
+                rgba(7,17,31,0.98)
             );
-
-        border: 1px solid rgba(244,197,66,0.28);
-
+    
+        border: 1px solid rgba(244,197,66,0.34);
+    
         box-shadow:
-            0 16px 32px rgba(0,0,0,0.42),
-            inset 0 1px 0 rgba(255,255,255,0.10),
-            0 0 24px rgba(244,197,66,0.12);
-
+            0 18px 36px rgba(0,0,0,0.48),
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            inset 0 -1px 0 rgba(244,197,66,0.18),
+            0 0 26px rgba(244,197,66,0.14);
+    
         z-index: 0;
     }
 
     .podium-section::after {
-        content: "TOP 3 ";
-
+        content: "TOP 3";
+    
         position: absolute;
         left: 50%;
-        bottom: 20px;
+        bottom: 22px;
         transform: translateX(-50%);
-
+    
         font-family: 'Montserrat', sans-serif;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 900;
         letter-spacing: 0.34em;
         color: rgba(244,197,66,0.72);
-
-        text-shadow: 0 2px 8px rgba(0,0,0,0.55);
-
+    
+        text-shadow:
+            0 2px 8px rgba(0,0,0,0.75),
+            0 0 12px rgba(244,197,66,0.18);
+    
         z-index: 1;
         pointer-events: none;
     }
@@ -537,6 +545,7 @@ def render_inicio(
 
         width: 136px;
         min-height: 132px;
+        margin-bottom: 18px;
 
         display: flex;
         flex-direction: column;
@@ -949,7 +958,7 @@ def render_inicio(
             width: 34%;
             min-height: 122px;
             padding-top: 54px;
-            transform: translateY(-10px);
+            transform: translateY(-28px);
         }
 
         .pod-avatar-wrap {
