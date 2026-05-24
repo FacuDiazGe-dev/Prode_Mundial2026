@@ -497,13 +497,15 @@ with st.sidebar:
         "📝 Mi Prode",
         "👥 Plantel",
         "💬 Comunidad",
-        "📜 Reglas del Juego"#,
-        #"🧪 Laboratorio"
+        "📜 Reglas del Juego"
     ]
-
-    if st.session_state["user_data"]["ROL"] == "admin":
-        opciones.append("⚙️ Panel Control")
-
+    
+    if "nav_destino" in st.session_state:
+        destino = st.session_state.pop("nav_destino")
+    
+        if destino in opciones:
+            st.session_state["menu_principal"] = destino
+    
     menu = st.radio(
         "Ir a:",
         opciones,
