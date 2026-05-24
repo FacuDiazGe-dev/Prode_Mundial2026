@@ -942,7 +942,7 @@ def render_inicio(
             opacity: 0.82;
         }
         .podium-section::after {
-            font-size: 7px;
+            font-size: 10px;
             letter-spacing: 0.24em;
             bottom: 18px;
         }
