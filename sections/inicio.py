@@ -2606,10 +2606,10 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             padding-right: 6px;
         }}
         
-        .matches-scroll {
+        .matches-scroll {{
             scrollbar-width: thin;
             scrollbar-color: #0F2D63 rgba(226,232,240,0.55);
-        }
+        }}
         
         .matches-scroll::-webkit-scrollbar {{
             width: 8px;
