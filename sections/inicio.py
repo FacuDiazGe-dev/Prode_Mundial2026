@@ -2611,11 +2611,11 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             scrollbar-color: #0F2D63 rgba(226,232,240,0.55);
         }
         
-        .matches-scroll::-webkit-scrollbar {
+        .matches-scroll::-webkit-scrollbar {{
             width: 8px;
-        }
+        }}
         
-        .matches-scroll::-webkit-scrollbar-track {
+        .matches-scroll::-webkit-scrollbar-track {{
             background: linear-gradient(
                 180deg,
                 rgba(226,232,240,0.55),
@@ -2623,9 +2623,9 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             );
             border-radius: 999px;
             box-shadow: inset 0 0 0 1px rgba(148,163,184,0.18);
-        }
+        }}
         
-        .matches-scroll::-webkit-scrollbar-thumb {
+        .matches-scroll::-webkit-scrollbar-thumb {{
             background: linear-gradient(
                 180deg,
                 #0F2D63 0%,
@@ -2637,16 +2637,16 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.25),
                 0 2px 6px rgba(15,23,42,0.18);
-        }
+        }}
         
-        .matches-scroll::-webkit-scrollbar-thumb:hover {
+        .matches-scroll::-webkit-scrollbar-thumb:hover {{
             background: linear-gradient(
                 180deg,
                 #173F86 0%,
                 #1D4FA8 55%,
                 #E2B93B 100%
             );
-        }
+        }}
         
         /* ============================================================
            MINI CARD DE PARTIDO
