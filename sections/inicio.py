@@ -2086,7 +2086,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
            RESULTADOS OFICIALES — PANEL PREMIUM TEXTURADO
         ============================================================ */
         
-        .matches-panel {
+        .matches-panel {{
             position: relative;
             overflow: hidden;
         
@@ -2105,9 +2105,9 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             box-shadow:
                 0 16px 36px rgba(15,23,42,0.075),
                 inset 0 1px 0 rgba(255,255,255,0.82);
-        }
+        }}
         
-        .matches-panel::before {
+        .matches-panel::before {{
             content: "";
         
             position: absolute;
@@ -2122,7 +2122,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
             pointer-events: none;
             z-index: 0;
-        }
+        }}
         
         .matches-panel > * {{
             position: relative;
@@ -2557,7 +2557,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
         st.markdown("""
         <style>
-        .chat-panel {
+        .chat-panel {{
             background: rgba(255, 255, 255, 0.94);
             border: 1px solid rgba(226, 232, 240, 0.9);
             border-bottom: none;
@@ -2565,18 +2565,18 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             padding: 14px 14px 0 14px;
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
             overflow: hidden;
-        }
+        }}
         
-        .chat-panel-header {
+        .chat-panel-header {{
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 4px 4px 14px 4px;
             margin-bottom: 8px;
             border-bottom: 1px solid rgba(226, 232, 240, 0.75);
-        }
+        }}
         
-        .chat-panel-icon {
+        .chat-panel-icon {{
             width: 30px;
             height: 30px;
             border-radius: 10px;
@@ -2586,17 +2586,17 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             background: rgba(244, 197, 66, 0.16);
             color: #0f172a;
             font-size: 16px;
-        }
+        }}
         
-        .chat-panel-title {
+        .chat-panel-title {{
             font-family: 'Montserrat', sans-serif;
             font-size: 17px;
             font-weight: 900;
             color: #0f172a;
             letter-spacing: -0.01em;
-        }
+        }}
         
-        .chat-scroll {
+        .chat-scroll {{
             height: 315px;
             overflow-y: auto;
             padding: 8px 8px 4px 8px;
@@ -2604,7 +2604,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             background: rgba(248, 250, 252, 0.72);
             border: 1px solid rgba(226, 232, 240, 0.75);
             border-bottom: none;
-        }
+        }}
         
         .chat-scroll::-webkit-scrollbar {
             width: 6px;
