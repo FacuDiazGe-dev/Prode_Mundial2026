@@ -3006,61 +3006,167 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         # CHAT / FORO — CARD INTEGRADA CON FOOTER OSCURO
         # ============================================================
         
-        st.markdown("""
+        chat_css = """
         <style>
+        /* ============================================================
+           FORO / MURO — PANEL PREMIUM TEXTURADO
+        ============================================================ */
+        
         .chat-panel {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-bottom: none;
-            border-radius: 18px 18px 0 0;
-            padding: 14px 14px 0 14px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            position: relative;
             overflow: hidden;
+        
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.96),
+                    rgba(248,250,252,0.92)
+                );
+        
+            border: 1px solid rgba(203,213,225,0.92);
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+        
+            padding: 15px 15px 0 15px;
+        
+            box-shadow:
+                0 16px 36px rgba(15,23,42,0.075),
+                inset 0 1px 0 rgba(255,255,255,0.82);
+        }
+        
+        .chat-panel::before {
+            content: "";
+        
+            position: absolute;
+            inset: 0;
+        
+            background:
+                radial-gradient(
+                    circle at 0% 0%,
+                    rgba(244,197,66,0.08),
+                    transparent 36%
+                );
+        
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .chat-panel > * {
+            position: relative;
+            z-index: 1;
         }
         
         .chat-panel-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 4px 4px 14px 4px;
-            margin-bottom: 8px;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+            gap: 11px;
+        
+            padding: 5px 5px 14px 5px;
+            margin-bottom: 10px;
+        
+            border-bottom: 1px solid rgba(148,163,184,0.30);
         }
         
         .chat-panel-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+        
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(244, 197, 66, 0.16);
+        
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(244,197,66,0.16),
+                    rgba(244,197,66,0.06)
+                );
+        
+            border: 1px solid rgba(244,197,66,0.16);
+        
             color: #0f172a;
-            font-size: 16px;
+            font-size: 17px;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.78),
+                0 6px 14px rgba(15,23,42,0.06);
         }
-    
+        
         .chat-panel-title {
             font-family: 'Montserrat', sans-serif;
             font-size: 17px;
             font-weight: 900;
             color: #0f172a;
+        
             letter-spacing: -0.01em;
         }
-    
-        .chat-scroll {
-            height: 315px;
-            overflow-y: auto;
-            padding: 8px 8px 4px 8px;
-            border-radius: 15px 15px 0 0;
-            background: rgba(248, 250, 252, 0.72);
-            border: 1px solid rgba(226, 232, 240, 0.75);
-            border-bottom: none;
-        }
+        
+        /* ============================================================
+           ÁREA DE MENSAJES
+        ============================================================ */
         
         .chat-scroll {
+            position: relative;
+            overflow-y: auto;
+        
+            height: 315px;
+        
+            padding: 10px 10px 6px 10px;
+        
+            border-radius: 16px 16px 0 0;
+        
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.68),
+                    rgba(248,250,252,0.54)
+                ),
+                url('__FONDO_CARD_INICIO__');
+        
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        
+            border: 1px solid rgba(148,163,184,0.32);
+            border-bottom: none;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.72),
+                inset 0 0 18px rgba(15,23,42,0.025);
+        
             scrollbar-width: thin;
             scrollbar-color: #0F2D63 rgba(226,232,240,0.55);
         }
+        
+        .chat-scroll::before {
+            content: "";
+        
+            position: absolute;
+            inset: 0;
+        
+            background:
+                radial-gradient(
+                    circle at 0% 0%,
+                    rgba(244,197,66,0.08),
+                    transparent 38%
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.24),
+                    rgba(255,255,255,0.08)
+                );
+        
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .chat-scroll > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Scrollbar azul / dorado */
         
         .chat-scroll::-webkit-scrollbar {
             width: 8px;
@@ -3099,9 +3205,13 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             );
         }
         
+        /* ============================================================
+           MENSAJES
+        ============================================================ */
+        
         .chat-row {
             display: flex;
-            gap: 8px;
+            gap: 9px;
             margin-bottom: 12px;
             align-items: flex-start;
         }
@@ -3111,28 +3221,61 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         }
         
         .chat-avatar {
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
+        
             border-radius: 50%;
             object-fit: cover;
             flex-shrink: 0;
+        
             border: 2px solid rgba(255,255,255,0.95);
-            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.16);
+        
+            box-shadow:
+                0 4px 10px rgba(15,23,42,0.18),
+                inset 0 1px 0 rgba(255,255,255,0.30);
         }
         
         .chat-bubble-new {
             max-width: 82%;
+        
             border-radius: 16px;
-            padding: 9px 11px;
-            background: rgba(255, 255, 255, 0.96);
-            border: 1px solid rgba(226, 232, 240, 0.95);
+            padding: 10px 12px;
+        
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.96),
+                    rgba(248,250,252,0.92)
+                );
+        
+            border: 1px solid rgba(203,213,225,0.88);
+        
             color: #1e293b;
-            box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
+        
+            box-shadow:
+                0 7px 16px rgba(15,23,42,0.055),
+                inset 0 1px 0 rgba(255,255,255,0.72);
         }
         
         .chat-row.me .chat-bubble-new {
-            background: linear-gradient(135deg, rgba(244,197,66,0.22), rgba(255,255,255,0.96));
-            border: 1px solid rgba(244, 197, 66, 0.48);
+            background:
+                radial-gradient(
+                    circle at 0% 0%,
+                    rgba(244,197,66,0.16),
+                    transparent 40%
+                ),
+                linear-gradient(
+                    135deg,
+                    rgba(255,249,230,0.96),
+                    rgba(255,255,255,0.94)
+                );
+        
+            border: 1px solid rgba(244,197,66,0.56);
+        
+            box-shadow:
+                0 8px 18px rgba(244,197,66,0.10),
+                0 6px 14px rgba(15,23,42,0.045),
+                inset 0 1px 0 rgba(255,255,255,0.78);
         }
         
         .chat-head {
@@ -3163,23 +3306,28 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         .chat-message {
             font-size: 13px;
             font-weight: 500;
-            line-height: 1.35;
+            line-height: 1.36;
             color: #334155;
             word-break: break-word;
         }
         
         .chat-empty {
             height: 220px;
+        
             display: flex;
             align-items: center;
             justify-content: center;
+        
             color: #94a3b8;
             font-size: 13px;
             font-weight: 700;
             text-align: center;
         }
         
-        /* FORMULARIO COMO FOOTER OSCURO */
+        /* ============================================================
+           FORMULARIO COMO FOOTER OSCURO
+        ============================================================ */
+        
         div[data-testid="stForm"] {
             background:
                 linear-gradient(
@@ -3187,21 +3335,29 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                     rgba(7,17,31,0.98),
                     rgba(15,23,42,0.94)
                 ) !important;
+        
             border: 1px solid rgba(255,255,255,0.08) !important;
-            border-radius: 0 0 18px 18px !important;
+            border-radius: 0 0 20px 20px !important;
+        
             padding: 20px 12px !important;
             margin-top: -1px !important;
+        
             width: 100% !important;
             box-sizing: border-box !important;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06) !important;
+        
+            box-shadow:
+                0 14px 34px rgba(15,23,42,0.10) !important;
         }
         
         /* Input */
+        
         div[data-testid="stForm"] input {
             background: rgba(255,255,255,0.94) !important;
             color: #0f172a !important;
+        
             border: 1px solid rgba(226,232,240,0.85) !important;
             border-radius: 12px !important;
+        
             font-size: 13px !important;
         }
         
@@ -3210,12 +3366,18 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         }
         
         /* Botón */
+        
         div[data-testid="stForm"] button {
             background: rgba(244,197,66,0.16) !important;
             border: 1px solid rgba(244,197,66,0.38) !important;
             border-radius: 12px !important;
+        
             color: #F8FAFC !important;
             font-weight: 900 !important;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 6px 14px rgba(0,0,0,0.16) !important;
         }
         
         div[data-testid="stForm"] button:hover {
@@ -3223,17 +3385,29 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             border-color: rgba(244,197,66,0.55) !important;
         }
         
+        /* ============================================================
+           MOBILE
+        ============================================================ */
+        
         @media (max-width: 768px) {
             .chat-panel {
                 padding: 12px 12px 0 12px;
+                border-radius: 17px 17px 0 0;
             }
         
             .chat-panel-title {
                 font-size: 15px;
             }
         
+            .chat-panel-icon {
+                width: 31px;
+                height: 31px;
+                border-radius: 11px;
+            }
+        
             .chat-scroll {
                 height: 300px;
+                border-radius: 15px 15px 0 0;
             }
         
             .chat-bubble-new {
@@ -3243,9 +3417,20 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             .chat-message {
                 font-size: 13px;
             }
+        
+            div[data-testid="stForm"] {
+                border-radius: 0 0 17px 17px !important;
+            }
         }
         </style>
-        """, unsafe_allow_html=True)
+        """
+        
+        chat_css = chat_css.replace(
+            "__FONDO_CARD_INICIO__",
+            FONDO_CARD_INICIO
+        )
+        
+        st.markdown(chat_css, unsafe_allow_html=True)
         
                
         columnas_foro = [
