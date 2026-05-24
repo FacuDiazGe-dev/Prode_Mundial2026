@@ -2037,41 +2037,88 @@ def render_inicio(
         # Reemplaza Evolución de Puntos en Inicio
         # ============================================================
 
-        st.markdown("""
+        news_css = """
 <style>
 .news-home-panel {
-    background: rgba(255, 255, 255, 0.94);
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    border-radius: 18px;
-    padding: 14px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    position: relative;
     overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.96),
+            rgba(248,250,252,0.92)
+        );
+
+    border: 1px solid rgba(203,213,225,0.92);
+    border-radius: 20px;
+
+    padding: 15px;
+
+    box-shadow:
+        0 16px 36px rgba(15,23,42,0.075),
+        inset 0 1px 0 rgba(255,255,255,0.82);
+}
+
+.news-home-panel::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.08),
+            transparent 36%
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+.news-home-panel > * {
+    position: relative;
+    z-index: 1;
 }
 
 .news-home-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 4px 4px 14px 4px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+    gap: 11px;
+
+    padding: 5px 5px 14px 5px;
+    margin-bottom: 10px;
+
+    border-bottom: 1px solid rgba(148,163,184,0.30);
 }
 
 .news-home-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: rgba(244, 197, 66, 0.16);
-    color: #0f172a;
-    font-size: 16px;
-    flex-shrink: 0;
-}
+    background:
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.18),
+            rgba(244,197,66,0.07)
+        );
 
+    border: 1px solid rgba(244,197,66,0.18);
+
+    color: #0f172a;
+    font-size: 17px;
+    flex-shrink: 0;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.78),
+        0 6px 14px rgba(15,23,42,0.06);
+}
 .news-home-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 17px;
@@ -2087,26 +2134,31 @@ def render_inicio(
 
     min-height: 150px;
 
-    border-radius: 15px;
-    margin-bottom: 10px;
+    border-radius: 16px;
+    margin-bottom: 11px;
 
     background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.16),
+            transparent 34%
+        ),
         linear-gradient(
             90deg,
-            rgba(7,17,31,0.92) 0%,
-            rgba(7,17,31,0.72) 48%,
-            rgba(7,17,31,0.22) 100%
+            rgba(7,17,31,0.94) 0%,
+            rgba(7,17,31,0.76) 48%,
+            rgba(7,17,31,0.28) 100%
         ),
         var(--news-featured-img);
 
     background-size: cover;
     background-position: center right;
 
-    border: 1px solid rgba(255,255,255,0.10);
+    border: 1px solid rgba(244,197,66,0.18);
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
-        0 8px 18px rgba(15,23,42,0.12);
+        0 10px 22px rgba(15,23,42,0.14);
 }
 
 .news-featured-content {
@@ -2185,19 +2237,77 @@ def render_inicio(
 }
 
 .news-secondary-card {
+    position: relative;
+    overflow: hidden;
+
     display: grid;
     grid-template-columns: minmax(0, 1fr) 78px;
     gap: 10px;
     align-items: center;
 
-    background: rgba(248,250,252,0.92);
-    border: 1px solid rgba(226,232,240,0.88);
-    border-radius: 14px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.76),
+            rgba(248,250,252,0.60)
+        ),
+        url('__FONDO_CARD_INICIO__');
 
-    padding: 10px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    border: 1px solid rgba(148,163,184,0.32);
+    border-radius: 16px;
+
+    padding: 11px;
     margin-bottom: 9px;
 
-    box-shadow: 0 6px 14px rgba(15,23,42,0.035);
+    box-shadow:
+        0 8px 18px rgba(15,23,42,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.75);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.news-secondary-card::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.08),
+            transparent 38%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.24),
+            rgba(255,255,255,0.08)
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+.news-secondary-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.news-secondary-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(244,197,66,0.42);
+
+    box-shadow:
+        0 12px 24px rgba(15,23,42,0.085),
+        0 0 14px rgba(244,197,66,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.82);
 }
 
 .news-secondary-title {
@@ -2226,11 +2336,14 @@ def render_inicio(
 .news-secondary-img {
     width: 78px;
     height: 58px;
-    border-radius: 10px;
+    border-radius: 11px;
     object-fit: cover;
 
-    border: 1px solid rgba(226,232,240,0.9);
-    box-shadow: 0 4px 10px rgba(15,23,42,0.12);
+    border: 1px solid rgba(255,255,255,0.82);
+
+    box-shadow:
+        0 5px 12px rgba(15,23,42,0.16),
+        inset 0 1px 0 rgba(255,255,255,0.40);
 }
 
 .news-home-footer {
@@ -2273,13 +2386,18 @@ def render_inicio(
 @media (max-width: 768px) {
     .news-home-panel {
         padding: 12px;
-        border-radius: 16px;
+        border-radius: 17px;
     }
 
     .news-home-title {
         font-size: 15px;
     }
 
+    .news-home-icon {
+        width: 31px;
+        height: 31px;
+        border-radius: 11px;
+    }
     .news-featured-card {
         min-height: 145px;
     }
@@ -2305,8 +2423,15 @@ def render_inicio(
         height: 50px;
     }
 }
-</style>
-""", unsafe_allow_html=True)
+        </style>
+        """
+        
+        news_css = news_css.replace(
+            "__FONDO_CARD_INICIO__",
+            FONDO_CARD_INICIO
+        )
+        
+        st.markdown(news_css, unsafe_allow_html=True)
 
         NEWS_FALLBACK_IMG = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
 
@@ -2482,6 +2607,9 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
 </div>
 {card_close}
 """         
+            news_html += """
+            </div>
+            """
         st.markdown(news_html, unsafe_allow_html=True)       
             
         if st.button(
