@@ -53,6 +53,138 @@ def render_inicio(
         dif_ref = "¡Eres el Líder! 🏆" if dif <= 0 else f"↑ a {dif} Pts. del Líder"
     except:
         pos_display, pts_usr, dif_ref = "-", 0, "..."
+
+    # ============================================================
+    # BADGES DEL USUARIO EN HERO
+    # Solo muestra insignias obtenidas.
+    # Máximo 3 visibles + contador si hay más.
+    # ============================================================
+
+    usuario_actual = st.session_state["user_data"]["USUARIO"]
+
+    BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
+
+    hero_badge_order = [
+        "Puntero",
+        "Sr. Prode",
+        "Siempre Suma",
+        "Optimista del Gol",
+        "El Cholo",
+        "Rey del Empate",
+        "El Macaya",
+        "El Misterioso",
+        "El Distinto",
+    ]
+
+    hero_badge_asset_map = {
+        "Puntero": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
+        "Sr. Prode": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
+        "Siempre Suma": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
+        "Optimista del Gol": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
+        "El Cholo": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
+        "Rey del Empate": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
+        "El Macaya": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
+        "El Misterioso": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
+        "El Distinto": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
+    }
+
+    def normalizar_badges_inicio(valor):
+        if valor is None:
+            return []
+
+        if isinstance(valor, list):
+            return [
+                str(b).strip()
+                for b in valor
+                if str(b).strip()
+            ]
+
+        if isinstance(valor, str):
+            limpio = (
+                valor
+                .replace("[", "")
+                .replace("]", "")
+                .replace("'", "")
+                .replace('"', "")
+            )
+
+            return [
+                b.strip()
+                for b in limpio.split(",")
+                if b.strip()
+            ]
+
+        return []
+
+    def get_user_badges_inicio(usuario):
+        if df_ranking is None or df_ranking.empty:
+            return []
+
+        if "BADGES" not in df_ranking.columns:
+            return []
+
+        row_badges = df_ranking[
+            df_ranking["USUARIO"].astype(str) == str(usuario)
+        ]
+
+        if row_badges.empty:
+            return []
+
+        return normalizar_badges_inicio(
+            row_badges.iloc[0].get("BADGES", [])
+        )
+
+    def build_hero_badges_html(usuario):
+        earned_badges = get_user_badges_inicio(usuario)
+
+        if not earned_badges:
+            return ""
+
+        earned_ordered = [
+            badge
+            for badge in hero_badge_order
+            if badge in earned_badges
+        ]
+
+        if not earned_ordered:
+            return ""
+
+        visibles = earned_ordered[:3]
+        restantes = max(0, len(earned_ordered) - len(visibles))
+
+        badges_html = ""
+
+        for badge_name in visibles:
+            badge_url = hero_badge_asset_map.get(badge_name, "")
+
+            if badge_url:
+                badges_html += (
+                    f'<div class="hero-badge-chip" title="{escape(badge_name)}">'
+                    f'<img src="{escape(badge_url, quote=True)}" '
+                    f'class="hero-badge-img" '
+                    f'alt="{escape(badge_name)}" '
+                    f'loading="lazy">'
+                    f'</div>'
+                )
+
+        if restantes > 0:
+            badges_html += (
+                f'<div class="hero-badge-more" title="Más insignias">+{restantes}</div>'
+            )
+
+        if badges_html == "":
+            return ""
+
+        return f"""
+<div class="hero-badges-wrap">
+<div class="hero-badges-list">
+{badges_html}
+</div>
+</div>
+"""
+
+    hero_badges_html = build_hero_badges_html(usuario_actual)
+    pos_badge_class = "has-badges" if hero_badges_html else "no-badges"
       
     # --- 2. HTML Y CSS COMPACTO ---
     
@@ -121,77 +253,180 @@ def render_inicio(
     
     .content-bottom {
         display: grid;
-        grid-template-columns: 22% 78%;
+        grid-template-columns: 30% 70%;
         align-items: center;
         min-height: 190px;
         padding: 8px 24px 24px 24px;
+        gap: 22px;
     }
-    
+
     .pos-section {
-        min-height: 138px;
+        min-height: 148px;
+
+        background:
+            radial-gradient(
+                circle at 0% 0%,
+                rgba(244,197,66,0.22),
+                transparent 34%
+            ),
+            linear-gradient(
+                135deg,
+                rgba(7, 17, 31, 0.92),
+                rgba(15, 23, 42, 0.68)
+            );
+
+        border: 1px solid rgba(244,197,66,0.30);
+        border-radius: 20px;
+        padding: 18px 18px;
+
+        box-shadow:
+            0 0 28px rgba(244,197,66,0.13),
+            0 16px 34px rgba(0,0,0,0.34),
+            inset 0 1px 0 rgba(255,255,255,0.10);
+
+        backdrop-filter: blur(5px);
+        position: relative;
+        overflow: visible;
+    }
+
+    .pos-section.has-badges {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .pos-section.no-badges {
         display: flex;
         flex-direction: column;
         justify-content: center;
-    
-        background: linear-gradient(
-            135deg,
-            rgba(7, 17, 31, 0.78),
-            rgba(7, 17, 31, 0.38)
-        );
-    
-        border: 1px solid rgba(255,255,255,0.14);
-        border-radius: 18px;
-        padding: 20px 22px;
-    
-        box-shadow:
-            0 0 28px rgba(255,255,255,0.08),
-            0 12px 26px rgba(0,0,0,0.28),
-            inset 0 1px 0 rgba(255,255,255,0.08);
-    
-        backdrop-filter: blur(4px);
     }
-    
+
+    .pos-main {
+        min-width: 0;
+    }
+
     .label-pos {
         font-size: 10px;
-        opacity: 0.58;
-        font-weight: 800;
+        color: rgba(248,250,252,0.58);
+        font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
-        margin-bottom: 5px;
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
     }
-    
+
     .val-pos {
         font-family: 'Montserrat', sans-serif;
-        font-size: 56px;
+        font-size: 62px;
         font-weight: 900;
-        line-height: 0.9;
-        margin: 4px 0 10px 0;
+        line-height: 0.86;
+        margin: 4px 0 12px 0;
         color: #F8FAFC;
-        letter-spacing: -2px;
+        letter-spacing: -2.4px;
         text-shadow:
             0 0 18px rgba(255,255,255,0.34),
-            0 0 32px rgba(244,197,66,0.22),
-            0 4px 12px rgba(0,0,0,0.55);
+            0 0 34px rgba(244,197,66,0.34),
+            0 5px 14px rgba(0,0,0,0.62);
     }
-    
+
     .pts-box {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 5px;
+
         font-family: 'Montserrat', sans-serif;
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 900;
         line-height: 1;
+
+        color: #F4C542;
+        padding: 5px 9px;
+
+        border-radius: 999px;
+        background: rgba(244,197,66,0.12);
+        border: 1px solid rgba(244,197,66,0.22);
     }
-    
+
     .pts-box span {
-        font-size: 12px;
-        opacity: 0.52;
-        font-weight: 800;
+        font-size: 11px;
+        color: rgba(248,250,252,0.62);
+        font-weight: 900;
     }
-    
+
     .msg-status {
         font-size: 11px;
-        margin-top: 8px;
-        opacity: 0.78;
-        font-weight: 700;
+        margin-top: 9px;
+        color: rgba(248,250,252,0.78);
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .hero-badges-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .hero-badges-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .hero-badge-chip {
+        width: 42px;
+        height: 42px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 13px;
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255,255,255,0.72),
+                rgba(248,250,252,0.46)
+            );
+
+        border: 1px solid rgba(244,197,66,0.36);
+
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.72),
+            0 8px 16px rgba(0,0,0,0.22),
+            0 0 14px rgba(244,197,66,0.12);
+    }
+
+    .hero-badge-img {
+        width: 36px;
+        height: 36px;
+        object-fit: contain;
+        display: block;
+
+        filter: drop-shadow(0 4px 7px rgba(0,0,0,0.22));
+    }
+
+    .hero-badge-more {
+        width: 34px;
+        height: 24px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 999px;
+
+        background: rgba(7,17,31,0.92);
+        border: 1px solid rgba(244,197,66,0.34);
+
+        color: #F4C542;
+        font-size: 10px;
+        font-weight: 900;
+
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.08),
+            0 6px 12px rgba(0,0,0,0.22);
     }
     
     .podium-section {
@@ -350,17 +585,64 @@ def render_inicio(
             padding: 12px 14px 20px 14px;
             gap: 18px;
         }
-    
-        .pos-section {
+
+        .pos-section,
+        .pos-section.has-badges,
+        .pos-section.no-badges {
             width: 100%;
             min-height: auto;
-            padding: 18px;
+            padding: 17px 16px;
             text-align: center;
             box-sizing: border-box;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            gap: 9px;
         }
-    
+
         .val-pos {
-            font-size: 48px;
+            font-size: 52px;
+            margin-bottom: 10px;
+        }
+
+        .pts-box {
+            font-size: 20px;
+        }
+
+        .msg-status {
+            margin-top: 8px;
+            font-size: 11px;
+        }
+
+        .hero-badges-wrap {
+            width: 100%;
+            margin-top: 2px;
+        }
+
+        .hero-badges-list {
+            flex-direction: row;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .hero-badge-chip {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+        }
+
+        .hero-badge-img {
+            width: 33px;
+            height: 33px;
+        }
+
+        .hero-badge-more {
+            width: 32px;
+            height: 24px;
+            font-size: 10px;
         }
     
         .podium-section {
@@ -399,11 +681,14 @@ def render_inicio(
 
 <div class="content-bottom">
 
-<div class="pos-section">
-    <div class="label-pos">Tu posición</div>
-    <div class="val-pos">__POS_DISPLAY__°</div>
-    <div class="pts-box">__PTS_USR__ <span>PTS.</span></div>
-    <div class="msg-status">__DIF_REF__</div>
+<div class="pos-section __POS_BADGE_CLASS__">
+    <div class="pos-main">
+        <div class="label-pos">Tu posición</div>
+        <div class="val-pos">__POS_DISPLAY__°</div>
+        <div class="pts-box">__PTS_USR__ <span>PTS.</span></div>
+        <div class="msg-status">__DIF_REF__</div>
+    </div>
+    __HERO_BADGES_HTML__
 </div>
 
 <div class="podium-section">
@@ -448,6 +733,8 @@ def render_inicio(
         .replace("__POS_DISPLAY__", str(pos_display))
         .replace("__PTS_USR__", str(pts_usr))
         .replace("__DIF_REF__", str(dif_ref))
+        .replace("__POS_BADGE_CLASS__", str(pos_badge_class))
+        .replace("__HERO_BADGES_HTML__", str(hero_badges_html))
         .replace("__F1__", str(f1))
         .replace("__F2__", str(f2))
         .replace("__F3__", str(f3))
