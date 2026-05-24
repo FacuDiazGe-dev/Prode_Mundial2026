@@ -287,7 +287,7 @@ def render_inicio(
     
     .content-bottom {
         display: grid;
-        grid-template-columns: 30% 70%;
+        grid-template-columns: 25% 75%;
         align-items: center;
         min-height: 190px;
         padding: 8px 24px 24px 24px;
@@ -469,14 +469,16 @@ def render_inicio(
 
     .podium-section {
         position: relative;
-
+    
         display: flex;
         justify-content: center;
         align-items: flex-end;
         gap: 22px;
-
+    
         padding: 54px 12px 20px 12px;
         min-height: 230px;
+    
+        transform: translateX(-18px);
     }
 
     .podium-section::before {
@@ -510,7 +512,7 @@ def render_inicio(
     }
 
     .podium-section::after {
-        content: "TOP 3 PREDICTORES";
+        content: "TOP 3 ";
 
         position: absolute;
         left: 50%;
@@ -567,26 +569,28 @@ def render_inicio(
     }
 
     .pod-card.first {
-        width: 152px;
-        min-height: 154px;
-        padding-top: 72px;
-
-        transform: translateY(-24px);
-
-        border-color: rgba(244,197,66,0.68);
-
+        border: 1px solid rgba(244,197,66,0.82);
         box-shadow:
-            0 20px 40px rgba(0,0,0,0.45),
-            0 0 26px rgba(244,197,66,0.24),
-            inset 0 1px 0 rgba(255,255,255,0.14);
+            0 22px 44px rgba(0,0,0,0.48),
+            0 0 30px rgba(244,197,66,0.28),
+            inset 0 1px 0 rgba(255,255,255,0.16),
+            inset 0 0 22px rgba(244,197,66,0.055);
     }
-
+    
     .pod-card.second {
-        border-color: rgba(229,231,235,0.48);
+        border: 1px solid rgba(229,231,235,0.62);
+        box-shadow:
+            0 16px 30px rgba(0,0,0,0.36),
+            0 0 18px rgba(229,231,235,0.12),
+            inset 0 1px 0 rgba(255,255,255,0.12);
     }
-
+    
     .pod-card.third {
-        border-color: rgba(205,127,50,0.62);
+        border: 1px solid rgba(205,127,50,0.76);
+        box-shadow:
+            0 16px 30px rgba(0,0,0,0.36),
+            0 0 18px rgba(205,127,50,0.14),
+            inset 0 1px 0 rgba(255,255,255,0.12);
     }
 
     .pod-card::after {
@@ -634,11 +638,20 @@ def render_inicio(
     }
 
     .pod-avatar {
+        display: block;
+    
+        aspect-ratio: 1 / 1;
         border-radius: 50%;
+    
         object-fit: cover;
+        object-position: center;
+    
         box-sizing: border-box;
         background: #F8FAFC;
-
+    
+        max-width: none;
+        flex-shrink: 0;
+    
         box-shadow:
             0 12px 30px rgba(0,0,0,0.58),
             inset 0 1px 0 rgba(255,255,255,0.25);
@@ -910,14 +923,15 @@ def render_inicio(
             padding: 44px 0 18px 0;
             min-height: 190px;
             justify-content: space-between;
+            transform: none;
         }
 
         .podium-section::before {
-            width: 96%;
-            height: 30px;
-            bottom: 8px;
+            bottom: 2px;
+            height: 34px;
+            width: 74%;
+            opacity: 0.82;
         }
-
         .podium-section::after {
             font-size: 7px;
             letter-spacing: 0.24em;
