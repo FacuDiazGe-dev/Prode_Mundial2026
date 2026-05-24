@@ -2608,7 +2608,6 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
 {card_close}
 """         
             news_html += """
-            </div>
             """
         st.markdown(news_html, unsafe_allow_html=True)       
             
