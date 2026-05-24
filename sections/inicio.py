@@ -2383,6 +2383,58 @@ def render_inicio(
     border-radius: 15px;
 }
 
+.news-more-btn-wrap div[data-testid="stButton"] button {
+    min-height: 44px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.92),
+            rgba(248,250,252,0.78)
+        ) !important;
+
+    border: 1px solid rgba(148,163,184,0.34) !important;
+    border-radius: 14px !important;
+
+    color: #0f172a !important;
+
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+
+    box-shadow:
+        0 8px 18px rgba(15,23,42,0.055),
+        inset 0 1px 0 rgba(255,255,255,0.80) !important;
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease !important;
+}
+
+.news-more-btn-wrap div[data-testid="stButton"] button:hover {
+    transform: translateY(-1px);
+
+    border-color: rgba(244,197,66,0.52) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,250,230,0.96),
+            rgba(255,255,255,0.82)
+        ) !important;
+
+    box-shadow:
+        0 12px 24px rgba(15,23,42,0.085),
+        0 0 14px rgba(244,197,66,0.10),
+        inset 0 1px 0 rgba(255,255,255,0.86) !important;
+}
+
+.news-more-btn-wrap div[data-testid="stButton"] button:active {
+    transform: translateY(0);
+}
+
 @media (max-width: 768px) {
     .news-home-panel {
         padding: 12px;
@@ -2610,6 +2662,8 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             news_html += """
             """
         st.markdown(news_html, unsafe_allow_html=True)       
+
+        st.markdown('<div class="news-more-btn-wrap">', unsafe_allow_html=True)
             
         if st.button(
             "Ver más en Comunidad ›",
@@ -2618,6 +2672,8 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         ):
             st.session_state["nav_destino"] = "💬 Comunidad"
             st.rerun()
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
     with c_der:
@@ -3479,13 +3535,34 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         /* Input */
         
         div[data-testid="stForm"] input {
-            background: rgba(255,255,255,0.94) !important;
+            min-height: 46px !important;
+        
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.98),
+                    rgba(248,250,252,0.94)
+                ) !important;
+        
             color: #0f172a !important;
         
-            border: 1px solid rgba(226,232,240,0.85) !important;
-            border-radius: 12px !important;
+            border: 1px solid rgba(203,213,225,0.90) !important;
+            border-radius: 14px !important;
         
             font-size: 13px !important;
+            font-weight: 700 !important;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.85),
+                0 6px 14px rgba(0,0,0,0.10) !important;
+        }
+        
+        div[data-testid="stForm"] input:focus {
+            border-color: rgba(244,197,66,0.62) !important;
+        
+            box-shadow:
+                0 0 0 2px rgba(244,197,66,0.14),
+                inset 0 1px 0 rgba(255,255,255,0.90) !important;
         }
         
         div[data-testid="stForm"] input::placeholder {
@@ -3495,16 +3572,63 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         /* Botón */
         
         div[data-testid="stForm"] button {
-            background: rgba(244,197,66,0.16) !important;
-            border: 1px solid rgba(244,197,66,0.38) !important;
-            border-radius: 12px !important;
+            min-height: 46px !important;
+        
+            background:
+                radial-gradient(
+                    circle at 30% 0%,
+                    rgba(244,197,66,0.32),
+                    transparent 42%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(244,197,66,0.20),
+                    rgba(244,197,66,0.10)
+                ) !important;
+        
+            border: 1px solid rgba(244,197,66,0.46) !important;
+            border-radius: 14px !important;
         
             color: #F8FAFC !important;
             font-weight: 900 !important;
         
             box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.08),
-                0 6px 14px rgba(0,0,0,0.16) !important;
+                inset 0 1px 0 rgba(255,255,255,0.10),
+                0 8px 18px rgba(0,0,0,0.18),
+                0 0 12px rgba(244,197,66,0.08) !important;
+        
+            transition:
+                transform 0.18s ease,
+                background 0.18s ease,
+                border-color 0.18s ease,
+                box-shadow 0.18s ease !important;
+        }
+        
+        div[data-testid="stForm"] button:hover {
+            transform: translateY(-1px);
+        
+            background:
+                radial-gradient(
+                    circle at 30% 0%,
+                    rgba(244,197,66,0.42),
+                    transparent 42%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(244,197,66,0.28),
+                    rgba(244,197,66,0.14)
+                ) !important;
+        
+            border-color: rgba(244,197,66,0.64) !important;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                0 10px 22px rgba(0,0,0,0.22),
+                0 0 16px rgba(244,197,66,0.14) !important;
+        }
+        
+        div[data-testid="stForm"] button:active {
+            transform: translateY(0);
         }
         
         div[data-testid="stForm"] button:hover {
