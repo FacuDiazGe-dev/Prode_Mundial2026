@@ -2502,10 +2502,7 @@ def render_inicio(
         
         news_css = news_css.replace(
             "__FONDO_CARD_INICIO__",
-            FONDO_CARD_INICIO,
-            "__FONDO_CARD_INICIO2__",
-            FONDO_CARD_INICIO2
-            
+            FONDO_CARD_INICIO            
         )
         
         st.markdown(news_css, unsafe_allow_html=True)
