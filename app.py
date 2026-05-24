@@ -507,7 +507,8 @@ with st.sidebar:
     menu = st.radio(
         "Ir a:",
         opciones,
-        label_visibility="collapsed"
+        label_visibility="collapsed",
+        key="menu_principal"
     )
 
     st.markdown("""
