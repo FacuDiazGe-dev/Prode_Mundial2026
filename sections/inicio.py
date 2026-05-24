@@ -1178,6 +1178,9 @@ def render_inicio(
     """, unsafe_allow_html=True)
 
     FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+    FONDO_CARD_GOLD = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_GOLD.png"
+    FONDO_CARD_SILVER = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_SILVER.png"
+    FONDO_CARD_BRONCE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_BRONCE.png"
 
     c_izq, c_der = st.columns([1, 1.1], gap="large")
 
@@ -1387,13 +1390,13 @@ def render_inicio(
         }
         
         .ranking-row:hover {
-            transform: translateY(-1px);
-            border-color: rgba(244,197,66,0.40);
+            transform: translateY(-2px);
+            border-color: rgba(244,197,66,0.52);
         
             box-shadow:
-                0 12px 24px rgba(15,23,42,0.085),
-                0 0 14px rgba(244,197,66,0.08),
-                inset 0 1px 0 rgba(255,255,255,0.82);
+                0 14px 28px rgba(15,23,42,0.10),
+                0 0 16px rgba(244,197,66,0.11),
+                inset 0 1px 0 rgba(255,255,255,0.84);
         }
         
         /* ============================================================
@@ -1401,94 +1404,114 @@ def render_inicio(
         ============================================================ */
         
         .ranking-row.top-1 {
+            min-height: 78px;
+        
+            background:
+                radial-gradient(
+                    circle at 0% 50%,
+                    rgba(244,197,66,0.32),
+                    transparent 46%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(255,250,230,0.74),
+                    rgba(255,245,210,0.54)
+                ),
+                url('__FONDO_CARD_GOLD__');
+        
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        
+            border: 1px solid rgba(244,197,66,0.82);
+        
+            box-shadow:
+                0 16px 30px rgba(244,197,66,0.20),
+                0 10px 22px rgba(15,23,42,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.88),
+                inset 0 0 20px rgba(244,197,66,0.06);
+        }
+        
+        .ranking-row.top-2 {
             min-height: 74px;
         
             background:
                 radial-gradient(
                     circle at 0% 50%,
-                    rgba(244,197,66,0.24),
-                    transparent 44%
+                    rgba(203,213,225,0.42),
+                    transparent 46%
                 ),
                 linear-gradient(
                     180deg,
-                    rgba(255,248,220,0.86),
-                    rgba(255,255,255,0.68)
+                    rgba(250,251,253,0.80),
+                    rgba(241,245,249,0.58)
                 ),
-                url('__FONDO_CARD_INICIO__');
+                url('__FONDO_CARD_SILVER__');
         
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
         
-            border-color: rgba(244,197,66,0.66);
+            border: 1px solid rgba(148,163,184,0.72);
         
             box-shadow:
-                0 12px 26px rgba(244,197,66,0.14),
-                0 10px 22px rgba(15,23,42,0.07),
-                inset 0 1px 0 rgba(255,255,255,0.85);
-        }
-        
-        .ranking-row.top-2 {
-            min-height: 72px;
-        
-            background:
-                radial-gradient(
-                    circle at 0% 50%,
-                    rgba(203,213,225,0.34),
-                    transparent 44%
-                ),
-                linear-gradient(
-                    180deg,
-                    rgba(248,250,252,0.86),
-                    rgba(255,255,255,0.68)
-                ),
-                url('__FONDO_CARD_INICIO__');
-        
-            background-size: cover;
-            background-position: center;
-        
-            border-color: rgba(148,163,184,0.56);
+                0 13px 24px rgba(148,163,184,0.14),
+                0 8px 18px rgba(15,23,42,0.07),
+                inset 0 1px 0 rgba(255,255,255,0.86);
         }
         
         .ranking-row.top-3 {
-            min-height: 72px;
+            min-height: 74px;
         
             background:
                 radial-gradient(
                     circle at 0% 50%,
-                    rgba(205,127,50,0.22),
-                    transparent 44%
+                    rgba(205,127,50,0.28),
+                    transparent 46%
                 ),
                 linear-gradient(
                     180deg,
-                    rgba(255,247,237,0.80),
-                    rgba(255,255,255,0.66)
+                    rgba(255,247,242,0.78),
+                    rgba(250,237,228,0.56)
                 ),
-                url('__FONDO_CARD_INICIO__');
+                url('__FONDO_CARD_BRONCE__');
         
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
         
-            border-color: rgba(205,127,50,0.54);
+            border: 1px solid rgba(205,127,50,0.72);
+        
+            box-shadow:
+                0 13px 24px rgba(205,127,50,0.14),
+                0 8px 18px rgba(15,23,42,0.07),
+                inset 0 1px 0 rgba(255,255,255,0.84);
         }
         
         .ranking-row.top-5 {
             background:
                 radial-gradient(
                     circle at 0% 50%,
-                    rgba(244,197,66,0.12),
+                    rgba(244,197,66,0.15),
                     transparent 42%
                 ),
                 linear-gradient(
                     180deg,
-                    rgba(255,255,255,0.76),
-                    rgba(248,250,252,0.62)
+                    rgba(255,255,255,0.80),
+                    rgba(250,250,246,0.62)
                 ),
                 url('__FONDO_CARD_INICIO__');
         
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
         
-            border-color: rgba(244,197,66,0.30);
+            border-color: rgba(244,197,66,0.42);
+        
+            box-shadow:
+                0 10px 20px rgba(244,197,66,0.08),
+                0 7px 16px rgba(15,23,42,0.05),
+                inset 0 1px 0 rgba(255,255,255,0.82);
         }
         
         /* ============================================================
@@ -1553,31 +1576,39 @@ def render_inicio(
         }
         
         .rank-pos.gold {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
         
             background: linear-gradient(135deg, #FFD700, #F4A900);
             color: #111827;
         
             box-shadow:
-                0 6px 14px rgba(244,197,66,0.28),
-                inset 0 1px 0 rgba(255,255,255,0.35);
+                0 8px 16px rgba(244,197,66,0.30),
+                inset 0 1px 0 rgba(255,255,255,0.36);
         }
         
         .rank-pos.silver {
-            width: 37px;
-            height: 37px;
+            width: 38px;
+            height: 38px;
         
             background: linear-gradient(135deg, #F8FAFC, #9CA3AF);
             color: #111827;
-        }
         
+            box-shadow:
+                0 7px 14px rgba(148,163,184,0.20),
+                inset 0 1px 0 rgba(255,255,255,0.34);
+        }
+                
         .rank-pos.bronze {
-            width: 37px;
-            height: 37px;
+            width: 38px;
+            height: 38px;
         
             background: linear-gradient(135deg, #CD7F32, #9A5A22);
             color: white;
+        
+            box-shadow:
+                0 7px 14px rgba(205,127,50,0.22),
+                inset 0 1px 0 rgba(255,255,255,0.22);
         }
         
         /* ============================================================
@@ -1604,7 +1635,19 @@ def render_inicio(
         .ranking-row.top-1 .player-name,
         .ranking-row.top-2 .player-name,
         .ranking-row.top-3 .player-name {
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 900;
+        }
+        .ranking-row.top-1 .player-name {
+            color: #7c4a03;
+        }
+        
+        .ranking-row.top-2 .player-name {
+            color: #334155;
+        }
+        
+        .ranking-row.top-3 .player-name {
+            color: #8a4b22;
         }
         
         .player-sub {
@@ -1678,7 +1721,18 @@ def render_inicio(
         .ranking-row.top-1 .points-main,
         .ranking-row.top-2 .points-main,
         .ranking-row.top-3 .points-main {
-            font-size: 24px;
+            font-size: 26px;
+        }
+        .ranking-row.top-1 .points-main {
+            color: #7c4a03;
+        }
+        
+        .ranking-row.top-2 .points-main {
+            color: #334155;
+        }
+        
+        .ranking-row.top-3 .points-main {
+            color: #8a4b22;
         }
         
         .points-label {
@@ -1779,9 +1833,12 @@ def render_inicio(
         </style>
         """
         
-        ranking_css = ranking_css.replace(
-            "__FONDO_CARD_INICIO__",
-            FONDO_CARD_INICIO
+        ranking_css = (
+            ranking_css
+            .replace("__FONDO_CARD_INICIO__", FONDO_CARD_INICIO)
+            .replace("__FONDO_CARD_GOLD__", FONDO_CARD_GOLD)
+            .replace("__FONDO_CARD_SILVER__", FONDO_CARD_SILVER)
+            .replace("__FONDO_CARD_BRONCE__", FONDO_CARD_BRONCE)
         )
         
         st.markdown(ranking_css, unsafe_allow_html=True)
