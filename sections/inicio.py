@@ -1415,7 +1415,7 @@ def render_inicio(
                 linear-gradient(
                     180deg,
                     rgba(255,250,230,0.54),
-                    rgba(255,245,210,0.34)
+                    rgba(255,245,210,0.54)
                 ),
                 url('__FONDO_CARD_GOLD__');
         
