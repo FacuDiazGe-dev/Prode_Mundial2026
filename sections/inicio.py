@@ -721,26 +721,23 @@ def render_inicio(
     }
 
     .pod-rank-badge {
-        position: absolute;
-        top: -4px;
-        right: -6px;
-
-        width: 28px;
-        height: 28px;
-
-        border-radius: 50%;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        font-family: 'Montserrat', sans-serif;
-        font-size: 13px;
-        font-weight: 900;
-
-        box-shadow:
-            0 6px 12px rgba(0,0,0,0.36),
-            inset 0 1px 0 rgba(255,255,255,0.30);
+        width: 22px !important;
+        height: 22px !important;
+        min-width: 22px !important;
+        min-height: 22px !important;
+        max-width: 22px !important;
+        max-height: 22px !important;
+    
+        aspect-ratio: 1 / 1 !important;
+        border-radius: 50% !important;
+    
+        font-size: 10px;
+        line-height: 1 !important;
+    
+        top: -2px !important;
+        right: -5px !important;
+    
+        padding: 0 !important;
     }
 
     .pod-rank-badge.gold {
