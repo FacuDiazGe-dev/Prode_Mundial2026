@@ -1178,6 +1178,8 @@ def render_inicio(
     """, unsafe_allow_html=True)
 
     FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+    FONDO_CARD_INICIO2 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO2.png"
+    FONDO_CARD_INICIO3 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO3.png"
     FONDO_CARD_GOLD = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_GOLD3.png"
     FONDO_CARD_SILVER = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_SILVER.png"
     FONDO_CARD_BRONCE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_BRONCE.png"
@@ -2500,7 +2502,10 @@ def render_inicio(
         
         news_css = news_css.replace(
             "__FONDO_CARD_INICIO__",
-            FONDO_CARD_INICIO
+            FONDO_CARD_INICIO,
+            "__FONDO_CARD_INICIO2__",
+            FONDO_CARD_INICIO2
+            
         )
         
         st.markdown(news_css, unsafe_allow_html=True)
@@ -3327,7 +3332,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                     rgba(255,255,255,0.78),
                     rgba(248,250,252,0.64)
                 ),
-                url('__FONDO_CARD_INICIO__');
+                url('__FONDO_CARD_INICIO2__');
         
             background-size: cover;
             background-position: center;
