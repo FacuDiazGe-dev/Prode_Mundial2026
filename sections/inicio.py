@@ -2500,11 +2500,12 @@ def render_inicio(
         </style>
         """
         
-        news_css = news_css.replace(
-            "__FONDO_CARD_INICIO__",
-            FONDO_CARD_INICIO            
-        )
-        
+        news_css = (
+            news_css
+            .replace("__FONDO_CARD_INICIO__",FONDO_CARD_INICIO)
+            .replace("__FONDO_CARD_INICIO2__",FONDO_CARD_INICIO2)
+            )
+                
         st.markdown(news_css, unsafe_allow_html=True)
 
         NEWS_FALLBACK_IMG = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
