@@ -75,6 +75,8 @@ def render_inicio(
     # Máximo 3 visibles + contador si hay más.
     # ============================================================
 
+    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+
     usuario_actual = st.session_state["user_data"]["USUARIO"]
 
     BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
@@ -219,6 +221,8 @@ def render_inicio(
 
     hero_badges_html = build_hero_badges_html(usuario_actual)
     pos_badge_class = "has-badges" if hero_badges_html else "no-badges"
+
+    
       
     # --- 2. HTML Y CSS COMPACTO ---
     
@@ -2074,213 +2078,413 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
 # Reemplaza el bloque actual de Resultados de la Fecha
 # ============================================================
 
-# ============================================================
-# RESULTADOS DE LA FECHA — CARD INTEGRADA
-# ============================================================
+        # ============================================================
+        # RESULTADOS DE LA FECHA — CARD INTEGRADA
+        # ============================================================
 
-        st.markdown("""
+        st.markdown(f"""
         <style>
-        .matches-panel {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 14px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-        }
+        /* ============================================================
+           RESULTADOS OFICIALES — PANEL PREMIUM TEXTURADO
+        ============================================================ */
         
-        .matches-panel-header {
+        .matches-panel {{
+            position: relative;
+            overflow: hidden;
+        
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.92),
+                    rgba(248,250,252,0.88)
+                ),
+                url('{FONDO_CARD_INICIO}');
+        
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        
+            border: 1px solid rgba(203,213,225,0.92);
+            border-radius: 20px;
+        
+            padding: 15px;
+        
+            box-shadow:
+                0 16px 36px rgba(15,23,42,0.075),
+                inset 0 1px 0 rgba(255,255,255,0.82);
+        }}
+        
+        .matches-panel::before {{
+            content: "";
+        
+            position: absolute;
+            inset: 0;
+        
+            background:
+                radial-gradient(
+                    circle at 0% 0%,
+                    rgba(244,197,66,0.12),
+                    transparent 34%
+                ),
+                linear-gradient(
+                    135deg,
+                    rgba(255,255,255,0.76),
+                    rgba(255,255,255,0.46)
+                );
+        
+            pointer-events: none;
+            z-index: 0;
+        }}
+        
+        .matches-panel > * {{
+            position: relative;
+            z-index: 1;
+        }}
+        
+        .matches-panel-header {{
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 4px 4px 14px 4px;
-            margin-bottom: 8px;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
-        }
+            gap: 11px;
         
-        .matches-panel-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 10px;
+            padding: 5px 5px 14px 5px;
+            margin-bottom: 10px;
+        
+            border-bottom: 1px solid rgba(148,163,184,0.30);
+        }}
+        
+        .matches-panel-icon {{
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+        
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(30, 64, 175, 0.10);
-            color: #0f172a;
-            font-size: 16px;
-        }
         
-        .matches-panel-title {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(30,64,175,0.12),
+                    rgba(15,23,42,0.06)
+                );
+        
+            border: 1px solid rgba(30,64,175,0.14);
+        
+            color: #0f172a;
+            font-size: 17px;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.78),
+                0 6px 14px rgba(15,23,42,0.06);
+        }}
+        
+        .matches-panel-title {{
             font-family: 'Montserrat', sans-serif;
             font-size: 17px;
             font-weight: 900;
             color: #0f172a;
+        
             text-transform: uppercase;
             letter-spacing: 0.01em;
-        }
+        }}
         
-        .matches-scroll {
+        .matches-scroll {{
             height: 315px;
             overflow-y: auto;
             padding-right: 6px;
-        }
+        }}
         
-        .matches-scroll::-webkit-scrollbar {
+        .matches-scroll::-webkit-scrollbar {{
             width: 6px;
-        }
+        }}
         
-        .matches-scroll::-webkit-scrollbar-track {
-            background: rgba(226, 232, 240, 0.55);
+        .matches-scroll::-webkit-scrollbar-track {{
+            background: rgba(226,232,240,0.55);
             border-radius: 999px;
-        }
+        }}
         
-        .matches-scroll::-webkit-scrollbar-thumb {
-            background: rgba(15, 23, 42, 0.22);
+        .matches-scroll::-webkit-scrollbar-thumb {{
+            background: rgba(15,23,42,0.24);
             border-radius: 999px;
-        }
+        }}
         
-        .match-card {
+        /* ============================================================
+           MINI CARD DE PARTIDO
+        ============================================================ */
+        
+        .match-card {{
+            position: relative;
+            overflow: hidden;
+        
             padding: 12px 13px;
-            margin-bottom: 9px;
-            border-radius: 15px;
-            background: rgba(248, 250, 252, 0.92);
-            border: 1px solid rgba(226, 232, 240, 0.85);
-            transition: all 0.18s ease;
-        }
+            margin-bottom: 10px;
         
-        .match-card:hover {
+            border-radius: 16px;
+        
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.86),
+                    rgba(248,250,252,0.76)
+                );
+        
+            border: 1px solid rgba(203,213,225,0.86);
+        
+            box-shadow:
+                0 8px 18px rgba(15,23,42,0.055),
+                inset 0 1px 0 rgba(255,255,255,0.75);
+        
+            transition:
+                transform 0.18s ease,
+                box-shadow 0.18s ease,
+                border-color 0.18s ease;
+        }}
+        
+        .match-card::before {{
+            content: "";
+        
+            position: absolute;
+            inset: 0;
+        
+            background:
+                radial-gradient(
+                    circle at 0% 0%,
+                    rgba(244,197,66,0.08),
+                    transparent 38%
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.36),
+                    transparent
+                );
+        
+            pointer-events: none;
+        }}
+        
+        .match-card:hover {{
             transform: translateY(-1px);
-            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-        }
+            border-color: rgba(244,197,66,0.36);
         
-        .match-meta {
+            box-shadow:
+                0 12px 24px rgba(15,23,42,0.09),
+                0 0 14px rgba(244,197,66,0.10),
+                inset 0 1px 0 rgba(255,255,255,0.82);
+        }}
+        
+        .match-card > * {{
+            position: relative;
+            z-index: 1;
+        }}
+        
+        .match-meta {{
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 11px;
-            font-size: 10px;
-            font-weight: 900;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
         
-        .match-body {
+            margin-bottom: 11px;
+        
+            font-size: 9.5px;
+            font-weight: 900;
+            color: #64748b;
+        
+            text-transform: uppercase;
+            letter-spacing: 0.065em;
+        }}
+        
+        .match-meta span:first-child {{
+            color: #334155;
+        }}
+        
+        .match-meta span:last-child {{
+            color: #64748b;
+        }}
+        
+        .match-body {{
             display: grid;
-            grid-template-columns: 1fr 72px 1fr;
+            grid-template-columns: minmax(0, 1fr) 74px minmax(0, 1fr);
             align-items: center;
             gap: 12px;
-        }
+        }}
         
-        .team-side {
+        .team-side {{
             display: flex;
             align-items: center;
             gap: 8px;
             min-width: 0;
-        }
+        }}
         
-        .team-side.left {
+        .team-side.left {{
             justify-content: flex-end;
             text-align: right;
-        }
+        }}
         
-        .team-side.right {
+        .team-side.right {{
             justify-content: flex-start;
             text-align: left;
-        }
+        }}
         
-        .team-name {
+        .team-name {{
             font-family: 'Inter', sans-serif;
             font-size: 13px;
             font-weight: 900;
             color: #0f172a;
+        
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
+        }}
         
-        .flag-img {
-            width: 28px;
-            height: 20px;
+        .flag-img {{
+            width: 30px;
+            height: 21px;
+        
             object-fit: cover;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(15, 23, 42, 0.16);
-            flex-shrink: 0;
-        }
+            border-radius: 5px;
         
-        .flag-fallback {
+            border: 1px solid rgba(255,255,255,0.85);
+        
+            box-shadow:
+                0 3px 7px rgba(15,23,42,0.18),
+                inset 0 1px 0 rgba(255,255,255,0.42);
+        
+            flex-shrink: 0;
+        }}
+        
+        .flag-fallback {{
             font-size: 20px;
             flex-shrink: 0;
-        }
+        }}
         
-        .score-pill {
-            background: #07111F;
+        /* ============================================================
+           MARCADOR / VS
+        ============================================================ */
+        
+        .score-pill {{
+            position: relative;
+            overflow: hidden;
+        
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(244,197,66,0.22),
+                    transparent 48%
+                ),
+                linear-gradient(
+                    180deg,
+                    #0f172a,
+                    #07111F
+                );
+        
             color: #f8fafc;
-            border-radius: 10px;
-            padding: 7px 8px;
+        
+            border-radius: 12px;
+            padding: 8px 8px;
+        
             text-align: center;
+        
             font-family: 'Montserrat', sans-serif;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 900;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
+        
+            border: 1px solid rgba(244,197,66,0.30);
+        
             box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.08),
-                0 6px 16px rgba(7,17,31,0.16);
-        }
+                inset 0 1px 0 rgba(255,255,255,0.10),
+                0 7px 16px rgba(7,17,31,0.20),
+                0 0 12px rgba(244,197,66,0.10);
+        }}
         
-        .score-pill.pending {
-            background: rgba(7,17,31,0.08);
-            color: #64748b;
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            box-shadow: none;
-        }
+        .score-pill.pending {{
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(15,23,42,0.08),
+                    rgba(15,23,42,0.045)
+                );
         
-        .matches-empty {
+            color: #475569;
+        
+            border: 1px solid rgba(148,163,184,0.36);
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.72),
+                0 5px 12px rgba(15,23,42,0.05);
+        }}
+        
+        .matches-empty {{
             height: 245px;
+        
             display: flex;
             align-items: center;
             justify-content: center;
+        
             text-align: center;
             color: #94a3b8;
+        
             font-size: 13px;
             font-weight: 800;
-        }
         
-        @media (max-width: 768px) {
-            .matches-panel {
+            background: rgba(248,250,252,0.74);
+            border: 1px solid rgba(226,232,240,0.85);
+            border-radius: 15px;
+        }}
+        
+        /* ============================================================
+           MOBILE
+        ============================================================ */
+        
+        @media (max-width: 768px) {{
+            .matches-panel {{
                 padding: 12px;
-            }
+                border-radius: 17px;
+            }}
         
-            .matches-panel-title {
+            .matches-panel-title {{
                 font-size: 15px;
-            }
+            }}
         
-            .matches-scroll {
+            .matches-panel-icon {{
+                width: 31px;
+                height: 31px;
+                border-radius: 11px;
+            }}
+        
+            .matches-scroll {{
                 height: 315px;
-            }
+            }}
         
-            .match-body {
-                grid-template-columns: 1fr 62px 1fr;
+            .match-card {{
+                padding: 11px 10px;
+                border-radius: 15px;
+            }}
+        
+            .match-body {{
+                grid-template-columns: minmax(0, 1fr) 62px minmax(0, 1fr);
                 gap: 8px;
-            }
+            }}
         
-            .team-name {
+            .team-name {{
                 font-size: 12px;
-            }
+            }}
         
-            .flag-img {
-                width: 24px;
-                height: 17px;
-            }
+            .flag-img {{
+                width: 25px;
+                height: 18px;
+                border-radius: 4px;
+            }}
         
-            .score-pill {
-                font-size: 14px;
+            .score-pill {{
+                font-size: 13px;
                 padding: 7px 6px;
-            }
+                border-radius: 10px;
+            }}
         
-            .match-meta {
-                font-size: 9px;
-            }
-        }
+            .match-meta {{
+                font-size: 8.8px;
+                margin-bottom: 10px;
+            }}
+        }}
         </style>
         """, unsafe_allow_html=True)
         
