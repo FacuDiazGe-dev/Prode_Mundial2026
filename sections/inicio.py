@@ -3288,6 +3288,8 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         /* ============================================================
            ÁREA DE MENSAJES
         ============================================================ */
+
+    
         
         .chat-scroll {
             position: relative;
@@ -3506,6 +3508,55 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             font-weight: 700;
             text-align: center;
         }
+
+        .chat-img-link {
+                display: block;
+                margin-top: 8px;
+                text-decoration: none;
+            }
+            
+            .chat-img-preview {
+                width: 100%;
+                max-width: 260px;
+                max-height: 180px;
+            
+                object-fit: cover;
+                display: block;
+            
+                border-radius: 13px;
+            
+                border: 1px solid rgba(203,213,225,0.92);
+            
+                box-shadow:
+                    0 7px 16px rgba(15,23,42,0.12),
+                    inset 0 1px 0 rgba(255,255,255,0.50);
+            
+                transition:
+                    transform 0.18s ease,
+                    box-shadow 0.18s ease,
+                    border-color 0.18s ease;
+            }
+            
+            .chat-img-preview:hover {
+                transform: translateY(-1px);
+            
+                border-color: rgba(244,197,66,0.52);
+            
+                box-shadow:
+                    0 10px 22px rgba(15,23,42,0.16),
+                    0 0 14px rgba(244,197,66,0.10);
+            }
+            
+            .chat-row.me .chat-img-preview {
+                border-color: rgba(244,197,66,0.42);
+            }
+            
+            @media (max-width: 768px) {
+                .chat-img-preview {
+                    max-width: 220px;
+                    max-height: 150px;
+                }
+            }
         
         /* ============================================================
            FORMULARIO COMO FOOTER OSCURO
@@ -3744,6 +3795,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 nombre_raw = msg.get("NOMBRE", "")
                 hora_raw = msg.get("HORA", "")
                 mensaje_raw = msg.get("MENSAJE", "")
+                img_raw = msg.get("FORO_IMG_URL", "")
         
                 nombre_msg = (
                     str(nombre_raw)
@@ -3761,6 +3813,14 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 )
         
                 mensaje = escape(str(mensaje_raw)) if pd.notna(mensaje_raw) else ""
+                
+                img_url = ""
+
+                if pd.notna(img_raw):
+                    img_url = str(img_raw).strip()
+                
+                if img_url.lower() == "nan":
+                    img_url = ""
         
                 es_propio = usuario_msg == st.session_state["user_data"]["USUARIO"]
         
@@ -3783,6 +3843,16 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
                 chat_html += '</div>'
                 chat_html += f'<div class="chat-message">{mensaje}</div>'
+                
+                if img_url:
+                    img_safe = escape(img_url, quote=True)
+                
+                    chat_html += f"""
+                <a href="{img_safe}" target="_blank" class="chat-img-link" title="Abrir imagen">
+                    <img src="{img_safe}" class="chat-img-preview" loading="lazy">
+                </a>
+                """
+                
                 chat_html += '</div></div>'
         
         chat_html += '</div></div>'  # cierra chat-scroll y chat-panel
