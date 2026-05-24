@@ -1178,7 +1178,7 @@ def render_inicio(
     """, unsafe_allow_html=True)
 
     FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
-    FONDO_CARD_GOLD = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_GOLD2.png"
+    FONDO_CARD_GOLD = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_GOLD.png"
     FONDO_CARD_SILVER = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_SILVER.png"
     FONDO_CARD_BRONCE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_BRONCE.png"
 
@@ -1414,8 +1414,8 @@ def render_inicio(
                 ),
                 linear-gradient(
                     180deg,
-                    rgba(255,250,230,0.74),
-                    rgba(255,245,210,0.54)
+                    rgba(255,250,230,0.54),
+                    rgba(255,245,210,0.34)
                 ),
                 url('__FONDO_CARD_GOLD__');
         
