@@ -2086,21 +2086,16 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
            RESULTADOS OFICIALES — PANEL PREMIUM TEXTURADO
         ============================================================ */
         
-        .matches-panel {{
+        .matches-panel {
             position: relative;
             overflow: hidden;
         
             background:
                 linear-gradient(
                     180deg,
-                    rgba(255,255,255,0.76),
-                    rgba(248,250,252,0.46)
-                ),
-                url('{FONDO_CARD_INICIO}');
-        
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+                    rgba(255,255,255,0.96),
+                    rgba(248,250,252,0.92)
+                );
         
             border: 1px solid rgba(203,213,225,0.92);
             border-radius: 20px;
@@ -2110,9 +2105,9 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             box-shadow:
                 0 16px 36px rgba(15,23,42,0.075),
                 inset 0 1px 0 rgba(255,255,255,0.82);
-        }}
+        }
         
-        .matches-panel::before {{
+        .matches-panel::before {
             content: "";
         
             position: absolute;
@@ -2121,18 +2116,13 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             background:
                 radial-gradient(
                     circle at 0% 0%,
-                    rgba(244,197,66,0.12),
-                    transparent 34%
-                ),
-                linear-gradient(
-                    135deg,
-                    rgba(255,255,255,0.76),
-                    rgba(255,255,255,0.46)
+                    rgba(244,197,66,0.08),
+                    transparent 36%
                 );
         
             pointer-events: none;
             z-index: 0;
-        }}
+        }
         
         .matches-panel > * {{
             position: relative;
@@ -2210,7 +2200,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
            MINI CARD DE PARTIDO
         ============================================================ */
         
-        .match-card {{
+        .match-card {
             position: relative;
             overflow: hidden;
         
@@ -2222,11 +2212,16 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             background:
                 linear-gradient(
                     180deg,
-                    rgba(255,255,255,0.86),
-                    rgba(248,250,252,0.76)
-                );
+                    rgba(255,255,255,0.72),
+                    rgba(248,250,252,0.58)
+                ),
+                url('{FONDO_CARD_INICIO}');
         
-            border: 1px solid rgba(203,213,225,0.86);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        
+            border: 1px solid rgba(148,163,184,0.38);
         
             box-shadow:
                 0 8px 18px rgba(15,23,42,0.055),
@@ -2236,9 +2231,9 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 transform 0.18s ease,
                 box-shadow 0.18s ease,
                 border-color 0.18s ease;
-        }}
+        }
         
-        .match-card::before {{
+        .match-card::before {
             content: "";
         
             position: absolute;
@@ -2247,21 +2242,21 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             background:
                 radial-gradient(
                     circle at 0% 0%,
-                    rgba(244,197,66,0.08),
+                    rgba(244,197,66,0.10),
                     transparent 38%
                 ),
                 linear-gradient(
                     90deg,
-                    rgba(255,255,255,0.36),
-                    transparent
+                    rgba(255,255,255,0.28),
+                    rgba(255,255,255,0.10)
                 );
         
             pointer-events: none;
-        }}
+        }
         
         .match-card:hover {{
             transform: translateY(-1px);
-            border-color: rgba(244,197,66,0.36);
+            border-color: rgba(244,197,66,0.48);
         
             box-shadow:
                 0 12px 24px rgba(15,23,42,0.09),
