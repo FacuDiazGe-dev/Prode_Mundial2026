@@ -2482,13 +2482,13 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
 </div>
 {card_close}
 """
-        if st.button(
-            "Ver más en Comunidad ›",
-            use_container_width=True,
-            key="btn_inicio_ver_mas_comunidad"
-        ):
-            st.session_state["seccion"] = "Comunidad"
-            st.rerun()
+                if st.button(
+                    "Ver más en Comunidad ›",
+                    use_container_width=True,
+                    key="btn_inicio_ver_mas_comunidad"
+                ):
+                    st.session_state["seccion"] = "Comunidad"
+                    st.rerun()
             
         st.markdown(news_html, unsafe_allow_html=True)       
 
