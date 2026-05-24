@@ -1132,7 +1132,7 @@ def render_inicio(
         </style>
         """, unsafe_allow_html=True)
         
-        from html import escape
+        
         
         def clase_medalla(posicion_num):
             if posicion_num == 1:
@@ -1915,7 +1915,6 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         </style>
         """, unsafe_allow_html=True)
         
-        from html import escape
         
         def flag_html(flag_value):
             flag_value = str(flag_value)
@@ -2203,7 +2202,6 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         </style>
         """, unsafe_allow_html=True)
         
-        from html import escape
                
         columnas_foro = [
             "FECHA",
