@@ -650,20 +650,24 @@ def render_inicio(
         top: -62px;
     }
 
-    .pod-avatar {
-        display: block;
+    .pod-avatar.gold {
+        display: block !important;
     
-        aspect-ratio: 1 / 1;
-        border-radius: 50%;
+        aspect-ratio: 1 / 1 !important;
+        border-radius: 50% !important;
     
-        object-fit: cover;
-        object-position: center;
+        object-fit: cover !important;
+        object-position: center !important;
     
-        box-sizing: border-box;
+        box-sizing: border-box !important;
         background: #F8FAFC;
     
-        max-width: none;
-        flex-shrink: 0;
+        max-width: none !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+    
+        flex: 0 0 auto !important;
+        align-self: center !important;
     
         box-shadow:
             0 12px 30px rgba(0,0,0,0.58),
@@ -671,8 +675,12 @@ def render_inicio(
     }
 
     .pod-avatar.gold {
-        width: 112px;
-        height: 112px;
+        width: 112px !important;
+        height: 112px !important;
+        min-width: 112px !important;
+        min-height: 112px !important;
+        max-width: 112px !important;
+        max-height: 112px !important;
 
         border: 6px solid #F4C542;
 
@@ -683,8 +691,12 @@ def render_inicio(
     }
 
     .pod-avatar.silver {
-        width: 88px;
-        height: 88px;
+        width: 88px !important;
+        height: 88px !important;
+        min-width: 88px !important;
+        min-height: 88px !important;
+        max-width: 88px !important;
+        max-height: 88px !important;
 
         border: 5px solid #E5E7EB;
 
@@ -694,8 +706,12 @@ def render_inicio(
     }
 
     .pod-avatar.bronze {
-        width: 88px;
-        height: 88px;
+        width: 88px !important;
+        height: 88px !important;
+        min-width: 88px !important;
+        min-height: 88px !important;
+        max-width: 88px !important;
+        max-height: 88px !important;
 
         border: 5px solid #CD7F32;
 
@@ -974,18 +990,25 @@ def render_inicio(
         }
 
         .pod-avatar.gold {
-            width: 82px;
-            height: 82px;
+            width: 82px !important;
+            height: 82px !important;
+            min-width: 82px !important;
+            min-height: 82px !important;
+            max-width: 82px !important;
+            max-height: 82px !important;
             border-width: 5px;
         }
-
+        
         .pod-avatar.silver,
         .pod-avatar.bronze {
-            width: 66px;
-            height: 66px;
+            width: 66px !important;
+            height: 66px !important;
+            min-width: 66px !important;
+            min-height: 66px !important;
+            max-width: 66px !important;
+            max-height: 66px !important;
             border-width: 4px;
         }
-
         .pod-rank-badge {
             width: 22px;
             height: 22px;
