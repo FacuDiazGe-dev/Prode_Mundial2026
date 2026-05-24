@@ -2548,12 +2548,12 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             z-index: 0;
         }}
         
-        .matches-panel > * {
+        .matches-panel > * {{
             position: relative;
             z-index: 1;
-        }
+        }}
         
-        .matches-panel-header {
+        .matches-panel-header {{
             display: flex;
             align-items: center;
             gap: 11px;
@@ -2562,7 +2562,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             margin-bottom: 10px;
         
             border-bottom: 1px solid rgba(148,163,184,0.30);
-        }
+        }}
         
         .matches-panel-icon {{
             width: 34px;
