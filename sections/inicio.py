@@ -35,15 +35,30 @@ def render_inicio(
     def get_pod_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
-            u_info = df_usuarios[df_usuarios['USUARIO'] == row['USUARIO']]
-            foto = u_info['AVATAR_URL'].values[0] if not u_info.empty and pd.notna(u_info['AVATAR_URL'].values[0]) else AVATAR_GENERICO
-            nombre = str(row['JUGADOR']).split(' ')[0]
-            return nombre, int(row['PUNTOS']), foto
-        return "-", 0, AVATAR_GENERICO
+    
+            u_info = df_usuarios[
+                df_usuarios["USUARIO"] == row["USUARIO"]
+            ]
+    
+            foto = (
+                u_info["AVATAR_URL"].values[0]
+                if not u_info.empty
+                and pd.notna(u_info["AVATAR_URL"].values[0])
+                else AVATAR_GENERICO
+            )
+    
+            nombre = str(row.get("JUGADOR", "-")).split(" ")[0]
+            puntos = int(row.get("PUNTOS", 0))
+            exactos = int(row.get("EXACTOS", 0))
+            generales = int(row.get("GENERALES", 0))
+    
+            return nombre, puntos, foto, exactos, generales
+    
+        return "-", 0, AVATAR_GENERICO, 0, 0
 
-    n1, p1, f1 = get_pod_data(0)
-    n2, p2, f2 = get_pod_data(1)
-    n3, p3, f3 = get_pod_data(2)
+    n1, p1, f1, e1, g1 = get_pod_data(0)
+    n2, p2, f2, e2, g2 = get_pod_data(1)
+    n3, p3, f3, e3, g3 = get_pod_data(2)
 
     try:
         row_user = df_ranking[df_ranking['USUARIO'] == st.session_state['user_data']['USUARIO']]
@@ -448,131 +463,356 @@ def render_inicio(
             0 6px 12px rgba(0,0,0,0.22);
     }
     
+    /* ============================================================
+       PODIO PREMIUM — TOP 3
+    ============================================================ */
+
     .podium-section {
+        position: relative;
+
         display: flex;
         justify-content: center;
         align-items: flex-end;
-        gap: 30px;
-        padding: 12px 10px 4px 10px;
+        gap: 22px;
+
+        padding: 54px 12px 20px 12px;
+        min-height: 230px;
     }
-    
-    .pod-item {
-        text-align: center;
+
+    .podium-section::before {
+        content: "";
+
+        position: absolute;
+        left: 50%;
+        bottom: 8px;
+        transform: translateX(-50%);
+
+        width: 78%;
+        height: 42px;
+
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255,255,255,0.08),
+                rgba(7,17,31,0.92)
+            );
+
+        border: 1px solid rgba(244,197,66,0.28);
+
+        box-shadow:
+            0 16px 32px rgba(0,0,0,0.42),
+            inset 0 1px 0 rgba(255,255,255,0.10),
+            0 0 24px rgba(244,197,66,0.12);
+
+        z-index: 0;
+    }
+
+    .podium-section::after {
+        content: "TOP 3 PREDICTORES";
+
+        position: absolute;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%);
+
+        font-family: 'Montserrat', sans-serif;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.34em;
+        color: rgba(244,197,66,0.72);
+
+        text-shadow: 0 2px 8px rgba(0,0,0,0.55);
+
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .pod-card {
         position: relative;
-        width: 128px;
+        z-index: 2;
+
+        width: 136px;
+        min-height: 132px;
+
         display: flex;
         flex-direction: column;
         align-items: center;
-    }
-    
-    .pod-first {
-        transform: translateY(-20px);
-    }
-    
-    .av-wrap {
-        position: relative;
-        display: inline-block;
-    }
-    
-    .av-img {
-        border-radius: 50%;
-        object-fit: cover;
-        box-sizing: border-box;
-        background: #07111F;
-    
-        border: 4px solid rgba(255,255,255,0.35);
-    
+        justify-content: flex-end;
+
+        padding: 58px 12px 14px 12px;
+
+        border-radius: 18px;
+
+        background:
+            radial-gradient(
+                circle at 50% 0%,
+                rgba(255,255,255,0.10),
+                transparent 38%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(15,23,42,0.84),
+                rgba(7,17,31,0.96)
+            );
+
+        border: 1px solid rgba(255,255,255,0.16);
+
         box-shadow:
-            0 10px 28px rgba(0,0,0,0.55),
-            0 0 0 1px rgba(255,255,255,0.08);
+            0 16px 30px rgba(0,0,0,0.36),
+            inset 0 1px 0 rgba(255,255,255,0.10);
+
+        backdrop-filter: blur(4px);
     }
-    
-    .av-first {
-        border: 5px solid #F4C542 !important;
+
+    .pod-card.first {
+        width: 152px;
+        min-height: 154px;
+        padding-top: 72px;
+
+        transform: translateY(-24px);
+
+        border-color: rgba(244,197,66,0.68);
+
         box-shadow:
-            0 12px 34px rgba(0,0,0,0.62),
-            0 0 22px rgba(244,197,66,0.40),
-            0 0 0 1px rgba(255,255,255,0.18);
+            0 20px 40px rgba(0,0,0,0.45),
+            0 0 26px rgba(244,197,66,0.24),
+            inset 0 1px 0 rgba(255,255,255,0.14);
     }
-    
-    .av-second {
-        border: 4px solid #C0C0C0 !important;
-        box-shadow:
-            0 10px 28px rgba(0,0,0,0.55),
-            0 0 12px rgba(192,192,192,0.25);
+
+    .pod-card.second {
+        border-color: rgba(229,231,235,0.48);
     }
-    
-    .av-third {
-        border: 4px solid #CD7F32 !important;
-        box-shadow:
-            0 10px 28px rgba(0,0,0,0.55),
-            0 0 12px rgba(205,127,50,0.25);
+
+    .pod-card.third {
+        border-color: rgba(205,127,50,0.62);
     }
-    
-    .b-rank {
+
+    .pod-card::after {
+        content: "";
+
         position: absolute;
-        top: 2px;
-        right: 2px;
-    
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-    
+        left: 18px;
+        right: 18px;
+        bottom: -9px;
+
+        height: 14px;
+        border-radius: 0 0 18px 18px;
+
+        background: rgba(7,17,31,0.94);
+        border: 1px solid rgba(255,255,255,0.10);
+        border-top: none;
+
+        box-shadow:
+            0 10px 18px rgba(0,0,0,0.30),
+            inset 0 1px 0 rgba(255,255,255,0.06);
+
+        z-index: -1;
+    }
+
+    .pod-card.first::after {
+        border-color: rgba(244,197,66,0.45);
+        box-shadow:
+            0 12px 20px rgba(0,0,0,0.36),
+            0 0 18px rgba(244,197,66,0.18);
+    }
+
+    .pod-avatar-wrap {
+        position: absolute;
+        top: -48px;
+        left: 50%;
+        transform: translateX(-50%);
+
         display: flex;
         align-items: center;
         justify-content: center;
-    
-        font-size: 10px;
-        font-weight: 900;
-        z-index: 10;
-    
+    }
+
+    .pod-card.first .pod-avatar-wrap {
+        top: -62px;
+    }
+
+    .pod-avatar {
+        border-radius: 50%;
+        object-fit: cover;
+        box-sizing: border-box;
+        background: #F8FAFC;
+
         box-shadow:
-            0 4px 10px rgba(0,0,0,0.35),
+            0 12px 30px rgba(0,0,0,0.58),
             inset 0 1px 0 rgba(255,255,255,0.25);
     }
-    
-    .b-gold {
+
+    .pod-avatar.gold {
+        width: 112px;
+        height: 112px;
+
+        border: 6px solid #F4C542;
+
+        box-shadow:
+            0 14px 34px rgba(0,0,0,0.64),
+            0 0 30px rgba(244,197,66,0.52),
+            inset 0 1px 0 rgba(255,255,255,0.30);
+    }
+
+    .pod-avatar.silver {
+        width: 88px;
+        height: 88px;
+
+        border: 5px solid #E5E7EB;
+
+        box-shadow:
+            0 12px 28px rgba(0,0,0,0.56),
+            0 0 18px rgba(229,231,235,0.30);
+    }
+
+    .pod-avatar.bronze {
+        width: 88px;
+        height: 88px;
+
+        border: 5px solid #CD7F32;
+
+        box-shadow:
+            0 12px 28px rgba(0,0,0,0.56),
+            0 0 18px rgba(205,127,50,0.34);
+    }
+
+    .pod-rank-badge {
+        position: absolute;
+        top: -4px;
+        right: -6px;
+
+        width: 28px;
+        height: 28px;
+
+        border-radius: 50%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-family: 'Montserrat', sans-serif;
+        font-size: 13px;
+        font-weight: 900;
+
+        box-shadow:
+            0 6px 12px rgba(0,0,0,0.36),
+            inset 0 1px 0 rgba(255,255,255,0.30);
+    }
+
+    .pod-rank-badge.gold {
         background: linear-gradient(135deg, #FFD700, #F4A900);
         color: #111827;
     }
-    
-    .b-silver {
-        background: linear-gradient(135deg, #E5E7EB, #9CA3AF);
+
+    .pod-rank-badge.silver {
+        background: linear-gradient(135deg, #F8FAFC, #9CA3AF);
         color: #111827;
     }
-    
-    .b-bronze {
-        background: linear-gradient(135deg, #CD7F32, #9A5A22);
+
+    .pod-rank-badge.bronze {
+        background: linear-gradient(135deg, #E59A52, #9A5A22);
         color: white;
     }
-    
+
     .pod-name {
+        font-family: 'Montserrat', sans-serif;
         font-weight: 900;
-        font-size: 13px;
-        margin-top: 9px;
+        font-size: 15px;
+
+        margin-top: 4px;
+
         text-transform: uppercase;
         color: #F8FAFC;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.65);
+        text-shadow: 0 2px 8px rgba(0,0,0,0.68);
+
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 120px;
+        max-width: 126px;
     }
-    
+
+    .pod-card.first .pod-name {
+        color: #F4C542;
+        font-size: 17px;
+    }
+
     .pod-pts {
+        margin-top: 5px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 62px;
+        padding: 5px 9px;
+
+        border-radius: 999px;
+
+        background: rgba(7,17,31,0.78);
+        border: 1px solid rgba(244,197,66,0.30);
+
+        color: rgba(248,250,252,0.82);
+        font-family: 'Montserrat', sans-serif;
         font-size: 11px;
-        opacity: 0.66;
-        font-weight: 800;
-        margin-top: 2px;
+        font-weight: 900;
     }
-    
-    .pod-first .pod-name {
+
+    .pod-card.first .pod-pts {
         color: #F4C542;
+        border-color: rgba(244,197,66,0.48);
     }
-    
-    .pod-first .pod-pts {
-        color: #F4C542;
-        opacity: 0.9;
+
+    .pod-divider {
+        width: 72%;
+        height: 1px;
+
+        margin: 10px 0 9px 0;
+
+        background:
+            linear-gradient(
+                90deg,
+                transparent,
+                rgba(244,197,66,0.45),
+                transparent
+            );
+    }
+
+    .pod-stats {
+        width: 100%;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .pod-stat {
+        min-width: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+
+        padding: 6px 5px;
+
+        border-radius: 10px;
+
+        background: rgba(255,255,255,0.055);
+        border: 1px solid rgba(255,255,255,0.10);
+
+        color: rgba(248,250,252,0.86);
+        font-size: 10px;
+        font-weight: 900;
+
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .pod-stat span {
+        font-size: 13px;
+        line-height: 1;
     }
     
     @media (max-width: 768px) {
@@ -666,26 +906,100 @@ def render_inicio(
     
         .podium-section {
             width: 100%;
-            gap: 8px;
-            padding: 6px 0 0 0;
+            gap: 7px;
+            padding: 44px 0 18px 0;
+            min-height: 190px;
             justify-content: space-between;
         }
-    
-        .pod-item {
-            width: 33%;
+
+        .podium-section::before {
+            width: 96%;
+            height: 30px;
+            bottom: 8px;
         }
-    
-        .pod-first {
+
+        .podium-section::after {
+            font-size: 7px;
+            letter-spacing: 0.24em;
+            bottom: 18px;
+        }
+
+        .pod-card {
+            width: 31%;
+            min-height: 106px;
+            padding: 45px 6px 10px 6px;
+            border-radius: 14px;
+        }
+
+        .pod-card.first {
+            width: 34%;
+            min-height: 122px;
+            padding-top: 54px;
             transform: translateY(-10px);
         }
-    
+
+        .pod-avatar-wrap {
+            top: -34px;
+        }
+
+        .pod-card.first .pod-avatar-wrap {
+            top: -44px;
+        }
+
+        .pod-avatar.gold {
+            width: 82px;
+            height: 82px;
+            border-width: 5px;
+        }
+
+        .pod-avatar.silver,
+        .pod-avatar.bronze {
+            width: 66px;
+            height: 66px;
+            border-width: 4px;
+        }
+
+        .pod-rank-badge {
+            width: 22px;
+            height: 22px;
+            font-size: 10px;
+            top: -2px;
+            right: -5px;
+        }
+
         .pod-name {
-            font-size: 11px;
+            font-size: 10px;
             max-width: 100%;
         }
-    
+
+        .pod-card.first .pod-name {
+            font-size: 11px;
+        }
+
         .pod-pts {
-            font-size: 10px;
+            min-width: 48px;
+            padding: 4px 6px;
+            font-size: 9px;
+            margin-top: 4px;
+        }
+
+        .pod-divider {
+            margin: 7px 0 6px 0;
+        }
+
+        .pod-stats {
+            gap: 4px;
+        }
+
+        .pod-stat {
+            padding: 5px 3px;
+            border-radius: 8px;
+            font-size: 9px;
+            gap: 2px;
+        }
+
+        .pod-stat span {
+            font-size: 11px;
         }
     }
     </style>
@@ -712,31 +1026,55 @@ def render_inicio(
 
 <div class="podium-section">
 
-<div class="pod-item">
-    <div class="av-wrap">
-        <div class="b-rank b-silver">2</div>
-        <img src="__F2__" class="av-img av-second" style="width:82px; height:82px;">
-    </div>
-    <div class="pod-name">__N2__</div>
-    <div class="pod-pts">__P2__ PTS.</div>
+<div class="pod-card second">
+<div class="pod-avatar-wrap">
+    <img src="__F2__" class="pod-avatar silver" loading="lazy" alt="__N2__">
+    <div class="pod-rank-badge silver">2</div>
 </div>
 
-<div class="pod-item pod-first">
-<div class="av-wrap">
-    <div class="b-rank b-gold">1</div>
-    <img src="__F1__" class="av-img av-first" style="width:112px; height:112px;">
+<div class="pod-name">__N2__</div>
+<div class="pod-pts">__P2__ PTS.</div>
+
+<div class="pod-divider"></div>
+
+<div class="pod-stats">
+    <div class="pod-stat"><span>🎯</span>__E2__</div>
+    <div class="pod-stat"><span>✅</span>__G2__</div>
 </div>
+</div>
+
+<div class="pod-card first">
+<div class="pod-avatar-wrap">
+    <img src="__F1__" class="pod-avatar gold" loading="lazy" alt="__N1__">
+    <div class="pod-rank-badge gold">1</div>
+</div>
+
 <div class="pod-name">__N1__</div>
 <div class="pod-pts">__P1__ PTS.</div>
+
+<div class="pod-divider"></div>
+
+<div class="pod-stats">
+    <div class="pod-stat"><span>🎯</span>__E1__</div>
+    <div class="pod-stat"><span>✅</span>__G1__</div>
+</div>
 </div>
 
-<div class="pod-item">
-<div class="av-wrap">
-    <div class="b-rank b-bronze">3</div>
-    <img src="__F3__" class="av-img av-third" style="width:82px; height:82px;">
+<div class="pod-card third">
+<div class="pod-avatar-wrap">
+    <img src="__F3__" class="pod-avatar bronze" loading="lazy" alt="__N3__">
+    <div class="pod-rank-badge bronze">3</div>
 </div>
+
 <div class="pod-name">__N3__</div>
 <div class="pod-pts">__P3__ PTS.</div>
+
+<div class="pod-divider"></div>
+
+<div class="pod-stats">
+    <div class="pod-stat"><span>🎯</span>__E3__</div>
+    <div class="pod-stat"><span>✅</span>__G3__</div>
+</div>
 </div>
 
 </div>
@@ -763,6 +1101,12 @@ def render_inicio(
         .replace("__P1__", str(p1))
         .replace("__P2__", str(p2))
         .replace("__P3__", str(p3))
+        .replace("__E1__", str(e1))
+        .replace("__E2__", str(e2))
+        .replace("__E3__", str(e3))
+        .replace("__G1__", str(g1))
+        .replace("__G2__", str(g2))
+        .replace("__G3__", str(g3))
     )
     
     st.markdown(html_hero, unsafe_allow_html=True)
