@@ -2006,7 +2006,17 @@ def render_inicio(
                 clase_tier = "normal"
         
             subtitulo = "Tu posición actual" if es_usuario_actual else "Participante"
-        
+
+        # TEST TEMPORAL RANKING BADGES — BORRAR O COMENTAR DESPUÉS DE PROBAR
+        if usuario == usuario_actual:
+            badges_html = build_ranking_badges_html(
+                [
+                    "Puntero",
+                    "Sr. Prode",
+                    "Siempre Suma",
+                ]
+            )
+        else:
             badges_html = build_ranking_badges_html(
                 row.get("BADGES", [])
             )
