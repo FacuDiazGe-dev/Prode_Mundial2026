@@ -3324,8 +3324,8 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             background:
                 linear-gradient(
                     180deg,
-                    rgba(255,255,255,0.68),
-                    rgba(248,250,252,0.54)
+                    rgba(255,255,255,0.78),
+                    rgba(248,250,252,0.64)
                 ),
                 url('__FONDO_CARD_INICIO__');
         
