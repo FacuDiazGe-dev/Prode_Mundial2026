@@ -3058,18 +3058,46 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             border-bottom: none;
         }
         
+        .chat-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #0F2D63 rgba(226,232,240,0.55);
+        }
+        
         .chat-scroll::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
         
         .chat-scroll::-webkit-scrollbar-track {
-            background: rgba(226, 232, 240, 0.55);
+            background: linear-gradient(
+                180deg,
+                rgba(226,232,240,0.55),
+                rgba(241,245,249,0.85)
+            );
             border-radius: 999px;
+            box-shadow: inset 0 0 0 1px rgba(148,163,184,0.18);
         }
         
         .chat-scroll::-webkit-scrollbar-thumb {
-            background: rgba(15, 23, 42, 0.22);
+            background: linear-gradient(
+                180deg,
+                #0F2D63 0%,
+                #173F86 55%,
+                #D4A017 100%
+            );
             border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.45);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.25),
+                0 2px 6px rgba(15,23,42,0.18);
+        }
+        
+        .chat-scroll::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(
+                180deg,
+                #173F86 0%,
+                #1D4FA8 55%,
+                #E2B93B 100%
+            );
         }
         
         .chat-row {
