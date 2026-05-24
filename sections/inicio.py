@@ -1177,47 +1177,99 @@ def render_inicio(
 </style>
     """, unsafe_allow_html=True)
 
+    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+
     c_izq, c_der = st.columns([1, 1.1], gap="large")
 
 # ------------------ COLUMNA IZQUIERDA: LÍDERES Y TENDENCIAS ------------------
     with c_izq:
-        st.markdown("""
+        ranking_css = """
         <style>
+        /* ============================================================
+           RANKING GENERAL — PANEL PREMIUM TEXTURADO
+        ============================================================ */
+        
         .ranking-panel {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 14px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+            position: relative;
+            overflow: hidden;
+        
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.96),
+                    rgba(248,250,252,0.92)
+                );
+        
+            border: 1px solid rgba(203,213,225,0.92);
+            border-radius: 20px;
+        
+            padding: 15px;
+        
+            box-shadow:
+                0 16px 36px rgba(15,23,42,0.075),
+                inset 0 1px 0 rgba(255,255,255,0.82);
         
             width: 100%;
             box-sizing: border-box;
-            overflow: hidden;
+        }
+        
+        .ranking-panel::before {
+            content: "";
+        
+            position: absolute;
+            inset: 0;
+        
+            background:
+                radial-gradient(
+                    circle at 0% 0%,
+                    rgba(244,197,66,0.08),
+                    transparent 36%
+                );
+        
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .ranking-panel > * {
+            position: relative;
+            z-index: 1;
         }
         
         .ranking-panel-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 4px 4px 14px 4px;
-            margin-bottom: 8px;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+            gap: 11px;
+        
+            padding: 5px 5px 14px 5px;
+            margin-bottom: 10px;
+        
+            border-bottom: 1px solid rgba(148,163,184,0.30);
         }
         
         .ranking-panel-icon {
-            width: 30px;
-            height: 30px;
-            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
         
             display: flex;
             align-items: center;
             justify-content: center;
         
-            background: rgba(244, 197, 66, 0.16);
-            color: #0f172a;
-            font-size: 16px;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(244,197,66,0.18),
+                    rgba(244,197,66,0.07)
+                );
         
-            flex-shrink: 0;
+            border: 1px solid rgba(244,197,66,0.18);
+        
+            color: #0f172a;
+            font-size: 17px;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.78),
+                0 6px 14px rgba(15,23,42,0.06);
         }
         
         .ranking-panel-title {
@@ -1225,13 +1277,14 @@ def render_inicio(
             font-size: 17px;
             font-weight: 900;
             color: #0f172a;
+        
             text-transform: uppercase;
             letter-spacing: 0.01em;
         }
         
         /* ============================================================
-           SCROLL VERTICAL REAL
-           ============================================================ */
+           SCROLL
+        ============================================================ */
         
         .ranking-scroll {
             display: block !important;
@@ -1253,20 +1306,23 @@ def render_inicio(
         }
         
         .ranking-scroll::-webkit-scrollbar-track {
-            background: rgba(226, 232, 240, 0.55);
+            background: rgba(226,232,240,0.55);
             border-radius: 999px;
         }
         
         .ranking-scroll::-webkit-scrollbar-thumb {
-            background: rgba(15, 23, 42, 0.22);
+            background: rgba(15,23,42,0.24);
             border-radius: 999px;
         }
         
         /* ============================================================
-           FILAS DEL RANKING
-           ============================================================ */
+           FILAS BASE
+        ============================================================ */
         
         .ranking-row {
+            position: relative;
+            overflow: hidden;
+        
             width: 100% !important;
             box-sizing: border-box !important;
         
@@ -1276,13 +1332,54 @@ def render_inicio(
             gap: 12px !important;
         
             padding: 11px 12px;
-            margin-bottom: 8px;
+            margin-bottom: 9px;
         
-            border-radius: 14px;
-            background: rgba(248, 250, 252, 0.92);
-            border: 1px solid rgba(226, 232, 240, 0.85);
+            border-radius: 16px;
         
-            transition: all 0.18s ease;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.74),
+                    rgba(248,250,252,0.60)
+                ),
+                url('__FONDO_CARD_INICIO__');
+        
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        
+            border: 1px solid rgba(148,163,184,0.32);
+        
+            box-shadow:
+                0 8px 18px rgba(15,23,42,0.05),
+                inset 0 1px 0 rgba(255,255,255,0.75);
+        
+            transition:
+                transform 0.18s ease,
+                box-shadow 0.18s ease,
+                border-color 0.18s ease;
+        }
+        
+        .ranking-row::before {
+            content: "";
+        
+            position: absolute;
+            inset: 0;
+        
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.30),
+                    rgba(255,255,255,0.10)
+                );
+        
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .ranking-row > * {
+            position: relative;
+            z-index: 1;
         }
         
         .ranking-row:last-child {
@@ -1291,28 +1388,150 @@ def render_inicio(
         
         .ranking-row:hover {
             transform: translateY(-1px);
-            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+            border-color: rgba(244,197,66,0.40);
+        
+            box-shadow:
+                0 12px 24px rgba(15,23,42,0.085),
+                0 0 14px rgba(244,197,66,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.82);
         }
         
-        .ranking-row.me {
-            background:
-                linear-gradient(
-                    90deg,
-                    rgba(244, 197, 66, 0.20),
-                    rgba(255,255,255,0.96)
-                );
+        /* ============================================================
+           JERARQUÍA: TOP 3 / TOP 5 / RESTO
+        ============================================================ */
         
-            border: 1px solid rgba(244, 197, 66, 0.68);
-            box-shadow: 0 10px 25px rgba(244, 197, 66, 0.13);
+        .ranking-row.top-1 {
+            min-height: 74px;
+        
+            background:
+                radial-gradient(
+                    circle at 0% 50%,
+                    rgba(244,197,66,0.24),
+                    transparent 44%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(255,248,220,0.86),
+                    rgba(255,255,255,0.68)
+                ),
+                url('__FONDO_CARD_INICIO__');
+        
+            background-size: cover;
+            background-position: center;
+        
+            border-color: rgba(244,197,66,0.66);
+        
+            box-shadow:
+                0 12px 26px rgba(244,197,66,0.14),
+                0 10px 22px rgba(15,23,42,0.07),
+                inset 0 1px 0 rgba(255,255,255,0.85);
+        }
+        
+        .ranking-row.top-2 {
+            min-height: 72px;
+        
+            background:
+                radial-gradient(
+                    circle at 0% 50%,
+                    rgba(203,213,225,0.34),
+                    transparent 44%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(248,250,252,0.86),
+                    rgba(255,255,255,0.68)
+                ),
+                url('__FONDO_CARD_INICIO__');
+        
+            background-size: cover;
+            background-position: center;
+        
+            border-color: rgba(148,163,184,0.56);
+        }
+        
+        .ranking-row.top-3 {
+            min-height: 72px;
+        
+            background:
+                radial-gradient(
+                    circle at 0% 50%,
+                    rgba(205,127,50,0.22),
+                    transparent 44%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(255,247,237,0.80),
+                    rgba(255,255,255,0.66)
+                ),
+                url('__FONDO_CARD_INICIO__');
+        
+            background-size: cover;
+            background-position: center;
+        
+            border-color: rgba(205,127,50,0.54);
+        }
+        
+        .ranking-row.top-5 {
+            background:
+                radial-gradient(
+                    circle at 0% 50%,
+                    rgba(244,197,66,0.12),
+                    transparent 42%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.76),
+                    rgba(248,250,252,0.62)
+                ),
+                url('__FONDO_CARD_INICIO__');
+        
+            background-size: cover;
+            background-position: center;
+        
+            border-color: rgba(244,197,66,0.30);
+        }
+        
+        /* ============================================================
+           USUARIO ACTUAL
+        ============================================================ */
+        
+        .ranking-row.me {
+            border-color: rgba(244,197,66,0.72);
+        
+            box-shadow:
+                0 12px 26px rgba(244,197,66,0.16),
+                0 8px 18px rgba(15,23,42,0.07),
+                inset 0 1px 0 rgba(255,255,255,0.86);
+        }
+        
+        .ranking-row.me::after {
+            content: "TÚ";
+        
+            position: absolute;
+            top: 8px;
+            right: 10px;
+        
+            padding: 3px 7px;
+            border-radius: 999px;
+        
+            background: rgba(7,17,31,0.90);
+            border: 1px solid rgba(244,197,66,0.35);
+        
+            color: #F4C542;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+        
+            z-index: 3;
         }
         
         /* ============================================================
            POSICIÓN
-           ============================================================ */
+        ============================================================ */
         
         .rank-pos {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
         
             display: flex;
@@ -1327,26 +1546,43 @@ def render_inicio(
             background: #e5e7eb;
         
             flex-shrink: 0;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.70),
+                0 4px 9px rgba(15,23,42,0.10);
         }
         
         .rank-pos.gold {
+            width: 38px;
+            height: 38px;
+        
             background: linear-gradient(135deg, #FFD700, #F4A900);
             color: #111827;
+        
+            box-shadow:
+                0 6px 14px rgba(244,197,66,0.28),
+                inset 0 1px 0 rgba(255,255,255,0.35);
         }
         
         .rank-pos.silver {
-            background: linear-gradient(135deg, #d1d5db, #9ca3af);
+            width: 37px;
+            height: 37px;
+        
+            background: linear-gradient(135deg, #F8FAFC, #9CA3AF);
             color: #111827;
         }
         
         .rank-pos.bronze {
+            width: 37px;
+            height: 37px;
+        
             background: linear-gradient(135deg, #CD7F32, #9A5A22);
             color: white;
         }
         
         /* ============================================================
            INFO DEL JUGADOR
-           ============================================================ */
+        ============================================================ */
         
         .player-info {
             min-width: 0 !important;
@@ -1356,7 +1592,7 @@ def render_inicio(
         
         .player-name {
             font-family: 'Inter', sans-serif;
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 900;
             color: #0f172a;
         
@@ -1365,11 +1601,17 @@ def render_inicio(
             text-overflow: ellipsis;
         }
         
+        .ranking-row.top-1 .player-name,
+        .ranking-row.top-2 .player-name,
+        .ranking-row.top-3 .player-name {
+            font-size: 14px;
+        }
+        
         .player-sub {
             margin-top: 3px;
         
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 800;
             color: #64748b;
         
             white-space: nowrap;
@@ -1384,7 +1626,7 @@ def render_inicio(
         
         /* ============================================================
            INSIGNIAS MINI
-           ============================================================ */
+        ============================================================ */
         
         .ranking-badges-mini {
             display: flex !important;
@@ -1418,7 +1660,7 @@ def render_inicio(
         
         /* ============================================================
            PUNTOS
-           ============================================================ */
+        ============================================================ */
         
         .rank-points {
             text-align: right;
@@ -1427,36 +1669,48 @@ def render_inicio(
         
         .points-main {
             font-family: 'Montserrat', sans-serif;
-            font-size: 19px;
+            font-size: 22px;
             font-weight: 900;
             color: #0f172a;
             line-height: 1;
         }
         
+        .ranking-row.top-1 .points-main,
+        .ranking-row.top-2 .points-main,
+        .ranking-row.top-3 .points-main {
+            font-size: 24px;
+        }
+        
         .points-label {
             font-size: 9px;
-            font-weight: 800;
+            font-weight: 900;
             color: #94a3b8;
             text-transform: uppercase;
             margin-top: 2px;
         }
         
-        .ranking-row.me .points-main {
-            color: #0f172a;
+        .ranking-row.top-1 .points-label {
+            color: rgba(180,83,9,0.72);
         }
         
         /* ============================================================
            MOBILE
-           ============================================================ */
+        ============================================================ */
         
         @media (max-width: 768px) {
             .ranking-panel {
                 padding: 12px;
-                border-radius: 16px;
+                border-radius: 17px;
             }
         
             .ranking-panel-title {
                 font-size: 15px;
+            }
+        
+            .ranking-panel-icon {
+                width: 31px;
+                height: 31px;
+                border-radius: 11px;
             }
         
             .ranking-scroll {
@@ -1469,16 +1723,28 @@ def render_inicio(
                 grid-template-columns: 38px minmax(0, 1fr) 56px !important;
                 gap: 8px !important;
                 padding: 10px;
-                border-radius: 13px;
+                border-radius: 15px;
             }
         
-            .rank-pos {
+            .ranking-row.top-1,
+            .ranking-row.top-2,
+            .ranking-row.top-3 {
+                min-height: 66px;
+            }
+        
+            .rank-pos,
+            .rank-pos.gold,
+            .rank-pos.silver,
+            .rank-pos.bronze {
                 width: 30px;
                 height: 30px;
                 font-size: 12px;
             }
         
-            .player-name {
+            .player-name,
+            .ranking-row.top-1 .player-name,
+            .ranking-row.top-2 .player-name,
+            .ranking-row.top-3 .player-name {
                 font-size: 12px;
             }
         
@@ -1496,12 +1762,29 @@ def render_inicio(
                 height: 18px !important;
             }
         
-            .points-main {
+            .points-main,
+            .ranking-row.top-1 .points-main,
+            .ranking-row.top-2 .points-main,
+            .ranking-row.top-3 .points-main {
                 font-size: 16px;
+            }
+        
+            .ranking-row.me::after {
+                top: 6px;
+                right: 7px;
+                font-size: 7px;
+                padding: 2px 6px;
             }
         }
         </style>
-        """, unsafe_allow_html=True)
+        """
+        
+        ranking_css = ranking_css.replace(
+            "__FONDO_CARD_INICIO__",
+            FONDO_CARD_INICIO
+        )
+        
+        st.markdown(ranking_css, unsafe_allow_html=True)
         
         
         
@@ -1579,7 +1862,18 @@ def render_inicio(
             es_usuario_actual = usuario == usuario_actual
         
             clase_usuario = "me" if es_usuario_actual else ""
-            medalla = clase_medalla(posicion_num)
+            medalla = clase_medalla(posicion_num).
+
+            if posicion_num == 1:
+                clase_tier = "top-1"
+            elif posicion_num == 2:
+                clase_tier = "top-2"
+            elif posicion_num == 3:
+                clase_tier = "top-3"
+            elif posicion_num <= 5:
+                clase_tier = "top-5"
+            else:
+                clase_tier = "normal"
         
             subtitulo = "Tu posición actual" if es_usuario_actual else "Participante"
         
@@ -1588,7 +1882,7 @@ def render_inicio(
             )
         
             ranking_html += f"""
-<div class="ranking-row {clase_usuario}">
+<div class="ranking-row {clase_usuario} {clase_tier}">
 <div class="rank-pos {medalla}">{pos_label}</div>
 
 <div class="player-info">
@@ -2075,7 +2369,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
 # RESULTADOS / PARTIDOS VISUALES CON SCROLL
 # Reemplaza el bloque actual de Resultados de la Fecha
 # ============================================================
-        FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+        
         # ============================================================
         # RESULTADOS DE LA FECHA — CARD INTEGRADA
         # ============================================================
