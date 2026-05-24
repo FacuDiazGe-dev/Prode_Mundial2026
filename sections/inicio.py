@@ -2022,10 +2022,14 @@ def render_inicio(
             #             "El Distinto",
             #         ]
             #     )
-            else:
-                badges_html = build_ranking_badges_html(
-                    row.get("BADGES", [])
-                )
+            # else:
+            #     badges_html = build_ranking_badges_html(
+            #         row.get("BADGES", [])
+            #     )
+
+            badges_html = build_ranking_badges_html(
+                row.get("BADGES", [])
+            )
         
             ranking_html += f"""
 <div class="ranking-row {clase_usuario} {clase_tier}">
