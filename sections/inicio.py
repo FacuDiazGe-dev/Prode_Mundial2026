@@ -3685,6 +3685,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
                
         columnas_foro = [
+            "ID",
             "FECHA",
             "USUARIO",
             "NOMBRE",
@@ -3706,8 +3707,36 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         if df_foro.empty:
             chat_html += '<div class="chat-empty">Todavía no hay comentarios.<br>¡Sé el primero en tirar una chicana mundialista!</div>'
         else:
-            # Últimos mensajes primero
-            df_foro_mostrar = df_foro.tail(20).iloc[::-1]
+        
+            # Últimos mensajes primero, ordenados por ID si existe.
+            df_foro_ordenado = df_foro.copy()
+            
+            if "ID" in df_foro_ordenado.columns:
+                df_foro_ordenado["ID_NUM"] = pd.to_numeric(
+                    df_foro_ordenado["ID"],
+                    errors="coerce"
+                ).fillna(0)
+            
+                df_foro_mostrar = (
+                    df_foro_ordenado
+                    .sort_values("ID_NUM", ascending=False)
+                    .head(20)
+                )
+            
+            elif "FECHA" in df_foro_ordenado.columns and "HORA" in df_foro_ordenado.columns:
+                df_foro_ordenado["FECHA_HORA_SORT"] = pd.to_datetime(
+                    df_foro_ordenado["FECHA"].astype(str) + " " + df_foro_ordenado["HORA"].astype(str),
+                    errors="coerce"
+                )
+            
+                df_foro_mostrar = (
+                    df_foro_ordenado
+                    .sort_values("FECHA_HORA_SORT", ascending=False)
+                    .head(20)
+                )
+            
+            else:
+                df_foro_mostrar = df_foro_ordenado.tail(20).iloc[::-1]
         
             for _, msg in df_foro_mostrar.iterrows():
                 usuario_msg = str(msg.get("USUARIO", "Usuario"))
