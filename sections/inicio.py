@@ -2489,7 +2489,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             use_container_width=True,
             key="btn_inicio_ver_mas_comunidad"
         ):
-            st.session_state["menu_principal"] = "💬 Comunidad"
+            st.session_state["nav_destino"] = "💬 Comunidad"
             st.rerun()
 
 # ------------------ COLUMNA DERECHA: ACCIÓN Y COMUNIDAD ------------------
