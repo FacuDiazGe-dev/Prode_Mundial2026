@@ -1872,7 +1872,7 @@ div[data-testid="stButton"] button {
                     rgba(7,17,31,0.86) 48%,
                     rgba(7,17,31,0.50) 100%
                 ),
-                url("{EVOL_HEADER_BACKGROUND}");
+                url("{__FONDO_CARD_INICIO3__}");
             background-size: cover;
             background-position: center right;
             border: 1px solid rgba(255,255,255,0.08);
