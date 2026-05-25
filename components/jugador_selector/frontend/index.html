@@ -1,157 +1,220 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, Montserrat, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            background: transparent;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        .selector-wrap {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
-            gap: 12px;
-            padding: 4px;
-        }
+    body {
+      margin: 0;
+      background: transparent;
+      color: #07111f;
+    }
 
-        .player-card {
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
-            padding: 12px;
-            background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(248,250,252,0.94));
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-            cursor: pointer;
-            transition: all 0.18s ease;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
+    .selector {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 310px;
+      overflow-y: auto;
+      padding: 2px 2px 8px;
+    }
 
-        .player-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
-            border-color: rgba(37, 99, 235, 0.35);
-        }
+    .player-card {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(226, 232, 240, 0.92);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(248, 250, 252, 0.92);
+      color: inherit;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+      transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease, background 150ms ease;
+    }
 
-        .player-card.selected {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.22), 0 14px 30px rgba(15, 23, 42, 0.14);
-            background: linear-gradient(145deg, rgba(239,246,255,1), rgba(255,255,255,0.96));
-        }
+    .player-card:hover {
+      border-color: rgba(244, 197, 66, 0.7);
+      background: #ffffff;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      transform: translateY(-1px);
+    }
 
-        .player-avatar {
-            width: 58px;
-            height: 58px;
-            border-radius: 999px;
-            object-fit: cover;
-            margin-bottom: 8px;
-            border: 2px solid rgba(255,255,255,0.95);
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
-        }
+    .player-card.selected {
+      border-color: rgba(244, 197, 66, 0.95);
+      background: linear-gradient(90deg, rgba(244, 197, 66, 0.16), rgba(255, 255, 255, 0.98));
+      box-shadow: 0 12px 30px rgba(244, 197, 66, 0.16);
+    }
 
-        .player-name {
-            font-size: 0.9rem;
-            font-weight: 800;
-            color: #0f172a;
-            line-height: 1.15;
-            margin-bottom: 4px;
-        }
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      object-fit: cover;
+      background: #e2e8f0;
+      border: 2px solid #ffffff;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    }
 
-        .player-team {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
+    .info {
+      min-width: 0;
+    }
 
-        .selected-badge {
-            display: none;
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: #2563eb;
-            color: white;
-            font-size: 0.68rem;
-            font-weight: 800;
-            padding: 4px 7px;
-            border-radius: 999px;
-        }
+    .name {
+      display: block;
+      overflow: hidden;
+      color: #07111f;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-        .player-card.selected .selected-badge {
-            display: block;
-        }
-    </style>
+    .meta {
+      display: block;
+      overflow: hidden;
+      margin-top: 4px;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .points {
+      min-width: 58px;
+      border-radius: 999px;
+      padding: 7px 9px;
+      background: #07111f;
+      color: #f4c542;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .empty {
+      padding: 14px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      border-radius: 14px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+    }
+  </style>
 </head>
-
 <body>
-    <div id="root"></div>
+  <div id="root" class="selector"></div>
 
-    <script>
-        let selectedId = null;
+  <script>
+    const root = document.getElementById("root");
+    let selected = null;
 
-        function sendValue(value) {
-            Streamlit.setComponentValue(value);
-        }
+    function sendMessage(type, data) {
+      window.parent.postMessage(
+        {
+          isStreamlitMessage: true,
+          type,
+          ...data,
+        },
+        "*"
+      );
+    }
 
-        function render(data) {
-            const jugadores = data.args.jugadores || [];
-            selectedId = data.args.seleccionado || null;
+    function setFrameHeight() {
+      const targetHeight = Math.min(document.body.scrollHeight, 330);
+      sendMessage("streamlit:setFrameHeight", {
+        height: targetHeight,
+      });
+    }
 
-            const root = document.getElementById("root");
+    function setValue(value) {
+      selected = value;
+      sendMessage("streamlit:setComponentValue", {
+        value,
+        dataType: "json",
+      });
+    }
 
-            root.innerHTML = `
-                <div class="selector-wrap">
-                    ${jugadores.map(jugador => `
-                        <div 
-                            class="player-card ${jugador.id === selectedId ? "selected" : ""}" 
-                            data-id="${jugador.id}"
-                        >
-                            <div class="selected-badge">OK</div>
-                            <img 
-                                class="player-avatar" 
-                                src="${jugador.avatar || "https://placehold.co/120x120?text=Jugador"}" 
-                                alt="${jugador.nombre}"
-                            />
-                            <div class="player-name">${jugador.nombre}</div>
-                            <div class="player-team">${jugador.equipo || ""}</div>
-                        </div>
-                    `).join("")}
-                </div>
-            `;
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
 
-            document.querySelectorAll(".player-card").forEach(card => {
-                card.addEventListener("click", () => {
-                    const id = card.getAttribute("data-id");
+    function render(args) {
+      const jugadores = Array.isArray(args.jugadores) ? args.jugadores : [];
+      selected = args.seleccionado ?? selected;
 
-                    selectedId = id;
+      if (jugadores.length === 0) {
+        root.innerHTML = '<div class="empty">No se encontraron jugadores.</div>';
+        setFrameHeight();
+        return;
+      }
 
-                    document.querySelectorAll(".player-card").forEach(c => {
-                        c.classList.remove("selected");
-                    });
+      root.innerHTML = jugadores
+        .map((jugador) => {
+          const id = String(jugador.id ?? "");
+          const nombre = escapeHtml(jugador.nombre || "Jugador");
+          const usuario = escapeHtml(jugador.usuario || id);
+          const equipo = escapeHtml(jugador.equipo || "-");
+          const puntos = escapeHtml(jugador.puntos ?? 0);
+          const avatar = escapeHtml(jugador.avatar || "");
+          const selectedClass = id === String(selected ?? "") ? " selected" : "";
 
-                    card.classList.add("selected");
+          return `
+            <button class="player-card${selectedClass}" type="button" data-id="${escapeHtml(id)}">
+              <img class="avatar" src="${avatar}" alt="${nombre}" loading="lazy" />
+              <span class="info">
+                <span class="name">${nombre}</span>
+                <span class="meta">@${usuario} · ${equipo}</span>
+              </span>
+              <span class="points">${puntos} pts</span>
+            </button>
+          `;
+        })
+        .join("");
 
-                    sendValue(id);
-                });
-            });
-
-            Streamlit.setFrameHeight(document.body.scrollHeight);
-        }
-
-        window.addEventListener("message", function(event) {
-            if (event.data.type !== "streamlit:render") {
-                return;
-            }
-
-            render(event.data);
+      root.querySelectorAll(".player-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          setValue(card.dataset.id);
+          root.querySelectorAll(".player-card").forEach((item) => {
+            item.classList.toggle("selected", item.dataset.id === card.dataset.id);
+          });
+          setFrameHeight();
         });
+      });
 
-        Streamlit.setComponentReady();
-    </script>
+      setFrameHeight();
+    }
+
+    window.addEventListener("message", (event) => {
+      if (event.data?.type !== "streamlit:render") {
+        return;
+      }
+
+      render(event.data.args || {});
+    });
+
+    sendMessage("streamlit:componentReady", { apiVersion: 1 });
+    setFrameHeight();
+  </script>
 </body>
 </html>

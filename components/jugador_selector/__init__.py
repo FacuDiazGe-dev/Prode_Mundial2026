@@ -1,14 +1,13 @@
-import os
+from pathlib import Path
+
 import streamlit.components.v1 as components
 
 
-_COMPONENT_DIR = os.path.dirname(os.path.abspath(__file__))
-_FRONTEND_DIR = os.path.join(_COMPONENT_DIR, "frontend")
-
+_FRONTEND_DIR = Path(__file__).parent / "frontend"
 
 _jugador_selector = components.declare_component(
     "jugador_selector",
-    path=_FRONTEND_DIR,
+    path=str(_FRONTEND_DIR),
 )
 
 
@@ -16,14 +15,16 @@ def jugador_selector(jugadores, seleccionado=None, key=None):
     """
     Selector visual de jugadores.
 
-    Parámetros
+    Parametros
     ----------
     jugadores : list[dict]
         Lista de jugadores. Cada jugador debe tener:
         {
-            "id": "messi",
-            "nombre": "Lionel Messi",
-            "equipo": "Argentina",
+            "id": "usuario",
+            "nombre": "Nombre visible",
+            "usuario": "usuario",
+            "equipo": "Equipo favorito",
+            "puntos": 0,
             "avatar": "https://..."
         }
 
@@ -31,7 +32,7 @@ def jugador_selector(jugadores, seleccionado=None, key=None):
         ID del jugador seleccionado actualmente.
 
     key : str | None
-        Key única de Streamlit.
+        Key unica de Streamlit.
 
     Retorna
     -------
