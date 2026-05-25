@@ -908,26 +908,115 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     }
 }
 /* ============================================================
-   MI PERFIL — CARD PREMIUM / MISMO LENGUAJE QUE PLANTEL
+   MI PERFIL — CARD PREMIUM / MISMO LENGUAJE QUE INICIO
    ============================================================ */
 
 .profile-panel {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.96),
+            rgba(248,250,252,0.92)
+        );
+
+    border: 1px solid rgba(203,213,225,0.92);
+    border-radius: 20px;
+
     padding: 16px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+
+    box-shadow:
+        0 16px 36px rgba(15,23,42,0.075),
+        inset 0 1px 0 rgba(255,255,255,0.82);
 }
+
+.profile-panel::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.08),
+            transparent 36%
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+.profile-panel > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Header interno de Mi Perfil */
+
+.profile-panel .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 5px 5px 14px 5px;
+    margin-bottom: 14px;
+
+    border-bottom: 1px solid rgba(148,163,184,0.30);
+}
+
+.profile-panel .panel-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.18),
+            rgba(244,197,66,0.07)
+        );
+
+    border: 1px solid rgba(244,197,66,0.18);
+
+    color: #0f172a;
+    font-size: 17px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.78),
+        0 6px 14px rgba(15,23,42,0.06);
+}
+
+.profile-panel .panel-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+}
+
+/* Hero */
 
 .profile-hero {
     position: relative;
     overflow: hidden;
 
     background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.14),
+            transparent 34%
+        ),
         linear-gradient(
             90deg,
-            rgba(7,17,31,0.50),
-            rgba(7,17,31,0.22)
+            rgba(7,17,31,0.66),
+            rgba(7,17,31,0.30)
         ),
         var(--profile-hero-bg);
 
@@ -935,13 +1024,13 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     background-position: center;
     background-repeat: no-repeat;
 
-    border: 1px solid rgba(244,197,66,0.22);
+    border: 1px solid rgba(244,197,66,0.26);
     border-radius: 18px;
     padding: 18px 16px 15px 16px;
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
-        0 12px 26px rgba(15,23,42,0.16);
+        0 14px 30px rgba(15,23,42,0.18);
 }
 
 .profile-hero-top {
@@ -977,25 +1066,58 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     justify-content: center;
 
     border-radius: 13px;
-    background: rgba(255,255,255,0.62);
-    border: 1px solid rgba(255,255,255,0.70);
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.66),
+            rgba(255,255,255,0.48)
+        );
+
+    border: 1px solid rgba(255,255,255,0.68);
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.72),
         0 6px 14px rgba(15,23,42,0.16);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        opacity 0.18s ease;
 }
 
 .profile-badge-mini.earned {
-    border-color: rgba(244,197,66,0.42);
-    background: rgba(255,255,255,0.72);
+    border-color: rgba(244,197,66,0.48);
+    background: rgba(255,255,255,0.76);
 
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.82),
-        0 8px 18px rgba(244,197,66,0.12);
+        inset 0 1px 0 rgba(255,255,255,0.86),
+        0 8px 18px rgba(244,197,66,0.16),
+        0 0 12px rgba(244,197,66,0.10);
+}
+
+.profile-badge-mini.earned:hover {
+    transform: translateY(-1px) scale(1.03);
+    border-color: rgba(244,197,66,0.62);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.90),
+        0 10px 22px rgba(244,197,66,0.20),
+        0 0 16px rgba(244,197,66,0.14);
 }
 
 .profile-badge-mini.locked {
-    opacity: 0.88;
+    opacity: 0.78;
+    filter: grayscale(0.25);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.54),
+            rgba(226,232,240,0.38)
+        );
+
+    border-color: rgba(255,255,255,0.48);
 }
 
 .profile-badge-mini-img {
@@ -1018,6 +1140,8 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     background: rgba(241,245,249,0.95);
     color: #64748b;
 }
+
+/* Datos principales */
 
 .profile-avatar {
     width: 108px;
@@ -1045,7 +1169,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 }
 
 .profile-user {
-    color: rgba(226,232,240,0.78);
+    color: rgba(226,232,240,0.80);
     font-size: 13px;
     font-weight: 900;
     margin-top: 4px;
@@ -1110,9 +1234,19 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     border-radius: 13px;
     padding: 8px 6px;
 
-    background: rgba(255,255,255,0.055);
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.075),
+            rgba(255,255,255,0.045)
+        );
+
     text-align: center;
     min-width: 0;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 5px 12px rgba(0,0,0,0.10);
 }
 
 .profile-stat-icon {
@@ -1150,13 +1284,13 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     background:
         linear-gradient(
             90deg,
-            rgba(7,17,31,0.82),
-            rgba(15,23,42,0.62)
+            rgba(7,17,31,0.84),
+            rgba(15,23,42,0.64)
         );
 
     border: 1px solid rgba(244,197,66,0.22);
 
-    color: rgba(248,250,252,0.86);
+    color: rgba(248,250,252,0.88);
     font-size: 12.5px;
     font-weight: 650;
     line-height: 1.42;
@@ -1185,6 +1319,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 }
 
 /* Se conserva por seguridad para usos auxiliares */
+
 .profile-info {
     border-top: 1px solid rgba(226,232,240,0.85);
     margin-top: 12px;
@@ -1231,7 +1366,80 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     padding: 14px;
 }
 
+/* Botón editar perfil */
+
+.profile-edit-btn-wrap {
+    margin-top: 10px;
+}
+
+.profile-edit-btn-wrap div[data-testid="stButton"] button {
+    min-height: 44px !important;
+
+    border-radius: 15px !important;
+
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+
+    color: #07111F !important;
+
+    background:
+        radial-gradient(
+            circle at 20% 0%,
+            rgba(255,255,255,0.30),
+            transparent 42%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.98),
+            rgba(255,220,105,0.94)
+        ) !important;
+
+    border: 1px solid rgba(180,130,20,0.35) !important;
+
+    box-shadow:
+        0 10px 22px rgba(244,197,66,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.44) !important;
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease !important;
+}
+
+.profile-edit-btn-wrap div[data-testid="stButton"] button:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 13px 26px rgba(244,197,66,0.24),
+        0 0 18px rgba(244,197,66,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.48) !important;
+}
+
+/* Mobile */
+
 @media (max-width: 768px) {
+    .profile-panel {
+        padding: 13px;
+        border-radius: 17px;
+    }
+
+    .profile-panel .panel-header {
+        padding: 4px 4px 12px 4px;
+        margin-bottom: 12px;
+    }
+
+    .profile-panel .panel-icon {
+        width: 31px;
+        height: 31px;
+        border-radius: 11px;
+    }
+
+    .profile-panel .panel-title {
+        font-size: 16px;
+    }
+
     .profile-hero {
         padding: 15px 13px 13px 13px;
         border-radius: 16px;
@@ -1276,6 +1484,10 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
         font-size: 21px;
     }
 
+    .profile-user {
+        font-size: 12px;
+    }
+
     .profile-stats {
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 6px;
@@ -1305,48 +1517,94 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
         grid-template-columns: 1fr;
         gap: 2px;
     }
-}
 
+    .profile-edit-btn-wrap {
+        margin-top: 9px;
+    }
+}
 /* ============================================================
-   MI EVOLUCIÓN — PANEL COMPACTO
-   ============================================================ */
-/* ============================================================
-   MI EVOLUCIÓN — PANEL COMPACTO
+   MI EVOLUCIÓN — PANEL COMPACTO / FALLBACK EXTERNO
    ============================================================ */
 
 .evolution-panel {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.96),
+            rgba(248,250,252,0.92)
+        );
+
+    border: 1px solid rgba(203,213,225,0.92);
+    border-radius: 20px;
+
     padding: 16px;
     margin-top: 14px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+
+    box-shadow:
+        0 16px 36px rgba(15,23,42,0.075),
+        inset 0 1px 0 rgba(255,255,255,0.82);
+}
+
+.evolution-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.08),
+            transparent 36%
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+.evolution-panel > * {
+    position: relative;
+    z-index: 1;
 }
 
 .evolution-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 11px;
 
-    padding: 4px 4px 12px 4px;
-    margin-bottom: 10px;
+    padding: 5px 5px 14px 5px;
+    margin-bottom: 14px;
 
-    border-bottom: 1px solid rgba(226,232,240,0.75);
+    border-bottom: 1px solid rgba(148,163,184,0.30);
 }
 
 .evolution-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: rgba(244,197,66,0.16);
+    background:
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.18),
+            rgba(244,197,66,0.07)
+        );
+
+    border: 1px solid rgba(244,197,66,0.18);
+
     color: #0f172a;
-    font-size: 16px;
+    font-size: 17px;
     flex-shrink: 0;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.78),
+        0 6px 14px rgba(15,23,42,0.06);
 }
 
 .evolution-title {
@@ -1355,6 +1613,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     font-weight: 900;
     color: #0f172a;
     line-height: 1.05;
+    letter-spacing: -0.01em;
 }
 
 .evolution-subtitle {
@@ -1365,9 +1624,16 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 }
 
 .evolution-empty {
-    background: rgba(248,250,252,0.86);
-    border: 1px solid rgba(226,232,240,0.88);
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.84),
+            rgba(248,250,252,0.76)
+        );
+
+    border: 1px solid rgba(203,213,225,0.86);
     border-radius: 14px;
+
     padding: 12px;
 
     color: #64748b;
@@ -1385,16 +1651,26 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
 .evolution-stat {
     background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.12),
+            transparent 38%
+        ),
         linear-gradient(
             135deg,
             rgba(7,17,31,0.98),
             rgba(15,23,42,0.94)
         );
 
-    border: 1px solid rgba(244,197,66,0.16);
+    border: 1px solid rgba(244,197,66,0.18);
     border-radius: 13px;
+
     padding: 9px 6px;
     text-align: center;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 7px 16px rgba(15,23,42,0.10);
 }
 
 .evolution-stat-number {
@@ -1417,7 +1693,18 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 @media (max-width: 768px) {
     .evolution-panel {
         padding: 13px;
-        border-radius: 16px;
+        border-radius: 17px;
+    }
+
+    .evolution-header {
+        padding: 4px 4px 12px 4px;
+        margin-bottom: 12px;
+    }
+
+    .evolution-icon {
+        width: 31px;
+        height: 31px;
+        border-radius: 11px;
     }
 
     .evolution-title {
@@ -1442,61 +1729,6 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
     .evolution-stat-label {
         font-size: 7px;
-    }
-}
-}
-/* Botón normal de Streamlit usado en Editar Perfil */
-div[data-testid="stButton"] button {
-    border-radius: 13px !important;
-    min-height: 42px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-size: 14px !important;
-    font-weight: 900 !important;
-
-    background: linear-gradient(
-        135deg,
-        rgba(244,197,66,0.95),
-        rgba(255,220,105,0.95)
-    ) !important;
-
-    color: #07111F !important;
-    border: 1px solid rgba(180,130,20,0.28) !important;
-
-    box-shadow:
-        0 8px 18px rgba(244,197,66,0.16),
-        inset 0 1px 0 rgba(255,255,255,0.38) !important;
-}
-
-@media (max-width: 768px) {
-    .profile-avatar {
-        width: 108px;
-        height: 108px;
-    }
-
-    .profile-name {
-        font-size: 22px;
-    }
-
-    .profile-stats {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 6px;
-    }
-
-    .profile-stat {
-        padding: 8px 4px;
-    }
-
-    .profile-stat-number {
-        font-size: 15px;
-    }
-
-    .profile-stat-label {
-        font-size: 7px;
-    }
-
-    .profile-info-row {
-        grid-template-columns: 1fr;
-        gap: 2px;
     }
 }
 </style>
@@ -1940,33 +2172,60 @@ div[data-testid="stButton"] button {
         }}
 
         .evol-panel {{
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 18px;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.96),
+                    rgba(248,250,252,0.92)
+                );
+        
+            border: 1px solid rgba(203,213,225,0.92);
+            border-radius: 20px;
+        
             padding: 14px;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        
+            box-shadow:
+                0 16px 36px rgba(15,23,42,0.075),
+                inset 0 1px 0 rgba(255,255,255,0.82);
+        
             overflow: hidden;
         }}
 
         .evol-panel-header {{
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 4px 4px 14px 4px;
-            margin-bottom: 8px;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+            gap: 11px;
+        
+            padding: 5px 5px 14px 5px;
+            margin-bottom: 10px;
+        
+            border-bottom: 1px solid rgba(148,163,184,0.30);
         }}
 
         .evol-panel-icon {{
-            width: 30px;
-            height: 30px;
-            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+        
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(244, 197, 66, 0.16);
+        
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(244,197,66,0.18),
+                    rgba(244,197,66,0.07)
+                );
+        
+            border: 1px solid rgba(244,197,66,0.18);
+        
             color: #0f172a;
-            font-size: 16px;
+            font-size: 17px;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.78),
+                0 6px 14px rgba(15,23,42,0.06);
         }}
 
         .evol-panel-title {{
@@ -1992,18 +2251,30 @@ div[data-testid="stButton"] button {
 
         .evol-summary-dark {{
             background-image:
+                radial-gradient(
+                    circle at 0% 0%,
+                    rgba(244,197,66,0.16),
+                    transparent 34%
+                ),
                 linear-gradient(
                     90deg,
-                    rgba(7,17,31,0.98) 0%,
-                    rgba(7,17,31,0.86) 48%,
-                    rgba(7,17,31,0.50) 100%
+                    rgba(7,17,31,0.96) 0%,
+                    rgba(7,17,31,0.84) 48%,
+                    rgba(7,17,31,0.48) 100%
                 ),
                 url("{EVOL_HEADER_BACKGROUND}");
+        
             background-size: cover;
             background-position: center right;
-            border: 1px solid rgba(255,255,255,0.08);
+        
+            border: 1px solid rgba(244,197,66,0.18);
             border-radius: 15px 15px 0 0;
+        
             padding: 16px 18px 13px 18px;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 8px 18px rgba(15,23,42,0.10);
         }}
 
         .evol-user-name {{
@@ -2060,11 +2331,21 @@ div[data-testid="stButton"] button {
         }}
 
         .evol-chart-shell {{
-            background: rgba(248, 250, 252, 0.96);
-            border: 1px solid rgba(226, 232, 240, 0.9);
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.92),
+                    rgba(248,250,252,0.86)
+                );
+        
+            border: 1px solid rgba(203,213,225,0.82);
             border-top: none;
             border-radius: 0 0 15px 15px;
+        
             padding: 0 8px 4px 8px;
+        
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.70);
         }}
 
         @media (max-width: 768px) {{
@@ -2924,9 +3205,17 @@ Bio:
                 unsafe_allow_html=True
             )
 
-            if st.button("✏️ Editar Perfil", use_container_width=True):
+            st.markdown('<div class="profile-edit-btn-wrap">', unsafe_allow_html=True)
+            
+            if st.button(
+                "✏️ Editar Perfil",
+                use_container_width=True,
+                key="btn_editar_perfil"
+            ):
                 st.session_state.editando_perfil = True
                 st.rerun()
+            
+            st.markdown('</div>', unsafe_allow_html=True)
 
             # ------------------------------------------------------------
             # MI EVOLUCIÓN — MISMO COMPONENTE QUE INICIO
