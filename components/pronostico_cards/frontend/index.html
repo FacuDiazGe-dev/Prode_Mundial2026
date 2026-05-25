@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, Montserrat, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: transparent;
+      color: #07111f;
+    }
+
+    .editor-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 2px 4px 8px 2px;
+    }
+
+    .cards-scroll {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      max-height: 500px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .pred-card {
+      position: relative;
+      overflow: visible;
+      min-height: 96px;
+      border: 1px solid rgba(148, 163, 184, 0.34);
+      border-radius: 16px;
+      padding: 13px 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(248, 250, 252, 0.62)),
+        var(--card-bg);
+      background-size: cover;
+      background-position: center;
+      box-shadow:
+        0 8px 18px rgba(15, 23, 42, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .pred-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(244, 197, 66, 0.08), transparent 38%),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08));
+    }
+
+    .pred-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .pred-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 13px;
+      color: #94a3b8;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .pred-row {
+      display: grid;
+      grid-template-columns: minmax(68px, 1fr) auto minmax(68px, 1fr);
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .team {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 7px;
+      color: #07111f;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.15;
+    }
+
+    .team.left {
+      justify-content: flex-end;
+      text-align: right;
+    }
+
+    .team.right {
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .team-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .flag-img {
+      width: 22px;
+      height: 16px;
+      border-radius: 4px;
+      object-fit: cover;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.16);
+      flex: 0 0 auto;
+    }
+
+    .flag-text {
+      font-size: 16px;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .score-box {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: 42px 18px 42px;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid rgba(226, 232, 240, 0.92);
+      border-radius: 999px;
+      padding: 6px 8px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.76),
+        0 8px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    .score-input {
+      width: 42px;
+      height: 36px;
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      border-radius: 12px;
+      background: #ffffff;
+      color: #07111f;
+      font-size: 18px;
+      font-weight: 950;
+      text-align: center;
+      outline: none;
+      appearance: textfield;
+    }
+
+    .score-input::-webkit-outer-spin-button,
+    .score-input::-webkit-inner-spin-button {
+      margin: 0;
+      appearance: none;
+    }
+
+    .score-input:focus {
+      border-color: rgba(244, 197, 66, 0.95);
+      box-shadow: 0 0 0 3px rgba(244, 197, 66, 0.18);
+    }
+
+    .score-colon {
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 950;
+      text-align: center;
+      letter-spacing: 0.03em;
+    }
+
+    .empty {
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      border-radius: 14px;
+      padding: 14px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 0.35fr 0.65fr;
+      gap: 10px;
+      flex: 0 0 auto;
+      padding: 2px 0 0;
+      background: transparent;
+    }
+
+    .action-button {
+      min-height: 42px;
+      border: 1px solid rgba(226, 232, 240, 0.92);
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 950;
+      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+    }
+
+    .action-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    .cancel-button {
+      background: rgba(248, 250, 252, 0.96);
+      color: #334155;
+    }
+
+    .save-button {
+      border-color: rgba(244, 197, 66, 0.72);
+      background: #07111f;
+      color: #f4c542;
+    }
+
+    @media (max-width: 520px) {
+      .pred-card {
+        padding: 12px 10px;
+      }
+
+      .pred-row {
+        grid-template-columns: minmax(56px, 1fr) auto minmax(56px, 1fr);
+        gap: 6px;
+      }
+
+      .team {
+        gap: 5px;
+        font-size: 11px;
+      }
+
+      .team-name {
+        max-width: 78px;
+      }
+
+      .flag-img {
+        width: 20px;
+        height: 14px;
+      }
+
+      .score-box {
+        grid-template-columns: 34px 16px 34px;
+        gap: 3px;
+        padding: 5px;
+      }
+
+      .score-input {
+        width: 34px;
+        height: 32px;
+        border-radius: 10px;
+        font-size: 16px;
+      }
+
+      .score-colon {
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root" class="editor-shell"></div>
+
+  <script>
+    const root = document.getElementById("root");
+    let values = [];
+
+    function sendMessage(type, data) {
+      window.parent.postMessage(
+        {
+          isStreamlitMessage: true,
+          type,
+          ...data,
+        },
+        "*"
+      );
+    }
+
+    function setFrameHeight() {
+      const targetHeight = Math.min(document.body.scrollHeight, 575);
+      sendMessage("streamlit:setFrameHeight", { height: targetHeight });
+    }
+
+    function currentValues() {
+      return values.map((item) => ({
+        N_PARTIDO: item.N_PARTIDO,
+        P1: item.P1,
+        P2: item.P2,
+      }));
+    }
+
+    function sendAction(action) {
+      sendMessage("streamlit:setComponentValue", {
+        value: {
+          action,
+          pronosticos: currentValues(),
+        },
+        dataType: "json",
+      });
+    }
+
+    function updateValue(matchId, side, rawValue) {
+      const nextValue = clampScore(rawValue);
+      const target = values.find((item) => String(item.N_PARTIDO) === String(matchId));
+
+      if (!target) {
+        return nextValue;
+      }
+
+      target[side] = nextValue;
+      return nextValue;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function flagHtml(value) {
+      const safeValue = escapeHtml(value || "⚽");
+
+      if (String(value || "").startsWith("http") || String(value || "").startsWith("data:image")) {
+        return `<img src="${safeValue}" class="flag-img" alt="">`;
+      }
+
+      return `<span class="flag-text">${safeValue}</span>`;
+    }
+
+    function pick(item, keys, fallback = "") {
+      for (const key of keys) {
+        if (item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== "") {
+          return item[key];
+        }
+      }
+
+      return fallback;
+    }
+
+    function clampScore(value) {
+      const parsed = Number.parseInt(value, 10);
+
+      if (Number.isNaN(parsed)) {
+        return "";
+      }
+
+      return Math.max(0, Math.min(20, parsed));
+    }
+
+    function render(args) {
+      const incoming = Array.isArray(args.pronosticos) ? args.pronosticos : [];
+      values = incoming.map((item) => ({
+        ...item,
+        N_PARTIDO: Number.parseInt(item.N_PARTIDO, 10),
+        P1: clampScore(item.P1),
+        P2: clampScore(item.P2),
+      }));
+
+      if (values.length === 0) {
+        root.innerHTML = '<div class="empty">No hay partidos para editar.</div>';
+        setFrameHeight();
+        return;
+      }
+
+      const cardsHtml = values
+        .map((item, index) => {
+          const id = escapeHtml(item.N_PARTIDO);
+          const dia = escapeHtml(item.DIA || "");
+          const hora = escapeHtml(item.HORA || "");
+          const equipo1Raw = pick(item, ["equipo_1", "Equipo 1", "Equipo_1", "equipo1"], "Equipo 1");
+          const equipo2Raw = pick(item, ["equipo_2", "Equipo 2", "Equipo_2", "equipo2"], "Equipo 2");
+          const bandera1 = pick(item, ["bandera_1", "Bandera 1", "Bandera_1", "bandera1"], "⚽");
+          const bandera2 = pick(item, ["bandera_2", "Bandera 2", "Bandera_2", "bandera2"], "⚽");
+          const equipo1 = escapeHtml(equipo1Raw);
+          const equipo2 = escapeHtml(equipo2Raw);
+          const p1 = escapeHtml(item.P1);
+          const p2 = escapeHtml(item.P2);
+          const bg = escapeHtml(item.FONDO || "none");
+
+          return `
+            <div class="pred-card" style="--card-bg: url('${bg}')">
+              <div class="pred-meta">
+                <span>Partido #${id}</span>
+                <span>${dia} | ${hora}</span>
+              </div>
+
+              <div class="pred-row">
+                <div class="team left">
+                  <span class="team-name">${equipo1}</span>
+                  ${flagHtml(bandera1)}
+                </div>
+
+                <div class="score-box">
+                  <input class="score-input" inputmode="numeric" type="number" min="0" max="20" step="1" value="${p1}" data-match="${id}" data-side="P1" aria-label="${equipo1}">
+                  <span class="score-colon">VS</span>
+                  <input class="score-input" inputmode="numeric" type="number" min="0" max="20" step="1" value="${p2}" data-match="${id}" data-side="P2" aria-label="${equipo2}">
+                </div>
+
+                <div class="team right">
+                  ${flagHtml(bandera2)}
+                  <span class="team-name">${equipo2}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      root.innerHTML = `
+          <div class="cards-scroll">
+            ${cardsHtml}
+          </div>
+          <div class="actions">
+            <button class="action-button cancel-button" type="button" data-action="cancel">
+              Cancelar
+            </button>
+            <button class="action-button save-button" type="button" data-action="save">
+              Guardar cambios
+            </button>
+          </div>
+        `;
+
+      root.querySelectorAll(".score-input").forEach((input) => {
+        input.addEventListener("input", () => {
+          const nextValue = clampScore(input.value);
+
+          if (nextValue !== "") {
+            input.value = nextValue;
+          }
+        });
+
+        input.addEventListener("change", () => {
+          const matchId = input.dataset.match;
+          const side = input.dataset.side;
+          input.value = updateValue(matchId, side, input.value);
+        });
+
+        input.addEventListener("blur", () => {
+          const matchId = input.dataset.match;
+          const side = input.dataset.side;
+          input.value = updateValue(matchId, side, input.value);
+        });
+
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            input.blur();
+          }
+        });
+      });
+
+      root.querySelectorAll(".action-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          sendAction(button.dataset.action);
+        });
+      });
+
+      setFrameHeight();
+    }
+
+    window.addEventListener("message", (event) => {
+      if (event.data?.type !== "streamlit:render") {
+        return;
+      }
+
+      render(event.data.args || {});
+    });
+
+    sendMessage("streamlit:componentReady", { apiVersion: 1 });
+    setFrameHeight();
+  </script>
+</body>
+</html>

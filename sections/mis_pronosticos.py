@@ -4,6 +4,7 @@ import plotly.express as px
 import streamlit.components.v1 as components
 import re
 
+from components.pronostico_cards import pronostico_cards
 from datetime import datetime, timedelta
 from html import escape
 
@@ -2719,12 +2720,15 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
             filas_editor.append(
                 {
                     "N_PARTIDO": id_p,
-                    "Equipo 1": equipo_1,
+                    "equipo_1": equipo_1,
+                    "bandera_1": bandera1,
                     "P1": v1,
                     "P2": v2,
-                    "Equipo 2": equipo_2,
+                    "bandera_2": bandera2,
+                    "equipo_2": equipo_2,
                     "DIA": dia,
                     "HORA": hora,
+                    "FONDO": FONDO_CARD_INICIO,
                 }
             )
 
@@ -2881,81 +2885,55 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 </div>
 """, unsafe_allow_html=True)
 
-            df_editor = pd.DataFrame(filas_editor)
+            draft_key = (
+                f"pron_cards_draft_{fecha_key}_"
+                f"{st.session_state.pron_editor_version}"
+            )
 
-            with st.form(
-                key=f"form_pronosticos_editor_{fecha_key}_{st.session_state.pron_editor_version}",
-                clear_on_submit=False
-            ):
+            if draft_key not in st.session_state:
+                st.session_state[draft_key] = filas_editor
 
-                edited_df = st.data_editor(
-                    df_editor,
-                    hide_index=True,
-                    use_container_width=True,
-                    key=f"pronosticos_editor_{fecha_key}_{st.session_state.pron_editor_version}",
-                    disabled=[
-                        "N_PARTIDO",
-                        "Equipo 1",
-                        "Equipo 2",
-                        "DIA",
-                        "HORA"
-                    ],
-                    column_order=[
-                        "Equipo 1",
-                        "P1",
-                        "P2",
-                        "Equipo 2"
-                    ],
-                    column_config={
-                        "Equipo 1": st.column_config.TextColumn(
-                            "Equipo 1",
-                            width="small"
-                        ),
-                        "P1": st.column_config.NumberColumn(
-                            "P1",
-                            min_value=0,
-                            max_value=20,
-                            step=1,
-                            width="small"
-                        ),
-                        "P2": st.column_config.NumberColumn(
-                            "P2",
-                            min_value=0,
-                            max_value=20,
-                            step=1,
-                            width="small"
-                        ),
-                        "Equipo 2": st.column_config.TextColumn(
-                            "Equipo 2",
-                            width="small"
-                        ),
+            edited_cards = pronostico_cards(
+                st.session_state[draft_key],
+                key=f"pronostico_cards_{fecha_key}_{st.session_state.pron_editor_version}"
+            )
+
+            accion_cards = (
+                edited_cards.get("action")
+                if isinstance(edited_cards, dict)
+                else None
+            )
+
+            if isinstance(edited_cards, dict):
+                edited_by_match = {
+                    int(item.get("N_PARTIDO", -1)): item
+                    for item in edited_cards.get("pronosticos", [])
+                }
+
+                st.session_state[draft_key] = [
+                    {
+                        **base_row,
+                        "P1": edited_by_match
+                        .get(int(base_row["N_PARTIDO"]), {})
+                        .get("P1", base_row["P1"]),
+                        "P2": edited_by_match
+                        .get(int(base_row["N_PARTIDO"]), {})
+                        .get("P2", base_row["P2"]),
                     }
-                )
-
-                c_cancelar, c_guardar = st.columns([0.35, 0.65])
-
-                with c_cancelar:
-                    cancelar = st.form_submit_button(
-                        "❌ Cancelar",
-                        use_container_width=True
-                    )
-
-                with c_guardar:
-                    guardar = st.form_submit_button(
-                        f"💾 Guardar cambios de {tanda_seleccionada}",
-                        use_container_width=True
-                    )
+                    for base_row in st.session_state[draft_key]
+                ]
 
             # ------------------------------------------------------------
-            # ACCIONES DEL FORMULARIO
+            # ACCIONES DE LAS CARDS EDITABLES
             # ------------------------------------------------------------
 
-            if cancelar:
+            if accion_cards == "cancel":
+                st.session_state.pop(draft_key, None)
                 st.session_state.permitir_edicion = False
                 st.session_state.pron_editor_version += 1
                 st.rerun()
 
-            if guardar:
+            if accion_cards == "save":
                 try:
                     # Segunda validación de seguridad:
                     # evita guardar si el cierre ocurrió mientras el formulario estaba abierto.
@@ -2972,7 +2950,9 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
             
                         st.rerun()
             
-                    df_save = edited_df.copy()
+                    df_save = pd.DataFrame(
+                        st.session_state.get(draft_key, filas_editor)
+                    )
 
                     df_save["P1"] = pd.to_numeric(
                         df_save["P1"],
@@ -3023,6 +3003,7 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
 
                     if ok:
                         st.cache_data.clear()
+                        st.session_state.pop(draft_key, None)
                         st.session_state.permitir_edicion = False
                         st.session_state.pron_editor_version += 1
 
