@@ -1,1 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
 
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: transparent;
+        }
+
+        .selector-wrap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+            gap: 12px;
+            padding: 4px;
+        }
+
+        .player-card {
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 18px;
+            padding: 12px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(248,250,252,0.94));
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            cursor: pointer;
+            transition: all 0.18s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+            border-color: rgba(37, 99, 235, 0.35);
+        }
+
+        .player-card.selected {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.22), 0 14px 30px rgba(15, 23, 42, 0.14);
+            background: linear-gradient(145deg, rgba(239,246,255,1), rgba(255,255,255,0.96));
+        }
+
+        .player-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 999px;
+            object-fit: cover;
+            margin-bottom: 8px;
+            border: 2px solid rgba(255,255,255,0.95);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+        }
+
+        .player-name {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.15;
+            margin-bottom: 4px;
+        }
+
+        .player-team {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .selected-badge {
+            display: none;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 4px 7px;
+            border-radius: 999px;
+        }
+
+        .player-card.selected .selected-badge {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script>
+        let selectedId = null;
+
+        function sendValue(value) {
+            Streamlit.setComponentValue(value);
+        }
+
+        function render(data) {
+            const jugadores = data.args.jugadores || [];
+            selectedId = data.args.seleccionado || null;
+
+            const root = document.getElementById("root");
+
+            root.innerHTML = `
+                <div class="selector-wrap">
+                    ${jugadores.map(jugador => `
+                        <div 
+                            class="player-card ${jugador.id === selectedId ? "selected" : ""}" 
+                            data-id="${jugador.id}"
+                        >
+                            <div class="selected-badge">OK</div>
+                            <img 
+                                class="player-avatar" 
+                                src="${jugador.avatar || "https://placehold.co/120x120?text=Jugador"}" 
+                                alt="${jugador.nombre}"
+                            />
+                            <div class="player-name">${jugador.nombre}</div>
+                            <div class="player-team">${jugador.equipo || ""}</div>
+                        </div>
+                    `).join("")}
+                </div>
+            `;
+
+            document.querySelectorAll(".player-card").forEach(card => {
+                card.addEventListener("click", () => {
+                    const id = card.getAttribute("data-id");
+
+                    selectedId = id;
+
+                    document.querySelectorAll(".player-card").forEach(c => {
+                        c.classList.remove("selected");
+                    });
+
+                    card.classList.add("selected");
+
+                    sendValue(id);
+                });
+            });
+
+            Streamlit.setFrameHeight(document.body.scrollHeight);
+        }
+
+        window.addEventListener("message", function(event) {
+            if (event.data.type !== "streamlit:render") {
+                return;
+            }
+
+            render(event.data);
+        });
+
+        Streamlit.setComponentReady();
+    </script>
+</body>
+</html>
