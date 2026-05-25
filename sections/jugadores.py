@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from html import escape
 
+from components.jugador_selector import jugador_selector
 from styles_config import (
     AVATAR_GENERICO,
     BADGE_ASSET_MAP,
@@ -1504,6 +1505,54 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
 
             if df_usuarios_filtrado.empty:
                 st.info("No se encontraron jugadores con esa búsqueda.")
+
+            st.markdown("**Selector visual experimental**")
+
+            usuario_seleccionado_actual = None
+            match_actual = df_usuarios[
+                df_usuarios["NOMBRE"] == st.session_state.jugador_seleccionado
+            ]
+
+            if not match_actual.empty:
+                usuario_seleccionado_actual = str(
+                    match_actual.iloc[0].get("USUARIO", "")
+                )
+
+            jugadores_component = []
+
+            for _, u in df_usuarios_filtrado.iterrows():
+                rank_row, idx_rank = get_ranking_row(u)
+
+                jugadores_component.append({
+                    "id": str(u.get("USUARIO", "")),
+                    "nombre": str(u.get("NOMBRE", "Jugador")),
+                    "usuario": str(u.get("USUARIO", "")),
+                    "equipo": str(u.get("EQUIPO FAVORITO", "-")),
+                    "puntos": get_valor_ranking(rank_row, "PUNTOS"),
+                    "avatar": get_avatar(u)
+                })
+
+            usuario_elegido = jugador_selector(
+                jugadores_component,
+                seleccionado=usuario_seleccionado_actual,
+                key="jugador_selector_plantel"
+            )
+
+            if (
+                usuario_elegido
+                and usuario_elegido != usuario_seleccionado_actual
+            ):
+                match_elegido = df_usuarios[
+                    df_usuarios["USUARIO"].astype(str) == str(usuario_elegido)
+                ]
+
+                if not match_elegido.empty:
+                    st.session_state.jugador_seleccionado = str(
+                        match_elegido.iloc[0].get("NOMBRE", "Jugador")
+                    )
+                    st.rerun()
+
+            st.markdown("**Selector actual de respaldo**")
 
             with st.container(height=310):
                 for _, u in df_usuarios_filtrado.iterrows():
