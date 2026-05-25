@@ -442,7 +442,7 @@ def render_mis_pronosticos(
 }
 
 .pred-summary-kicker {
-    font-size: 10px;
+    font-size: 13px;
     font-weight: 900;
     color: rgba(255,255,255,0.68);
     text-transform: uppercase;
