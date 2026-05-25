@@ -388,8 +388,8 @@ div[aria-label="Fecha de fase de grupos"] {
     background:
         linear-gradient(
             90deg,
-            rgba(7,17,31,0.78) 0%,
-            rgba(15,23,42,0.66) 52%,
+            rgba(7,17,31,0.20) 0%,
+            rgba(15,23,42,0.10) 52%,
             rgba(30,41,59,0.50) 100%
         ),
         url("__FONDO_CARD_INICIO3__");
@@ -490,19 +490,6 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     font-weight: 900 !important;
 }
 
-/* Forzar ancho completo del bloque radio */
-div[data-testid="stRadio"]:has(div[aria-label="Fecha de fase de grupos"]) {
-    width: 100% !important;
-}
-
-div[data-testid="stRadio"]:has(div[aria-label="Fecha de fase de grupos"]) > div {
-    width: 100% !important;
-}
-
-div[data-testid="stRadio"]:has(div[aria-label="Fecha de fase de grupos"]) div[aria-label="Fecha de fase de grupos"] {
-    width: 100% !important;
-    max-width: none !important;
-}
 
 /* Mobile */
 @media (max-width: 768px) {
