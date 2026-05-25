@@ -21,7 +21,7 @@ from styles_config import (
     FONDO_CARD_INICIO3
 )
 
-from tools import upload_profile_picture
+from tools import normalizar_badges, upload_profile_picture
 
 from services.supabase_service import (
     guardar_pronosticos_supabase,
@@ -2389,30 +2389,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
         if row_rank.empty or "BADGES" not in row_rank.columns:
             return []
 
-        badges = row_rank.iloc[0].get("BADGES", [])
-
-        if badges is None:
-            return []
-
-        if isinstance(badges, list):
-            return badges
-
-        if isinstance(badges, str):
-            limpio = (
-                badges
-                .replace("[", "")
-                .replace("]", "")
-                .replace("'", "")
-                .replace('"', "")
-            )
-
-            return [
-                b.strip()
-                for b in limpio.split(",")
-                if b.strip()
-            ]
-
-        return []
+        return normalizar_badges(row_rank.iloc[0].get("BADGES", []))
 
     def build_profile_badges_html(usuario):
         earned_badges = set(get_user_badges(usuario))

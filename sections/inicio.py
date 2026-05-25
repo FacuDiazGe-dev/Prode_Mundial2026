@@ -18,6 +18,7 @@ from styles_config import (
     FONDO_CARD_SILVER,
     FONDO_CARD_BRONCE
 )
+from tools import normalizar_badges
 from services.supabase_service import insertar_foro_supabase
 
 def render_inicio(
@@ -90,34 +91,6 @@ def render_inicio(
     hero_badge_order = BADGE_ORDER
     hero_badge_asset_map = BADGE_ASSET_MAP
 
-    def normalizar_badges_inicio(valor):
-        if valor is None:
-            return []
-
-        if isinstance(valor, list):
-            return [
-                str(b).strip()
-                for b in valor
-                if str(b).strip()
-            ]
-
-        if isinstance(valor, str):
-            limpio = (
-                valor
-                .replace("[", "")
-                .replace("]", "")
-                .replace("'", "")
-                .replace('"', "")
-            )
-
-            return [
-                b.strip()
-                for b in limpio.split(",")
-                if b.strip()
-            ]
-
-        return []
-
     def get_user_badges_inicio(usuario):
         # TEST TEMPORAL HERO BADGES: dejar en True solo para revisar
         # que las imagenes de insignias se vean bien en Inicio.
@@ -145,7 +118,7 @@ def render_inicio(
         if row_badges.empty:
             return []
 
-        return normalizar_badges_inicio(
+        return normalizar_badges(
             row_badges.iloc[0].get("BADGES", [])
         )
 

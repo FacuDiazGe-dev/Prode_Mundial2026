@@ -17,7 +17,7 @@ from services.supabase_service import (
     actualizar_reaccion_foro_supabase,
     borrar_mensaje_foro_supabase
 )
-from tools import upload_foro_image
+from tools import normalizar_badges, upload_foro_image
 
 
 def render_foro(
@@ -1113,30 +1113,6 @@ div[data-testid="stSegmentedControl"] button:hover {
             st.rerun()
         else:
             st.error(msg)
-
-    def normalizar_badges(valor):
-        if valor is None:
-            return []
-
-        if isinstance(valor, list):
-            return valor
-
-        if isinstance(valor, str):
-            limpio = (
-                valor
-                .replace("[", "")
-                .replace("]", "")
-                .replace("'", "")
-                .replace('"', "")
-            )
-
-            return [
-                b.strip()
-                for b in limpio.split(",")
-                if b.strip()
-            ]
-
-        return []
 
     def buscar_ganador_badge(nombre_badge):
         if df_ranking is None or df_ranking.empty:
