@@ -42,6 +42,12 @@ def render_inicio(
 
     top_3 = df_ranking.head(3)
 
+    def safe_int(value, default=0):
+        try:
+            return int(value)
+        except Exception:
+            return default
+
     def get_avatar_usuario_inicio(usuario):
         u_info = df_usuarios[
             df_usuarios["USUARIO"].astype(str) == str(usuario)
@@ -60,9 +66,9 @@ def render_inicio(
             foto = get_avatar_usuario_inicio(row["USUARIO"])
     
             nombre = str(row.get("JUGADOR", "-")).split(" ")[0]
-            puntos = int(row.get("PUNTOS", 0))
-            exactos = int(row.get("EXACTOS", 0))
-            generales = int(row.get("GENERALES", 0))
+            puntos = safe_int(row.get("PUNTOS", 0))
+            exactos = safe_int(row.get("EXACTOS", 0))
+            generales = safe_int(row.get("GENERALES", 0))
     
             return nombre, puntos, foto, exactos, generales
     
@@ -1944,9 +1950,9 @@ def render_inicio(
             jugador = escape(str(row.get("JUGADOR", "Jugador")))
             usuario = str(row.get("USUARIO", ""))
         
-            puntos = int(row.get("PUNTOS", 0))
-            exactos = int(row.get("EXACTOS", 0))
-            generales = int(row.get("GENERALES", 0))
+            puntos = safe_int(row.get("PUNTOS", 0))
+            exactos = safe_int(row.get("EXACTOS", 0))
+            generales = safe_int(row.get("GENERALES", 0))
         
             es_usuario_actual = usuario == usuario_actual
         
