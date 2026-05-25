@@ -271,70 +271,6 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
 }
 
 /* ============================================================
-   4. BOTÓN SELECTOR DEL LISTADO
-   Botón pequeño de acción: ver / activo.
-   ============================================================ */
-
-.player-select-btn button {
-    border-radius: 14px 0 0 14px !important;
-    min-height: 48px !important;
-    height: 48px !important;
-
-    padding: 0 !important;
-
-    font-size: 14px !important;
-    font-weight: 900 !important;
-
-    border: 1px solid rgba(226,232,240,0.92) !important;
-    border-right: 0 !important;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.96),
-            rgba(248,250,252,0.92)
-        ) !important;
-
-    color: #07111F !important;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.68),
-        0 6px 14px rgba(15,23,42,0.035) !important;
-}
-
-.player-select-btn button:hover {
-    background:
-        linear-gradient(
-            180deg,
-            rgba(244,197,66,0.20),
-            rgba(255,255,255,0.94)
-        ) !important;
-
-    border-color: rgba(244,197,66,0.62) !important;
-    color: #07111F !important;
-}
-
-.player-select-btn button:disabled {
-    background:
-        linear-gradient(
-            180deg,
-            rgba(244,197,66,0.24),
-            rgba(255,255,255,0.94)
-        ) !important;
-
-    color: #07111F !important;
-
-    border: 1px solid rgba(244,197,66,0.72) !important;
-    border-right: 0 !important;
-
-    opacity: 1 !important;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.72),
-        0 8px 18px rgba(244,197,66,0.10) !important;
-}
-
-/* ============================================================
    4B. PANEL UNIFICADO — DETALLE DEL JUGADOR
    Contiene perfil + pronósticos dentro de un mismo recuadro.
    ============================================================ */
@@ -771,13 +707,6 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     .player-list-points {
         font-size: 10px;
         padding: 4px 7px;
-    }
-
-    .player-select-btn button {
-        min-height: 46px !important;
-        height: 46px !important;
-        font-size: 12px !important;
-        border-radius: 13px 0 0 13px !important;
     }
 
     .player-avatar {
@@ -1506,8 +1435,6 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
             if df_usuarios_filtrado.empty:
                 st.info("No se encontraron jugadores con esa búsqueda.")
 
-            st.markdown("**Selector visual experimental**")
-
             usuario_seleccionado_actual = None
             match_actual = df_usuarios[
                 df_usuarios["NOMBRE"] == st.session_state.jugador_seleccionado
@@ -1551,69 +1478,6 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
                         match_elegido.iloc[0].get("NOMBRE", "Jugador")
                     )
                     st.rerun()
-
-            st.markdown("**Selector actual de respaldo**")
-
-            with st.container(height=310):
-                for _, u in df_usuarios_filtrado.iterrows():
-                    foto_mini = get_avatar(u)
-
-                    rank_row, idx_rank = get_ranking_row(u)
-                    pts = get_valor_ranking(rank_row, "PUNTOS")
-
-                    nombre_raw = str(u.get("NOMBRE", "Jugador"))
-                    usuario_raw = str(u.get("USUARIO", nombre_raw))
-                    nombre = escape(nombre_raw)
-                    equipo = escape(str(u.get("EQUIPO FAVORITO", "-")))
-
-                    es_seleccionado = (
-                        st.session_state.jugador_seleccionado == nombre_raw
-                    )
-
-                    selected_class = "selected" if es_seleccionado else ""
-
-                    c_btn, c_card = st.columns([0.13, 0.87], gap="small")
-
-                    with c_btn:
-                        st.markdown(
-                            '<div class="player-select-btn">',
-                            unsafe_allow_html=True
-                        )
-
-                        if es_seleccionado:
-                            st.button(
-                                "🔍",
-                                key=f"jugador_activo_{usuario_raw}",
-                                use_container_width=True,
-                                disabled=True
-                            )
-                        else:
-                            if st.button(
-                                "🔍",
-                                key=f"ver_jugador_{usuario_raw}",
-                                use_container_width=True
-                            ):
-                                st.session_state.jugador_seleccionado = nombre_raw
-                                st.rerun()
-
-                        st.markdown("</div>", unsafe_allow_html=True)
-
-                    with c_card:
-                        st.markdown(
-                            f"""
-<div class="player-select-row">
-<div class="player-list-card {selected_class}">
-<img src="{foto_mini}" class="player-list-avatar">
-<div class="player-list-main">
-<div class="player-list-name">{nombre}</div>
-<div class="player-list-team">⚽ {equipo}</div>
-</div>
-<div class="player-list-points">{pts} pts</div>
-</div>
-</div>
-""",
-                            unsafe_allow_html=True
-                        )
 
             user_sel_query = df_usuarios[
                 df_usuarios["NOMBRE"] == st.session_state.jugador_seleccionado
