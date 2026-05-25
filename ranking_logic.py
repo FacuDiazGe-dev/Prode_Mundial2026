@@ -223,11 +223,10 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
             "Optimista del Gol"
         )
 
-    # ------------------------------------------------------------
-    # 5. EL CHOLO — menor promedio de goles
-    # ------------------------------------------------------------
+        # ------------------------------------------------------------
+        # 5. EL CHOLO — menor promedio de goles
+        # ------------------------------------------------------------
 
-    if stats_pronosticos:
         cholo = min(
             stats_pronosticos,
             key=lambda x: x["promedio_goles"]
@@ -238,11 +237,10 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
             "El Cholo"
         )
 
-    # ------------------------------------------------------------
-    # 6. REY DEL EMPATE — más empates pronosticados
-    # ------------------------------------------------------------
+        # ------------------------------------------------------------
+        # 6. REY DEL EMPATE — más empates pronosticados
+        # ------------------------------------------------------------
 
-    if stats_pronosticos:
         rey_empate = max(
             stats_pronosticos,
             key=lambda x: x["empates"]
