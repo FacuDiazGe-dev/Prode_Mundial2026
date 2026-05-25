@@ -457,7 +457,7 @@ div[aria-label="Fecha de fase de grupos"] input:checked + div {
             rgba(244,197,66,0.92),
             rgba(255,220,105,0.90)
         ),
-        url("__FONDO_CARD_INICIO3__");
+        url("FONDO_CARD_INICIO3");
 
     background-size: cover;
     background-position: center;
