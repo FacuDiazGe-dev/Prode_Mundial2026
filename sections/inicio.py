@@ -1905,19 +1905,14 @@ def render_inicio(
 
         ranking_badge_asset_map = BADGE_ASSET_MAP
         def build_ranking_badges_html(badges):
-            if badges is None:
-                return ""
-        
-            if isinstance(badges, str):
-                badges = [badges]
-        
-            if not isinstance(badges, list):
+            badges_normalizadas = normalizar_badges(badges)
+
+            if not badges_normalizadas:
                 return ""
         
             html = ""
         
-            for badge in badges:
-                badge_name = str(badge).strip()
+            for badge_name in badges_normalizadas:
                 badge_url = ranking_badge_asset_map.get(badge_name, {}).get("mini", "")
         
                 if badge_url:
