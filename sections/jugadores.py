@@ -791,35 +791,6 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
         grid-template-columns: 28px 1fr 52px 1fr;
         font-size: 10px;
     }
-        .player-hero-top {
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .player-hero-profile {
-        width: 100%;
-    }
-
-    .player-badges-side {
-        width: 100%;
-        max-width: 210px;
-    }
-
-    .player-badges-mini {
-        gap: 6px;
-    }
-
-    .player-badge-mini {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-    }
-
-    .player-badge-mini-img {
-        width: 38px;
-        height: 38px;
-    }
     .player-hero {
         padding: 15px 13px 13px 13px;
         border-radius: 16px;

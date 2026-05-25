@@ -148,14 +148,6 @@ def render_foro(
     border-left: 4px solid #F4C542;
 }
 
-.foro-message-name {
-    color: #07111F;
-}
-
-.foro-message-text {
-    color: #1f2937;
-}
-
 .foro-feed-shell {
     margin-top: 8px;
     padding: 8px;
