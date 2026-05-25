@@ -382,7 +382,7 @@ div[aria-label="Fecha de fase de grupos"] {
     gap: 8px;
 
     width: 100%;
-    max-width: 420px;
+    max-width: 500px;
 
     padding: 7px;
     margin: -4px 0 14px 0;
@@ -390,9 +390,14 @@ div[aria-label="Fecha de fase de grupos"] {
     background:
         linear-gradient(
             180deg,
-            rgba(255,255,255,0.94),
-            rgba(248,250,252,0.82)
-        );
+            rgba(255,255,255,0.86),
+            rgba(248,250,252,0.74)
+        ),
+        url("__FONDO_CARD_INICIO3__");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 
     border: 1px solid rgba(203,213,225,0.90);
     border-radius: 999px;
@@ -405,7 +410,7 @@ div[aria-label="Fecha de fase de grupos"] {
 div[aria-label="Fecha de fase de grupos"] label {
     flex: 1;
     min-width: 110px;
-    max-width: 500px;
+
     min-height: 38px;
 
     display: inline-flex !important;
@@ -444,14 +449,19 @@ div[aria-label="Fecha de fase de grupos"] input:checked + div {
     background:
         radial-gradient(
             circle at 20% 0%,
-            rgba(244,197,66,0.30),
+            rgba(244,197,66,0.28),
             transparent 45%
         ),
         linear-gradient(
             180deg,
-            rgba(244,197,66,0.96),
-            rgba(255,220,105,0.94)
-        );
+            rgba(244,197,66,0.92),
+            rgba(255,220,105,0.90)
+        ),
+        url("__FONDO_CARD_INICIO3__");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 
     border-radius: 999px;
 
@@ -1367,12 +1377,14 @@ div[data-testid="stButton"] button {
 """
     
     FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+    FONDO_CARD_INICIO3 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO3.png"
     
     css_mis_pronosticos = (
         css_mis_pronosticos
         .replace("__SIDEBAR_BANNER__", SIDEBAR_BANNER)
         .replace("__HEADER_BACKGROUND__", HEADER_BACKGROUND)
         .replace("__FONDO_CARD_INICIO__", FONDO_CARD_INICIO)
+        .replace("__FONDO_CARD_INICIO3__", FONDO_CARD_INICIO3)
     )
 
     st.markdown(css_mis_pronosticos, unsafe_allow_html=True)
