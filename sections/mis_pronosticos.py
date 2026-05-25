@@ -1141,7 +1141,9 @@ div[data-testid="stButton"] button {
 }
 </style>
 """
-
+    
+    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+    
     css_mis_pronosticos = (
         css_mis_pronosticos
         .replace("__SIDEBAR_BANNER__", SIDEBAR_BANNER)
