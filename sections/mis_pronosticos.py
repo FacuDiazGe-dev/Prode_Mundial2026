@@ -2250,59 +2250,12 @@ div[data-testid="stButton"] button {
         if "pron_editor_version" not in st.session_state:
             st.session_state.pron_editor_version = 0
 
-        # ------------------------------------------------------------
-        # SELECTOR DE FECHA / TANDA DE CARGA
-        # Usa la columna FECHA de la hoja RESULTADOS
-        # ------------------------------------------------------------
-
-        tanda_seleccionada = st.radio(
-            "Fecha de fase de grupos",
-            [
-                "Fecha 1",
-                "Fecha 2",
-                "Fecha 3"
-            ],
-            horizontal=True,
-            key="tanda_pronosticos_mi_prode"
-        )
-
-        fecha_num = int(
-            tanda_seleccionada.replace("Fecha ", "")
-        )
-
-        df_res_tanda = df_res.copy()
-
-        if "FECHA" not in df_res_tanda.columns:
-            st.error("No se encontró la columna FECHA en la hoja RESULTADOS.")
-            st.stop()
-
-        df_res_tanda["FECHA_NUM"] = pd.to_numeric(
-            df_res_tanda["FECHA"],
-            errors="coerce"
-        )
-
-        df_res_tanda = df_res_tanda[
-            df_res_tanda["FECHA_NUM"] == fecha_num
-        ].copy()
-
-        df_res_tanda["N_PARTIDO"] = pd.to_numeric(
-            df_res_tanda["N_PARTIDO"],
-            errors="coerce"
-        )
-
-        df_res_tanda = df_res_tanda.dropna(
-            subset=["N_PARTIDO"]
-        ).copy()
-
-        df_res_tanda["N_PARTIDO"] = df_res_tanda["N_PARTIDO"].astype(int)
-
-        fecha_key = f"fecha_{fecha_num}"
 
         # ------------------------------------------------------------
         # HEADER DEL PANEL
         # ------------------------------------------------------------
 
-st.markdown(f"""
+        st.markdown(f"""
 <div class="pred-panel-header-v2">
 <div class="pred-panel-title-row">
 <div class="panel-icon">📝</div>
@@ -2314,22 +2267,32 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-tanda_seleccionada = st.radio(
-    "Fecha de fase de grupos",
-    [
-        "Fecha 1",
-        "Fecha 2",
-        "Fecha 3"
-    ],
-    horizontal=True,
-    key="tanda_pronosticos_mi_prode",
-    label_visibility="collapsed"
-)
+        # ------------------------------------------------------------
+        # SELECTOR DE FECHA / TANDA DE CARGA
+        # ------------------------------------------------------------
 
-fecha_num = int(
-    tanda_seleccionada.replace("Fecha ", "")
-)
+        tanda_seleccionada = st.radio(
+            "Fecha de fase de grupos",
+            [
+                "Fecha 1",
+                "Fecha 2",
+                "Fecha 3"
+            ],
+            horizontal=True,
+            key="tanda_pronosticos_mi_prode",
+            label_visibility="collapsed"
+        )
 
+        fecha_num = int(
+            tanda_seleccionada.replace("Fecha ", "")
+        )
+
+        df_res_tanda = df_res.copy()
+
+        if "FECHA" not in df_res_tanda.columns:
+            st.error("No se encontró la columna FECHA en la hoja RESULTADOS.")
+            st.stop()
+            
         # ============================================================
         # PREPARACIÓN DE DATOS COMÚN
         # ============================================================
