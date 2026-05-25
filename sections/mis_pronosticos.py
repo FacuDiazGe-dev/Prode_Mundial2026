@@ -497,6 +497,12 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) p {
     div[aria-label="Fecha de fase de grupos"] label p {
         font-size: 11px !important;
     }
+    .pred-scroll {
+        height: 430px;
+        padding: 8px 9px 3px 9px;
+        margin: 0 0 10px 0;
+        border-radius: 15px;
+    }
 }
 
     .pred-scroll {
