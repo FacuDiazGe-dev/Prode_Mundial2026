@@ -62,8 +62,7 @@ def render_mis_pronosticos(
     font-weight: 600;
 }
 
-.pred-panel,
-.profile-panel {
+.pred-panel {
     background: rgba(255,255,255,0.94);
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 18px;
