@@ -2287,12 +2287,39 @@ div[data-testid="stButton"] button {
             tanda_seleccionada.replace("Fecha ", "")
         )
 
+        # ------------------------------------------------------------
+        # FILTRO DE PARTIDOS POR FECHA
+        # ------------------------------------------------------------
+
         df_res_tanda = df_res.copy()
 
         if "FECHA" not in df_res_tanda.columns:
             st.error("No se encontró la columna FECHA en la hoja RESULTADOS.")
             st.stop()
-            
+
+        df_res_tanda["FECHA_NUM"] = pd.to_numeric(
+            df_res_tanda["FECHA"],
+            errors="coerce"
+        )
+
+        df_res_tanda = df_res_tanda[
+            df_res_tanda["FECHA_NUM"] == fecha_num
+        ].copy()
+
+        df_res_tanda["N_PARTIDO"] = pd.to_numeric(
+            df_res_tanda["N_PARTIDO"],
+            errors="coerce"
+        )
+
+        df_res_tanda = df_res_tanda.dropna(
+            subset=["N_PARTIDO"]
+        ).copy()
+
+        df_res_tanda["N_PARTIDO"] = df_res_tanda["N_PARTIDO"].astype(int)
+
+        fecha_key = f"fecha_{fecha_num}"
+
+
         # ============================================================
         # PREPARACIÓN DE DATOS COMÚN
         # ============================================================
@@ -2354,68 +2381,66 @@ div[data-testid="stButton"] button {
 
         if not modo_edicion:
 
-            with st.container(height=520):
+            cards_html = '<div class="pred-scroll">'
 
-                cards_html = '<div class="pred-scroll">'
-                
-                for _, row in df_res_tanda.sort_values("N_PARTIDO").iterrows():
-                    id_p = int(row["N_PARTIDO"])
-                    match = df_user_pro[df_user_pro["N_PARTIDO"] == id_p]
-                
-                    v1 = (
-                        int(match.iloc[0]["P1"])
-                        if not match.empty and pd.notna(match.iloc[0]["P1"])
-                        else 0
-                    )
-                
-                    v2 = (
-                        int(match.iloc[0]["P2"])
-                        if not match.empty and pd.notna(match.iloc[0]["P2"])
-                        else 0
-                    )
-                
-                    equipo_1 = str(row.get("Equipo_1", ""))
-                    equipo_2 = str(row.get("Equipo_2", ""))
-                
-                    bandera1 = mapa_banderas.get(equipo_1, "⚽")
-                    bandera2 = mapa_banderas.get(equipo_2, "⚽")
-                
-                    dia = str(row.get("DIA", ""))
-                    hora = str(row.get("HORA", ""))
-                
-                    cards_html += f"""
+            for _, row in df_res_tanda.sort_values("N_PARTIDO").iterrows():
+                id_p = int(row["N_PARTIDO"])
+                match = df_user_pro[df_user_pro["N_PARTIDO"] == id_p]
+
+                v1 = (
+                    int(match.iloc[0]["P1"])
+                    if not match.empty and pd.notna(match.iloc[0]["P1"])
+                    else 0
+                )
+
+                v2 = (
+                    int(match.iloc[0]["P2"])
+                    if not match.empty and pd.notna(match.iloc[0]["P2"])
+                    else 0
+                )
+
+                equipo_1 = str(row.get("Equipo_1", ""))
+                equipo_2 = str(row.get("Equipo_2", ""))
+
+                bandera1 = mapa_banderas.get(equipo_1, "⚽")
+                bandera2 = mapa_banderas.get(equipo_2, "⚽")
+
+                dia = str(row.get("DIA", ""))
+                hora = str(row.get("HORA", ""))
+
+                cards_html += f"""
 <div class="pred-match-card-v2">
 
 <div class="pred-match-meta">
-    <span>Partido #{id_p}</span>
-    <span>{escape(dia)} | {escape(hora)}</span>
+<span>Partido #{id_p}</span>
+<span>{escape(dia)} | {escape(hora)}</span>
 </div>
 
 <div class="pred-match-main-row">
 
 <div class="pred-team-inline left">
-    <span>{escape(equipo_1)}</span>
-    {flag_html(bandera1)}
+<span>{escape(equipo_1)}</span>
+{flag_html(bandera1)}
 </div>
 
 <div class="pred-score-pill">
-    <span>{v1}</span>
-    <span class="score-colon">:</span>
-    <span>{v2}</span>
+<span>{v1}</span>
+<span class="score-colon">:</span>
+<span>{v2}</span>
 </div>
 
 <div class="pred-team-inline right">
-    {flag_html(bandera2)}
-    <span>{escape(equipo_2)}</span>
+{flag_html(bandera2)}
+<span>{escape(equipo_2)}</span>
 </div>
 
-</div>    
 </div>
-                """
+</div>
+"""
 
-                cards_html += '</div>'
-                
-                st.markdown(cards_html, unsafe_allow_html=True)
+            cards_html += '</div>'
+
+            st.markdown(cards_html, unsafe_allow_html=True)
 
             if es_tiempo_valido:
                 if st.button(
