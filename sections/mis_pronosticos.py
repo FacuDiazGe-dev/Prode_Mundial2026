@@ -5,6 +5,7 @@ import streamlit.components.v1 as components
 import re
 
 from components.pronostico_cards import pronostico_cards
+from components.ui_button import ui_button
 from datetime import datetime, timedelta
 from html import escape
 
@@ -2804,11 +2805,14 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
             if es_tiempo_valido:
                 st.markdown('<div class="edit-pred-btn-wrap">', unsafe_allow_html=True)
             
-                if st.button(
-                    f"✏️ Editar pronósticos de {tanda_seleccionada}",
-                    use_container_width=True,
+                accion_editar_pronosticos = ui_button(
+                    label=f"Editar pronósticos de {tanda_seleccionada}",
+                    action="editar_pronosticos",
+                    icon="✏️",
                     key=f"btn_editar_pronosticos_{fecha_key}"
-                ):
+                )
+
+                if accion_editar_pronosticos == "editar_pronosticos":
                     st.session_state.permitir_edicion = True
                     st.rerun()
             
@@ -3120,11 +3124,14 @@ Bio:
 
             st.markdown('<div class="profile-edit-btn-wrap">', unsafe_allow_html=True)
             
-            if st.button(
-                "✏️ Editar Perfil",
-                use_container_width=True,
+            accion_editar_perfil = ui_button(
+                label="Editar Perfil",
+                action="editar_perfil",
+                icon="✏️",
                 key="btn_editar_perfil"
-            ):
+            )
+
+            if accion_editar_perfil == "editar_perfil":
                 st.session_state.editando_perfil = True
                 st.rerun()
             
