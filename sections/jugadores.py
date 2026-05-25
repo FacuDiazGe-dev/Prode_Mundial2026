@@ -4,7 +4,8 @@ from html import escape
 
 from styles_config import (
     AVATAR_GENERICO,
-    BADGE_ASSET_BASE_URL,
+    BADGE_ASSET_MAP,
+    BADGE_ORDER,
     PLAYER_PROFILE_BACKGROUND
 )
 from ranking_logic import calcular_detalle
@@ -1339,78 +1340,13 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     PLAYER_HERO_BG_URL = PLAYER_PROFILE_BACKGROUND
 
     
-    badge_asset_map = {
-        "Puntero": {
-            "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_128.png",
-        },
-        "Sr. Prode": {
-            "large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_128.png",
-        },
-        "Siempre Suma": {
-            "large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_128.png",
-        },
-        "Optimista del Gol": {
-            "large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_128.png",
-        },
-        "El Cholo": {
-            "large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_128.png",
-        },
-        "Rey del Empate": {
-            "large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_128.png",
-        },
-        "El Macaya": {
-            "large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_128.png",
-        },
-        "El Misterioso": {
-            "large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_128.png",
-        },
-        "El Distinto": {
-            "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGEGRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
-        },
-    }
+    badge_asset_map = BADGE_ASSET_MAP
 
 
     def normalizar_texto(valor):
         return str(valor).strip().lower()
 
-    badge_order = [
-        "Puntero",
-        "Sr. Prode",
-        "Siempre Suma",
-        "Optimista del Gol",
-        "El Cholo",
-        "Rey del Empate",
-        "El Macaya",
-        "El Misterioso",
-        "El Distinto",
-    ]
+    badge_order = BADGE_ORDER
 
     def build_player_badges_mini_html(user_row, logros, badge_asset_map):
         jugador_nombre = normalizar_texto(user_row.get("NOMBRE", ""))

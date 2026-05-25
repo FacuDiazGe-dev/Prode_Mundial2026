@@ -5,7 +5,8 @@ from html import escape
 
 from styles_config import (
     AVATAR_GENERICO,
-    BADGE_ASSET_BASE_URL,
+    BADGE_ASSET_MAP,
+    BADGE_ORDER,
     BADGES_WALL_BACKGROUND,
     EVOL_HEADER_BACKGROUND
 )
@@ -1821,56 +1822,8 @@ div[data-testid="stSegmentedControl"] button:hover {
         # MEDALLERO DEL PRODE — PROVISORIO
         # ------------------------------------------------------------
 
-        badge_asset_map = {
-            "Puntero": {
-                "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_GRAY_512.png",
-            },
-            "Sr. Prode": {
-                "large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_GRAY_512.png",
-            },
-            "Siempre Suma": {
-                "large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_GRAY_512.png",
-            },
-            "Optimista del Gol": {
-                "large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_GRAY_512.png",
-            },
-            "El Cholo": {
-                "large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_GRAY_512.png",
-            },
-            "Rey del Empate": {
-                "large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_GRAY_512.png",
-            },
-            "El Macaya": {
-                "large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_GRAY_512.png",
-            },
-            "El Misterioso": {
-                "large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_GRAY_512.png",
-            },
-            "El Distinto": {
-                "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_GRAY_512.png",
-            },
-        }
-
-        badge_order = [
-            "Puntero",
-            "Sr. Prode",
-            "Siempre Suma",
-            "Optimista del Gol",
-            "El Cholo",
-            "Rey del Empate",
-            "El Macaya",
-            "El Misterioso",
-            "El Distinto",
-        ]
+        badge_asset_map = BADGE_ASSET_MAP
+        badge_order = BADGE_ORDER
 
         medallero_html = ""
 

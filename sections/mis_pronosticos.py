@@ -14,7 +14,8 @@ from styles_config import (
     HEADER_BACKGROUND,
     SIDEBAR_BANNER,
     EVOL_HEADER_BACKGROUND,
-    BADGE_ASSET_BASE_URL,
+    BADGE_ASSET_MAP,
+    BADGE_ORDER,
     PLAYER_PROFILE_BACKGROUND,
     FONDO_CARD_INICIO,
     FONDO_CARD_INICIO3
@@ -2377,56 +2378,8 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
             height=495,
             scrolling=False
         )
-    badge_order = [
-        "Puntero",
-        "Sr. Prode",
-        "Siempre Suma",
-        "Optimista del Gol",
-        "El Cholo",
-        "Rey del Empate",
-        "El Macaya",
-        "El Misterioso",
-        "El Distinto",
-    ]
-
-    badge_asset_map = {
-        "Puntero": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_128.png",
-        },
-        "Sr. Prode": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_128.png",
-        },
-        "Siempre Suma": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_128.png",
-        },
-        "Optimista del Gol": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_128.png",
-        },
-        "El Cholo": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_128.png",
-        },
-        "Rey del Empate": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_128.png",
-        },
-        "El Macaya": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_128.png",
-        },
-        "El Misterioso": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_128.png",
-        },
-        "El Distinto": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
-        },
-    }
+    badge_order = BADGE_ORDER
+    badge_asset_map = BADGE_ASSET_MAP
 
     def get_user_badges(usuario):
         row_rank = df_ranking[

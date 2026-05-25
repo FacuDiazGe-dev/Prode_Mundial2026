@@ -9,7 +9,8 @@ from styles_config import (
     AVATAR_GENERICO,
     HEADER_BACKGROUND,
     EVOL_HEADER_BACKGROUND,
-    BADGE_ASSET_BASE_URL,
+    BADGE_ASSET_MAP,
+    BADGE_ORDER,
     FONDO_CARD_INICIO,
     FONDO_CARD_INICIO2,
     FONDO_CARD_INICIO3,
@@ -86,29 +87,8 @@ def render_inicio(
     usuario_actual = st.session_state["user_data"]["USUARIO"]
     MOSTRAR_BADGES_TEST_INICIO = False
 
-    hero_badge_order = [
-        "Puntero",
-        "Sr. Prode",
-        "Siempre Suma",
-        "Optimista del Gol",
-        "El Cholo",
-        "Rey del Empate",
-        "El Macaya",
-        "El Misterioso",
-        "El Distinto",
-    ]
-
-    hero_badge_asset_map = {
-        "Puntero": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-        "Sr. Prode": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-        "Siempre Suma": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-        "Optimista del Gol": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-        "El Cholo": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-        "Rey del Empate": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-        "El Macaya": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-        "El Misterioso": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-        "El Distinto": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-    }
+    hero_badge_order = BADGE_ORDER
+    hero_badge_asset_map = BADGE_ASSET_MAP
 
     def normalizar_badges_inicio(valor):
         if valor is None:
@@ -190,7 +170,7 @@ def render_inicio(
         badges_html = ""
 
         for badge_name in visibles:
-            badge_url = hero_badge_asset_map.get(badge_name, "")
+            badge_url = hero_badge_asset_map.get(badge_name, {}).get("mini", "")
 
             if badge_url:
                 badges_html += (
@@ -1950,17 +1930,7 @@ def render_inicio(
         
         usuario_actual = st.session_state["user_data"]["USUARIO"]
 
-        ranking_badge_asset_map = {
-            "Puntero": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-            "Sr. Prode": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-            "Siempre Suma": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-            "Optimista del Gol": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-            "El Cholo": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-            "Rey del Empate": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-            "El Macaya": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-            "El Misterioso": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-            "El Distinto": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-        }
+        ranking_badge_asset_map = BADGE_ASSET_MAP
         def build_ranking_badges_html(badges):
             if badges is None:
                 return ""
@@ -1975,7 +1945,7 @@ def render_inicio(
         
             for badge in badges:
                 badge_name = str(badge).strip()
-                badge_url = ranking_badge_asset_map.get(badge_name, "")
+                badge_url = ranking_badge_asset_map.get(badge_name, {}).get("mini", "")
         
                 if badge_url:
                     html += (
