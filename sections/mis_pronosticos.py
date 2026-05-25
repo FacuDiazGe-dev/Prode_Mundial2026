@@ -373,7 +373,6 @@ def render_mis_pronosticos(
    SELECTOR DE FECHA — OSCURO TEXTURADO ESTABLE
    ============================================================ */
 
-/* Cápsula general */
 div[aria-label="Fecha de fase de grupos"] {
     display: flex !important;
     align-items: center !important;
@@ -389,9 +388,9 @@ div[aria-label="Fecha de fase de grupos"] {
     background:
         linear-gradient(
             90deg,
-            rgba(7,17,31,0.74) 0%,
-            rgba(15,23,42,0.62) 52%,
-            rgba(30,41,59,0.46) 100%
+            rgba(7,17,31,0.78) 0%,
+            rgba(15,23,42,0.66) 52%,
+            rgba(30,41,59,0.50) 100%
         ),
         url("__FONDO_CARD_INICIO3__");
 
@@ -418,13 +417,12 @@ div[aria-label="Fecha de fase de grupos"] label {
     justify-content: center !important;
 
     padding: 0 16px !important;
-
     border-radius: 999px;
 
-    color: rgba(248,250,252,0.92) !important;
-    white-space: nowrap !important;
-
     cursor: pointer;
+
+    color: #FFFFFF !important;
+    opacity: 1 !important;
 
     transition:
         background 0.18s ease,
@@ -433,26 +431,36 @@ div[aria-label="Fecha de fase de grupos"] label {
         transform 0.18s ease;
 }
 
-/* Ocultar indicador nativo del radio */
-div[aria-label="Fecha de fase de grupos"] label > div:first-child {
+/* Ocultar SOLO el indicador circular interno, sin romper el texto */
+div[aria-label="Fecha de fase de grupos"] input {
     display: none !important;
 }
 
-/* Texto */
-div[aria-label="Fecha de fase de grupos"] label p {
+/* Texto de cada opción */
+div[aria-label="Fecha de fase de grupos"] label p,
+div[aria-label="Fecha de fase de grupos"] label span {
     margin: 0 !important;
+
     font-family: 'Inter', sans-serif !important;
     font-size: 13px !important;
     font-weight: 900 !important;
-    color: FFFFFF !important;
+
+    color: #FFFFFF !important;
     opacity: 1 !important;
+
+    white-space: nowrap !important;
 }
 
 /* Hover */
 div[aria-label="Fecha de fase de grupos"] label:hover {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.09);
     color: #FFFFFF !important;
     transform: translateY(-1px);
+}
+
+div[aria-label="Fecha de fase de grupos"] label:hover p,
+div[aria-label="Fecha de fase de grupos"] label:hover span {
+    color: #FFFFFF !important;
 }
 
 /* Opción activa */
@@ -476,7 +484,8 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) {
         inset 0 1px 0 rgba(255,255,255,0.42);
 }
 
-div[aria-label="Fecha de fase de grupos"] label:has(input:checked) p {
+div[aria-label="Fecha de fase de grupos"] label:has(input:checked) p,
+div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     color: #07111F !important;
     font-weight: 900 !important;
 }
@@ -494,22 +503,9 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) p {
         padding: 0 10px !important;
     }
 
-    div[aria-label="Fecha de fase de grupos"] label p {
+    div[aria-label="Fecha de fase de grupos"] label p,
+    div[aria-label="Fecha de fase de grupos"] label span {
         font-size: 11px !important;
-    }
-    .pred-scroll {
-        height: 430px;
-        padding: 8px 9px 3px 9px;
-        margin: 0 0 10px 0;
-        border-radius: 15px;
-    }
-}
-
-    .pred-scroll {
-        height: 430px;
-        padding: 8px 9px 3px 9px;
-        margin: 0 0 10px 0;
-        border-radius: 15px;
     }
 }
 .pred-panel-header-v2 {
