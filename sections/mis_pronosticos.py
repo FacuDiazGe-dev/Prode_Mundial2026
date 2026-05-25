@@ -368,6 +368,130 @@ def render_mis_pronosticos(
     color: #F4C542;
 }
 
+/* ============================================================
+   SELECTOR DE FECHA — RADIO PREMIUM
+   ============================================================ */
+
+div[aria-label="Fecha de fase de grupos"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 7px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.94),
+            rgba(248,250,252,0.82)
+        );
+
+    border: 1px solid rgba(203,213,225,0.90);
+    border-radius: 999px;
+
+    box-shadow:
+        0 8px 18px rgba(15,23,42,0.055),
+        inset 0 1px 0 rgba(255,255,255,0.78);
+
+    margin-bottom: 14px;
+}
+
+div[aria-label="Fecha de fase de grupos"] label {
+    position: relative;
+
+    min-height: 34px;
+
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 14px !important;
+
+    border-radius: 999px;
+
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+
+    color: #475569;
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease;
+}
+
+/* Oculta el circulito nativo del radio */
+div[aria-label="Fecha de fase de grupos"] label > div:first-child {
+    display: none !important;
+}
+
+/* Estado hover */
+div[aria-label="Fecha de fase de grupos"] label:hover {
+    background: rgba(244,197,66,0.10);
+    color: #0f172a;
+    transform: translateY(-1px);
+}
+
+/* Estado activo: radio seleccionado */
+div[aria-label="Fecha de fase de grupos"] input:checked + div {
+    background:
+        radial-gradient(
+            circle at 20% 0%,
+            rgba(244,197,66,0.30),
+            transparent 45%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.96),
+            rgba(255,220,105,0.94)
+        );
+
+    border-radius: 999px;
+
+    color: #07111F !important;
+
+    box-shadow:
+        0 8px 16px rgba(244,197,66,0.20),
+        inset 0 1px 0 rgba(255,255,255,0.42);
+}
+
+/* Texto interno del activo */
+div[aria-label="Fecha de fase de grupos"] input:checked + div p {
+    color: #07111F !important;
+    font-weight: 900 !important;
+}
+
+/* Texto normal */
+div[aria-label="Fecha de fase de grupos"] label p {
+    margin: 0 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    div[aria-label="Fecha de fase de grupos"] {
+        width: 100%;
+        justify-content: space-between;
+        gap: 5px;
+        padding: 6px;
+        margin-bottom: 12px;
+    }
+
+    div[aria-label="Fecha de fase de grupos"] label {
+        flex: 1;
+        padding: 0 8px !important;
+        min-height: 32px;
+    }
+
+    div[aria-label="Fecha de fase de grupos"] label p {
+        font-size: 11px !important;
+    }
+}
+
 .pred-panel-header-v2 {
     position: relative;
     overflow: hidden;
@@ -429,6 +553,53 @@ def render_mis_pronosticos(
     color: #CBD5E1;
     font-weight: 800;
 }
+
+/* ============================================================
+   SCROLL PREMIUM — CONTENEDORES STREAMLIT
+   ============================================================ */
+
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    scrollbar-width: thin;
+    scrollbar-color: #0F2D63 rgba(226,232,240,0.55);
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]::-webkit-scrollbar {
+    width: 8px;
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]::-webkit-scrollbar-track {
+    background: linear-gradient(
+        180deg,
+        rgba(226,232,240,0.55),
+        rgba(241,245,249,0.85)
+    );
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(148,163,184,0.18);
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        #0F2D63 0%,
+        #173F86 55%,
+        #D4A017 100%
+    );
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        0 2px 6px rgba(15,23,42,0.18);
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+        180deg,
+        #173F86 0%,
+        #1D4FA8 55%,
+        #E2B93B 100%
+    );
+}
+
 
 /* ============================================================
    MOBILE — VERSION COMPACTA
