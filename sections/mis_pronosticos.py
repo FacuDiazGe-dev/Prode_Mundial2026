@@ -490,6 +490,20 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     font-weight: 900 !important;
 }
 
+/* Forzar ancho completo del bloque radio */
+div[data-testid="stRadio"]:has(div[aria-label="Fecha de fase de grupos"]) {
+    width: 100% !important;
+}
+
+div[data-testid="stRadio"]:has(div[aria-label="Fecha de fase de grupos"]) > div {
+    width: 100% !important;
+}
+
+div[data-testid="stRadio"]:has(div[aria-label="Fecha de fase de grupos"]) div[aria-label="Fecha de fase de grupos"] {
+    width: 100% !important;
+    max-width: none !important;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
     div[aria-label="Fecha de fase de grupos"] {
