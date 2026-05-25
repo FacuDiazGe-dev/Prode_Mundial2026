@@ -444,7 +444,7 @@ div[aria-label="Fecha de fase de grupos"] label p {
     font-family: 'Inter', sans-serif !important;
     font-size: 13px !important;
     font-weight: 900 !important;
-    color: inherit !important;
+    color: FFFFFF !important;
     opacity: 1 !important;
 }
 
