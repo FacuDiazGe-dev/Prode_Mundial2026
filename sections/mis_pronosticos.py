@@ -1776,6 +1776,12 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
         return flag_value     
 
+    def safe_int(value, default=0):
+        try:
+            return int(value)
+        except Exception:
+            return default
+
     def get_user_rank_stats(usuario):
         row_rank = df_ranking[df_ranking["USUARIO"] == usuario]
 
@@ -1796,9 +1802,9 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
         return {
             "pos": pos,
-            "pts": int(row.get("PUNTOS", 0)),
-            "exactos": int(row.get("EXACTOS", 0)),
-            "generales": int(row.get("GENERALES", 0))
+            "pts": safe_int(row.get("PUNTOS", 0)),
+            "exactos": safe_int(row.get("EXACTOS", 0)),
+            "generales": safe_int(row.get("GENERALES", 0))
         }
     def render_evolucion_puntos_premium(usuario_actual):
         """
