@@ -41,21 +41,23 @@ def render_inicio(
     """
 
     top_3 = df_ranking.head(3)
+
+    def get_avatar_usuario_inicio(usuario):
+        u_info = df_usuarios[
+            df_usuarios["USUARIO"].astype(str) == str(usuario)
+        ]
+
+        if not u_info.empty:
+            avatar = u_info.iloc[0].get("AVATAR_URL", "")
+            if pd.notna(avatar) and str(avatar).strip() != "":
+                return str(avatar)
+
+        return AVATAR_GENERICO
     
     def get_pod_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
-    
-            u_info = df_usuarios[
-                df_usuarios["USUARIO"] == row["USUARIO"]
-            ]
-    
-            foto = (
-                u_info["AVATAR_URL"].values[0]
-                if not u_info.empty
-                and pd.notna(u_info["AVATAR_URL"].values[0])
-                else AVATAR_GENERICO
-            )
+            foto = get_avatar_usuario_inicio(row["USUARIO"])
     
             nombre = str(row.get("JUGADOR", "-")).split(" ")[0]
             puntos = int(row.get("PUNTOS", 0))
@@ -3786,12 +3788,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
                 es_propio = usuario_msg == st.session_state["user_data"]["USUARIO"]
         
-                u_info = df_usuarios[df_usuarios["USUARIO"] == usuario_msg]
-        
-                if not u_info.empty and pd.notna(u_info["AVATAR_URL"].values[0]):
-                    avatar = str(u_info["AVATAR_URL"].values[0])
-                else:
-                    avatar = AVATAR_GENERICO
+                avatar = get_avatar_usuario_inicio(usuario_msg)
         
                 clase_me = "me" if es_propio else ""
         
