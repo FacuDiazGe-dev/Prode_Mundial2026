@@ -390,7 +390,7 @@ div[aria-label="Fecha de fase de grupos"] {
             90deg,
             rgba(7,17,31,0.20) 0%,
             rgba(15,23,42,0.10) 52%,
-            rgba(30,41,59,0.50) 100%
+            rgba(30,41,59,0.10) 100%
         ),
         url("__FONDO_CARD_INICIO3__");
 
