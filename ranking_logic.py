@@ -1,7 +1,13 @@
 import pandas as pd
 import streamlit as st
 
-# 1. FUNCIÓN DE CÁLCULO DE PUNTOS (Tu versión exacta)
+# ============================================================
+# CALCULO DE PUNTOS POR PARTIDO
+# Regla central del Prode:
+# - 1 punto por acertar tendencia
+# - 3 puntos si ademas acierta resultado exacto
+# Si cambia el sistema de puntos, empezar por esta funcion.
+# ============================================================
 def calcular_detalle(r1, r2, p1, p2):
     """
     Calcula puntos según: +1 por tendencia, +2 adicional por exacto (Total 3).
@@ -25,7 +31,11 @@ def calcular_detalle(r1, r2, p1, p2):
             puntos = 3 
     return puntos, exactos, generales
 
-# 2. FUNCIÓN DE APOYO PARA PROCESAR INSIGNIAS NUEVAS
+# ============================================================
+# INSIGNIAS GLOBALES
+# Revisa ranking, pronosticos y foro para determinar que badges
+# gana cada usuario. No modifica datos en Supabase.
+# ============================================================
 def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles=None):
     """
     Calcula qué usuario gana cada badge disponible para mostrar en el ranking.
@@ -314,7 +324,11 @@ def procesar_badges_ranking(row, badge_por_usuario):
     return badge_por_usuario.get(usuario, [])
 
 
-# 3. FUNCIÓN PRINCIPAL DE RANKING
+# ============================================================
+# RANKING GENERAL
+# Cruza usuarios + pronosticos + resultados visibles y devuelve
+# la tabla que consumen Inicio, Plantel y Mi Prode.
+# ============================================================
 @st.cache_data(ttl=60)
 def obtener_ranking_global(df_users, df_pro, df_res, df_foro=None):
     ranking_data = []
