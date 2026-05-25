@@ -54,6 +54,57 @@ def calcular_detalle(r1, r2, p1, p2):
             puntos = 3 
     return puntos, exactos, generales
 
+
+def calcular_stats_pronosticos_badges(df_rank, df_pro):
+    stats_pronosticos = []
+
+    for _, row in df_rank.iterrows():
+        usuario = str(row.get("USUARIO", ""))
+
+        pro_user = df_pro[
+            df_pro["USUARIO"].astype(str) == usuario
+        ]
+
+        if pro_user.empty:
+            continue
+
+        p1 = pd.to_numeric(
+            pro_user["P1"],
+            errors="coerce"
+        ).fillna(0)
+
+        p2 = pd.to_numeric(
+            pro_user["P2"],
+            errors="coerce"
+        ).fillna(0)
+
+        total_partidos = len(pro_user)
+
+        goles_totales = safe_int(
+            (p1 + p2).sum()
+        )
+
+        promedio_goles = (
+            goles_totales / total_partidos
+            if total_partidos > 0
+            else 0
+        )
+
+        empates = safe_int(
+            (p1 == p2).sum()
+        )
+
+        stats_pronosticos.append({
+            "usuario": usuario,
+            "total_partidos": total_partidos,
+            "goles_totales": goles_totales,
+            "promedio_goles": promedio_goles,
+            "empates": empates
+        })
+
+    return stats_pronosticos
+
+
 # ============================================================
 # INSIGNIAS GLOBALES
 # Revisa ranking, pronosticos y foro para determinar que badges
@@ -152,51 +203,10 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
     # DATOS DE PRONÓSTICOS POR USUARIO
     # ------------------------------------------------------------
 
-    stats_pronosticos = []
-
-    for _, row in df_rank.iterrows():
-        usuario = str(row.get("USUARIO", ""))
-
-        pro_user = df_pro[
-            df_pro["USUARIO"].astype(str) == usuario
-        ]
-
-        if pro_user.empty:
-            continue
-
-        p1 = pd.to_numeric(
-            pro_user["P1"],
-            errors="coerce"
-        ).fillna(0)
-
-        p2 = pd.to_numeric(
-            pro_user["P2"],
-            errors="coerce"
-        ).fillna(0)
-
-        total_partidos = len(pro_user)
-
-        goles_totales = int(
-            (p1 + p2).sum()
-        )
-
-        promedio_goles = (
-            goles_totales / total_partidos
-            if total_partidos > 0
-            else 0
-        )
-
-        empates = int(
-            (p1 == p2).sum()
-        )
-
-        stats_pronosticos.append({
-            "usuario": usuario,
-            "total_partidos": total_partidos,
-            "goles_totales": goles_totales,
-            "promedio_goles": promedio_goles,
-            "empates": empates
-        })
+    stats_pronosticos = calcular_stats_pronosticos_badges(
+        df_rank,
+        df_pro
+    )
 
     # ------------------------------------------------------------
     # 4. OPTIMISTA DEL GOL — mayor promedio de goles
