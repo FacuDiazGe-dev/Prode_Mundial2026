@@ -289,31 +289,162 @@ def render_mis_pronosticos(
 }
 
 /* ============================================================
+   BOTÓN EDITAR PRONÓSTICOS — PREMIUM
+   ============================================================ */
+
+.edit-pred-btn-wrap {
+    margin: 10px 0 12px 0;
+}
+
+.edit-pred-btn-wrap div[data-testid="stButton"] button {
+    min-height: 46px !important;
+
+    border-radius: 15px !important;
+
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+
+    color: #07111F !important;
+
+    background:
+        radial-gradient(
+            circle at 20% 0%,
+            rgba(255,255,255,0.30),
+            transparent 42%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.98),
+            rgba(255,220,105,0.94)
+        ) !important;
+
+    border: 1px solid rgba(180,130,20,0.35) !important;
+
+    box-shadow:
+        0 10px 22px rgba(244,197,66,0.20),
+        0 0 16px rgba(244,197,66,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.44) !important;
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease !important;
+}
+
+.edit-pred-btn-wrap div[data-testid="stButton"] button:hover {
+    transform: translateY(-1px);
+
+    background:
+        radial-gradient(
+            circle at 20% 0%,
+            rgba(255,255,255,0.40),
+            transparent 42%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(255,220,105,1),
+            rgba(244,197,66,0.96)
+        ) !important;
+
+    border-color: rgba(244,197,66,0.60) !important;
+
+    box-shadow:
+        0 13px 26px rgba(244,197,66,0.26),
+        0 0 18px rgba(244,197,66,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.48) !important;
+}
+
+.edit-pred-btn-wrap div[data-testid="stButton"] button:active {
+    transform: translateY(0);
+}
+
+/* Estado bloqueado */
+.edit-pred-btn-wrap.locked div[data-testid="stButton"] button,
+.edit-pred-btn-wrap.locked div[data-testid="stButton"] button:disabled {
+    color: rgba(248,250,252,0.70) !important;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(15,23,42,0.92),
+            rgba(7,17,31,0.96)
+        ) !important;
+
+    border: 1px solid rgba(148,163,184,0.28) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 8px 18px rgba(15,23,42,0.10) !important;
+
+    opacity: 1 !important;
+}
+
+
+
+/* ============================================================
    RESUMEN OSCURO — ESTADÍSTICAS DE PRONÓSTICOS
    ============================================================ */
 
 .pred-summary-footer {
+    position: relative;
+    overflow: hidden;
+
     background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.15),
+            transparent 36%
+        ),
         linear-gradient(
             135deg,
-            rgba(7,17,31,0.98),
-            rgba(15,23,42,0.94)
-        );
-    border: 1px solid rgba(255,255,255,0.08);
+            rgba(7,17,31,0.94),
+            rgba(15,23,42,0.86)
+        ),
+        url("__FONDO_CARD_INICIO3__");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    border: 1px solid rgba(244,197,66,0.18);
     border-radius: 16px;
 
     padding: 14px 14px;
     margin: 12px 10px 4px 10px;
 
     box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.05),
-        0 10px 24px rgba(15,23,42,0.08);
+        inset 0 1px 0 rgba(255,255,255,0.07),
+        0 10px 24px rgba(15,23,42,0.12);
+}
+
+.pred-summary-footer::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(7,17,31,0.18),
+            rgba(7,17,31,0.04)
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+.pred-summary-footer > * {
+    position: relative;
+    z-index: 1;
 }
 
 .pred-summary-kicker {
     font-size: 10px;
     font-weight: 900;
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.68);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 9px;
@@ -326,12 +457,23 @@ def render_mis_pronosticos(
 }
 
 .pred-summary-item {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.075),
+            rgba(255,255,255,0.045)
+        );
+
+    border: 1px solid rgba(255,255,255,0.10);
     border-radius: 12px;
+
     padding: 9px 6px;
     text-align: center;
     min-width: 0;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 6px 14px rgba(0,0,0,0.10);
 }
 
 .pred-summary-icon {
@@ -2443,23 +2585,34 @@ div[data-testid="stButton"] button {
             st.markdown(cards_html, unsafe_allow_html=True)
 
             if es_tiempo_valido:
+                st.markdown('<div class="edit-pred-btn-wrap">', unsafe_allow_html=True)
+            
                 if st.button(
                     f"✏️ Editar pronósticos de {tanda_seleccionada}",
-                    use_container_width=True
+                    use_container_width=True,
+                    key=f"btn_editar_pronosticos_{fecha_key}"
                 ):
                     st.session_state.permitir_edicion = True
                     st.rerun()
+            
+                st.markdown('</div>', unsafe_allow_html=True)
             else:
                 st.warning(
                     f"⛔ La carga de pronósticos está cerrada. "
                     f"Podés ver tus pronósticos, pero ya no editarlos."
                 )
             
+                st.markdown('<div class="edit-pred-btn-wrap locked">', unsafe_allow_html=True)
+                
                 st.button(
                     "🔒 Edición de pronósticos bloqueada",
                     use_container_width=True,
-                    disabled=True
+                    disabled=True,
+                    key=f"btn_editar_pronosticos_bloqueado_{fecha_key}"
                 )
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+                
             # ------------------------------------------------------------
             # RESUMEN OSCURO — MODO VISUAL
             # ------------------------------------------------------------
