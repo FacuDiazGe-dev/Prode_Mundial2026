@@ -363,6 +363,41 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
         st.session_state.lab_mui_total_actions += 1
         st.session_state.lab_mui_action = f"🗑️ Borrar mensaje {msg_id}"
 
+    def render_preview_jugador(user, return_label, return_value):
+        avatar = user.get("AVATAR_URL", "")
+        avatar_html = ""
+
+        if pd.notna(avatar) and str(avatar).strip() != "":
+            avatar_html = f'<img src="{avatar}" class="lab-preview-avatar">'
+
+        st.markdown(
+            f"""
+<div class="lab-card-header">
+<div class="lab-card-icon">&#129534;</div>
+<div>
+<div class="lab-card-title">Vista previa</div>
+<div class="lab-card-subtitle">Jugador seleccionado</div>
+</div>
+</div>
+
+<div class="lab-preview-card">
+<div class="lab-preview-row">
+{avatar_html}
+<div>
+<div class="lab-preview-name">{user["NOMBRE"]}</div>
+<div class="lab-preview-meta">@{user["USUARIO"]} &middot; {user["EQUIPO FAVORITO"]}</div>
+</div>
+</div>
+</div>
+
+<div class="lab-return-box">
+<div class="lab-return-label">{return_label}</div>
+<div class="lab-return-value">{return_value}</div>
+</div>
+""",
+            unsafe_allow_html=True
+        )
+
     tab = sac.tabs(
         [
             sac.TabsItem("Selector vertical", icon="people"),
@@ -419,39 +454,11 @@ Prueba para reemplazar el selectbox por un selector más visual. Evaluar mobile,
         with col2:
             user = df_lab[df_lab["NOMBRE"] == elegido].iloc[0]
 
-            avatar = user.get("AVATAR_URL", "")
-            avatar_html = ""
-
-            if pd.notna(avatar) and str(avatar).strip() != "":
-                avatar_html = f'<img src="{avatar}" class="lab-preview-avatar">'
-
             with st.container(border=True):
-                st.markdown(
-                    f"""
-<div class="lab-card-header">
-<div class="lab-card-icon">🧾</div>
-<div>
-<div class="lab-card-title">Vista previa</div>
-<div class="lab-card-subtitle">Jugador seleccionado</div>
-</div>
-</div>
-
-<div class="lab-preview-card">
-<div class="lab-preview-row">
-{avatar_html}
-<div>
-<div class="lab-preview-name">{user["NOMBRE"]}</div>
-<div class="lab-preview-meta">@{user["USUARIO"]} · {user["EQUIPO FAVORITO"]}</div>
-</div>
-</div>
-</div>
-
-<div class="lab-return-box">
-<div class="lab-return-label">Valor devuelto por el componente</div>
-<div class="lab-return-value">{elegido}</div>
-</div>
-""",
-                    unsafe_allow_html=True
+                render_preview_jugador(
+                    user,
+                    "Valor devuelto por el componente",
+                    elegido
                 )
 
         # ============================================================
@@ -551,39 +558,11 @@ Esto evita depender de cards clickeables con HTML.
                 df_lab["NOMBRE"] == st.session_state.lab_jugador_card_sel
             ].iloc[0]
 
-            avatar = user.get("AVATAR_URL", "")
-            avatar_html = ""
-
-            if pd.notna(avatar) and str(avatar).strip() != "":
-                avatar_html = f'<img src="{avatar}" class="lab-preview-avatar">'
-
             with st.container(border=True):
-                st.markdown(
-                    f"""
-<div class="lab-card-header">
-<div class="lab-card-icon">🧾</div>
-<div>
-<div class="lab-card-title">Vista previa</div>
-<div class="lab-card-subtitle">Jugador seleccionado</div>
-</div>
-</div>
-
-<div class="lab-preview-card">
-<div class="lab-preview-row">
-{avatar_html}
-<div>
-<div class="lab-preview-name">{user["NOMBRE"]}</div>
-<div class="lab-preview-meta">@{user["USUARIO"]} · {user["EQUIPO FAVORITO"]}</div>
-</div>
-</div>
-</div>
-
-<div class="lab-return-box">
-<div class="lab-return-label">Valor guardado en session_state</div>
-<div class="lab-return-value">{st.session_state.lab_jugador_card_sel}</div>
-</div>
-""",
-                    unsafe_allow_html=True
+                render_preview_jugador(
+                    user,
+                    "Valor guardado en session_state",
+                    st.session_state.lab_jugador_card_sel
                 )
 
     # ============================================================
