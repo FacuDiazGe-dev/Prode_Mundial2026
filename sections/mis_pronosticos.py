@@ -2387,33 +2387,33 @@ div[data-testid="stButton"] button {
 <div class="pred-match-card-v2">
 
 <div class="pred-match-meta">
-<span>Partido #{id_p}</span>
-<span>{escape(dia)} | {escape(hora)}</span>
+    <span>Partido #{id_p}</span>
+    <span>{escape(dia)} | {escape(hora)}</span>
 </div>
 
 <div class="pred-match-main-row">
 
 <div class="pred-team-inline left">
-<span>{escape(equipo_1)}</span>
-{flag_html(bandera1)}
+    <span>{escape(equipo_1)}</span>
+    {flag_html(bandera1)}
 </div>
 
 <div class="pred-score-pill">
-<span>{v1}</span>
-<span class="score-colon">:</span>
-<span>{v2}</span>
+    <span>{v1}</span>
+    <span class="score-colon">:</span>
+    <span>{v2}</span>
 </div>
 
 <div class="pred-team-inline right">
-{flag_html(bandera2)}
-<span>{escape(equipo_2)}</span>
+    {flag_html(bandera2)}
+    <span>{escape(equipo_2)}</span>
 </div>
 
+</div>    
 </div>
-</div>
-"""
+                """
 
-cards_html += '</div>'
+                cards_html += '</div>'
                 
                 st.markdown(cards_html, unsafe_allow_html=True)
 
