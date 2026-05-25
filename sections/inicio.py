@@ -7,8 +7,18 @@ from html import escape
 
 from styles_config import (
     AVATAR_GENERICO,
-    HEADER_BACKGROUND
+    HEADER_BACKGROUND,
+    EVOL_HEADER_BACKGROUND,
+    BADGE_ASSET_MAP,
+    BADGE_ORDER,
+    FONDO_CARD_INICIO,
+    FONDO_CARD_INICIO2,
+    FONDO_CARD_INICIO3,
+    FONDO_CARD_GOLD,
+    FONDO_CARD_SILVER,
+    FONDO_CARD_BRONCE
 )
+from tools import normalizar_badges
 from services.supabase_service import insertar_foro_supabase
 
 def render_inicio(
@@ -31,26 +41,34 @@ def render_inicio(
     """
 
     top_3 = df_ranking.head(3)
+
+    def safe_int(value, default=0):
+        try:
+            return int(value)
+        except Exception:
+            return default
+
+    def get_avatar_usuario_inicio(usuario):
+        u_info = df_usuarios[
+            df_usuarios["USUARIO"].astype(str) == str(usuario)
+        ]
+
+        if not u_info.empty:
+            avatar = u_info.iloc[0].get("AVATAR_URL", "")
+            if pd.notna(avatar) and str(avatar).strip() != "":
+                return str(avatar)
+
+        return AVATAR_GENERICO
     
     def get_pod_data(index):
         if len(top_3) > index:
             row = top_3.iloc[index]
-    
-            u_info = df_usuarios[
-                df_usuarios["USUARIO"] == row["USUARIO"]
-            ]
-    
-            foto = (
-                u_info["AVATAR_URL"].values[0]
-                if not u_info.empty
-                and pd.notna(u_info["AVATAR_URL"].values[0])
-                else AVATAR_GENERICO
-            )
+            foto = get_avatar_usuario_inicio(row["USUARIO"])
     
             nombre = str(row.get("JUGADOR", "-")).split(" ")[0]
-            puntos = int(row.get("PUNTOS", 0))
-            exactos = int(row.get("EXACTOS", 0))
-            generales = int(row.get("GENERALES", 0))
+            puntos = safe_int(row.get("PUNTOS", 0))
+            exactos = safe_int(row.get("EXACTOS", 0))
+            generales = safe_int(row.get("GENERALES", 0))
     
             return nombre, puntos, foto, exactos, generales
     
@@ -76,75 +94,19 @@ def render_inicio(
     # ============================================================
 
     usuario_actual = st.session_state["user_data"]["USUARIO"]
+    MOSTRAR_BADGES_TEST_INICIO = False
 
-    BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
-
-    hero_badge_order = [
-        "Puntero",
-        "Sr. Prode",
-        "Siempre Suma",
-        "Optimista del Gol",
-        "El Cholo",
-        "Rey del Empate",
-        "El Macaya",
-        "El Misterioso",
-        "El Distinto",
-    ]
-
-    hero_badge_asset_map = {
-        "Puntero": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-        "Sr. Prode": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-        "Siempre Suma": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-        "Optimista del Gol": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-        "El Cholo": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-        "Rey del Empate": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-        "El Macaya": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-        "El Misterioso": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-        "El Distinto": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-    }
-
-    def normalizar_badges_inicio(valor):
-        if valor is None:
-            return []
-
-        if isinstance(valor, list):
-            return [
-                str(b).strip()
-                for b in valor
-                if str(b).strip()
-            ]
-
-        if isinstance(valor, str):
-            limpio = (
-                valor
-                .replace("[", "")
-                .replace("]", "")
-                .replace("'", "")
-                .replace('"', "")
-            )
-
-            return [
-                b.strip()
-                for b in limpio.split(",")
-                if b.strip()
-            ]
-
-        return []
+    hero_badge_order = BADGE_ORDER
+    hero_badge_asset_map = BADGE_ASSET_MAP
 
     def get_user_badges_inicio(usuario):
-        # # TEST TEMPORAL HERO BADGES — BORRAR DESPUÉS DE PROBAR
-        # if str(usuario) == str(st.session_state["user_data"]["USUARIO"]):
-        #     return [
-        #         "Puntero",
-        #         "Sr. Prode",
-        #         "Siempre Suma",
-        #         "Optimista del Gol",
-        #         "El Cholo",
-        #         "Rey del Empate",
-        #         "El Macaya",
-        #         "El Misterioso",
-        #         "El Distinto",
-        #     ]
+        # TEST TEMPORAL HERO BADGES: dejar en True solo para revisar
+        # que las imagenes de insignias se vean bien en Inicio.
+        if (
+            MOSTRAR_BADGES_TEST_INICIO
+            and str(usuario) == str(st.session_state["user_data"]["USUARIO"])
+        ):
+            return hero_badge_order
 
         if df_ranking is None or df_ranking.empty:
             return []
@@ -164,7 +126,7 @@ def render_inicio(
         if row_badges.empty:
             return []
 
-        return normalizar_badges_inicio(
+        return normalizar_badges(
             row_badges.iloc[0].get("BADGES", [])
         )
 
@@ -189,7 +151,7 @@ def render_inicio(
         badges_html = ""
 
         for badge_name in visibles:
-            badge_url = hero_badge_asset_map.get(badge_name, "")
+            badge_url = hero_badge_asset_map.get(badge_name, {}).get("mini", "")
 
             if badge_url:
                 badges_html += (
@@ -220,14 +182,10 @@ def render_inicio(
     hero_badges_html = build_hero_badges_html(usuario_actual)
     pos_badge_class = "has-badges" if hero_badges_html else "no-badges"
 
-    
-      
     # --- 2. HTML Y CSS COMPACTO ---
-    
+
     html_hero = textwrap.dedent("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap');
-    
     .hero-container {
         font-family: 'Inter', sans-serif;
         background-image:
@@ -1206,13 +1164,6 @@ def render_inicio(
 </style>
     """, unsafe_allow_html=True)
 
-    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
-    FONDO_CARD_INICIO2 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO2.png"
-    FONDO_CARD_INICIO3 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO3.png"
-    FONDO_CARD_GOLD = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_GOLD3.png"
-    FONDO_CARD_SILVER = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_SILVER.png"
-    FONDO_CARD_BRONCE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_BRONCE.png"
-
     c_izq, c_der = st.columns([1, 1.1], gap="large")
 
 # ------------------ COLUMNA IZQUIERDA: LÍDERES Y TENDENCIAS ------------------
@@ -1960,34 +1911,17 @@ def render_inicio(
         
         usuario_actual = st.session_state["user_data"]["USUARIO"]
 
-        BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
-
-        ranking_badge_asset_map = {
-            "Puntero": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-            "Sr. Prode": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-            "Siempre Suma": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-            "Optimista del Gol": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-            "El Cholo": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-            "Rey del Empate": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-            "El Macaya": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-            "El Misterioso": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-            "El Distinto": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-        }
+        ranking_badge_asset_map = BADGE_ASSET_MAP
         def build_ranking_badges_html(badges):
-            if badges is None:
-                return ""
-        
-            if isinstance(badges, str):
-                badges = [badges]
-        
-            if not isinstance(badges, list):
+            badges_normalizadas = normalizar_badges(badges)
+
+            if not badges_normalizadas:
                 return ""
         
             html = ""
         
-            for badge in badges:
-                badge_name = str(badge).strip()
-                badge_url = ranking_badge_asset_map.get(badge_name, "")
+            for badge_name in badges_normalizadas:
+                badge_url = ranking_badge_asset_map.get(badge_name, {}).get("mini", "")
         
                 if badge_url:
                     html += (
@@ -2016,9 +1950,9 @@ def render_inicio(
             jugador = escape(str(row.get("JUGADOR", "Jugador")))
             usuario = str(row.get("USUARIO", ""))
         
-            puntos = int(row.get("PUNTOS", 0))
-            exactos = int(row.get("EXACTOS", 0))
-            generales = int(row.get("GENERALES", 0))
+            puntos = safe_int(row.get("PUNTOS", 0))
+            exactos = safe_int(row.get("EXACTOS", 0))
+            generales = safe_int(row.get("GENERALES", 0))
         
             es_usuario_actual = usuario == usuario_actual
         
@@ -2038,29 +1972,14 @@ def render_inicio(
         
             subtitulo = "Tu posición actual" if es_usuario_actual else "Participante"
 
-            # # TEST TEMPORAL RANKING BADGES — BORRAR O COMENTAR DESPUÉS DE PROBAR
-            # if usuario == usuario_actual:
-            #     badges_html = build_ranking_badges_html(
-            #         [
-            #             "Puntero",
-            #             "Sr. Prode",
-            #             "Siempre Suma",
-            #             "Optimista del Gol",
-            #             "El Cholo",
-            #             "Rey del Empate",
-            #             "El Macaya",
-            #             "El Misterioso",
-            #             "El Distinto",
-            #         ]
-            #     )
-            # else:
-            #     badges_html = build_ranking_badges_html(
-            #         row.get("BADGES", [])
-            #     )
-
-            badges_html = build_ranking_badges_html(
-                row.get("BADGES", [])
-            )
+            # TEST TEMPORAL RANKING BADGES: muestra todas las insignias
+            # en la fila del usuario actual para validar assets/layout.
+            if MOSTRAR_BADGES_TEST_INICIO and usuario == usuario_actual:
+                badges_html = build_ranking_badges_html(hero_badge_order)
+            else:
+                badges_html = build_ranking_badges_html(
+                    row.get("BADGES", [])
+                )
         
             ranking_html += f"""
 <div class="ranking-row {clase_usuario} {clase_tier}">
@@ -2536,7 +2455,7 @@ def render_inicio(
                 
         st.markdown(news_css, unsafe_allow_html=True)
 
-        NEWS_FALLBACK_IMG = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
+        NEWS_FALLBACK_IMG = EVOL_HEADER_BACKGROUND
 
         if df_noticias is None or df_noticias.empty:
             noticias_visibles = pd.DataFrame()
@@ -3875,12 +3794,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
                 es_propio = usuario_msg == st.session_state["user_data"]["USUARIO"]
         
-                u_info = df_usuarios[df_usuarios["USUARIO"] == usuario_msg]
-        
-                if not u_info.empty and pd.notna(u_info["AVATAR_URL"].values[0]):
-                    avatar = str(u_info["AVATAR_URL"].values[0])
-                else:
-                    avatar = AVATAR_GENERICO
+                avatar = get_avatar_usuario_inicio(usuario_msg)
         
                 clase_me = "me" if es_propio else ""
         

@@ -30,6 +30,15 @@ from services.supabase_service import (
     registrar_usuario_supabase
 )
 
+# ============================================================
+# ARRANQUE GENERAL
+# app.py coordina la aplicacion completa:
+# 1) carga datos base desde Supabase
+# 2) valida configuracion dinamica
+# 3) maneja login/registro
+# 4) arma el menu lateral y llama a cada pantalla
+# ============================================================
+
 # 1. DEFINE LA URL DE TU BUCKET (La usaremos en ambos lados)
 URL_ICONO = "https://storage.googleapis.com/foto-prode2026/Banners/ICONOAPP2.png"
 
@@ -147,6 +156,12 @@ if estado_mantenimiento == "ON":
         st.stop() 
 
 # --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) --------------------------------------------------------
+
+# ============================================================
+# ESTADO DE SESION
+# Streamlit vuelve a ejecutar el archivo en cada interaccion.
+# Por eso se guardan login, registro y usuario en session_state.
+# ============================================================
 
 if 'autenticado' not in st.session_state:
     st.session_state['autenticado'] = False
@@ -459,8 +474,12 @@ df_ranking = obtener_ranking_global(
     df_res=df_res,
     df_foro=df_foro
 )
+
+# A partir de aca se dibuja la interfaz para usuarios autenticados.
+
 # ============================================================
 # SIDEBAR PREMIUM
+# La opcion de Panel Control se agrega solo si el rol es admin.
 # ============================================================
 
 with st.sidebar:
@@ -500,6 +519,13 @@ with st.sidebar:
         "📜 Reglas del Juego"
     ]
     
+    rol_usuario = str(
+        st.session_state.get("user_data", {}).get("ROL", "")
+    ).strip().lower()
+
+    if rol_usuario == "admin":
+        opciones.append("⚙️ Panel Control")
+    
     if "nav_destino" in st.session_state:
         destino = st.session_state.pop("nav_destino")
     
@@ -523,7 +549,11 @@ with st.sidebar:
     if st.button("🚪 Cerrar Sesión", use_container_width=True):
         st.session_state["autenticado"] = False
         st.rerun()
-#--------------------INICIO-----------------------------------------------------------------------
+# ============================================================
+# ROUTER DE PANTALLAS
+# Cada opcion del menu llama a una funcion render_* dentro de
+# la carpeta sections/.
+# ============================================================
 
 if menu == "🏠 Inicio":
     render_inicio(
@@ -574,7 +604,7 @@ elif menu == "📜 Reglas del Juego":
 
 # ---------- PANEL DE CONTROL ------------------------
 
-elif menu == "⚙️ Panel Control":
+elif menu.endswith("Panel Control"):
     render_panel_control(
         df_res=df_res,
         df_usuarios=df_usuarios,

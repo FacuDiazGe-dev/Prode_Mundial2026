@@ -5,6 +5,10 @@ from html import escape
 
 from styles_config import (
     AVATAR_GENERICO,
+    BADGE_ASSET_MAP,
+    BADGE_ORDER,
+    BADGES_WALL_BACKGROUND,
+    EVOL_HEADER_BACKGROUND
 )
 from services.supabase_service import (
     insertar_foro_supabase,
@@ -13,7 +17,7 @@ from services.supabase_service import (
     actualizar_reaccion_foro_supabase,
     borrar_mensaje_foro_supabase
 )
-from tools import upload_foro_image
+from tools import normalizar_badges, upload_foro_image
 
 
 def render_foro(
@@ -143,14 +147,6 @@ def render_foro(
 
 .foro-message-card.mine {
     border-left: 4px solid #F4C542;
-}
-
-.foro-message-name {
-    color: #07111F;
-}
-
-.foro-message-text {
-    color: #1f2937;
 }
 
 .foro-feed-shell {
@@ -1118,30 +1114,6 @@ div[data-testid="stSegmentedControl"] button:hover {
         else:
             st.error(msg)
 
-    def normalizar_badges(valor):
-        if valor is None:
-            return []
-
-        if isinstance(valor, list):
-            return valor
-
-        if isinstance(valor, str):
-            limpio = (
-                valor
-                .replace("[", "")
-                .replace("]", "")
-                .replace("'", "")
-                .replace('"', "")
-            )
-
-            return [
-                b.strip()
-                for b in limpio.split(",")
-                if b.strip()
-            ]
-
-        return []
-
     def buscar_ganador_badge(nombre_badge):
         if df_ranking is None or df_ranking.empty:
             return None
@@ -1163,9 +1135,9 @@ div[data-testid="stSegmentedControl"] button:hover {
         if row is None:
             return "Desde partido 5"
 
-        puntos = int(row.get("PUNTOS", 0))
-        exactos = int(row.get("EXACTOS", 0))
-        generales = int(row.get("GENERALES", 0))
+        puntos = safe_int(row.get("PUNTOS", 0))
+        exactos = safe_int(row.get("EXACTOS", 0))
+        generales = safe_int(row.get("GENERALES", 0))
 
         if nombre_badge == "Puntero":
             return f"{puntos} pts"
@@ -1218,8 +1190,8 @@ div[data-testid="stSegmentedControl"] button:hover {
     # TÍTULO
     # ============================================================
 
-    FORO_MURO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
-    BADGES_WALL_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png"
+    FORO_MURO_BG_URL = EVOL_HEADER_BACKGROUND
+    BADGES_WALL_BG_URL = BADGES_WALL_BACKGROUND
     
     st.markdown("""
 <div class="foro-title">
@@ -1826,58 +1798,8 @@ div[data-testid="stSegmentedControl"] button:hover {
         # MEDALLERO DEL PRODE — PROVISORIO
         # ------------------------------------------------------------
 
-        BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
-
-        badge_asset_map = {
-            "Puntero": {
-                "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_GRAY_512.png",
-            },
-            "Sr. Prode": {
-                "large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_GRAY_512.png",
-            },
-            "Siempre Suma": {
-                "large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_GRAY_512.png",
-            },
-            "Optimista del Gol": {
-                "large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_GRAY_512.png",
-            },
-            "El Cholo": {
-                "large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_GRAY_512.png",
-            },
-            "Rey del Empate": {
-                "large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_GRAY_512.png",
-            },
-            "El Macaya": {
-                "large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_GRAY_512.png",
-            },
-            "El Misterioso": {
-                "large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_GRAY_512.png",
-            },
-            "El Distinto": {
-                "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
-                "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_GRAY_512.png",
-            },
-        }
-
-        badge_order = [
-            "Puntero",
-            "Sr. Prode",
-            "Siempre Suma",
-            "Optimista del Gol",
-            "El Cholo",
-            "Rey del Empate",
-            "El Macaya",
-            "El Misterioso",
-            "El Distinto",
-        ]
+        badge_asset_map = BADGE_ASSET_MAP
+        badge_order = BADGE_ORDER
 
         medallero_html = ""
 

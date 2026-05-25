@@ -9,6 +9,12 @@ import streamlit as st
 from google.cloud import storage
 
 
+# ============================================================
+# BANDERAS
+# Convierte nombres de selecciones/equipos en imagenes base64.
+# Se cachea para no descargar la misma bandera en cada rerun.
+# ============================================================
+
 @st.cache_data(ttl=3600)
 def get_flag_img(pais):
     # Diccionario de códigos ISO (Mantenemos los que ya tienes)
@@ -50,7 +56,46 @@ def get_flag_img_cached(team_name):
     # Aquí va tu lógica actual de obtener la imagen (Base64 o URL)
     return get_flag_img(team_name) 
 
-#-------------------------------- CARGAR IMÁGENES STORAGE (GCS) -----------------------------------------------------
+# ============================================================
+# INSIGNIAS
+# Normaliza el campo BADGES sin decidir como se muestran.
+# Cada seccion renderiza las insignias segun su propio layout.
+# ============================================================
+
+def normalizar_badges(valor):
+    if valor is None:
+        return []
+
+    if isinstance(valor, list):
+        return [
+            str(badge).strip()
+            for badge in valor
+            if str(badge).strip()
+        ]
+
+    if isinstance(valor, str):
+        limpio = (
+            valor
+            .replace("[", "")
+            .replace("]", "")
+            .replace("'", "")
+            .replace('"', "")
+        )
+
+        return [
+            badge.strip()
+            for badge in limpio.split(",")
+            if badge.strip()
+        ]
+
+    return []
+
+
+# ============================================================
+# GOOGLE CLOUD STORAGE
+# Sube imagenes al bucket publico y devuelve la URL final.
+# Las credenciales salen de st.secrets["connections"]["gsheets"].
+# ============================================================
 
 def upload_image_to_gcs(archivo, file_name, carpeta="perfiles"):
     """

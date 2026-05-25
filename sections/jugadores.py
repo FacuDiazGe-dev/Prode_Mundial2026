@@ -2,7 +2,12 @@ import streamlit as st
 import pandas as pd
 from html import escape
 
-from styles_config import AVATAR_GENERICO
+from styles_config import (
+    AVATAR_GENERICO,
+    BADGE_ASSET_MAP,
+    BADGE_ORDER,
+    PLAYER_PROFILE_BACKGROUND
+)
 from ranking_logic import calcular_detalle
 from tools import get_flag_img_cached
 
@@ -787,35 +792,6 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
         grid-template-columns: 28px 1fr 52px 1fr;
         font-size: 10px;
     }
-        .player-hero-top {
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .player-hero-profile {
-        width: 100%;
-    }
-
-    .player-badges-side {
-        width: 100%;
-        max-width: 210px;
-    }
-
-    .player-badges-mini {
-        gap: 6px;
-    }
-
-    .player-badge-mini {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-    }
-
-    .player-badge-mini-img {
-        width: 38px;
-        height: 38px;
-    }
     .player-hero {
         padding: 15px 13px 13px 13px;
         border-radius: 16px;
@@ -924,6 +900,12 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
                 return str(match.iloc[0].get("NOMBRE", usuario))
 
         return "-"
+
+    def get_valor_ranking(rank_row, columna, default=0):
+        if rank_row is None:
+            return default
+
+        return safe_int(rank_row.get(columna, default), default)
 
     def calcular_racha_exactos(user_row):
         r_act = 0
@@ -1361,82 +1343,16 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     # ASSETS DE INSIGNIAS
     # =====================================================
 
-    BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
-    PLAYER_HERO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
+    PLAYER_HERO_BG_URL = PLAYER_PROFILE_BACKGROUND
 
     
-    badge_asset_map = {
-        "Puntero": {
-            "large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_128.png",
-        },
-        "Sr. Prode": {
-            "large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_128.png",
-        },
-        "Siempre Suma": {
-            "large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_128.png",
-        },
-        "Optimista del Gol": {
-            "large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_128.png",
-        },
-        "El Cholo": {
-            "large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_128.png",
-        },
-        "Rey del Empate": {
-            "large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_128.png",
-        },
-        "El Macaya": {
-            "large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_128.png",
-        },
-        "El Misterioso": {
-            "large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_LARGE_GRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_128.png",
-        },
-        "El Distinto": {
-            "large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGE_512.png",
-            "gray_large": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_LARGEGRAY_512.png",
-            "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
-        },
-    }
+    badge_asset_map = BADGE_ASSET_MAP
 
 
     def normalizar_texto(valor):
         return str(valor).strip().lower()
 
-    badge_order = [
-        "Puntero",
-        "Sr. Prode",
-        "Siempre Suma",
-        "Optimista del Gol",
-        "El Cholo",
-        "Rey del Empate",
-        "El Macaya",
-        "El Misterioso",
-        "El Distinto",
-    ]
+    badge_order = BADGE_ORDER
 
     def build_player_badges_mini_html(user_row, logros, badge_asset_map):
         jugador_nombre = normalizar_texto(user_row.get("NOMBRE", ""))
@@ -1594,11 +1510,7 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
                     foto_mini = get_avatar(u)
 
                     rank_row, idx_rank = get_ranking_row(u)
-                    pts = (
-                        safe_int(rank_row.get("PUNTOS", 0))
-                        if rank_row is not None
-                        else 0
-                    )
+                    pts = get_valor_ranking(rank_row, "PUNTOS")
 
                     nombre_raw = str(u.get("NOMBRE", "Jugador"))
                     usuario_raw = str(u.get("USUARIO", nombre_raw))
@@ -1685,23 +1597,9 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
         if bio.strip() == "" or bio.strip().lower() == "nan":
             bio = "Sin bio cargada todavía."
 
-        pts = (
-            safe_int(datos_vivos.get("PUNTOS", 0))
-            if datos_vivos is not None
-            else 0
-        )
-
-        exactos = (
-            safe_int(datos_vivos.get("EXACTOS", 0))
-            if datos_vivos is not None
-            else 0
-        )
-
-        generales = (
-            safe_int(datos_vivos.get("GENERALES", 0))
-            if datos_vivos is not None
-            else 0
-        )
+        pts = get_valor_ranking(datos_vivos, "PUNTOS")
+        exactos = get_valor_ranking(datos_vivos, "EXACTOS")
+        generales = get_valor_ranking(datos_vivos, "GENERALES")
 
         try:
             posicion = int(idx_real)

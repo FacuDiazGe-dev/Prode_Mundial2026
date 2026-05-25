@@ -1,7 +1,36 @@
 import pandas as pd
 import streamlit as st
 
-# 1. FUNCIÓN DE CÁLCULO DE PUNTOS (Tu versión exacta)
+RANKING_COLUMNS = [
+    "Nº",
+    "ID_PARA_FOTO",
+    "JUGADOR",
+    "PUNTOS",
+    "EXACTOS",
+    "GENERALES",
+    "USUARIO",
+    "BADGES"
+]
+
+
+def crear_ranking_vacio():
+    return pd.DataFrame(columns=RANKING_COLUMNS)
+
+
+def safe_int(value, default=0):
+    try:
+        return int(value)
+    except Exception:
+        return default
+
+
+# ============================================================
+# CALCULO DE PUNTOS POR PARTIDO
+# Regla central del Prode:
+# - 1 punto por acertar tendencia
+# - 3 puntos si ademas acierta resultado exacto
+# Si cambia el sistema de puntos, empezar por esta funcion.
+# ============================================================
 def calcular_detalle(r1, r2, p1, p2):
     """
     Calcula puntos según: +1 por tendencia, +2 adicional por exacto (Total 3).
@@ -10,7 +39,7 @@ def calcular_detalle(r1, r2, p1, p2):
         return 0, 0, 0 
     
     puntos, exactos, generales = 0, 0, 0
-    r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
+    r1, r2, p1, p2 = safe_int(r1), safe_int(r2), safe_int(p1), safe_int(p2)
     
     tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
     tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
@@ -25,7 +54,62 @@ def calcular_detalle(r1, r2, p1, p2):
             puntos = 3 
     return puntos, exactos, generales
 
-# 2. FUNCIÓN DE APOYO PARA PROCESAR INSIGNIAS NUEVAS
+
+def calcular_stats_pronosticos_badges(df_rank, df_pro):
+    stats_pronosticos = []
+
+    for _, row in df_rank.iterrows():
+        usuario = str(row.get("USUARIO", ""))
+
+        pro_user = df_pro[
+            df_pro["USUARIO"].astype(str) == usuario
+        ]
+
+        if pro_user.empty:
+            continue
+
+        p1 = pd.to_numeric(
+            pro_user["P1"],
+            errors="coerce"
+        ).fillna(0)
+
+        p2 = pd.to_numeric(
+            pro_user["P2"],
+            errors="coerce"
+        ).fillna(0)
+
+        total_partidos = len(pro_user)
+
+        goles_totales = safe_int(
+            (p1 + p2).sum()
+        )
+
+        promedio_goles = (
+            goles_totales / total_partidos
+            if total_partidos > 0
+            else 0
+        )
+
+        empates = safe_int(
+            (p1 == p2).sum()
+        )
+
+        stats_pronosticos.append({
+            "usuario": usuario,
+            "total_partidos": total_partidos,
+            "goles_totales": goles_totales,
+            "promedio_goles": promedio_goles,
+            "empates": empates
+        })
+
+    return stats_pronosticos
+
+
+# ============================================================
+# INSIGNIAS GLOBALES
+# Revisa ranking, pronosticos y foro para determinar que badges
+# gana cada usuario. No modifica datos en Supabase.
+# ============================================================
 def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles=None):
     """
     Calcula qué usuario gana cada badge disponible para mostrar en el ranking.
@@ -75,7 +159,7 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
 
     top_row = df_rank.iloc[0]
 
-    if int(top_row.get("PUNTOS", 0)) > 0:
+    if safe_int(top_row.get("PUNTOS", 0)) > 0:
         add_badge(
             top_row.get("USUARIO", ""),
             "Puntero"
@@ -86,7 +170,7 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
     # ------------------------------------------------------------
 
     if "EXACTOS" in df_rank.columns:
-        max_exactos = int(df_rank["EXACTOS"].max())
+        max_exactos = safe_int(df_rank["EXACTOS"].max())
 
         if max_exactos > 0:
             usuarios_exactos = (
@@ -103,7 +187,7 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
     # ------------------------------------------------------------
 
     if "GENERALES" in df_rank.columns:
-        max_generales = int(df_rank["GENERALES"].max())
+        max_generales = safe_int(df_rank["GENERALES"].max())
 
         if max_generales > 0:
             usuarios_generales = (
@@ -119,51 +203,10 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
     # DATOS DE PRONÓSTICOS POR USUARIO
     # ------------------------------------------------------------
 
-    stats_pronosticos = []
-
-    for _, row in df_rank.iterrows():
-        usuario = str(row.get("USUARIO", ""))
-
-        pro_user = df_pro[
-            df_pro["USUARIO"].astype(str) == usuario
-        ]
-
-        if pro_user.empty:
-            continue
-
-        p1 = pd.to_numeric(
-            pro_user["P1"],
-            errors="coerce"
-        ).fillna(0)
-
-        p2 = pd.to_numeric(
-            pro_user["P2"],
-            errors="coerce"
-        ).fillna(0)
-
-        total_partidos = len(pro_user)
-
-        goles_totales = int(
-            (p1 + p2).sum()
-        )
-
-        promedio_goles = (
-            goles_totales / total_partidos
-            if total_partidos > 0
-            else 0
-        )
-
-        empates = int(
-            (p1 == p2).sum()
-        )
-
-        stats_pronosticos.append({
-            "usuario": usuario,
-            "total_partidos": total_partidos,
-            "goles_totales": goles_totales,
-            "promedio_goles": promedio_goles,
-            "empates": empates
-        })
+    stats_pronosticos = calcular_stats_pronosticos_badges(
+        df_rank,
+        df_pro
+    )
 
     # ------------------------------------------------------------
     # 4. OPTIMISTA DEL GOL — mayor promedio de goles
@@ -180,11 +223,10 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
             "Optimista del Gol"
         )
 
-    # ------------------------------------------------------------
-    # 5. EL CHOLO — menor promedio de goles
-    # ------------------------------------------------------------
+        # ------------------------------------------------------------
+        # 5. EL CHOLO — menor promedio de goles
+        # ------------------------------------------------------------
 
-    if stats_pronosticos:
         cholo = min(
             stats_pronosticos,
             key=lambda x: x["promedio_goles"]
@@ -195,11 +237,10 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
             "El Cholo"
         )
 
-    # ------------------------------------------------------------
-    # 6. REY DEL EMPATE — más empates pronosticados
-    # ------------------------------------------------------------
+        # ------------------------------------------------------------
+        # 6. REY DEL EMPATE — más empates pronosticados
+        # ------------------------------------------------------------
 
-    if stats_pronosticos:
         rey_empate = max(
             stats_pronosticos,
             key=lambda x: x["empates"]
@@ -269,7 +310,7 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
 
         for _, row in df_rank.iterrows():
             usuario = str(row.get("USUARIO", ""))
-            comentarios = int(foro_counts.get(usuario, 0))
+            comentarios = safe_int(foro_counts.get(usuario, 0))
 
             usuarios_foro_stats.append({
                 "usuario": usuario,
@@ -314,24 +355,17 @@ def procesar_badges_ranking(row, badge_por_usuario):
     return badge_por_usuario.get(usuario, [])
 
 
-# 3. FUNCIÓN PRINCIPAL DE RANKING
+# ============================================================
+# RANKING GENERAL
+# Cruza usuarios + pronosticos + resultados visibles y devuelve
+# la tabla que consumen Inicio, Plantel y Mi Prode.
+# ============================================================
 @st.cache_data(ttl=60)
 def obtener_ranking_global(df_users, df_pro, df_res, df_foro=None):
     ranking_data = []
 
     if df_users is None or df_users.empty:
-        return pd.DataFrame(
-            columns=[
-                "Nº",
-                "ID_PARA_FOTO",
-                "JUGADOR",
-                "PUNTOS",
-                "EXACTOS",
-                "GENERALES",
-                "USUARIO",
-                "BADGES"
-            ]
-        )
+        return crear_ranking_vacio()
 
     if "VIZ" in df_res.columns:
         df_res = df_res.copy()
@@ -359,7 +393,7 @@ def obtener_ranking_global(df_users, df_pro, df_res, df_foro=None):
         ]
 
         for _, part in res_visibles.iterrows():
-            id_p = int(part["N_PARTIDO"])
+            id_p = safe_int(part["N_PARTIDO"])
 
             p_match = pro_usr[
                 pro_usr["N_PARTIDO"] == id_p
@@ -393,18 +427,7 @@ def obtener_ranking_global(df_users, df_pro, df_res, df_foro=None):
         })
 
     if not ranking_data:
-        return pd.DataFrame(
-            columns=[
-                "Nº",
-                "ID_PARA_FOTO",
-                "JUGADOR",
-                "PUNTOS",
-                "EXACTOS",
-                "GENERALES",
-                "USUARIO",
-                "BADGES"
-            ]
-        )
+        return crear_ranking_vacio()
 
     df_rank = (
         pd.DataFrame(ranking_data)

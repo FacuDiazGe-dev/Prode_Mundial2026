@@ -3,6 +3,12 @@ import pandas as pd
 from supabase import create_client
 
 
+# ============================================================
+# CLIENTE SUPABASE
+# Las claves salen de .streamlit/secrets.toml o Streamlit Cloud.
+# No escribir claves reales dentro del codigo.
+# ============================================================
+
 @st.cache_resource
 def get_supabase_client():
     url = st.secrets["SUPABASE_URL"]
@@ -10,6 +16,12 @@ def get_supabase_client():
 
     return create_client(url, key)
 
+
+# ============================================================
+# LECTURAS CRUDAS
+# Devuelven DataFrames casi igual a como vienen de Supabase.
+# Luego las funciones *_app() renombran columnas para la app.
+# ============================================================
 
 @st.cache_data(ttl=300)
 def get_resultados_supabase():
@@ -60,6 +72,12 @@ def get_pronosticos_supabase():
     data = response.data or []
 
     return pd.DataFrame(data)
+
+# ============================================================
+# ESCRITURA DE PRONOSTICOS
+# Usa upsert: crea el pronostico si no existe o actualiza si ya
+# existe para el mismo usuario y partido.
+# ============================================================
 
 def guardar_pronosticos_supabase(df_nuevos):
     """
@@ -124,6 +142,12 @@ def guardar_pronosticos_supabase(df_nuevos):
     except Exception as e:
         return False, f"Error al guardar en Supabase: {e}"
         
+# ============================================================
+# ADAPTADORES PARA LA APP
+# Convierten nombres de columnas de la base al formato historico
+# que usan app.py y las pantallas.
+# ============================================================
+
 def get_resultados_app():
     df = get_resultados_supabase()
 
@@ -420,6 +444,12 @@ def get_noticias_app():
     )
 
     return df[columnas_app]
+
+# ============================================================
+# FORO Y NOTICIAS
+# Estas funciones escriben en la base real si los secretos
+# locales apuntan al proyecto productivo.
+# ============================================================
 
 def insertar_foro_supabase(df_nuevo):
     """
@@ -869,6 +899,11 @@ def insertar_noticia_supabase(noticia):
     except Exception as e:
         return False, f"Error al publicar noticia en Supabase: {e}"
 
+# ============================================================
+# USUARIOS Y ROLES
+# Gestiona perfil, registro, eliminacion y permisos.
+# ============================================================
+
 def actualizar_usuario_supabase(usuario, datos):
     """
     Actualiza datos de un usuario en Supabase.
@@ -1083,6 +1118,10 @@ def actualizar_rol_usuario_supabase(usuario, nuevo_rol):
     except Exception as e:
         return False, f"Error al actualizar rol en Supabase: {e}"
 
+# ============================================================
+# CONFIGURACION GENERAL
+# Controla mantenimiento, registro y cierre de pronosticos.
+# ============================================================
 
 @st.cache_data(ttl=300)
 def get_config_supabase():

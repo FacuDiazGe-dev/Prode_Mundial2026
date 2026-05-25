@@ -13,10 +13,15 @@ from styles_config import (
     AVATAR_GENERICO,
     HEADER_BACKGROUND,
     SIDEBAR_BANNER,
-    EVOL_HEADER_BACKGROUND
+    EVOL_HEADER_BACKGROUND,
+    BADGE_ASSET_MAP,
+    BADGE_ORDER,
+    PLAYER_PROFILE_BACKGROUND,
+    FONDO_CARD_INICIO,
+    FONDO_CARD_INICIO3
 )
 
-from tools import upload_profile_picture
+from tools import normalizar_badges, upload_profile_picture
 
 from services.supabase_service import (
     guardar_pronosticos_supabase,
@@ -58,8 +63,7 @@ def render_mis_pronosticos(
     font-weight: 600;
 }
 
-.pred-panel,
-.profile-panel {
+.pred-panel {
     background: rgba(255,255,255,0.94);
     border: 1px solid rgba(226,232,240,0.9);
     border-radius: 18px;
@@ -1734,9 +1738,6 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 </style>
 """
     
-    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
-    FONDO_CARD_INICIO3 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO3.png"
-    
     css_mis_pronosticos = (
         css_mis_pronosticos
         .replace("__SIDEBAR_BANNER__", SIDEBAR_BANNER)
@@ -1775,6 +1776,12 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
         return flag_value     
 
+    def safe_int(value, default=0):
+        try:
+            return int(value)
+        except Exception:
+            return default
+
     def get_user_rank_stats(usuario):
         row_rank = df_ranking[df_ranking["USUARIO"] == usuario]
 
@@ -1795,9 +1802,9 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
         return {
             "pos": pos,
-            "pts": int(row.get("PUNTOS", 0)),
-            "exactos": int(row.get("EXACTOS", 0)),
-            "generales": int(row.get("GENERALES", 0))
+            "pts": safe_int(row.get("PUNTOS", 0)),
+            "exactos": safe_int(row.get("EXACTOS", 0)),
+            "generales": safe_int(row.get("GENERALES", 0))
         }
     def render_evolucion_puntos_premium(usuario_actual):
         """
@@ -2377,59 +2384,8 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
             height=495,
             scrolling=False
         )
-    BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
-    
-
-    badge_order = [
-        "Puntero",
-        "Sr. Prode",
-        "Siempre Suma",
-        "Optimista del Gol",
-        "El Cholo",
-        "Rey del Empate",
-        "El Macaya",
-        "El Misterioso",
-        "El Distinto",
-    ]
-
-    badge_asset_map = {
-        "Puntero": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_GRAY_128.png",
-        },
-        "Sr. Prode": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_GRAY_128.png",
-        },
-        "Siempre Suma": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/suma/SUMA_GRAY_128.png",
-        },
-        "Optimista del Gol": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/optimista/OPTIMISTA_GRAY_128.png",
-        },
-        "El Cholo": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/elcholo/ELCHOLO_GRAY_128.png",
-        },
-        "Rey del Empate": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/empate/EMPATE_GRAY_128.png",
-        },
-        "El Macaya": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/macaya/MACAYA_GRAY_128.png",
-        },
-        "El Misterioso": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/misterioso/MISTERIOSO_GRAY_128.png",
-        },
-        "El Distinto": {
-            "mini": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_MINI_128.png",
-            "gray": f"{BADGE_ASSET_BASE_URL}/distinto/DISTINTO_GRAY_128.png",
-        },
-    }
+    badge_order = BADGE_ORDER
+    badge_asset_map = BADGE_ASSET_MAP
 
     def get_user_badges(usuario):
         row_rank = df_ranking[
@@ -2439,30 +2395,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
         if row_rank.empty or "BADGES" not in row_rank.columns:
             return []
 
-        badges = row_rank.iloc[0].get("BADGES", [])
-
-        if badges is None:
-            return []
-
-        if isinstance(badges, list):
-            return badges
-
-        if isinstance(badges, str):
-            limpio = (
-                badges
-                .replace("[", "")
-                .replace("]", "")
-                .replace("'", "")
-                .replace('"', "")
-            )
-
-            return [
-                b.strip()
-                for b in limpio.split(",")
-                if b.strip()
-            ]
-
-        return []
+        return normalizar_badges(row_rank.iloc[0].get("BADGES", []))
 
     def build_profile_badges_html(usuario):
         earned_badges = set(get_user_badges(usuario))
@@ -2568,8 +2501,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     user_actual = st.session_state["user_data"]["USUARIO"]
     u_data = st.session_state["user_data"]
 
-    PROFILE_HERO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
-    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+    PROFILE_HERO_BG_URL = PLAYER_PROFILE_BACKGROUND
 
     df_user_pro = df_pro[df_pro["USUARIO"] == user_actual]
 
