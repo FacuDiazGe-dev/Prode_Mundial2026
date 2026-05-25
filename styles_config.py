@@ -16,6 +16,24 @@ HEADER_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/headd
 
 EVOL_HEADER_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
 
+BADGES_WALL_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png"
+
+PLAYER_PROFILE_BACKGROUND = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
+
+BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
+
+FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+
+FONDO_CARD_INICIO2 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO2.png"
+
+FONDO_CARD_INICIO3 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO3.png"
+
+FONDO_CARD_GOLD = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_GOLD3.png"
+
+FONDO_CARD_SILVER = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_SILVER.png"
+
+FONDO_CARD_BRONCE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_BRONCE.png"
+
 BANNERS_PAGINA = {
     "inicio": HEADER_BACKGROUND,
     "mis_pronosticos": HEADER_BACKGROUND,

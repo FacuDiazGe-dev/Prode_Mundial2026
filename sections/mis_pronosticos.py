@@ -13,7 +13,11 @@ from styles_config import (
     AVATAR_GENERICO,
     HEADER_BACKGROUND,
     SIDEBAR_BANNER,
-    EVOL_HEADER_BACKGROUND
+    EVOL_HEADER_BACKGROUND,
+    BADGE_ASSET_BASE_URL,
+    PLAYER_PROFILE_BACKGROUND,
+    FONDO_CARD_INICIO,
+    FONDO_CARD_INICIO3
 )
 
 from tools import upload_profile_picture
@@ -1734,9 +1738,6 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 </style>
 """
     
-    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
-    FONDO_CARD_INICIO3 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO3.png"
-    
     css_mis_pronosticos = (
         css_mis_pronosticos
         .replace("__SIDEBAR_BANNER__", SIDEBAR_BANNER)
@@ -2377,9 +2378,6 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
             height=495,
             scrolling=False
         )
-    BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
-    
-
     badge_order = [
         "Puntero",
         "Sr. Prode",
@@ -2568,8 +2566,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     user_actual = st.session_state["user_data"]["USUARIO"]
     u_data = st.session_state["user_data"]
 
-    PROFILE_HERO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
-    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
+    PROFILE_HERO_BG_URL = PLAYER_PROFILE_BACKGROUND
 
     df_user_pro = df_pro[df_pro["USUARIO"] == user_actual]
 

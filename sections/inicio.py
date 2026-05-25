@@ -7,7 +7,15 @@ from html import escape
 
 from styles_config import (
     AVATAR_GENERICO,
-    HEADER_BACKGROUND
+    HEADER_BACKGROUND,
+    EVOL_HEADER_BACKGROUND,
+    BADGE_ASSET_BASE_URL,
+    FONDO_CARD_INICIO,
+    FONDO_CARD_INICIO2,
+    FONDO_CARD_INICIO3,
+    FONDO_CARD_GOLD,
+    FONDO_CARD_SILVER,
+    FONDO_CARD_BRONCE
 )
 from services.supabase_service import insertar_foro_supabase
 
@@ -76,8 +84,7 @@ def render_inicio(
     # ============================================================
 
     usuario_actual = st.session_state["user_data"]["USUARIO"]
-
-    BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
+    MOSTRAR_BADGES_TEST_INICIO = False
 
     hero_badge_order = [
         "Puntero",
@@ -132,19 +139,13 @@ def render_inicio(
         return []
 
     def get_user_badges_inicio(usuario):
-        # # TEST TEMPORAL HERO BADGES — BORRAR DESPUÉS DE PROBAR
-        # if str(usuario) == str(st.session_state["user_data"]["USUARIO"]):
-        #     return [
-        #         "Puntero",
-        #         "Sr. Prode",
-        #         "Siempre Suma",
-        #         "Optimista del Gol",
-        #         "El Cholo",
-        #         "Rey del Empate",
-        #         "El Macaya",
-        #         "El Misterioso",
-        #         "El Distinto",
-        #     ]
+        # TEST TEMPORAL HERO BADGES: dejar en True solo para revisar
+        # que las imagenes de insignias se vean bien en Inicio.
+        if (
+            MOSTRAR_BADGES_TEST_INICIO
+            and str(usuario) == str(st.session_state["user_data"]["USUARIO"])
+        ):
+            return hero_badge_order
 
         if df_ranking is None or df_ranking.empty:
             return []
@@ -1206,13 +1207,6 @@ def render_inicio(
 </style>
     """, unsafe_allow_html=True)
 
-    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
-    FONDO_CARD_INICIO2 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO2.png"
-    FONDO_CARD_INICIO3 = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO3.png"
-    FONDO_CARD_GOLD = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_GOLD3.png"
-    FONDO_CARD_SILVER = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_SILVER.png"
-    FONDO_CARD_BRONCE = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_BRONCE.png"
-
     c_izq, c_der = st.columns([1, 1.1], gap="large")
 
 # ------------------ COLUMNA IZQUIERDA: LÍDERES Y TENDENCIAS ------------------
@@ -1960,8 +1954,6 @@ def render_inicio(
         
         usuario_actual = st.session_state["user_data"]["USUARIO"]
 
-        BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
-
         ranking_badge_asset_map = {
             "Puntero": f"{BADGE_ASSET_BASE_URL}/puntero/PUNTERO_MINI_128.png",
             "Sr. Prode": f"{BADGE_ASSET_BASE_URL}/srprode/SRPRODE_MINI_128.png",
@@ -2038,29 +2030,14 @@ def render_inicio(
         
             subtitulo = "Tu posición actual" if es_usuario_actual else "Participante"
 
-            # # TEST TEMPORAL RANKING BADGES — BORRAR O COMENTAR DESPUÉS DE PROBAR
-            # if usuario == usuario_actual:
-            #     badges_html = build_ranking_badges_html(
-            #         [
-            #             "Puntero",
-            #             "Sr. Prode",
-            #             "Siempre Suma",
-            #             "Optimista del Gol",
-            #             "El Cholo",
-            #             "Rey del Empate",
-            #             "El Macaya",
-            #             "El Misterioso",
-            #             "El Distinto",
-            #         ]
-            #     )
-            # else:
-            #     badges_html = build_ranking_badges_html(
-            #         row.get("BADGES", [])
-            #     )
-
-            badges_html = build_ranking_badges_html(
-                row.get("BADGES", [])
-            )
+            # TEST TEMPORAL RANKING BADGES: muestra todas las insignias
+            # en la fila del usuario actual para validar assets/layout.
+            if MOSTRAR_BADGES_TEST_INICIO and usuario == usuario_actual:
+                badges_html = build_ranking_badges_html(hero_badge_order)
+            else:
+                badges_html = build_ranking_badges_html(
+                    row.get("BADGES", [])
+                )
         
             ranking_html += f"""
 <div class="ranking-row {clase_usuario} {clase_tier}">
@@ -2536,7 +2513,7 @@ def render_inicio(
                 
         st.markdown(news_css, unsafe_allow_html=True)
 
-        NEWS_FALLBACK_IMG = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
+        NEWS_FALLBACK_IMG = EVOL_HEADER_BACKGROUND
 
         if df_noticias is None or df_noticias.empty:
             noticias_visibles = pd.DataFrame()

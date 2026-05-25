@@ -5,6 +5,9 @@ from html import escape
 
 from styles_config import (
     AVATAR_GENERICO,
+    BADGE_ASSET_BASE_URL,
+    BADGES_WALL_BACKGROUND,
+    EVOL_HEADER_BACKGROUND
 )
 from services.supabase_service import (
     insertar_foro_supabase,
@@ -1218,8 +1221,8 @@ div[data-testid="stSegmentedControl"] button:hover {
     # TÍTULO
     # ============================================================
 
-    FORO_MURO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CABEZA%20SECCION%20FINA.png"
-    BADGES_WALL_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/INSIGNIAS%20FONDO.png"
+    FORO_MURO_BG_URL = EVOL_HEADER_BACKGROUND
+    BADGES_WALL_BG_URL = BADGES_WALL_BACKGROUND
     
     st.markdown("""
 <div class="foro-title">
@@ -1825,8 +1828,6 @@ div[data-testid="stSegmentedControl"] button:hover {
         # ------------------------------------------------------------
         # MEDALLERO DEL PRODE — PROVISORIO
         # ------------------------------------------------------------
-
-        BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
 
         badge_asset_map = {
             "Puntero": {

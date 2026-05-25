@@ -2,7 +2,11 @@ import streamlit as st
 import pandas as pd
 from html import escape
 
-from styles_config import AVATAR_GENERICO
+from styles_config import (
+    AVATAR_GENERICO,
+    BADGE_ASSET_BASE_URL,
+    PLAYER_PROFILE_BACKGROUND
+)
 from ranking_logic import calcular_detalle
 from tools import get_flag_img_cached
 
@@ -1361,8 +1365,7 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     # ASSETS DE INSIGNIAS
     # =====================================================
 
-    BADGE_ASSET_BASE_URL = "https://storage.googleapis.com/foto-prode2026/badges"
-    PLAYER_HERO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
+    PLAYER_HERO_BG_URL = PLAYER_PROFILE_BACKGROUND
 
     
     badge_asset_map = {
