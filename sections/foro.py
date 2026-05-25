@@ -1135,9 +1135,9 @@ div[data-testid="stSegmentedControl"] button:hover {
         if row is None:
             return "Desde partido 5"
 
-        puntos = int(row.get("PUNTOS", 0))
-        exactos = int(row.get("EXACTOS", 0))
-        generales = int(row.get("GENERALES", 0))
+        puntos = safe_int(row.get("PUNTOS", 0))
+        exactos = safe_int(row.get("EXACTOS", 0))
+        generales = safe_int(row.get("GENERALES", 0))
 
         if nombre_badge == "Puntero":
             return f"{puntos} pts"
