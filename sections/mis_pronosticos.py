@@ -404,14 +404,15 @@ div[aria-label="Fecha de fase de grupos"] {
 
 div[aria-label="Fecha de fase de grupos"] label {
     flex: 1;
-
-    min-height: 34px;
+    min-width: 110px;
+    max-width: 500px;
+    min-height: 38px;
 
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
 
-    padding: 0 12px !important;
+    padding: 0 16px !important;
 
     border-radius: 999px;
 
@@ -420,6 +421,7 @@ div[aria-label="Fecha de fase de grupos"] label {
     font-weight: 900;
 
     color: #475569;
+    white-space: nowrap;
 
     transition:
         background 0.18s ease,
@@ -482,8 +484,10 @@ div[aria-label="Fecha de fase de grupos"] label p {
     }
 
     div[aria-label="Fecha de fase de grupos"] label {
-        padding: 0 8px !important;
-        min-height: 32px;
+        flex: 1;
+        min-width: 0;
+        padding: 0 10px !important;
+        min-height: 34px;
     }
 
     div[aria-label="Fecha de fase de grupos"] label p {
