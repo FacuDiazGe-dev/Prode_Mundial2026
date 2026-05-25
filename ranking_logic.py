@@ -1,6 +1,22 @@
 import pandas as pd
 import streamlit as st
 
+RANKING_COLUMNS = [
+    "Nº",
+    "ID_PARA_FOTO",
+    "JUGADOR",
+    "PUNTOS",
+    "EXACTOS",
+    "GENERALES",
+    "USUARIO",
+    "BADGES"
+]
+
+
+def crear_ranking_vacio():
+    return pd.DataFrame(columns=RANKING_COLUMNS)
+
+
 # ============================================================
 # CALCULO DE PUNTOS POR PARTIDO
 # Regla central del Prode:
@@ -334,18 +350,7 @@ def obtener_ranking_global(df_users, df_pro, df_res, df_foro=None):
     ranking_data = []
 
     if df_users is None or df_users.empty:
-        return pd.DataFrame(
-            columns=[
-                "Nº",
-                "ID_PARA_FOTO",
-                "JUGADOR",
-                "PUNTOS",
-                "EXACTOS",
-                "GENERALES",
-                "USUARIO",
-                "BADGES"
-            ]
-        )
+        return crear_ranking_vacio()
 
     if "VIZ" in df_res.columns:
         df_res = df_res.copy()
@@ -407,18 +412,7 @@ def obtener_ranking_global(df_users, df_pro, df_res, df_foro=None):
         })
 
     if not ranking_data:
-        return pd.DataFrame(
-            columns=[
-                "Nº",
-                "ID_PARA_FOTO",
-                "JUGADOR",
-                "PUNTOS",
-                "EXACTOS",
-                "GENERALES",
-                "USUARIO",
-                "BADGES"
-            ]
-        )
+        return crear_ranking_vacio()
 
     df_rank = (
         pd.DataFrame(ranking_data)
