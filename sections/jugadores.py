@@ -901,6 +901,12 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
 
         return "-"
 
+    def get_valor_ranking(rank_row, columna, default=0):
+        if rank_row is None:
+            return default
+
+        return safe_int(rank_row.get(columna, default), default)
+
     def calcular_racha_exactos(user_row):
         r_act = 0
         r_max = 0
@@ -1504,11 +1510,7 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
                     foto_mini = get_avatar(u)
 
                     rank_row, idx_rank = get_ranking_row(u)
-                    pts = (
-                        safe_int(rank_row.get("PUNTOS", 0))
-                        if rank_row is not None
-                        else 0
-                    )
+                    pts = get_valor_ranking(rank_row, "PUNTOS")
 
                     nombre_raw = str(u.get("NOMBRE", "Jugador"))
                     usuario_raw = str(u.get("USUARIO", nombre_raw))
@@ -1595,23 +1597,9 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
         if bio.strip() == "" or bio.strip().lower() == "nan":
             bio = "Sin bio cargada todavía."
 
-        pts = (
-            safe_int(datos_vivos.get("PUNTOS", 0))
-            if datos_vivos is not None
-            else 0
-        )
-
-        exactos = (
-            safe_int(datos_vivos.get("EXACTOS", 0))
-            if datos_vivos is not None
-            else 0
-        )
-
-        generales = (
-            safe_int(datos_vivos.get("GENERALES", 0))
-            if datos_vivos is not None
-            else 0
-        )
+        pts = get_valor_ranking(datos_vivos, "PUNTOS")
+        exactos = get_valor_ranking(datos_vivos, "EXACTOS")
+        generales = get_valor_ranking(datos_vivos, "GENERALES")
 
         try:
             posicion = int(idx_real)
