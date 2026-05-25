@@ -17,6 +17,13 @@ def crear_ranking_vacio():
     return pd.DataFrame(columns=RANKING_COLUMNS)
 
 
+def safe_int(value, default=0):
+    try:
+        return int(value)
+    except Exception:
+        return default
+
+
 # ============================================================
 # CALCULO DE PUNTOS POR PARTIDO
 # Regla central del Prode:
@@ -32,7 +39,7 @@ def calcular_detalle(r1, r2, p1, p2):
         return 0, 0, 0 
     
     puntos, exactos, generales = 0, 0, 0
-    r1, r2, p1, p2 = int(r1), int(r2), int(p1), int(p2)
+    r1, r2, p1, p2 = safe_int(r1), safe_int(r2), safe_int(p1), safe_int(p2)
     
     tendencia_real = 1 if r1 > r2 else (2 if r2 > r1 else 0)
     tendencia_pron = 1 if p1 > p2 else (2 if p2 > p1 else 0)
@@ -101,7 +108,7 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
 
     top_row = df_rank.iloc[0]
 
-    if int(top_row.get("PUNTOS", 0)) > 0:
+    if safe_int(top_row.get("PUNTOS", 0)) > 0:
         add_badge(
             top_row.get("USUARIO", ""),
             "Puntero"
@@ -112,7 +119,7 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
     # ------------------------------------------------------------
 
     if "EXACTOS" in df_rank.columns:
-        max_exactos = int(df_rank["EXACTOS"].max())
+        max_exactos = safe_int(df_rank["EXACTOS"].max())
 
         if max_exactos > 0:
             usuarios_exactos = (
@@ -129,7 +136,7 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
     # ------------------------------------------------------------
 
     if "GENERALES" in df_rank.columns:
-        max_generales = int(df_rank["GENERALES"].max())
+        max_generales = safe_int(df_rank["GENERALES"].max())
 
         if max_generales > 0:
             usuarios_generales = (
@@ -295,7 +302,7 @@ def calcular_badges_globales_ranking(df_rank, df_pro, df_foro=None, res_visibles
 
         for _, row in df_rank.iterrows():
             usuario = str(row.get("USUARIO", ""))
-            comentarios = int(foro_counts.get(usuario, 0))
+            comentarios = safe_int(foro_counts.get(usuario, 0))
 
             usuarios_foro_stats.append({
                 "usuario": usuario,
@@ -378,7 +385,7 @@ def obtener_ranking_global(df_users, df_pro, df_res, df_foro=None):
         ]
 
         for _, part in res_visibles.iterrows():
-            id_p = int(part["N_PARTIDO"])
+            id_p = safe_int(part["N_PARTIDO"])
 
             p_match = pro_usr[
                 pro_usr["N_PARTIDO"] == id_p
