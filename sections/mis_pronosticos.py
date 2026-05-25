@@ -372,12 +372,20 @@ def render_mis_pronosticos(
    SELECTOR DE FECHA — RADIO PREMIUM
    ============================================================ */
 
+/* ============================================================
+   SELECTOR DE FECHA — RADIO PREMIUM
+   ============================================================ */
+
 div[aria-label="Fecha de fase de grupos"] {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
 
+    width: 100%;
+    max-width: 420px;
+
     padding: 7px;
+    margin: -4px 0 14px 0;
 
     background:
         linear-gradient(
@@ -392,12 +400,10 @@ div[aria-label="Fecha de fase de grupos"] {
     box-shadow:
         0 8px 18px rgba(15,23,42,0.055),
         inset 0 1px 0 rgba(255,255,255,0.78);
-
-    margin-bottom: 14px;
 }
 
 div[aria-label="Fecha de fase de grupos"] label {
-    position: relative;
+    flex: 1;
 
     min-height: 34px;
 
@@ -405,7 +411,7 @@ div[aria-label="Fecha de fase de grupos"] label {
     align-items: center;
     justify-content: center;
 
-    padding: 0 14px !important;
+    padding: 0 12px !important;
 
     border-radius: 999px;
 
@@ -422,19 +428,16 @@ div[aria-label="Fecha de fase de grupos"] label {
         transform 0.18s ease;
 }
 
-/* Oculta el circulito nativo del radio */
 div[aria-label="Fecha de fase de grupos"] label > div:first-child {
     display: none !important;
 }
 
-/* Estado hover */
 div[aria-label="Fecha de fase de grupos"] label:hover {
     background: rgba(244,197,66,0.10);
     color: #0f172a;
     transform: translateY(-1px);
 }
 
-/* Estado activo: radio seleccionado */
 div[aria-label="Fecha de fase de grupos"] input:checked + div {
     background:
         radial-gradient(
@@ -457,18 +460,35 @@ div[aria-label="Fecha de fase de grupos"] input:checked + div {
         inset 0 1px 0 rgba(255,255,255,0.42);
 }
 
-/* Texto interno del activo */
 div[aria-label="Fecha de fase de grupos"] input:checked + div p {
     color: #07111F !important;
     font-weight: 900 !important;
 }
 
-/* Texto normal */
 div[aria-label="Fecha de fase de grupos"] label p {
     margin: 0 !important;
     font-family: 'Inter', sans-serif !important;
     font-size: 13px !important;
     font-weight: 900 !important;
+}
+
+@media (max-width: 768px) {
+    div[aria-label="Fecha de fase de grupos"] {
+        width: 100%;
+        max-width: none;
+        gap: 5px;
+        padding: 6px;
+        margin: -2px 0 12px 0;
+    }
+
+    div[aria-label="Fecha de fase de grupos"] label {
+        padding: 0 8px !important;
+        min-height: 32px;
+    }
+
+    div[aria-label="Fecha de fase de grupos"] label p {
+        font-size: 11px !important;
+    }
 }
 
 /* Mobile */
@@ -555,32 +575,52 @@ div[aria-label="Fecha de fase de grupos"] label p {
 }
 
 /* ============================================================
-   SCROLL PREMIUM — CONTENEDORES STREAMLIT
+   SCROLL PREMIUM — MIS PRONÓSTICOS
    ============================================================ */
 
-section[data-testid="stMain"] div[style*="overflow: auto"],
-section[data-testid="stMain"] div[style*="overflow-y: auto"] {
+.pred-scroll {
+    height: 520px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 12px 12px 4px 12px;
+    margin-bottom: 12px;
+
+    border-radius: 16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.56),
+            rgba(248,250,252,0.38)
+        );
+
+    border: 1px solid rgba(203,213,225,0.72);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.70),
+        0 8px 18px rgba(15,23,42,0.035);
+
     scrollbar-width: thin;
     scrollbar-color: #0F2D63 rgba(226,232,240,0.55);
 }
 
-section[data-testid="stMain"] div[style*="overflow: auto"]::-webkit-scrollbar,
-section[data-testid="stMain"] div[style*="overflow-y: auto"]::-webkit-scrollbar {
+.pred-scroll::-webkit-scrollbar {
     width: 8px;
 }
 
-section[data-testid="stMain"] div[style*="overflow: auto"]::-webkit-scrollbar-track,
-section[data-testid="stMain"] div[style*="overflow-y: auto"]::-webkit-scrollbar-track {
+.pred-scroll::-webkit-scrollbar-track {
     background: linear-gradient(
         180deg,
         rgba(226,232,240,0.55),
         rgba(241,245,249,0.85)
     );
     border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(148,163,184,0.18);
 }
 
-section[data-testid="stMain"] div[style*="overflow: auto"]::-webkit-scrollbar-thumb,
-section[data-testid="stMain"] div[style*="overflow-y: auto"]::-webkit-scrollbar-thumb {
+.pred-scroll::-webkit-scrollbar-thumb {
     background: linear-gradient(
         180deg,
         #0F2D63 0%,
@@ -589,8 +629,27 @@ section[data-testid="stMain"] div[style*="overflow-y: auto"]::-webkit-scrollbar-
     );
     border-radius: 999px;
     border: 1px solid rgba(255,255,255,0.45);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        0 2px 6px rgba(15,23,42,0.18);
 }
 
+.pred-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+        180deg,
+        #173F86 0%,
+        #1D4FA8 55%,
+        #E2B93B 100%
+    );
+}
+
+@media (max-width: 768px) {
+    .pred-scroll {
+        height: 430px;
+        padding: 10px 9px 3px 9px;
+        border-radius: 15px;
+    }
+}
 /* ============================================================
    MOBILE — VERSION COMPACTA
    ============================================================ */
@@ -2243,17 +2302,33 @@ div[data-testid="stButton"] button {
         # HEADER DEL PANEL
         # ------------------------------------------------------------
 
-        st.markdown(f"""
+st.markdown(f"""
 <div class="pred-panel-header-v2">
 <div class="pred-panel-title-row">
 <div class="panel-icon">📝</div>
 <div>
-<div class="panel-title">Mis Pronósticos · {tanda_seleccionada}</div>
+<div class="panel-title">Mis Pronósticos</div>
 <div class="pred-panel-subtitle {estado_class}">{estado_txt}</div>
 </div>
 </div>
 </div>
 """, unsafe_allow_html=True)
+
+tanda_seleccionada = st.radio(
+    "Fecha de fase de grupos",
+    [
+        "Fecha 1",
+        "Fecha 2",
+        "Fecha 3"
+    ],
+    horizontal=True,
+    key="tanda_pronosticos_mi_prode",
+    label_visibility="collapsed"
+)
+
+fecha_num = int(
+    tanda_seleccionada.replace("Fecha ", "")
+)
 
         # ============================================================
         # PREPARACIÓN DE DATOS COMÚN
@@ -2318,68 +2393,66 @@ div[data-testid="stButton"] button {
 
             with st.container(height=520):
 
+                cards_html = '<div class="pred-scroll">'
+                
                 for _, row in df_res_tanda.sort_values("N_PARTIDO").iterrows():
                     id_p = int(row["N_PARTIDO"])
                     match = df_user_pro[df_user_pro["N_PARTIDO"] == id_p]
-
+                
                     v1 = (
                         int(match.iloc[0]["P1"])
                         if not match.empty and pd.notna(match.iloc[0]["P1"])
                         else 0
                     )
-
+                
                     v2 = (
                         int(match.iloc[0]["P2"])
                         if not match.empty and pd.notna(match.iloc[0]["P2"])
                         else 0
                     )
-
+                
                     equipo_1 = str(row.get("Equipo_1", ""))
                     equipo_2 = str(row.get("Equipo_2", ""))
-
+                
                     bandera1 = mapa_banderas.get(equipo_1, "⚽")
                     bandera2 = mapa_banderas.get(equipo_2, "⚽")
-
+                
                     dia = str(row.get("DIA", ""))
                     hora = str(row.get("HORA", ""))
-
-                    st.markdown(
-                        f"""
-<div class="pred-match-card-v2">
-
-<div class="pred-match-meta">
-<span>Partido #{id_p}</span>
-<span>{escape(dia)} | {escape(hora)}</span>
-</div>
-
-<div class="pred-match-main-row">
-
-<div class="pred-team-inline left">
-<span>{escape(equipo_1)}</span>
-{flag_html(bandera1)}
-</div>
-
-<div class="pred-score-pill">
-<span>{v1}</span>
-<span class="score-colon">:</span>
-<span>{v2}</span>
-</div>
-
-<div class="pred-team-inline right">
-{flag_html(bandera2)}
-<span>{escape(equipo_2)}</span>
-</div>
-
-</div>
-</div>
-""",
-                        unsafe_allow_html=True
-                    )
-
-                    st.markdown(
-                        "<div class='pred-match-gap'></div>",
-                        unsafe_allow_html=True
-                    )
+                
+                    cards_html += f"""
+                <div class="pred-match-card-v2">
+                
+                <div class="pred-match-meta">
+                <span>Partido #{id_p}</span>
+                <span>{escape(dia)} | {escape(hora)}</span>
+                </div>
+                
+                <div class="pred-match-main-row">
+                
+                <div class="pred-team-inline left">
+                <span>{escape(equipo_1)}</span>
+                {flag_html(bandera1)}
+                </div>
+                
+                <div class="pred-score-pill">
+                <span>{v1}</span>
+                <span class="score-colon">:</span>
+                <span>{v2}</span>
+                </div>
+                
+                <div class="pred-team-inline right">
+                {flag_html(bandera2)}
+                <span>{escape(equipo_2)}</span>
+                </div>
+                
+                </div>
+                </div>
+                """
+                
+                cards_html += '</div>'
+                
+                st.markdown(cards_html, unsafe_allow_html=True)
 
             if es_tiempo_valido:
                 if st.button(
