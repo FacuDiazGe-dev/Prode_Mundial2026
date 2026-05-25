@@ -117,14 +117,72 @@ def render_mis_pronosticos(
    ============================================================ */
 
 .pred-match-card-v2 {
-    background: rgba(248,250,252,0.96);
-    border: 1px solid rgba(226,232,240,0.95);
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.76),
+            rgba(248,250,252,0.60)
+        ),
+        url("__FONDO_CARD_INICIO__");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    border: 1px solid rgba(148,163,184,0.34);
     border-radius: 16px;
 
     padding: 13px 14px;
     margin-bottom: 11px;
 
-    box-shadow: 0 8px 18px rgba(15,23,42,0.035);
+    box-shadow:
+        0 8px 18px rgba(15,23,42,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.75);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.pred-match-card-v2::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.08),
+            transparent 38%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,0.24),
+            rgba(255,255,255,0.08)
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+.pred-match-card-v2 > * {
+    position: relative;
+    z-index: 1;
+}
+
+.pred-match-card-v2:hover {
+    transform: translateY(-1px);
+    border-color: rgba(244,197,66,0.44);
+
+    box-shadow:
+        0 12px 24px rgba(15,23,42,0.085),
+        0 0 14px rgba(244,197,66,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.82);
 }
 
 .pred-match-meta {
@@ -311,22 +369,36 @@ def render_mis_pronosticos(
 }
 
 .pred-panel-header-v2 {
-    padding: 12px 14px 14px 14px;
+    position: relative;
+    overflow: hidden;
+
+    padding: 13px 15px 14px 15px;
     margin-bottom: 14px;
-    border-bottom: 1px solid rgba(226,232,240,0.75);
+
+    border-radius: 16px;
 
     background-image:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.18),
+            transparent 36%
+        ),
         linear-gradient(
             90deg,
-            rgba(255,255,255,0.15) 60%,
-            rgba(255,255,255,0.25) 80%,
-            rgba(255,255,255,0.3) 100%
+            rgba(7,17,31,0.96) 0%,
+            rgba(15,23,42,0.84) 58%,
+            rgba(15,23,42,0.48) 100%
         ),
         url("__SIDEBAR_BANNER__");
 
     background-size: cover;
     background-position: center;
-    border-radius: 14px;
+
+    border: 1px solid rgba(244,197,66,0.22);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 10px 22px rgba(15,23,42,0.12);
 }
 
 .pred-panel-title-row {
@@ -349,11 +421,13 @@ def render_mis_pronosticos(
 }
 
 .pred-panel-subtitle.open {
-    color: #059669;
+    color: #34D399;
+    font-weight: 800;
 }
 
 .pred-panel-subtitle.locked {
-    color: #6B7280;
+    color: #CBD5E1;
+    font-weight: 800;
 }
 
 /* ============================================================
@@ -390,6 +464,7 @@ def render_mis_pronosticos(
         padding: 10px 9px !important;
         border-radius: 14px !important;
         margin-bottom: 9px !important;
+        background-position: center !important;
     }
 
     .pred-match-meta {
@@ -870,6 +945,11 @@ def render_mis_pronosticos(
         grid-template-columns: 1fr;
         gap: 2px;
     }
+}
+
+/* ============================================================
+   MI EVOLUCIÓN — PANEL COMPACTO
+   ============================================================ */
 /* ============================================================
    MI EVOLUCIÓN — PANEL COMPACTO
    ============================================================ */
@@ -1066,6 +1146,7 @@ div[data-testid="stButton"] button {
         css_mis_pronosticos
         .replace("__SIDEBAR_BANNER__", SIDEBAR_BANNER)
         .replace("__HEADER_BACKGROUND__", HEADER_BACKGROUND)
+        .replace("__FONDO_CARD_INICIO__", FONDO_CARD_INICIO)
     )
 
     st.markdown(css_mis_pronosticos, unsafe_allow_html=True)
@@ -1843,6 +1924,7 @@ div[data-testid="stButton"] button {
     u_data = st.session_state["user_data"]
 
     PROFILE_HERO_BG_URL = "https://storage.googleapis.com/foto-prode2026/Banners/CAUDRADO1.png"
+    FONDO_CARD_INICIO = "https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png"
 
     df_user_pro = df_pro[df_pro["USUARIO"] == user_actual]
 
