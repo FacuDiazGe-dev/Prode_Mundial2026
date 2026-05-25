@@ -399,8 +399,8 @@ def render_mis_pronosticos(
         ),
         linear-gradient(
             135deg,
-            rgba(7,17,31,0.94),
-            rgba(15,23,42,0.86)
+            rgba(7,17,31,0.65),
+            rgba(15,23,42,0.48)
         ),
         url("__FONDO_CARD_INICIO3__");
 
