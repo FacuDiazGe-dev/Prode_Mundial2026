@@ -373,13 +373,14 @@ def render_mis_pronosticos(
    SELECTOR DE FECHA — OSCURO TEXTURADO AJUSTADO
    ============================================================ */
 
+/* Contenedor general del radio */
 div[aria-label="Fecha de fase de grupos"] {
     width: 100% !important;
     max-width: none !important;
     margin: 8px 0 4px 0 !important;
 }
 
-/* wrapper interno que arma Streamlit */
+/* Wrapper interno que arma Streamlit */
 div[aria-label="Fecha de fase de grupos"] > div {
     display: flex !important;
     align-items: center !important;
@@ -411,11 +412,10 @@ div[aria-label="Fecha de fase de grupos"] > div {
         0 10px 20px rgba(15,23,42,0.10);
 }
 
-/* cada opción */
+/* Cada opción */
 div[aria-label="Fecha de fase de grupos"] label {
     flex: 1 1 0 !important;
     min-width: 0 !important;
-
     min-height: 40px !important;
 
     display: inline-flex !important;
@@ -423,7 +423,6 @@ div[aria-label="Fecha de fase de grupos"] label {
     justify-content: center !important;
 
     padding: 0 16px !important;
-
     border-radius: 999px;
 
     font-family: 'Inter', sans-serif !important;
@@ -441,12 +440,12 @@ div[aria-label="Fecha de fase de grupos"] label {
         opacity 0.18s ease;
 }
 
-/* oculta el circulito nativo */
+/* Oculta el circulito nativo */
 div[aria-label="Fecha de fase de grupos"] label > div:first-child {
     display: none !important;
 }
 
-/* texto interno */
+/* Texto interno */
 div[aria-label="Fecha de fase de grupos"] label p {
     margin: 0 !important;
     font-family: 'Inter', sans-serif !important;
@@ -456,14 +455,14 @@ div[aria-label="Fecha de fase de grupos"] label p {
     opacity: 1 !important;
 }
 
-/* hover */
+/* Hover */
 div[aria-label="Fecha de fase de grupos"] label:hover {
     background: rgba(255,255,255,0.08);
     color: #FFFFFF !important;
     transform: translateY(-1px);
 }
 
-/* opción activa */
+/* Opción activa */
 div[aria-label="Fecha de fase de grupos"] input:checked + div {
     background:
         radial-gradient(
@@ -489,27 +488,26 @@ div[aria-label="Fecha de fase de grupos"] input:checked + div p {
     color: #07111F !important;
     font-weight: 900 !important;
 }
-div[aria-label="Fecha de fase de grupos"] label p {
-    margin: 0 !important;
-    font-family: 'Inter', sans-serif !important;
-    font-size: 13px !important;
-    font-weight: 900 !important;
-}
 
+/* Mobile */
 @media (max-width: 768px) {
     div[aria-label="Fecha de fase de grupos"] {
-        width: 100%;
-        max-width: none;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 6px 0 4px 0 !important;
+    }
 
-        gap: 5px;
-        padding: 6px;
-        margin: 6px 0 6px 0;
+    div[aria-label="Fecha de fase de grupos"] > div {
+        width: 100% !important;
+        max-width: none !important;
+        gap: 5px !important;
+        padding: 6px !important;
     }
 
     div[aria-label="Fecha de fase de grupos"] label {
-        flex: 1;
-        min-width: 0;
-        min-height: 36px;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        min-height: 36px !important;
         padding: 0 10px !important;
     }
 
@@ -524,7 +522,6 @@ div[aria-label="Fecha de fase de grupos"] label p {
         border-radius: 15px;
     }
 }
-
 .pred-panel-header-v2 {
     position: relative;
     overflow: hidden;
