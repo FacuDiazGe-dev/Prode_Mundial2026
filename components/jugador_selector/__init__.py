@@ -12,6 +12,34 @@ _jugador_selector = components.declare_component(
 
 
 def jugador_selector(jugadores, seleccionado=None, key=None):
+    """
+    Selector visual de jugadores.
+
+    Parametros
+    ----------
+    jugadores : list[dict]
+        Lista de jugadores. Cada jugador debe tener:
+        {
+            "id": "usuario",
+            "nombre": "Nombre visible",
+            "usuario": "usuario",
+            "equipo": "Equipo favorito",
+            "puntos": 0,
+            "avatar": "https://..."
+        }
+
+    seleccionado : str | None
+        ID del jugador seleccionado actualmente.
+
+    key : str | None
+        Key unica de Streamlit.
+
+    Retorna
+    -------
+    str | None
+        ID del jugador seleccionado.
+    """
+
     return _jugador_selector(
         jugadores=jugadores,
         seleccionado=seleccionado,
