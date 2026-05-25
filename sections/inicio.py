@@ -221,14 +221,10 @@ def render_inicio(
     hero_badges_html = build_hero_badges_html(usuario_actual)
     pos_badge_class = "has-badges" if hero_badges_html else "no-badges"
 
-    
-      
     # --- 2. HTML Y CSS COMPACTO ---
-    
+
     html_hero = textwrap.dedent("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@800;900&display=swap');
-    
     .hero-container {
         font-family: 'Inter', sans-serif;
         background-image:
