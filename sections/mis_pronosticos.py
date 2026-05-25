@@ -457,7 +457,7 @@ div[aria-label="Fecha de fase de grupos"] input:checked + div {
             rgba(244,197,66,0.92),
             rgba(255,220,105,0.90)
         ),
-        url("FONDO_CARD_INICIO3");
+        url("__FONDO_CARD_INICIO3__");
 
     background-size: cover;
     background-position: center;
@@ -1872,7 +1872,7 @@ div[data-testid="stButton"] button {
                     rgba(7,17,31,0.86) 48%,
                     rgba(7,17,31,0.50) 100%
                 ),
-                url("{__FONDO_CARD_INICIO3__}");
+                url("{EVOL_HEADER_BACKGROUND}");
             background-size: cover;
             background-position: center right;
             border: 1px solid rgba(255,255,255,0.08);
