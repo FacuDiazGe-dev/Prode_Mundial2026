@@ -23,60 +23,178 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 310px;
+      max-height: 360px;
       overflow-y: auto;
-      padding: 2px 2px 8px;
+      padding: 3px 3px 9px;
+      scrollbar-width: thin;
+      scrollbar-color: #0f2d63 rgba(226, 232, 240, 0.72);
+    }
+
+    .selector::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .selector::-webkit-scrollbar-track {
+      background: rgba(226, 232, 240, 0.72);
+      border-radius: 999px;
+    }
+
+    .selector::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #0f2d63, #d4a017);
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.55);
     }
 
     .player-card {
+      position: relative;
+      isolation: isolate;
       width: 100%;
       display: grid;
-      grid-template-columns: 44px minmax(0, 1fr) auto;
+      grid-template-columns: 52px minmax(0, 1fr) auto;
       align-items: center;
-      gap: 12px;
-      border: 1px solid rgba(226, 232, 240, 0.92);
-      border-radius: 14px;
-      padding: 10px 12px;
-      background: rgba(248, 250, 252, 0.92);
+      gap: 11px 12px;
+      min-height: 96px;
+      border: 1px solid rgba(148, 163, 184, 0.38);
+      border-radius: 16px;
+      padding: 11px 12px 12px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(248, 250, 252, 0.68)),
+        url("https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png");
+      background-size: cover;
+      background-position: center;
       color: inherit;
       cursor: pointer;
       text-align: left;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
-      transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease, background 150ms ease;
+      box-shadow:
+        0 8px 20px rgba(15, 23, 42, 0.055),
+        inset 0 1px 0 rgba(255, 255, 255, 0.78);
+      transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+    }
+
+    .player-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(244, 197, 66, 0.10), transparent 38%),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.08));
+      pointer-events: none;
+    }
+
+    .player-card::after {
+      content: "";
+      position: absolute;
+      inset: 10px auto 10px 0;
+      width: 3px;
+      border-radius: 999px;
+      background: transparent;
+      transition: background 150ms ease, box-shadow 150ms ease;
     }
 
     .player-card:hover {
-      border-color: rgba(244, 197, 66, 0.7);
-      background: #ffffff;
-      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-      transform: translateY(-1px);
+      border-color: rgba(244, 197, 66, 0.68);
+      box-shadow:
+        0 12px 28px rgba(15, 23, 42, 0.09),
+        0 0 14px rgba(244, 197, 66, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.82);
+      transform: translateY(-2px);
     }
 
     .player-card.selected {
       border-color: rgba(244, 197, 66, 0.95);
-      background: linear-gradient(90deg, rgba(244, 197, 66, 0.16), rgba(255, 255, 255, 0.98));
-      box-shadow: 0 12px 30px rgba(244, 197, 66, 0.16);
+      box-shadow:
+        0 14px 32px rgba(15, 23, 42, 0.09),
+        0 0 18px rgba(244, 197, 66, 0.20),
+        inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    }
+
+    .player-card.selected::after {
+      background: #f4c542;
+      box-shadow: 0 0 12px rgba(244, 197, 66, 0.38);
+    }
+
+    .player-card.top-1::after {
+      background: rgba(244, 197, 66, 0.95);
+    }
+
+    .player-card.top-2::after {
+      background: rgba(148, 163, 184, 0.95);
+    }
+
+    .player-card.top-3::after {
+      background: rgba(180, 111, 45, 0.82);
+    }
+
+    .player-card.current-user {
+      border-color: rgba(37, 99, 235, 0.42);
+      box-shadow:
+        0 10px 24px rgba(15, 23, 42, 0.06),
+        0 0 12px rgba(37, 99, 235, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.80);
+    }
+
+    .player-card.current-user::after {
+      background: rgba(37, 99, 235, 0.78);
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.22);
+    }
+
+    .player-card.selected {
+      border-color: rgba(244, 197, 66, 0.95);
+    }
+
+    .player-card.selected::after {
+      background: #f4c542;
+      box-shadow: 0 0 12px rgba(244, 197, 66, 0.38);
+    }
+
+    .player-card:disabled,
+    .player-card.disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+      transform: none;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .avatar,
+    .avatar-fallback {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 5px 13px rgba(15, 23, 42, 0.15),
+        0 0 0 1px rgba(148, 163, 184, 0.22);
     }
 
     .avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 999px;
       object-fit: cover;
       background: #e2e8f0;
-      border: 2px solid #ffffff;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+    }
+
+    .avatar-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #0f2d63, #07111f);
+      color: #f4c542;
+      font-size: 14px;
+      font-weight: 900;
     }
 
     .info {
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .name {
       display: block;
       overflow: hidden;
       color: #07111f;
-      font-size: 14px;
+      font-size: 14.5px;
       font-weight: 900;
       line-height: 1.15;
       text-overflow: ellipsis;
@@ -86,24 +204,58 @@
     .meta {
       display: block;
       overflow: hidden;
-      margin-top: 4px;
       color: #64748b;
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 11.5px;
+      font-weight: 800;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
     .points {
-      min-width: 58px;
+      min-width: 62px;
       border-radius: 999px;
-      padding: 7px 9px;
-      background: #07111f;
+      padding: 8px 10px;
+      background:
+        radial-gradient(circle at 30% 0%, rgba(244, 197, 66, 0.22), transparent 42%),
+        linear-gradient(180deg, #102a56, #07111f);
       color: #f4c542;
+      border: 1px solid rgba(244, 197, 66, 0.24);
       font-size: 12px;
       font-weight: 900;
       text-align: center;
       white-space: nowrap;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 7px 16px rgba(7, 17, 31, 0.18);
+    }
+
+    .stats {
+      grid-column: 2 / 4;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-width: 0;
+      padding-top: 1px;
+    }
+
+    .stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 20px;
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: rgba(255, 255, 255, 0.70);
+      border: 1px solid rgba(226, 232, 240, 0.84);
+      color: #475569;
+      font-size: 10.5px;
+      font-weight: 900;
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .position {
+      color: #0f2d63;
     }
 
     .empty {
@@ -114,6 +266,51 @@
       font-size: 13px;
       font-weight: 800;
       text-align: center;
+    }
+
+    @media (max-width: 520px) {
+      .selector {
+        max-height: 350px;
+      }
+
+      .player-card {
+        grid-template-columns: 42px minmax(0, 1fr) auto;
+        min-height: 92px;
+        gap: 9px 10px;
+        padding: 10px 10px 11px;
+        border-radius: 15px;
+      }
+
+      .avatar,
+      .avatar-fallback {
+        width: 42px;
+        height: 42px;
+      }
+
+      .name {
+        font-size: 13.5px;
+      }
+
+      .meta {
+        font-size: 10.8px;
+      }
+
+      .points {
+        min-width: 54px;
+        padding: 7px 8px;
+        font-size: 11px;
+      }
+
+      .stats {
+        grid-column: 1 / 4;
+        padding-left: 52px;
+        padding-right: 2px;
+      }
+
+      .stat {
+        padding: 3px 6px;
+        font-size: 10px;
+      }
     }
   </style>
 </head>
@@ -136,7 +333,7 @@
     }
 
     function setFrameHeight() {
-      const targetHeight = Math.min(document.body.scrollHeight, 330);
+      const targetHeight = Math.min(document.body.scrollHeight, 380);
       sendMessage("streamlit:setFrameHeight", {
         height: targetHeight,
       });
@@ -159,6 +356,22 @@
         .replaceAll("'", "&#039;");
     }
 
+    function initialsFrom(name, user) {
+      const source = String(name || user || "J");
+      const parts = source.trim().split(/\s+/).filter(Boolean);
+
+      if (parts.length >= 2) {
+        return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+      }
+
+      return source.slice(0, 2).toUpperCase();
+    }
+
+    function numberValue(value, fallback = 0) {
+      const parsed = Number.parseInt(value, 10);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
     function render(args) {
       const jugadores = Array.isArray(args.jugadores) ? args.jugadores : [];
       selected = args.seleccionado ?? selected;
@@ -173,20 +386,42 @@
         .map((jugador) => {
           const id = String(jugador.id ?? "");
           const nombre = escapeHtml(jugador.nombre || "Jugador");
-          const usuario = escapeHtml(jugador.usuario || id);
-          const equipo = escapeHtml(jugador.equipo || "-");
-          const puntos = escapeHtml(jugador.puntos ?? 0);
-          const avatar = escapeHtml(jugador.avatar || "");
+          const usuarioRaw = jugador.usuario || id;
+          const usuario = escapeHtml(usuarioRaw);
+          const equipo = escapeHtml(jugador.equipo || "Sin equipo");
+          const puntos = numberValue(jugador.puntos, 0);
+          const exactos = numberValue(jugador.exactos, 0);
+          const generales = numberValue(jugador.generales, 0);
+          const posicion = jugador.posicion ? numberValue(jugador.posicion, 0) : null;
+          const avatar = String(jugador.avatar || "").trim();
           const selectedClass = id === String(selected ?? "") ? " selected" : "";
+          const tierClass = ["top-1", "top-2", "top-3"].includes(jugador.ranking_tier)
+            ? ` ${jugador.ranking_tier}`
+            : "";
+          const currentClass = jugador.current_user ? " current-user" : "";
+          const disabledClass = jugador.disabled ? " disabled" : "";
+          const disabledAttr = jugador.disabled ? " disabled" : "";
+          const initials = escapeHtml(initialsFrom(jugador.nombre, usuarioRaw));
+          const avatarHtml = avatar
+            ? `<img class="avatar" src="${escapeHtml(avatar)}" alt="${nombre}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'), { className: 'avatar-fallback', textContent: '${initials}' }))" />`
+            : `<span class="avatar-fallback">${initials}</span>`;
+          const posicionHtml = posicion
+            ? `<span class="stat position">#${escapeHtml(posicion)}</span>`
+            : "";
 
           return `
-            <button class="player-card${selectedClass}" type="button" data-id="${escapeHtml(id)}">
-              <img class="avatar" src="${avatar}" alt="${nombre}" loading="lazy" />
+            <button class="player-card${selectedClass}${tierClass}${currentClass}${disabledClass}" type="button" data-id="${escapeHtml(id)}"${disabledAttr}>
+              ${avatarHtml}
               <span class="info">
                 <span class="name">${nombre}</span>
-                <span class="meta">@${usuario} · ${equipo}</span>
+                <span class="meta">@${usuario} - ${equipo}</span>
               </span>
               <span class="points">${puntos} pts</span>
+              <span class="stats">
+                ${posicionHtml}
+                <span class="stat">&#127919; ${exactos} exactos</span>
+                <span class="stat">&#9989; ${generales} generales</span>
+              </span>
             </button>
           `;
         })
@@ -194,6 +429,10 @@
 
       root.querySelectorAll(".player-card").forEach((card) => {
         card.addEventListener("click", () => {
+          if (card.disabled) {
+            return;
+          }
+
           setValue(card.dataset.id);
           root.querySelectorAll(".player-card").forEach((item) => {
             item.classList.toggle("selected", item.dataset.id === card.dataset.id);

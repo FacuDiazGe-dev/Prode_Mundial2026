@@ -648,9 +648,9 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     overflow: hidden;
 
     padding: 13px 15px 14px 15px;
-    margin-bottom: 14px;
+    margin-bottom: 0;
 
-    border-radius: 16px;
+    border-radius: 16px 16px 0 0;
 
     background-image:
         radial-gradient(
@@ -670,6 +670,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     background-position: center;
 
     border: 1px solid rgba(244,197,66,0.22);
+    border-bottom: none;
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
@@ -719,7 +720,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     margin-bottom: 12px;
     margin-top: 0 !important;
 
-    border-radius: 16px;
+    border-radius: 0 0 16px 16px;
 
     background:
         linear-gradient(
@@ -729,6 +730,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
         );
 
     border: 1px solid rgba(203,213,225,0.72);
+    border-top: none;
 
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.70),
@@ -779,7 +781,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     .pred-scroll {
         height: 430px;
         padding: 10px 9px 3px 9px;
-        border-radius: 15px;
+        border-radius: 0 0 15px 15px;
     }
 }
 /* ============================================================
@@ -799,8 +801,8 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
     .pred-panel-header-v2 {
         padding: 11px 12px;
-        border-radius: 14px;
-        margin-bottom: 12px;
+        border-radius: 14px 14px 0 0;
+        margin-bottom: 0;
     }
 
     .panel-title {
@@ -905,92 +907,6 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
 .profile-panel {
     position: relative;
-    overflow: hidden;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.96),
-            rgba(248,250,252,0.92)
-        );
-
-    border: 1px solid rgba(203,213,225,0.92);
-    border-radius: 20px;
-
-    padding: 16px;
-
-    box-shadow:
-        0 16px 36px rgba(15,23,42,0.075),
-        inset 0 1px 0 rgba(255,255,255,0.82);
-}
-
-.profile-panel::before {
-    content: "";
-
-    position: absolute;
-    inset: 0;
-
-    background:
-        radial-gradient(
-            circle at 0% 0%,
-            rgba(244,197,66,0.08),
-            transparent 36%
-        );
-
-    pointer-events: none;
-    z-index: 0;
-}
-
-.profile-panel > * {
-    position: relative;
-    z-index: 1;
-}
-
-/* Header interno de Mi Perfil */
-
-.profile-panel .panel-header {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-
-    padding: 5px 5px 14px 5px;
-    margin-bottom: 14px;
-
-    border-bottom: 1px solid rgba(148,163,184,0.30);
-}
-
-.profile-panel .panel-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(244,197,66,0.18),
-            rgba(244,197,66,0.07)
-        );
-
-    border: 1px solid rgba(244,197,66,0.18);
-
-    color: #0f172a;
-    font-size: 17px;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.78),
-        0 6px 14px rgba(15,23,42,0.06);
-}
-
-.profile-panel .panel-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    color: #0f172a;
-    letter-spacing: -0.01em;
 }
 
 /* Hero */
@@ -1023,6 +939,61 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
         0 14px 30px rgba(15,23,42,0.18);
+}
+
+.profile-hero-header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 2px 2px 14px 2px;
+    margin-bottom: 15px;
+
+    border-bottom: 1px solid rgba(244,197,66,0.22);
+}
+
+.profile-hero-header-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.24),
+            rgba(244,197,66,0.10)
+        );
+
+    border: 1px solid rgba(244,197,66,0.24);
+
+    color: #F8FAFC;
+    font-size: 17px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 8px 18px rgba(0,0,0,0.18),
+        0 0 12px rgba(244,197,66,0.08);
+}
+
+.profile-hero-header-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #F8FAFC;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+}
+
+.profile-hero-header-subtitle {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    color: rgba(248,250,252,0.68);
+    line-height: 1.2;
 }
 
 .profile-hero-top {
@@ -1413,23 +1384,26 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
 @media (max-width: 768px) {
     .profile-panel {
-        padding: 13px;
-        border-radius: 17px;
+        padding: 0;
     }
 
-    .profile-panel .panel-header {
-        padding: 4px 4px 12px 4px;
+    .profile-hero-header {
+        padding: 1px 1px 12px 1px;
         margin-bottom: 12px;
     }
 
-    .profile-panel .panel-icon {
+    .profile-hero-header-icon {
         width: 31px;
         height: 31px;
         border-radius: 11px;
     }
 
-    .profile-panel .panel-title {
+    .profile-hero-header-title {
         font-size: 16px;
+    }
+
+    .profile-hero-header-subtitle {
+        font-size: 10.5px;
     }
 
     .profile-hero {
@@ -2596,22 +2570,6 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 
 
         # ------------------------------------------------------------
-        # HEADER DEL PANEL
-        # ------------------------------------------------------------
-
-        st.markdown(f"""
-<div class="pred-panel-header-v2">
-<div class="pred-panel-title-row">
-<div class="panel-icon">📝</div>
-<div>
-<div class="panel-title">Mis Pronósticos</div>
-<div class="pred-panel-subtitle {estado_class}">{estado_txt}</div>
-</div>
-</div>
-</div>
-""", unsafe_allow_html=True)
-
-        # ------------------------------------------------------------
         # SELECTOR DE FECHA / TANDA DE CARGA
         # ------------------------------------------------------------
 
@@ -2630,6 +2588,22 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
         fecha_num = int(
             tanda_seleccionada.replace("Fecha ", "")
         )
+
+        # ------------------------------------------------------------
+        # HEADER DEL PANEL
+        # ------------------------------------------------------------
+
+        st.markdown(f"""
+<div class="pred-panel-header-v2">
+<div class="pred-panel-title-row">
+<div class="panel-icon">📝</div>
+<div>
+<div class="panel-title">Mis Pronósticos</div>
+<div class="pred-panel-subtitle {estado_class}">{estado_txt}</div>
+</div>
+</div>
+</div>
+""", unsafe_allow_html=True)
 
         # ------------------------------------------------------------
         # FILTRO DE PARTIDOS POR FECHA
@@ -3046,15 +3020,15 @@ Estilo de predicción: <strong>{stats_pronosticos["estilo"]}</strong>
                 f"""
 <div class="profile-panel">
 
-<div class="panel-header">
-<div class="panel-icon">👤</div>
-<div>
-<div class="panel-title">Mi Perfil</div>
-<div class="pred-panel-subtitle">Tu ficha personal del Prode</div>
-</div>
-</div>
-
 <div class="profile-hero" style="--profile-hero-bg: url('{PROFILE_HERO_BG_URL}');">
+
+<div class="profile-hero-header">
+<div class="profile-hero-header-icon">👤</div>
+<div>
+<div class="profile-hero-header-title">Mi Perfil</div>
+<div class="profile-hero-header-subtitle">Tu ficha personal del Prode</div>
+</div>
+</div>
 
 <div class="profile-hero-top">
 

@@ -757,6 +757,38 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
 
         return None, None
 
+    def get_ranking_position(user_row):
+        """
+        Devuelve la posicion visual dentro de df_ranking.
+        No usa el indice original del DataFrame porque puede venir heredado
+        de operaciones previas y no representar el puesto real.
+        """
+        usuario = str(user_row.get("USUARIO", ""))
+        nombre = str(user_row.get("NOMBRE", ""))
+
+        if df_ranking is None or df_ranking.empty:
+            return None
+
+        ranking_reset = df_ranking.reset_index(drop=True)
+
+        if "USUARIO" in ranking_reset.columns:
+            match = ranking_reset[
+                ranking_reset["USUARIO"].astype(str) == usuario
+            ]
+            if not match.empty:
+                return int(match.index[0]) + 1
+
+        if "JUGADOR" in ranking_reset.columns:
+            match = ranking_reset[
+                ranking_reset["JUGADOR"]
+                .astype(str)
+                .str.contains(nombre, na=False, regex=False)
+            ]
+            if not match.empty:
+                return int(match.index[0]) + 1
+
+        return None
+
     def get_nombre_desde_ranking(rank_row):
         if rank_row is None:
             return "-"
@@ -1325,6 +1357,7 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
 
             for _, u_aux in df_usuarios_filtrado.iterrows():
                 rank_row_aux, idx_rank_aux = get_ranking_row(u_aux)
+                posicion_aux = get_ranking_position(u_aux)
 
                 puntos_aux = (
                     safe_int(rank_row_aux.get("PUNTOS", 0))
@@ -1332,15 +1365,10 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
                     else 0
                 )
 
-                try:
-                    posicion_aux = int(idx_rank_aux)
-                except Exception:
-                    posicion_aux = 9999
-
                 ranking_aux.append({
                     "USUARIO": str(u_aux.get("USUARIO", "")),
                     "_PUNTOS_AUX": puntos_aux,
-                    "_POS_AUX": posicion_aux
+                    "_POS_AUX": posicion_aux if posicion_aux is not None else 9999
                 })
 
             df_aux_orden = pd.DataFrame(ranking_aux)
@@ -1387,16 +1415,30 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
                 )
 
             jugadores_component = []
+            usuario_actual = str(
+                st.session_state.get("user_data", {}).get("USUARIO", "")
+            )
 
             for _, u in df_usuarios_filtrado.iterrows():
                 rank_row, idx_rank = get_ranking_row(u)
+                usuario_card = str(u.get("USUARIO", ""))
+                posicion_card = get_ranking_position(u)
+
+                ranking_tier = ""
+                if posicion_card in [1, 2, 3]:
+                    ranking_tier = f"top-{posicion_card}"
 
                 jugadores_component.append({
-                    "id": str(u.get("USUARIO", "")),
+                    "id": usuario_card,
                     "nombre": str(u.get("NOMBRE", "Jugador")),
-                    "usuario": str(u.get("USUARIO", "")),
-                    "equipo": str(u.get("EQUIPO FAVORITO", "-")),
+                    "usuario": usuario_card,
+                    "equipo": str(u.get("EQUIPO FAVORITO", "Sin equipo")),
                     "puntos": get_valor_ranking(rank_row, "PUNTOS"),
+                    "exactos": get_valor_ranking(rank_row, "EXACTOS"),
+                    "generales": get_valor_ranking(rank_row, "GENERALES"),
+                    "posicion": posicion_card,
+                    "ranking_tier": ranking_tier,
+                    "current_user": usuario_card == usuario_actual,
                     "avatar": get_avatar(u)
                 })
 
