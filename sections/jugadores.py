@@ -11,6 +11,7 @@ from styles_config import (
 )
 from ranking_logic import calcular_detalle
 from tools import get_flag_img_cached
+from styles_shared import css_panel_header, css_section_title
 
 
 def render_jugadores(
@@ -24,32 +25,17 @@ def render_jugadores(
     # ESTILOS — JUGADORES
     # ============================================================
 
-    st.markdown("""
+    css_jugadores = (
+        """
 <style>
 
 /* ============================================================
    1. TÍTULO GENERAL DE LA SECCIÓN
    ============================================================ */
 
-.players-title {
-    margin-bottom: 22px;
-}
-
-.players-title h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 34px;
-    font-weight: 900;
-    color: #07111F;
-    margin: 0;
-    letter-spacing: -0.04em;
-}
-
-.players-title p {
-    margin: 6px 0 0 0;
-    color: #64748b;
-    font-size: 15px;
-    font-weight: 600;
-}
+"""
+        + css_section_title("players-title")
+        + """
 
 
 
@@ -92,41 +78,9 @@ def render_jugadores(
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
 }
 
-.players-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 4px 14px 4px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid rgba(226,232,240,0.75);
-}
-
-.players-panel-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(244,197,66,0.16);
-    color: #0f172a;
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-.players-panel-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    color: #0f172a;
-}
-
-.players-panel-subtitle {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 700;
-    margin-top: 2px;
-}
+"""
+        + css_panel_header("players")
+        + """
 /* ============================================================
    3. LISTADO SELECTOR DE JUGADORES
    Estructura: botón pequeño + card visual del jugador.
@@ -661,28 +615,12 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
    ============================================================ */
 
 @media (max-width: 768px) {
-    .players-title h1 {
-        font-size: 28px;
-    }
-
-    .players-title p {
-        font-size: 12px;
-    }
-
     .players-panel,
     .player-profile-panel,
     .badges-wall-panel,
     .player-preds-panel {
         padding: 13px;
         border-radius: 16px;
-    }
-
-    .players-panel-title {
-        font-size: 16px;
-    }
-
-    .players-panel-subtitle {
-        font-size: 11px;
     }
 
     .player-list-card {
@@ -767,7 +705,10 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
 }
 
 </style>
-""", unsafe_allow_html=True)
+"""
+    )
+
+    st.markdown(css_jugadores, unsafe_allow_html=True)
     # ============================================================
     # HELPERS
     # ============================================================

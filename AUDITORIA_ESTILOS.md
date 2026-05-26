@@ -81,3 +81,12 @@ Se agrego `STYLE_GUIDE.md` como guia humana del sistema de estilos. La intencion
 - Superficies claras/oscuras.
 
 Los bloques especiales, como el hero de Inicio o el ranking personal dentro del hero, deben conservar estilos propios.
+
+## Prueba 2: `sections/jugadores.py`
+
+Se migro solo lo repetitivo:
+
+- Titulo principal `.players-title`.
+- Header comun `.players-panel-*`.
+
+No se migraron paneles con fondos especiales del bucket, selector custom, badges ni hero del jugador.
