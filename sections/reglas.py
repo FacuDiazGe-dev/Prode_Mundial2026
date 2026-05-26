@@ -1,6 +1,7 @@
 import streamlit as st
 
 from styles_config import mostrar_decalogo
+from styles_shared import css_panel_base, css_panel_header, css_section_title
 
 
 def render_reglas():
@@ -8,83 +9,21 @@ def render_reglas():
     # ESTILOS — REGLAS DEL JUEGO
     # ============================================================
 
-    st.markdown("""
+    css_reglas = (
+        """
 <style>
-.reglas-title {
-    margin-bottom: 22px;
-}
-
-.reglas-title h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 34px;
-    font-weight: 900;
-    color: #07111F;
-    margin: 0;
-    letter-spacing: -0.04em;
-}
-
-.reglas-title p {
-    margin: 6px 0 0 0;
-    color: #64748b;
-    font-size: 15px;
-    font-weight: 600;
-}
+"""
+        + css_section_title("reglas-title")
+        + """
 
 /* ============================================================
    PANEL BASE — REGLAS
    ============================================================ */
 
-.reglas-panel {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
-    margin-bottom: 18px;
-    height: 100%;
-}
-
-.reglas-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    padding: 4px 4px 14px 4px;
-    margin-bottom: 12px;
-
-    border-bottom: 1px solid rgba(226,232,240,0.75);
-}
-
-.reglas-panel-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: rgba(244,197,66,0.16);
-    color: #0f172a;
-    font-size: 16px;
-
-    flex-shrink: 0;
-}
-
-.reglas-panel-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    color: #0f172a;
-    line-height: 1.05;
-}
-
-.reglas-panel-subtitle {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 700;
-    margin-top: 3px;
-}
+"""
+        + css_panel_base("reglas-panel")
+        + css_panel_header("reglas")
+        + """
 
 /* ============================================================
    FAQ — SOBRIO Y CLARO
@@ -229,28 +168,6 @@ def render_reglas():
    ============================================================ */
 
 @media (max-width: 768px) {
-    .reglas-title h1 {
-        font-size: 28px;
-    }
-
-    .reglas-title p {
-        font-size: 12px;
-    }
-
-    .reglas-panel {
-        padding: 13px;
-        border-radius: 16px;
-        margin-bottom: 14px;
-    }
-
-    .reglas-panel-title {
-        font-size: 16px;
-    }
-
-    .reglas-panel-subtitle {
-        font-size: 11px;
-    }
-
     .faq-question {
         font-size: 13px;
     }
@@ -287,7 +204,10 @@ def render_reglas():
     }
 }
 </style>
-""", unsafe_allow_html=True)
+"""
+    )
+
+    st.markdown(css_reglas, unsafe_allow_html=True)
 
     # ============================================================
     # TÍTULO
