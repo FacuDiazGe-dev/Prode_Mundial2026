@@ -25,6 +25,12 @@ def jugador_selector(jugadores, seleccionado=None, key=None):
             "usuario": "usuario",
             "equipo": "Equipo favorito",
             "puntos": 0,
+            "exactos": 0,
+            "generales": 0,
+            "posicion": 1,
+            "ranking_tier": "top-1",
+            "current_user": False,
+            "disabled": False,
             "avatar": "https://..."
         }
 
