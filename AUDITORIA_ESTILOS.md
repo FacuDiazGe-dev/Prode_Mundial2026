@@ -141,3 +141,16 @@ Segunda migracion acotada dentro de Inicio:
 Se uso la variante azul de `css_home_premium_panel`.
 
 No se tocaron mini cards de partidos, scroll, marcadores, filtros de resultados, hero, ranking personal ni ranking general.
+
+## Prueba 8: `sections/inicio.py`
+
+Tercera migracion acotada dentro de Inicio:
+
+- `chat-panel`
+- `chat-panel-header`
+- `chat-panel-icon`
+- `chat-panel-title`
+
+Se uso la variante dorada de `css_home_premium_panel` con radio y padding propios para conservar la union visual con el footer oscuro del formulario.
+
+No se tocaron mensajes, formulario, envio de comentarios, scroll, hero ni rankings.
