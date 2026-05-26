@@ -105,3 +105,13 @@ Se migro:
 - Header comun `.foro-panel-*`.
 
 Se conservaron los overrides premium propios de foro para contraste y subtitulos.
+
+## Prueba 5: `sections/laboratorio.py`
+
+Se migro:
+
+- Titulo principal `.lab-title`.
+- Superficies repetitivas `.lab-panel` y `.lab-card`.
+- Header comun `.lab-card-*`.
+
+Laboratorio no esta visible en produccion, pero sirve como banco de prueba para validar helpers compartidos.

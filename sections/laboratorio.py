@@ -3,6 +3,7 @@ import pandas as pd
 import streamlit_antd_components as sac
 
 from components.ui_button import ui_button
+from styles_shared import css_panel_header, css_section_title, css_surface
 
 try:
     from streamlit_elements import elements, mui, sync
@@ -15,36 +16,16 @@ except Exception:
 
 
 def render_laboratorio(df_usuarios=None, df_ranking=None):
-    st.markdown("""
+    css_laboratorio = (
+        """
 <style>
-.lab-title {
-    margin-bottom: 22px;
-}
+"""
+        + css_section_title("lab-title")
+        + """
 
-.lab-title h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 34px;
-    font-weight: 900;
-    color: #07111F;
-    margin: 0;
-    letter-spacing: -0.04em;
-}
-
-.lab-title p {
-    margin: 6px 0 0 0;
-    color: #64748b;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.lab-panel {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
-    margin-bottom: 18px;
-}
+"""
+        + css_surface("lab-panel", "panel_light")
+        + """
 
 .lab-panel h3 {
     margin-top: 0;
@@ -100,49 +81,10 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     object-fit: cover;
     border: 2px solid rgba(244,197,66,0.8);
 }
-.lab-card {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
-    margin-bottom: 18px;
-}
-
-.lab-card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 14px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid rgba(226,232,240,0.75);
-}
-
-.lab-card-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(244,197,66,0.16);
-    color: #0f172a;
-    font-size: 16px;
-}
-
-.lab-card-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    color: #0f172a;
-}
-
-.lab-card-subtitle {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 700;
-    margin-top: 2px;
-}
+"""
+        + css_surface("lab-card", "panel_light")
+        + css_panel_header("lab-card")
+        + """
 
 .lab-selector-box {
     background: rgba(248,250,252,0.78);
@@ -195,20 +137,8 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
 }
 
 @media (max-width: 768px) {
-    .lab-card {
-        padding: 13px;
-    }
-
     .lab-selector-box {
         max-height: 300px;
-    }
-
-    .lab-card-title {
-        font-size: 16px;
-    }
-
-    .lab-card-subtitle {
-        font-size: 11px;
     }
 }
 /* ============================================================
@@ -308,7 +238,10 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
     border: 1px solid rgba(244,197,66,0.30) !important;
 }
 </style>
-""", unsafe_allow_html=True)
+"""
+    )
+
+    st.markdown(css_laboratorio, unsafe_allow_html=True)
 
     st.markdown("""
 <div class="lab-title">
