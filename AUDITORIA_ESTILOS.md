@@ -128,3 +128,16 @@ Primera migracion aplicada solo a:
 - `news-home-title`
 
 No se tocaron hero, ranking personal del hero, ranking general, resultados oficiales ni foro/chat.
+
+## Prueba 7: `sections/inicio.py`
+
+Segunda migracion acotada dentro de Inicio:
+
+- `matches-panel`
+- `matches-panel-header`
+- `matches-panel-icon`
+- `matches-panel-title`
+
+Se uso la variante azul de `css_home_premium_panel`.
+
+No se tocaron mini cards de partidos, scroll, marcadores, filtros de resultados, hero, ranking personal ni ranking general.

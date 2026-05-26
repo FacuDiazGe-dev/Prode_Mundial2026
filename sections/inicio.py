@@ -2565,102 +2565,21 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         # RESULTADOS DE LA FECHA — CARD INTEGRADA
         # ============================================================
 
-        st.markdown(f"""
+        st.markdown(
+            """
         <style>
         /* ============================================================
            RESULTADOS OFICIALES — PANEL PREMIUM TEXTURADO
         ============================================================ */
-        
-        .matches-panel {{
-            position: relative;
-            overflow: hidden;
-        
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(255,255,255,0.96),
-                    rgba(248,250,252,0.92)
-                );
-        
-            border: 1px solid rgba(203,213,225,0.92);
-            border-radius: 20px;
-        
-            padding: 15px;
-        
-            box-shadow:
-                0 16px 36px rgba(15,23,42,0.075),
-                inset 0 1px 0 rgba(255,255,255,0.82);
-        }}
-        
-        .matches-panel::before {{
-            content: "";
-        
-            position: absolute;
-            inset: 0;
-        
-            background:
-                radial-gradient(
-                    circle at 0% 0%,
-                    rgba(244,197,66,0.08),
-                    transparent 36%
-                );
-        
-            pointer-events: none;
-            z-index: 0;
-        }}
-        
-        .matches-panel > * {{
-            position: relative;
-            z-index: 1;
-        }}
-        
-        .matches-panel-header {{
-            display: flex;
-            align-items: center;
-            gap: 11px;
-        
-            padding: 5px 5px 14px 5px;
-            margin-bottom: 10px;
-        
-            border-bottom: 1px solid rgba(148,163,184,0.30);
-        }}
-        
-        .matches-panel-icon {{
-            width: 34px;
-            height: 34px;
-            border-radius: 12px;
-        
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(30,64,175,0.12),
-                    rgba(15,23,42,0.06)
-                );
-        
-            border: 1px solid rgba(30,64,175,0.14);
-        
-            color: #0f172a;
-            font-size: 17px;
-        
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.78),
-                0 6px 14px rgba(15,23,42,0.06);
-        }}
-        
-        .matches-panel-title {{
-            font-family: 'Montserrat', sans-serif;
-            font-size: 17px;
-            font-weight: 900;
-            color: #0f172a;
-        
-            text-transform: uppercase;
-            letter-spacing: 0.01em;
-        }}
-        
+        """
+            + css_home_premium_panel(
+                "matches-panel",
+                "matches-panel-header",
+                "matches-panel-icon",
+                "matches-panel-title",
+                icon_accent="blue",
+            )
+            + f"""
         .matches-scroll {{
             height: 315px;
             overflow-y: auto;
@@ -2941,21 +2860,6 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         ============================================================ */
         
         @media (max-width: 768px) {{
-            .matches-panel {{
-                padding: 12px;
-                border-radius: 17px;
-            }}
-        
-            .matches-panel-title {{
-                font-size: 15px;
-            }}
-        
-            .matches-panel-icon {{
-                width: 31px;
-                height: 31px;
-                border-radius: 11px;
-            }}
-        
             .matches-scroll {{
                 height: 315px;
             }}
@@ -2992,7 +2896,9 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             }}
         }}
         </style>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
         
         
         def flag_html(flag_value):
