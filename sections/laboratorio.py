@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import streamlit_antd_components as sac
 
+from components.ui_button import ui_button
+
 try:
     from streamlit_elements import elements, mui, sync
     ELEMENTS_AVAILABLE = True
@@ -404,6 +406,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
             sac.TabsItem("Botón + Card", icon="layout-sidebar"),
             sac.TabsItem("Foro MUI", icon="chat-dots"),
             sac.TabsItem("Botones", icon="collection"),
+            sac.TabsItem("UI Button", icon="cursor"),
             sac.TabsItem("Filtros", icon="funnel"),
             sac.TabsItem("Insignias", icon="award"),
         ],
@@ -930,6 +933,122 @@ Sirve para pocos jugadores o para categorías. Si hay muchos, puede volverse lar
 
     # ============================================================
     # TAB 5 — FILTROS
+    # ============================================================
+
+    elif tab == "UI Button":
+        st.markdown("""
+<div class="lab-panel">
+<h3>UI Button custom component</h3>
+<div class="lab-note">
+Prueba visual y funcional del boton reutilizable. El click devuelve True una sola vez por evento.
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+        if "lab_ui_button_clicks" not in st.session_state:
+            st.session_state.lab_ui_button_clicks = 0
+
+        if "lab_ui_button_last" not in st.session_state:
+            st.session_state.lab_ui_button_last = "Ninguno"
+
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.metric("Clicks detectados", st.session_state.lab_ui_button_clicks)
+        with col_b:
+            st.metric("Ultimo boton", st.session_state.lab_ui_button_last)
+
+        variants = [
+            ("primary", "Principal", "✏️"),
+            ("secondary", "Secundario", "📋"),
+            ("dark", "Azul noche", "🌙"),
+            ("ghost", "Fantasma", "👁️"),
+            ("danger", "Eliminar", "🗑️"),
+            ("locked", "Bloqueado", "🔒"),
+            ("success", "Confirmar", "✅"),
+        ]
+
+        st.markdown("#### Variantes")
+        for variant, label, icon in variants:
+            clicked = ui_button(
+                label=label,
+                key=f"lab_ui_button_variant_{variant}",
+                variant=variant,
+                icon_left=icon,
+                icon_right="›" if variant not in {"locked", "danger"} else None,
+                disabled=variant == "locked",
+                glow=variant in {"primary", "dark"},
+                rounded="soft",
+            )
+
+            if clicked:
+                st.session_state.lab_ui_button_clicks += 1
+                st.session_state.lab_ui_button_last = variant
+                st.rerun()
+
+        st.markdown("#### Tamaños y formas")
+        col_sm, col_md, col_lg = st.columns(3)
+        with col_sm:
+            if ui_button(
+                "Small pill",
+                key="lab_ui_button_sm",
+                variant="secondary",
+                size="sm",
+                rounded="pill",
+                compact=True,
+                icon_left="•",
+            ):
+                st.session_state.lab_ui_button_clicks += 1
+                st.session_state.lab_ui_button_last = "small"
+                st.rerun()
+
+        with col_md:
+            if ui_button(
+                "Medium soft",
+                key="lab_ui_button_md",
+                variant="primary",
+                size="md",
+                rounded="soft",
+                icon_left="★",
+            ):
+                st.session_state.lab_ui_button_clicks += 1
+                st.session_state.lab_ui_button_last = "medium"
+                st.rerun()
+
+        with col_lg:
+            if ui_button(
+                "Large card",
+                key="lab_ui_button_lg",
+                variant="dark",
+                size="lg",
+                rounded="card",
+                icon_left="◆",
+                glow=True,
+            ):
+                st.session_state.lab_ui_button_clicks += 1
+                st.session_state.lab_ui_button_last = "large"
+                st.rerun()
+
+        st.markdown("#### Estados")
+        col_loading, col_disabled = st.columns(2)
+        with col_loading:
+            ui_button(
+                "Cargando",
+                key="lab_ui_button_loading",
+                variant="primary",
+                loading=True,
+            )
+
+        with col_disabled:
+            ui_button(
+                "Deshabilitado",
+                key="lab_ui_button_disabled",
+                variant="secondary",
+                disabled=True,
+                icon_left="⛔",
+            )
+
+    # ============================================================
+    # TAB 6 — FILTROS
     # ============================================================
 
     elif tab == "Filtros":
