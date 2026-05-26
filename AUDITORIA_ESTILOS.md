@@ -90,3 +90,9 @@ Se migro solo lo repetitivo:
 - Header comun `.players-panel-*`.
 
 No se migraron paneles con fondos especiales del bucket, selector custom, badges ni hero del jugador.
+
+## Prueba 3: `sections/mis_pronosticos.py`
+
+Se migro solo el titulo principal `.page-section-title`.
+
+No se tocaron paneles, cards, botones, modo edicion, guardado de pronosticos ni perfil.

@@ -22,6 +22,7 @@ from styles_config import (
     FONDO_CARD_INICIO,
     FONDO_CARD_INICIO3
 )
+from styles_shared import css_section_title
 
 from tools import normalizar_badges, upload_profile_picture
 
@@ -43,27 +44,12 @@ def render_mis_pronosticos(
     # ESTILOS — MIS PRONÓSTICOS / MI PERFIL
     # ============================================================
 
-    css_mis_pronosticos = """
+    css_mis_pronosticos = (
+        """
 <style>
-.page-section-title {
-    margin-bottom: 22px;
-}
-
-.page-section-title h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 34px;
-    font-weight: 900;
-    color: #07111F;
-    margin: 0;
-    letter-spacing: -0.04em;
-}
-
-.page-section-title p {
-    margin: 6px 0 0 0;
-    color: #64748b;
-    font-size: 15px;
-    font-weight: 600;
-}
+"""
+        + css_section_title("page-section-title")
+        + """
 
 .pred-panel {
     background: rgba(255,255,255,0.94);
@@ -1739,6 +1725,7 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
 }
 </style>
 """
+    )
     
     css_mis_pronosticos = (
         css_mis_pronosticos
