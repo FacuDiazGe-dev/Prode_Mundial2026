@@ -209,3 +209,131 @@ def css_panel_header(prefix):
     margin-top: 3px;
 }}
 """
+
+
+def css_home_premium_panel(
+    class_name,
+    header_class,
+    icon_class,
+    title_class,
+    icon_accent="gold",
+    radius="20px",
+    padding="15px",
+    mobile_radius="17px",
+    mobile_padding="12px",
+):
+    if icon_accent == "blue":
+        icon_bg = (
+            "linear-gradient(180deg, "
+            "rgba(30,64,175,0.12), rgba(15,23,42,0.06))"
+        )
+        icon_border = "1px solid rgba(30,64,175,0.14)"
+    else:
+        icon_bg = (
+            "linear-gradient(180deg, "
+            "rgba(244,197,66,0.18), rgba(244,197,66,0.07))"
+        )
+        icon_border = "1px solid rgba(244,197,66,0.18)"
+
+    return f"""
+.{class_name} {{
+    position: relative;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.96),
+            rgba(248,250,252,0.92)
+        );
+
+    border: 1px solid rgba(203,213,225,0.92);
+    border-radius: {radius};
+
+    padding: {padding};
+
+    box-shadow:
+        0 16px 36px rgba(15,23,42,0.075),
+        inset 0 1px 0 rgba(255,255,255,0.82);
+}}
+
+.{class_name}::before {{
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(244,197,66,0.08),
+            transparent 36%
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}}
+
+.{class_name} > * {{
+    position: relative;
+    z-index: 1;
+}}
+
+.{header_class} {{
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 5px 5px 14px 5px;
+    margin-bottom: 10px;
+
+    border-bottom: 1px solid rgba(148,163,184,0.30);
+}}
+
+.{icon_class} {{
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: {icon_bg};
+    border: {icon_border};
+
+    color: #0f172a;
+    font-size: 17px;
+    flex-shrink: 0;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.78),
+        0 6px 14px rgba(15,23,42,0.06);
+}}
+
+.{title_class} {{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 17px;
+    font-weight: 900;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+}}
+
+@media (max-width: 768px) {{
+    .{class_name} {{
+        padding: {mobile_padding};
+        border-radius: {mobile_radius};
+    }}
+
+    .{title_class} {{
+        font-size: 15px;
+    }}
+
+    .{icon_class} {{
+        width: 31px;
+        height: 31px;
+        border-radius: 11px;
+    }}
+}}
+"""

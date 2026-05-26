@@ -115,3 +115,16 @@ Se migro:
 - Header comun `.lab-card-*`.
 
 Laboratorio no esta visible en produccion, pero sirve como banco de prueba para validar helpers compartidos.
+
+## Prueba 6: `sections/inicio.py`
+
+Se creo `css_home_premium_panel` para paneles premium repetitivos de Inicio.
+
+Primera migracion aplicada solo a:
+
+- `news-home-panel`
+- `news-home-header`
+- `news-home-icon`
+- `news-home-title`
+
+No se tocaron hero, ranking personal del hero, ranking general, resultados oficiales ni foro/chat.

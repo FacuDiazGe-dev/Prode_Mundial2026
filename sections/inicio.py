@@ -20,6 +20,7 @@ from styles_config import (
 )
 from tools import normalizar_badges
 from services.supabase_service import insertar_foro_supabase
+from styles_shared import css_home_premium_panel
 
 def render_inicio(
     df_ranking,
@@ -2007,96 +2008,17 @@ def render_inicio(
         # Reemplaza Evolución de Puntos en Inicio
         # ============================================================
 
-        news_css = """
+        news_css = (
+            """
 <style>
-.news-home-panel {
-    position: relative;
-    overflow: hidden;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(255,255,255,0.96),
-            rgba(248,250,252,0.92)
-        );
-
-    border: 1px solid rgba(203,213,225,0.92);
-    border-radius: 20px;
-
-    padding: 15px;
-
-    box-shadow:
-        0 16px 36px rgba(15,23,42,0.075),
-        inset 0 1px 0 rgba(255,255,255,0.82);
-}
-
-.news-home-panel::before {
-    content: "";
-
-    position: absolute;
-    inset: 0;
-
-    background:
-        radial-gradient(
-            circle at 0% 0%,
-            rgba(244,197,66,0.08),
-            transparent 36%
-        );
-
-    pointer-events: none;
-    z-index: 0;
-}
-
-.news-home-panel > * {
-    position: relative;
-    z-index: 1;
-}
-
-.news-home-header {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-
-    padding: 5px 5px 14px 5px;
-    margin-bottom: 10px;
-
-    border-bottom: 1px solid rgba(148,163,184,0.30);
-}
-
-.news-home-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(244,197,66,0.18),
-            rgba(244,197,66,0.07)
-        );
-
-    border: 1px solid rgba(244,197,66,0.18);
-
-    color: #0f172a;
-    font-size: 17px;
-    flex-shrink: 0;
-
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.78),
-        0 6px 14px rgba(15,23,42,0.06);
-}
-.news-home-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 17px;
-    font-weight: 900;
-    color: #0f172a;
-    text-transform: uppercase;
-    letter-spacing: 0.01em;
-}
+"""
+            + css_home_premium_panel(
+                "news-home-panel",
+                "news-home-header",
+                "news-home-icon",
+                "news-home-title",
+            )
+            + """
 
 .news-featured-card {
     position: relative;
@@ -2406,20 +2328,6 @@ def render_inicio(
 }
 
 @media (max-width: 768px) {
-    .news-home-panel {
-        padding: 12px;
-        border-radius: 17px;
-    }
-
-    .news-home-title {
-        font-size: 15px;
-    }
-
-    .news-home-icon {
-        width: 31px;
-        height: 31px;
-        border-radius: 11px;
-    }
     .news-featured-card {
         min-height: 145px;
     }
@@ -2447,6 +2355,7 @@ def render_inicio(
 }
         </style>
         """
+        )
         
         news_css = (
             news_css
