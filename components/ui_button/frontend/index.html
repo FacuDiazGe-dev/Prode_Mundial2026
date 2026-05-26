@@ -7,6 +7,12 @@
     :root {
       color-scheme: light;
       font-family: Montserrat, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --night: #07111f;
+      --night-2: #0f172a;
+      --gold: #f4c542;
+      --gold-2: #ffdc69;
+      --muted: #64748b;
+      --line: rgba(148, 163, 184, 0.34);
     }
 
     * {
@@ -16,55 +22,128 @@
     body {
       margin: 0;
       background: transparent;
-      color: #07111f;
+      color: var(--night);
     }
 
     .button-shell {
+      display: flex;
       width: 100%;
-      padding: 1px 0 5px;
+      padding: 1px 0 6px;
+    }
+
+    .button-shell.left {
+      justify-content: flex-start;
+    }
+
+    .button-shell.center {
+      justify-content: center;
+    }
+
+    .button-shell.right {
+      justify-content: flex-end;
     }
 
     .ui-button {
-      min-height: 46px;
-      width: auto;
+      position: relative;
+      isolation: isolate;
       max-width: 100%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 0 16px;
-      border-radius: 15px;
       border: 1px solid rgba(180, 130, 20, 0.35);
       cursor: pointer;
-      color: #07111f;
+      overflow: hidden;
+      color: var(--night);
       background:
-        radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.30), transparent 42%),
+        radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.34), transparent 42%),
         linear-gradient(180deg, rgba(244, 197, 66, 0.98), rgba(255, 220, 105, 0.94));
       box-shadow:
         0 10px 22px rgba(244, 197, 66, 0.20),
         0 0 16px rgba(244, 197, 66, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.44);
       font: inherit;
-      font-size: 14px;
       font-weight: 900;
       line-height: 1;
       text-align: center;
+      white-space: normal;
       transition:
         transform 0.18s ease,
         box-shadow 0.18s ease,
         border-color 0.18s ease,
-        background 0.18s ease;
+        background 0.18s ease,
+        color 0.18s ease;
     }
 
     .ui-button.full-width {
       width: 100%;
     }
 
-    .ui-button:hover:not(:disabled) {
+    .ui-button.sm {
+      min-height: 34px;
+      padding: 0 12px;
+      font-size: 12px;
+    }
+
+    .ui-button.md {
+      min-height: 46px;
+      padding: 0 16px;
+      font-size: 14px;
+    }
+
+    .ui-button.lg {
+      min-height: 54px;
+      padding: 0 20px;
+      font-size: 15px;
+    }
+
+    .ui-button.compact {
+      min-height: 34px;
+      padding: 0 12px;
+      gap: 6px;
+    }
+
+    .ui-button.soft {
+      border-radius: 15px;
+    }
+
+    .ui-button.card {
+      border-radius: 8px;
+    }
+
+    .ui-button.pill {
+      border-radius: 999px;
+    }
+
+    .ui-button.texture::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.20;
+      background-image:
+        radial-gradient(circle at 18% 24%, rgba(255,255,255,0.50) 0 1px, transparent 2px),
+        radial-gradient(circle at 76% 35%, rgba(7,17,31,0.22) 0 1px, transparent 2px),
+        linear-gradient(135deg, transparent 0 44%, rgba(7,17,31,0.12) 45% 46%, transparent 47% 100%),
+        linear-gradient(45deg, transparent 0 48%, rgba(255,255,255,0.18) 49% 50%, transparent 51% 100%);
+      background-size: 28px 28px, 34px 34px, 42px 42px, 38px 38px;
+      mix-blend-mode: soft-light;
+    }
+
+    .ui-button.with-texture-url::before {
+      opacity: 0.22;
+      background-image: var(--texture-url);
+      background-size: cover;
+      background-position: center;
+      mix-blend-mode: soft-light;
+    }
+
+    .ui-button.primary:hover:not(:disabled) {
       transform: translateY(-1px);
-      border-color: rgba(244, 197, 66, 0.60);
+      border-color: rgba(244, 197, 66, 0.62);
       background:
-        radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.40), transparent 42%),
+        radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.42), transparent 42%),
         linear-gradient(180deg, rgba(255, 220, 105, 1), rgba(244, 197, 66, 0.96));
       box-shadow:
         0 13px 26px rgba(244, 197, 66, 0.26),
@@ -72,19 +151,121 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.48);
     }
 
-    .ui-button:active:not(:disabled) {
-      transform: translateY(0);
+    .ui-button.secondary {
+      color: var(--night);
+      border-color: rgba(148, 163, 184, 0.40);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(244, 197, 66, 0.16), transparent 38%),
+        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.88));
+      box-shadow:
+        0 8px 18px rgba(15, 23, 42, 0.06),
+        inset 0 1px 0 rgba(255,255,255,0.70);
     }
 
-    .ui-button:disabled,
-    .ui-button.locked {
-      cursor: not-allowed;
-      color: rgba(248, 250, 252, 0.70);
-      border: 1px solid rgba(148, 163, 184, 0.28);
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(7, 17, 31, 0.96));
+    .ui-button.secondary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: rgba(244, 197, 66, 0.50);
       box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.06),
-        0 8px 18px rgba(15, 23, 42, 0.10);
+        0 10px 22px rgba(15, 23, 42, 0.08),
+        0 0 14px rgba(244, 197, 66, 0.12);
+    }
+
+    .ui-button.dark {
+      color: #f8fafc;
+      border-color: rgba(244, 197, 66, 0.32);
+      background:
+        radial-gradient(circle at 18% 0%, rgba(244, 197, 66, 0.18), transparent 40%),
+        linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(7, 17, 31, 0.98));
+      box-shadow:
+        0 10px 24px rgba(15, 23, 42, 0.14),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .ui-button.dark:hover:not(:disabled),
+    .ui-button.dark.glow:not(:disabled) {
+      border-color: rgba(244, 197, 66, 0.58);
+      box-shadow:
+        0 13px 26px rgba(15, 23, 42, 0.20),
+        0 0 18px rgba(244, 197, 66, 0.18);
+    }
+
+    .ui-button.ghost {
+      color: #334155;
+      border-color: rgba(148, 163, 184, 0.36);
+      background: rgba(255, 255, 255, 0.28);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
+    }
+
+    .ui-button.ghost:hover:not(:disabled) {
+      color: var(--night);
+      border-color: rgba(244, 197, 66, 0.42);
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .ui-button.danger {
+      color: #fff7ed;
+      border-color: rgba(127, 29, 29, 0.34);
+      background:
+        radial-gradient(circle at 18% 0%, rgba(255,255,255,0.20), transparent 40%),
+        linear-gradient(180deg, rgba(185, 28, 28, 0.96), rgba(127, 29, 29, 0.98));
+      box-shadow:
+        0 10px 22px rgba(185, 28, 28, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+
+    .ui-button.danger:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: rgba(248, 113, 113, 0.55);
+      box-shadow:
+        0 13px 26px rgba(185, 28, 28, 0.22),
+        0 0 16px rgba(248, 113, 113, 0.14);
+    }
+
+    .ui-button.success {
+      color: #ecfdf5;
+      border-color: rgba(20, 83, 45, 0.34);
+      background:
+        radial-gradient(circle at 18% 0%, rgba(255,255,255,0.20), transparent 40%),
+        linear-gradient(180deg, rgba(22, 163, 74, 0.96), rgba(21, 128, 61, 0.98));
+      box-shadow:
+        0 10px 22px rgba(22, 163, 74, 0.14),
+        inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+
+    .ui-button.success:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: rgba(134, 239, 172, 0.50);
+      box-shadow:
+        0 13px 26px rgba(22, 163, 74, 0.20),
+        0 0 16px rgba(134, 239, 172, 0.12);
+    }
+
+    .ui-button.locked,
+    .ui-button:disabled {
+      cursor: not-allowed;
+      color: rgba(248, 250, 252, 0.66);
+      border-color: rgba(148, 163, 184, 0.28);
+      background: linear-gradient(180deg, rgba(51, 65, 85, 0.82), rgba(15, 23, 42, 0.92));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 8px 18px rgba(15,23,42,0.10);
+      transform: none;
+    }
+
+    .ui-button.glow:not(:disabled):not(.dark) {
+      box-shadow:
+        0 12px 26px rgba(244, 197, 66, 0.22),
+        0 0 18px rgba(244, 197, 66, 0.16),
+        inset 0 1px 0 rgba(255,255,255,0.42);
+    }
+
+    .ui-button:focus-visible {
+      outline: 2px solid rgba(244, 197, 66, 0.70);
+      outline-offset: 2px;
+    }
+
+    .ui-button:active:not(:disabled) {
+      transform: translateY(0);
     }
 
     .icon {
@@ -97,18 +278,55 @@
       line-height: 1;
     }
 
+    .ui-button.sm .icon,
+    .ui-button.compact .icon {
+      width: 16px;
+      min-width: 16px;
+      font-size: 14px;
+    }
+
+    .ui-button.lg .icon {
+      width: 20px;
+      min-width: 20px;
+      font-size: 18px;
+    }
+
     .label {
       min-width: 0;
       overflow-wrap: anywhere;
     }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      opacity: 0.82;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 <body>
-  <div id="root" class="button-shell"></div>
+  <div id="root" class="button-shell center"></div>
 
   <script>
     const root = document.getElementById("root");
     let currentAction = null;
+    let currentDisabled = false;
+
+    const ALLOWED = {
+      variant: ["primary", "secondary", "dark", "ghost", "danger", "locked", "success"],
+      size: ["sm", "md", "lg"],
+      align: ["left", "center", "right"],
+      rounded: ["pill", "card", "soft"],
+    };
 
     function sendMessage(type, data) {
       window.parent.postMessage(
@@ -123,7 +341,7 @@
 
     function setFrameHeight() {
       sendMessage("streamlit:setFrameHeight", {
-        height: Math.min(document.body.scrollHeight, 64),
+        height: Math.min(document.body.scrollHeight, 82),
       });
     }
 
@@ -146,28 +364,70 @@
         .replaceAll("'", "&#039;");
     }
 
+    function safeToken(value, group, fallback) {
+      const token = String(value || fallback).toLowerCase();
+      return ALLOWED[group].includes(token) ? token : fallback;
+    }
+
+    function textureStyle(textureUrl) {
+      if (!textureUrl) {
+        return "";
+      }
+
+      const escaped = String(textureUrl).replaceAll('"', "%22");
+      return `style="--texture-url: url(&quot;${escapeHtml(escaped)}&quot;)"`;
+    }
+
     function render(args) {
       const label = escapeHtml(args.label || "Accion");
-      const icon = escapeHtml(args.icon || "");
-      const variant = escapeHtml(args.variant || "primary");
+      const iconLeft = escapeHtml(args.icon_left || "");
+      const iconRight = escapeHtml(args.icon_right || "");
+      const variant = safeToken(args.variant, "variant", "primary");
+      const size = safeToken(args.size, "size", "md");
+      const align = safeToken(args.align, "align", "center");
+      const rounded = safeToken(args.rounded, "rounded", "soft");
       const fullWidth = args.full_width !== false;
-      const disabled = Boolean(args.disabled);
+      const compact = Boolean(args.compact);
+      const glow = Boolean(args.glow);
+      const loading = Boolean(args.loading);
+      const disabled = Boolean(args.disabled) || loading || variant === "locked";
+      const texture = args.texture !== false;
+      const textureUrl = args.texture_url || "";
+
       currentAction = args.action ?? label;
+      currentDisabled = disabled;
+      root.className = `button-shell ${align}`;
+
+      const classes = [
+        "ui-button",
+        variant,
+        size,
+        rounded,
+        fullWidth ? "full-width" : "",
+        compact ? "compact" : "",
+        glow ? "glow" : "",
+        texture ? "texture" : "",
+        textureUrl ? "with-texture-url" : "",
+      ].filter(Boolean).join(" ");
 
       root.innerHTML = `
         <button
-          class="ui-button ${variant} ${fullWidth ? "full-width" : ""}"
+          class="${classes}"
           type="button"
+          aria-busy="${loading ? "true" : "false"}"
           ${disabled ? "disabled" : ""}
+          ${textureStyle(textureUrl)}
         >
-          ${icon ? `<span class="icon">${icon}</span>` : ""}
+          ${loading ? `<span class="spinner" aria-hidden="true"></span>` : ""}
+          ${iconLeft && !loading ? `<span class="icon">${iconLeft}</span>` : ""}
           <span class="label">${label}</span>
+          ${iconRight ? `<span class="icon">${iconRight}</span>` : ""}
         </button>
       `;
 
       const button = root.querySelector(".ui-button");
       button.addEventListener("click", () => {
-        if (disabled) {
+        if (currentDisabled) {
           return;
         }
 

@@ -2805,14 +2805,17 @@ div[aria-label="Fecha de fase de grupos"] label:has(input:checked) span {
             if es_tiempo_valido:
                 st.markdown('<div class="edit-pred-btn-wrap">', unsafe_allow_html=True)
             
-                accion_editar_pronosticos = ui_button(
+                editar_pronosticos_clicked = ui_button(
                     label=f"Editar pronósticos de {tanda_seleccionada}",
-                    action="editar_pronosticos",
-                    icon="✏️",
-                    key=f"btn_editar_pronosticos_{fecha_key}"
+                    key=f"btn_editar_pronosticos_{fecha_key}",
+                    icon_left="✏️",
+                    variant="primary",
+                    size="md",
+                    rounded="soft",
+                    glow=True,
                 )
 
-                if accion_editar_pronosticos == "editar_pronosticos":
+                if editar_pronosticos_clicked:
                     st.session_state.permitir_edicion = True
                     st.rerun()
             
@@ -3124,14 +3127,17 @@ Bio:
 
             st.markdown('<div class="profile-edit-btn-wrap">', unsafe_allow_html=True)
             
-            accion_editar_perfil = ui_button(
+            editar_perfil_clicked = ui_button(
                 label="Editar Perfil",
-                action="editar_perfil",
-                icon="✏️",
-                key="btn_editar_perfil"
+                key="btn_editar_perfil",
+                icon_left="✏️",
+                variant="primary",
+                size="md",
+                rounded="soft",
+                glow=True,
             )
 
-            if accion_editar_perfil == "editar_perfil":
+            if editar_perfil_clicked:
                 st.session_state.editando_perfil = True
                 st.rerun()
             
