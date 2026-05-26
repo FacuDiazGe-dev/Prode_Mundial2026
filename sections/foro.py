@@ -18,6 +18,7 @@ from services.supabase_service import (
     borrar_mensaje_foro_supabase
 )
 from tools import normalizar_badges, upload_foro_image
+from styles_shared import css_panel_header, css_section_title
 
 
 def render_foro(
@@ -31,32 +32,17 @@ def render_foro(
     # ESTILOS — FORO
     # ============================================================
 
-    st.markdown("""
+    css_foro = (
+        """
 <style>
 
 /* ============================================================
    1. TÍTULO GENERAL
    ============================================================ */
 
-.foro-title {
-    margin-bottom: 22px;
-}
-
-.foro-title h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 34px;
-    font-weight: 900;
-    color: #07111F;
-    margin: 0;
-    letter-spacing: -0.04em;
-}
-
-.foro-title p {
-    margin: 6px 0 0 0;
-    color: #64748b;
-    font-size: 15px;
-    font-weight: 600;
-}
+"""
+        + css_section_title("foro-title")
+        + """
 
 
 /* ============================================================
@@ -72,41 +58,9 @@ def render_foro(
     box-shadow: 0 12px 30px rgba(15,23,42,0.06);
 }
 
-.foro-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 4px 14px 4px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid rgba(226,232,240,0.75);
-}
-
-.foro-panel-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(244,197,66,0.16);
-    color: #0f172a;
-    font-size: 16px;
-    flex-shrink: 0;
-}
-
-.foro-panel-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    color: #0f172a;
-}
-
-.foro-panel-subtitle {
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 700;
-    margin-top: 2px;
-}
+"""
+        + css_panel_header("foro")
+        + """
 
 /* ============================================================
    2B. AJUSTE VISUAL PREMIUM — FORO
@@ -927,14 +881,6 @@ div[data-testid="stSegmentedControl"] button:hover {
    ============================================================ */
 
 @media (max-width: 768px) {
-    .foro-title h1 {
-        font-size: 28px;
-    }
-
-    .foro-title p {
-        font-size: 12px;
-    }
-
     .foro-panel,
     .foro-community-panel {
         padding: 13px;
@@ -994,7 +940,10 @@ div[data-testid="stSegmentedControl"] button:hover {
 
     
 </style>
-""", unsafe_allow_html=True)
+"""
+    )
+
+    st.markdown(css_foro, unsafe_allow_html=True)
 
     # ============================================================
     # DATOS BASE

@@ -96,3 +96,12 @@ No se migraron paneles con fondos especiales del bucket, selector custom, badges
 Se migro solo el titulo principal `.page-section-title`.
 
 No se tocaron paneles, cards, botones, modo edicion, guardado de pronosticos ni perfil.
+
+## Prueba 4: `sections/foro.py`
+
+Se migro:
+
+- Titulo principal `.foro-title`.
+- Header comun `.foro-panel-*`.
+
+Se conservaron los overrides premium propios de foro para contraste y subtitulos.
