@@ -8,6 +8,7 @@ from services.supabase_service import (
     guardar_pronosticos_supabase,
     eliminar_usuario_supabase,
     actualizar_rol_usuario_supabase,
+    actualizar_aporte_usuario_supabase,
     get_config_app,
     actualizar_config_supabase,
     guardar_resultados_supabase
@@ -375,7 +376,20 @@ def render_panel_control(
                 .astype(int)
             )
 
+            if "APORTE_REALIZADO" not in df_users_panel.columns:
+                df_users_panel["APORTE_REALIZADO"] = False
+
+            df_users_panel["APORTE_REALIZADO"] = (
+                df_users_panel["APORTE_REALIZADO"]
+                .fillna(False)
+                .astype(str)
+                .str.strip()
+                .str.upper()
+                .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+            )
+
             columnas_vista = [
+                "APORTE_REALIZADO",
                 "USUARIO",
                 "NOMBRE",
                 "ROL",
@@ -387,11 +401,91 @@ def render_panel_control(
                 if col not in df_users_panel.columns:
                     df_users_panel[col] = ""
 
-            st.dataframe(
+            df_aportes_original = (
+                df_users_panel[["USUARIO", "APORTE_REALIZADO"]]
+                .copy()
+                .set_index("USUARIO")
+            )
+
+            df_aportes_editado = st.data_editor(
                 df_users_panel[columnas_vista],
                 use_container_width=True,
-                hide_index=True
+                hide_index=True,
+                disabled=[
+                    "USUARIO",
+                    "NOMBRE",
+                    "ROL",
+                    "EQUIPO FAVORITO",
+                    "COMPLETADOS"
+                ],
+                column_config={
+                    "APORTE_REALIZADO": st.column_config.CheckboxColumn(
+                        "Aporte realizado",
+                        help="Marcá los usuarios que ya realizaron el aporte."
+                    ),
+                    "COMPLETADOS": st.column_config.NumberColumn(
+                        "Pronósticos cargados"
+                    )
+                },
+                key="admin_aportes_editor"
             )
+
+            if st.button(
+                "💾 Guardar aportes",
+                use_container_width=True,
+                key="admin_guardar_aportes"
+            ):
+                cambios_aporte = []
+
+                for _, row in df_aportes_editado.iterrows():
+                    usuario_aporte = str(row.get("USUARIO", "")).strip()
+
+                    if not usuario_aporte:
+                        continue
+
+                    aporte_nuevo = bool(row.get("APORTE_REALIZADO", False))
+
+                    if usuario_aporte not in df_aportes_original.index:
+                        continue
+
+                    aporte_original = bool(
+                        df_aportes_original.loc[
+                            usuario_aporte,
+                            "APORTE_REALIZADO"
+                        ]
+                    )
+
+                    if aporte_nuevo != aporte_original:
+                        cambios_aporte.append(
+                            (usuario_aporte, aporte_nuevo)
+                        )
+
+                if not cambios_aporte:
+                    st.info("No hay cambios de aportes para guardar.")
+                else:
+                    errores = []
+
+                    for usuario_aporte, aporte_nuevo in cambios_aporte:
+                        ok, msg = actualizar_aporte_usuario_supabase(
+                            usuario=usuario_aporte,
+                            aporte_realizado=aporte_nuevo
+                        )
+
+                        if not ok:
+                            errores.append(
+                                f"{usuario_aporte}: {msg}"
+                            )
+
+                    if errores:
+                        st.error("No se pudieron guardar algunos aportes.")
+                        for error in errores:
+                            st.caption(error)
+                    else:
+                        st.cache_data.clear()
+                        st.success(
+                            f"Aportes actualizados: {len(cambios_aporte)}."
+                        )
+                        st.rerun()
 
             st.markdown("---")
             st.markdown("### 🛡️ Cambiar rol")
