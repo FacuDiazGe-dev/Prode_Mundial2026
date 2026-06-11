@@ -40,6 +40,14 @@ def render_panel_control(
     st.markdown("## ⚙️ Centro de Administración")
     st.caption("Gestión general del Prode Mundial 2026")
 
+    if st.button(
+        "Actualizar datos desde Supabase",
+        use_container_width=True,
+        key="admin_refrescar_datos_supabase"
+    ):
+        st.cache_data.clear()
+        st.rerun()
+
     usuarios_count = len(df_usuarios) if df_usuarios is not None else 0
     pronosticos_count = len(df_pro) if df_pro is not None else 0
     foro_count = len(df_foro) if df_foro is not None else 0
