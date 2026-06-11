@@ -61,15 +61,28 @@ def get_usuarios_supabase():
 def get_pronosticos_supabase():
     supabase = get_supabase_client()
 
-    response = (
-        supabase
-        .table("pronosticos")
-        .select("*")
-        .order("usuario")
-        .execute()
-    )
+    batch_size = 1000
+    start = 0
+    data = []
 
-    data = response.data or []
+    while True:
+        response = (
+            supabase
+            .table("pronosticos")
+            .select("*")
+            .order("usuario")
+            .order("n_partido")
+            .range(start, start + batch_size - 1)
+            .execute()
+        )
+
+        batch = response.data or []
+        data.extend(batch)
+
+        if len(batch) < batch_size:
+            break
+
+        start += batch_size
 
     return pd.DataFrame(data)
 
