@@ -61,15 +61,28 @@ def get_usuarios_supabase():
 def get_pronosticos_supabase():
     supabase = get_supabase_client()
 
-    response = (
-        supabase
-        .table("pronosticos")
-        .select("*")
-        .order("usuario")
-        .execute()
-    )
+    batch_size = 1000
+    start = 0
+    data = []
 
-    data = response.data or []
+    while True:
+        response = (
+            supabase
+            .table("pronosticos")
+            .select("*")
+            .order("usuario")
+            .order("n_partido")
+            .range(start, start + batch_size - 1)
+            .execute()
+        )
+
+        batch = response.data or []
+        data.extend(batch)
+
+        if len(batch) < batch_size:
+            break
+
+        start += batch_size
 
     return pd.DataFrame(data)
 
@@ -209,7 +222,8 @@ def get_usuarios_app():
                 "AVATAR_URL",
                 "EDAD",
                 "DESCRIPCION",
-                "ROL"
+                "ROL",
+                "APORTE_REALIZADO"
             ]
         )
 
@@ -223,7 +237,8 @@ def get_usuarios_app():
             "avatar_url": "AVATAR_URL",
             "edad": "EDAD",
             "descripcion": "DESCRIPCION",
-            "rol": "ROL"
+            "rol": "ROL",
+            "aporte_realizado": "APORTE_REALIZADO"
         }
     )
 
@@ -236,15 +251,27 @@ def get_usuarios_app():
         "AVATAR_URL",
         "EDAD",
         "DESCRIPCION",
-        "ROL"
+        "ROL",
+        "APORTE_REALIZADO"
     ]
 
     for col in columnas_necesarias:
         if col not in df.columns:
             if col == "ID":
                 df[col] = range(1, len(df) + 1)
+            elif col == "APORTE_REALIZADO":
+                df[col] = False
             else:
                 df[col] = ""
+
+    df["APORTE_REALIZADO"] = (
+        df["APORTE_REALIZADO"]
+        .fillna(False)
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+    )
 
     return df[columnas_necesarias]
 
@@ -926,7 +953,8 @@ def actualizar_usuario_supabase(usuario, datos):
         "AVATAR_URL": "avatar_url",
         "EDAD": "edad",
         "DESCRIPCION": "descripcion",
-        "ROL": "rol"
+        "ROL": "rol",
+        "APORTE_REALIZADO": "aporte_realizado"
     }
 
     data_update = {}
@@ -941,7 +969,8 @@ def actualizar_usuario_supabase(usuario, datos):
             "avatar_url",
             "edad",
             "descripcion",
-            "rol"
+            "rol",
+            "aporte_realizado"
         ]:
             if pd.isna(value):
                 value = None
@@ -951,6 +980,14 @@ def actualizar_usuario_supabase(usuario, datos):
                     value = int(value)
                 except Exception:
                     value = None
+
+            if col == "aporte_realizado":
+                value = (
+                    str(value)
+                    .strip()
+                    .upper()
+                    in ["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"]
+                )
 
             data_update[col] = value
 
@@ -969,6 +1006,27 @@ def actualizar_usuario_supabase(usuario, datos):
 
     except Exception as e:
         return False, f"Error al actualizar usuario en Supabase: {e}"
+
+
+def actualizar_aporte_usuario_supabase(usuario, aporte_realizado):
+    """
+    Marca si un usuario ya realizo el aporte.
+    Actualiza solo la columna aporte_realizado en Supabase.
+    """
+
+    if not usuario:
+        return False, "Usuario invalido."
+
+    try:
+        aporte_bool = bool(aporte_realizado)
+
+        return actualizar_usuario_supabase(
+            usuario=usuario,
+            datos={"APORTE_REALIZADO": aporte_bool}
+        )
+
+    except Exception as e:
+        return False, f"Error al actualizar aporte del usuario: {e}"
 
 def registrar_usuario_supabase(
     nombre,
@@ -1013,7 +1071,8 @@ def registrar_usuario_supabase(
             "avatar_url": avatar_url,
             "edad": None,
             "descripcion": "",
-            "rol": rol
+            "rol": rol,
+            "aporte_realizado": False
         }
 
         response = (

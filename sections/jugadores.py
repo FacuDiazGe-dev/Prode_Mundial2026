@@ -230,11 +230,11 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
    ============================================================ */
 
 .player-detail-panel {
-    background: rgba(255,255,255,0.94);
-    border: 1px solid rgba(226,232,240,0.9);
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
 }
 
 .player-detail-block {
@@ -243,6 +243,10 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     border-radius: 16px;
     padding: 14px;
     margin-bottom: 14px;
+}
+
+.player-detail-block.player-preds-block {
+    margin-top: 12px;
 }
 
 .player-detail-block:last-child {
@@ -291,6 +295,61 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
         0 12px 26px rgba(15,23,42,0.16);
+}
+
+.player-hero-header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    padding: 2px 2px 14px 2px;
+    margin-bottom: 15px;
+
+    border-bottom: 1px solid rgba(244,197,66,0.22);
+}
+
+.player-hero-header-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(244,197,66,0.24),
+            rgba(244,197,66,0.10)
+        );
+
+    border: 1px solid rgba(244,197,66,0.24);
+
+    color: #F8FAFC;
+    font-size: 17px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 8px 18px rgba(0,0,0,0.18),
+        0 0 12px rgba(244,197,66,0.08);
+}
+
+.player-hero-header-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: #F8FAFC;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+}
+
+.player-hero-header-subtitle {
+    margin-top: 4px;
+    color: rgba(248,250,252,0.68);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.2;
 }
 
 .player-hero-top {
@@ -663,6 +722,25 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
     .player-hero {
         padding: 15px 13px 13px 13px;
         border-radius: 16px;
+    }
+
+    .player-hero-header {
+        padding: 1px 1px 12px 1px;
+        margin-bottom: 12px;
+    }
+
+    .player-hero-header-icon {
+        width: 31px;
+        height: 31px;
+        border-radius: 11px;
+    }
+
+    .player-hero-header-title {
+        font-size: 16px;
+    }
+
+    .player-hero-header-subtitle {
+        font-size: 10.5px;
     }
 
     .player-hero-top {
@@ -1497,10 +1575,7 @@ div[data-testid="stSelectbox"] div[data-baseweb="select"] span {
         exactos = get_valor_ranking(datos_vivos, "EXACTOS")
         generales = get_valor_ranking(datos_vivos, "GENERALES")
 
-        try:
-            posicion = int(idx_real)
-        except Exception:
-            posicion = "-"
+        posicion = get_ranking_position(user_sel) or "-"
         # ------------------------------------------------------------
         # PRONÓSTICOS DEL JUGADOR
         # Se preparan antes del render unificado.
@@ -1550,18 +1625,15 @@ Sin pronósticos cargados todavía.
             f"""
 <div class="player-detail-panel">
 
-<div class="players-panel-header">
-<div class="players-panel-icon">👤</div>
-<div>
-<div class="players-panel-title">Detalle del jugador</div>
-<div class="players-panel-subtitle">Perfil y pronósticos del seleccionado</div>
-</div>
-</div>
-
-<div class="player-detail-block">
-<div class="player-detail-section-title">👤 Perfil</div>
-
 <div class="player-hero" style="--player-hero-bg: url('{PLAYER_HERO_BG_URL}');">
+
+<div class="player-hero-header">
+<div class="player-hero-header-icon">👤</div>
+<div>
+<div class="player-hero-header-title">Jugador seleccionado</div>
+<div class="player-hero-header-subtitle">Perfil, insignias y rendimiento</div>
+</div>
+</div>
 
 <div class="player-hero-top">
 <div class="player-hero-profile">
@@ -1611,9 +1683,8 @@ Bio:
 </div>
 
 </div>
-</div>
 
-<div class="player-detail-block">
+<div class="player-detail-block player-preds-block">
 <div class="player-detail-section-title">🗳️ Pronósticos</div>
 
 <div class="player-preds-scroll">
