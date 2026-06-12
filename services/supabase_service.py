@@ -175,7 +175,11 @@ def get_resultados_app():
                 "DIA",
                 "HORA",
                 "VIZ",
-                "FECHA"
+                "FECHA",
+                "LIVE",
+                "LIVE_R1",
+                "LIVE_R2",
+                "ESTADO_PARTIDO"
             ]
         )
 
@@ -189,23 +193,59 @@ def get_resultados_app():
             "dia": "DIA",
             "hora": "HORA",
             "viz": "VIZ",
-            "fecha": "FECHA"
+            "fecha": "FECHA",
+            "live": "LIVE",
+            "live_r1": "LIVE_R1",
+            "live_r2": "LIVE_R2",
+            "estado_partido": "ESTADO_PARTIDO"
         }
     )
 
-    return df[
-        [
-            "N_PARTIDO",
-            "Equipo_1",
-            "R1",
-            "Equipo_2",
-            "R2",
-            "DIA",
-            "HORA",
-            "VIZ",
-            "FECHA"
-        ]
+    columnas_necesarias = [
+        "N_PARTIDO",
+        "Equipo_1",
+        "R1",
+        "Equipo_2",
+        "R2",
+        "DIA",
+        "HORA",
+        "VIZ",
+        "FECHA",
+        "LIVE",
+        "LIVE_R1",
+        "LIVE_R2",
+        "ESTADO_PARTIDO"
     ]
+
+    for col in columnas_necesarias:
+        if col not in df.columns:
+            if col == "LIVE":
+                df[col] = False
+            elif col in ["LIVE_R1", "LIVE_R2"]:
+                df[col] = None
+            elif col == "ESTADO_PARTIDO":
+                df[col] = "Pendiente"
+            else:
+                df[col] = ""
+
+    df["LIVE"] = (
+        df["LIVE"]
+        .fillna(False)
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+    )
+
+    df["ESTADO_PARTIDO"] = (
+        df["ESTADO_PARTIDO"]
+        .fillna("Pendiente")
+        .astype(str)
+        .str.strip()
+        .replace({"": "Pendiente", "Sin live": "Pendiente"})
+    )
+
+    return df[columnas_necesarias]
 
 
 def get_usuarios_app():
@@ -1418,6 +1458,7 @@ def guardar_resultados_supabase(df_resultados):
         .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
     )
 
+
     # ------------------------------------------------------------
     # Textos visuales
     # ------------------------------------------------------------
@@ -1453,12 +1494,10 @@ def guardar_resultados_supabase(df_resultados):
                 .table("resultados")
                 .update(data_update)
                 .eq("n_partido", n_partido)
-                .select("n_partido")
                 .execute()
             )
 
-            if response.data:
-                actualizados += 1
+            actualizados += 1
 
         get_resultados_supabase.clear()
 
@@ -1466,3 +1505,84 @@ def guardar_resultados_supabase(df_resultados):
 
     except Exception as e:
         return False, f"Error al guardar resultados en Supabase: {e}"
+
+
+def guardar_estado_partido_supabase(
+    n_partido,
+    estado_partido,
+    live_r1=None,
+    live_r2=None
+):
+    """
+    Actualiza el estado visual de un solo partido.
+    Si el estado es Finalizado, copia los goles a R1/R2 para que aplique al ranking.
+    En otros estados, los goles quedan como live_r1/live_r2 y no afectan el ranking.
+    """
+
+    supabase = get_supabase_client()
+
+    try:
+        n_partido = int(n_partido)
+    except (TypeError, ValueError):
+        return False, "Seleccioná un partido válido."
+
+    estado_normalizado = str(estado_partido or "").strip()
+    if estado_normalizado == "Sin live":
+        estado_normalizado = "Pendiente"
+
+    estados_validos = ["Pendiente", "1T", "2T", "ET", "Finalizado"]
+
+    if estado_normalizado not in estados_validos:
+        return False, "Seleccioná un estado válido."
+
+    r1_live = pd.to_numeric(live_r1, errors="coerce")
+    r2_live = pd.to_numeric(live_r2, errors="coerce")
+    r1_live = int(r1_live) if pd.notna(r1_live) else None
+    r2_live = int(r2_live) if pd.notna(r2_live) else None
+
+    es_finalizado = estado_normalizado == "Finalizado"
+    es_visual = estado_normalizado in ["1T", "2T", "ET"]
+
+    data_update = {
+        "live": es_visual,
+        "live_r1": r1_live,
+        "live_r2": r2_live,
+        "estado_partido": estado_normalizado,
+    }
+
+    if es_finalizado:
+        if r1_live is None or r2_live is None:
+            return False, "Para finalizar un partido cargá ambos resultados."
+
+        data_update.update(
+            {
+                "r1": r1_live,
+                "r2": r2_live,
+                "live": False,
+            }
+        )
+
+    if estado_normalizado == "Pendiente":
+        data_update.update(
+            {
+                "live": False,
+                "live_r1": None,
+                "live_r2": None,
+            }
+        )
+
+    try:
+        (
+            supabase
+            .table("resultados")
+            .update(data_update)
+            .eq("n_partido", n_partido)
+            .execute()
+        )
+
+        get_resultados_supabase.clear()
+
+        return True, "Estado del partido actualizado correctamente."
+
+    except Exception as e:
+        return False, f"Error al guardar estado del partido en Supabase: {e}"
