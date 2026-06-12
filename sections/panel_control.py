@@ -11,7 +11,8 @@ from services.supabase_service import (
     actualizar_aporte_usuario_supabase,
     get_config_app,
     actualizar_config_supabase,
-    guardar_resultados_supabase
+    guardar_resultados_supabase,
+    guardar_estado_partido_supabase
 )
 
 def render_panel_control(
@@ -238,7 +239,15 @@ def render_panel_control(
                             else:
                                 df_fecha[col] = ""
 
+                    for col in ["LIVE", "LIVE_R1", "LIVE_R2", "ESTADO_PARTIDO"]:
+                        if col not in df_fecha.columns:
+                            if col == "LIVE":
+                                df_fecha[col] = False
+                            else:
+                                df_fecha[col] = None
+
                     df_fecha_editor = df_fecha[columnas_editor].copy()
+                    df_fecha_editor["LIVE"] = df_fecha["LIVE"].values
 
                     df_fecha_editor["R1"] = pd.to_numeric(
                         df_fecha_editor["R1"],
@@ -252,6 +261,14 @@ def render_panel_control(
 
                     df_fecha_editor["VIZ"] = (
                         df_fecha_editor["VIZ"]
+                        .astype(str)
+                        .str.strip()
+                        .str.upper()
+                        .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+                    )
+
+                    df_fecha_editor["LIVE"] = (
+                        df_fecha_editor["LIVE"]
                         .astype(str)
                         .str.strip()
                         .str.upper()
@@ -309,16 +326,35 @@ def render_panel_control(
                                 "Visible",
                                 width="small"
                             ),
+                            "LIVE": None,
                         }
                     )
 
                     edited_fecha["FECHA"] = fecha_num
+                    live_scores_base = (
+                        df_fecha[["N_PARTIDO", "LIVE_R1", "LIVE_R2", "ESTADO_PARTIDO"]]
+                        .drop_duplicates("N_PARTIDO")
+                        .set_index("N_PARTIDO")
+                    )
+                    edited_fecha["LIVE_R1"] = (
+                        edited_fecha["N_PARTIDO"]
+                        .map(live_scores_base["LIVE_R1"])
+                    )
+                    edited_fecha["LIVE_R2"] = (
+                        edited_fecha["N_PARTIDO"]
+                        .map(live_scores_base["LIVE_R2"])
+                    )
+                    edited_fecha["ESTADO_PARTIDO"] = (
+                        edited_fecha["N_PARTIDO"]
+                        .map(live_scores_base["ESTADO_PARTIDO"])
+                    )
                     df_editado_total.append(edited_fecha)
 
             st.markdown("---")
 
             if st.button(
-                "💾 Guardar resultados oficiales",
+                "Guardar tabla oficial",
+                help="Guarda R1, R2 y Visible de la tabla superior.",
                 use_container_width=True,
                 type="primary"
             ):
@@ -336,7 +372,7 @@ def render_panel_control(
 
                     if ok:
                         st.cache_data.clear()
-                        st.success("✅ Resultados oficiales actualizados.")
+                        st.success("Tabla oficial actualizada.")
                         st.balloons()
                         st.rerun()
                     else:
@@ -345,6 +381,170 @@ def render_panel_control(
                 except Exception as e:
                     st.error(f"Error al guardar resultados: {e}")
 
+            st.markdown("---")
+
+            st.markdown("### Estado en vivo del partido")
+            st.caption(
+                "Pendiente no afecta el resultado. 1T, 2T y ET son visuales para Inicio. Finalizado copia el resultado "
+                "a R1/R2 y entonces aplica al ranking."
+            )
+
+            df_estado_partidos = df_res_admin.sort_values("N_PARTIDO").copy()
+
+            for col in ["LIVE", "LIVE_R1", "LIVE_R2", "ESTADO_PARTIDO"]:
+                if col not in df_estado_partidos.columns:
+                    if col == "LIVE":
+                        df_estado_partidos[col] = False
+                    else:
+                        df_estado_partidos[col] = None
+
+            opciones_partidos = df_estado_partidos["N_PARTIDO"].astype(int).tolist()
+
+            if opciones_partidos:
+                partidos_live_actuales = df_estado_partidos[
+                    df_estado_partidos["ESTADO_PARTIDO"]
+                    .fillna("")
+                    .astype(str)
+                    .str.strip()
+                    .isin(["1T", "2T", "ET"])
+                ]
+
+                partido_default = opciones_partidos[0]
+
+                if not partidos_live_actuales.empty:
+                    partido_default = int(
+                        partidos_live_actuales
+                        .sort_values("N_PARTIDO")
+                        .iloc[0]["N_PARTIDO"]
+                    )
+
+                partido_sel = st.selectbox(
+                    "Numero de partido",
+                    options=opciones_partidos,
+                    index=opciones_partidos.index(partido_default),
+                    format_func=lambda n: f"Partido #{n}",
+                    key="admin_estado_partido_select"
+                )
+
+                partido_row = df_estado_partidos[
+                    df_estado_partidos["N_PARTIDO"] == partido_sel
+                ].iloc[0]
+
+                st.info(
+                    f"{partido_row.get('Equipo_1', '')} vs {partido_row.get('Equipo_2', '')} "
+                    f"- {partido_row.get('DIA', '')} {partido_row.get('HORA', '')}"
+                )
+
+                estado_actual = str(partido_row.get("ESTADO_PARTIDO") or "").strip()
+
+                if estado_actual == "Sin live":
+                    estado_actual = "Pendiente"
+
+                if not estado_actual:
+                    live_actual = (
+                        str(partido_row.get("LIVE", ""))
+                        .strip()
+                        .upper()
+                        in ["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÃƒÂ"]
+                    )
+                    estado_actual = "1T" if live_actual else "Pendiente"
+
+                estados_partido = ["Pendiente", "1T", "2T", "ET", "Finalizado"]
+
+                if estado_actual not in estados_partido:
+                    estado_actual = "Pendiente"
+
+                valor_r1_actual = (
+                    partido_row["LIVE_R1"]
+                    if pd.notna(partido_row.get("LIVE_R1"))
+                    else partido_row.get("R1")
+                )
+                valor_r2_actual = (
+                    partido_row["LIVE_R2"]
+                    if pd.notna(partido_row.get("LIVE_R2"))
+                    else partido_row.get("R2")
+                )
+
+                with st.form(f"form_estado_partido_live_{partido_sel}"):
+                    col_r1_live, col_estado_live, col_r2_live = st.columns([1, 1.4, 1])
+
+                    with col_r1_live:
+                        live_r1 = st.number_input(
+                            "Resultado equipo 1",
+                            min_value=0,
+                            max_value=20,
+                            step=1,
+                            value=(
+                                int(valor_r1_actual)
+                                if pd.notna(valor_r1_actual)
+                                else 0
+                            ),
+                            key=f"admin_live_r1_input_{partido_sel}"
+                        )
+
+                    with col_estado_live:
+                        estado_partido = st.selectbox(
+                            "Estado",
+                            options=estados_partido,
+                            index=estados_partido.index(estado_actual),
+                            key=f"admin_estado_partido_input_{partido_sel}"
+                        )
+
+                    with col_r2_live:
+                        live_r2 = st.number_input(
+                            "Resultado equipo 2",
+                            min_value=0,
+                            max_value=20,
+                            step=1,
+                            value=(
+                                int(valor_r2_actual)
+                                if pd.notna(valor_r2_actual)
+                                else 0
+                            ),
+                            key=f"admin_live_r2_input_{partido_sel}"
+                        )
+
+                    guardar_estado = st.form_submit_button(
+                        "Guardar estado en vivo",
+                        use_container_width=True
+                    )
+                if guardar_estado:
+                    if estado_partido in ["1T", "2T", "ET"]:
+                        otros_live = df_estado_partidos[
+                            (
+                                df_estado_partidos["N_PARTIDO"] != partido_sel
+                            )
+                            & (
+                                df_estado_partidos["ESTADO_PARTIDO"]
+                                .fillna("")
+                                .astype(str)
+                                .str.strip()
+                                .isin(["1T", "2T", "ET"])
+                            )
+                        ]
+
+                        if not otros_live.empty:
+                            st.error(
+                                "Ya hay otro partido en vivo. "
+                                "Primero pasalo a 'Pendiente' o 'Finalizado'."
+                            )
+                            st.stop()
+
+                    ok_estado, msg_estado = guardar_estado_partido_supabase(
+                        n_partido=partido_sel,
+                        estado_partido=estado_partido,
+                        live_r1=live_r1,
+                        live_r2=live_r2
+                    )
+
+                    if ok_estado:
+                        st.cache_data.clear()
+                        st.success(msg_estado)
+                        st.rerun()
+
+                    st.error(msg_estado)
+            else:
+                st.info("No hay partidos disponibles para cargar estado live.")
     # ============================================================
     # TAB 3 — USUARIOS
     # ============================================================

@@ -2696,6 +2696,31 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 0 0 14px rgba(244,197,66,0.10),
                 inset 0 1px 0 rgba(255,255,255,0.82);
         }}
+
+        .match-card.live {{
+            border-color: rgba(22,163,74,0.55);
+            box-shadow:
+                0 12px 26px rgba(15,23,42,0.09),
+                0 0 16px rgba(22,163,74,0.14),
+                inset 0 1px 0 rgba(255,255,255,0.82);
+        }}
+
+        .match-card.live::after {{
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 4px;
+            background: linear-gradient(180deg, #22c55e, #f4c542);
+            box-shadow: 0 0 12px rgba(34,197,94,0.30);
+        }}
+
+        .match-card.finished {{
+            border-color: rgba(100,116,139,0.30);
+        }}
+
+        .match-card.pending-status {{
+            border-color: rgba(148,163,184,0.28);
+        }}
         
         .match-card > * {{
             position: relative;
@@ -2723,6 +2748,57 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
         .match-meta span:last-child {{
             color: #64748b;
+        }}
+
+        .match-status-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 7px;
+            margin-left: 6px;
+            border-radius: 999px;
+            font-size: 8.5px;
+            font-weight: 950;
+            letter-spacing: 0.08em;
+        }}
+
+        .match-status-badge.live-badge {{
+            padding: 4px 9px;
+            background: linear-gradient(180deg, #34d399, #10b981);
+            border: 1px solid rgba(5,150,105,0.88);
+            color: #ffffff;
+            font-size: 9.5px;
+            font-weight: 1000;
+            text-shadow: none;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.34) inset,
+                0 5px 11px rgba(5,150,105,0.18),
+                0 0 14px rgba(52,211,153,0.26);
+        }}
+
+        .match-meta .match-status-badge.live-badge {{
+            color: #ffffff;
+        }}
+
+        .match-status-badge.live-badge::before {{
+            content: "";
+            width: 5px;
+            height: 5px;
+            border-radius: 999px;
+            background: #ef4444;
+            box-shadow: 0 0 7px rgba(239,68,68,0.78);
+        }}
+
+        .match-status-badge.finished-badge {{
+            background: rgba(100,116,139,0.12);
+            border: 1px solid rgba(100,116,139,0.25);
+            color: #475569;
+        }}
+
+        .match-status-badge.pending-badge {{
+            background: rgba(255,255,255,0.70);
+            border: 1px solid rgba(148,163,184,0.32);
+            color: #334155;
         }}
         
         .match-body {{
@@ -2837,6 +2913,14 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 inset 0 1px 0 rgba(255,255,255,0.72),
                 0 5px 12px rgba(15,23,42,0.05);
         }}
+
+        .score-pill.live-score {{
+            border-color: rgba(34,197,94,0.42);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.10),
+                0 7px 16px rgba(7,17,31,0.18),
+                0 0 14px rgba(34,197,94,0.14);
+        }}
         
         .matches-empty {{
             height: 245px;
@@ -2938,10 +3022,35 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
                 r1_raw = row.get("R1")
                 r2_raw = row.get("R2")
-        
+                live_r1_raw = row.get("LIVE_R1")
+                live_r2_raw = row.get("LIVE_R2")
+                estado_partido = str(row.get("ESTADO_PARTIDO", "") or "").strip()
+                if estado_partido in ["", "Sin live"]:
+                    estado_partido = "Pendiente"
+
+                estado_live = estado_partido in ["1T", "2T", "ET"]
+                estado_finalizado = estado_partido == "Finalizado"
+                estado_pendiente = estado_partido == "Pendiente"
+                live_on = (
+                    str(row.get("LIVE", ""))
+                    .strip()
+                    .upper()
+                    in ["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"]
+                ) or estado_live
+
                 resultado_cargado = pd.notna(r1_raw) and pd.notna(r2_raw)
-        
-                if resultado_cargado:
+                live_cargado = live_on and pd.notna(live_r1_raw) and pd.notna(live_r2_raw)
+
+                if estado_pendiente:
+                    score_text = "VS"
+                    score_class = "score-pill pending"
+                elif live_cargado:
+                    score_text = f"{int(live_r1_raw)} : {int(live_r2_raw)}"
+                    score_class = "score-pill live-score"
+                elif live_on:
+                    score_text = "VS"
+                    score_class = "score-pill pending live-score"
+                elif resultado_cargado:
                     score_text = f"{int(r1_raw)} : {int(r2_raw)}"
                     score_class = "score-pill"
                 else:
@@ -2959,8 +3068,27 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 dia = escape(str(row.get("DIA", "")))
                 hora = escape(str(row.get("HORA", "")))
         
-                matches_html += '<div class="match-card">'
-                matches_html += f'<div class="match-meta"><span>Partido #{partido}</span><span>{dia} | {hora}</span></div>'
+                if estado_live:
+                    card_class = "match-card live"
+                    status_badge = (
+                        f'<span class="match-status-badge live-badge">'
+                        f'EN VIVO {estado_partido}</span>'
+                    )
+                elif estado_finalizado:
+                    card_class = "match-card finished"
+                    status_badge = (
+                        '<span class="match-status-badge finished-badge">'
+                        'FINALIZADO</span>'
+                    )
+                else:
+                    card_class = "match-card pending-status"
+                    status_badge = (
+                        '<span class="match-status-badge pending-badge">'
+                        'PROXIMAMENTE</span>'
+                    )
+
+                matches_html += f'<div class="{card_class}">'
+                matches_html += f'<div class="match-meta"><span>Partido #{partido}{status_badge}</span><span>{dia} | {hora}</span></div>'
                 matches_html += '<div class="match-body">'
                 matches_html += f'<div class="team-side left"><span class="team-name">{equipo_1}</span>{flag_html(flag_1)}</div>'
                 matches_html += f'<div class="{score_class}">{score_text}</div>'
