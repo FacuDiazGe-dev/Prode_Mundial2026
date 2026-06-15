@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 
 import base64
@@ -480,18 +481,21 @@ if not st.session_state['autenticado']:
                         )
 
                     if recordar_login:
-                        st.success("Sesión iniciada.")
-                        st.info(
-                            "La sesión quedó recordada en este dispositivo. "
-                            "Tocá el botón para entrar."
+                        st.success("Sesi\u00f3n iniciada. Entrando al Prode...")
+                        components.html(
+                            """
+                            <script>
+                            setTimeout(function() {
+                                window.parent.location.reload();
+                            }, 700);
+                            </script>
+                            """,
+                            height=0,
                         )
-
-                        if st.form_submit_button("Entrar al Prode", use_container_width=True):
-                            st.rerun()
-
                         st.stop()
-                    else:
-                        st.rerun()
+
+                    st.rerun()
+
                 else:
                     st.error("Usuario o contraseña incorrectos")
 
