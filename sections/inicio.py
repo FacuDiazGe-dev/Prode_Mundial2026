@@ -22,6 +22,7 @@ from styles_config import (
 from tools import normalizar_badges
 from services.supabase_service import insertar_foro_supabase
 from styles_shared import css_home_premium_panel
+from ranking_logic import calcular_detalle
 
 def render_inicio(
     df_ranking,
@@ -2807,6 +2808,56 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             align-items: center;
             gap: 12px;
         }}
+
+        .match-user-result {{
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            align-items: center;
+            gap: 10px;
+            margin-top: 11px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.68);
+            border: 1px solid rgba(226,232,240,0.72);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.76);
+        }}
+
+        .user-result-label {{
+            font-size: 9px;
+            font-weight: 950;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.055em;
+            white-space: nowrap;
+        }}
+
+        .user-result-score {{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 950;
+            color: #0f172a;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }}
+
+        .user-result-points {{
+            justify-self: end;
+            font-size: 10px;
+            font-weight: 950;
+            white-space: nowrap;
+        }}
+
+        .user-result-points.positive {{
+            color: #16a34a;
+        }}
+
+        .user-result-points.zero {{
+            color: #64748b;
+        }}
+
+        .user-result-points.missing {{
+            color: #94a3b8;
+        }}
         
         .team-side {{
             display: flex;
@@ -2958,6 +3009,26 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 grid-template-columns: minmax(0, 1fr) 62px minmax(0, 1fr);
                 gap: 8px;
             }}
+
+            .match-user-result {{
+                grid-template-columns: 1fr auto;
+                gap: 6px 10px;
+                padding: 7px 8px;
+            }}
+
+            .user-result-label {{
+                font-size: 8px;
+            }}
+
+            .user-result-score {{
+                font-size: 10px;
+            }}
+
+            .user-result-points {{
+                grid-column: 1 / -1;
+                justify-self: end;
+                font-size: 9.5px;
+            }}
         
             .team-name {{
                 font-size: 12px;
@@ -2993,6 +3064,36 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 return f'<img src="{flag_value}" class="flag-img">'
         
             return f'<span class="flag-fallback">{escape(flag_value)}</span>'
+
+
+        usuario_actual_partidos = str(
+            st.session_state.get("user_data", {}).get("USUARIO", "")
+        )
+        pronosticos_usuario_map = {}
+
+        if (
+            df_pro is not None
+            and not df_pro.empty
+            and usuario_actual_partidos
+            and {"USUARIO", "N_PARTIDO", "P1", "P2"}.issubset(df_pro.columns)
+        ):
+            df_pronosticos_usuario = df_pro[
+                df_pro["USUARIO"].astype(str) == usuario_actual_partidos
+            ].copy()
+
+            df_pronosticos_usuario["N_PARTIDO"] = pd.to_numeric(
+                df_pronosticos_usuario["N_PARTIDO"],
+                errors="coerce"
+            )
+
+            df_pronosticos_usuario = df_pronosticos_usuario.dropna(
+                subset=["N_PARTIDO"]
+            )
+
+            pronosticos_usuario_map = {
+                int(row_p["N_PARTIDO"]): row_p
+                for _, row_p in df_pronosticos_usuario.iterrows()
+            }
         
         
         df_res["VIZ_CHECK"] = df_res["VIZ"].astype(str).str.strip().str.upper()
@@ -3064,6 +3165,61 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                     partido = int(row.get("N_PARTIDO", 0))
                 except:
                     partido = row.get("N_PARTIDO", "")
+
+                pronostico_row = (
+                    pronosticos_usuario_map.get(partido)
+                    if isinstance(partido, int)
+                    else None
+                )
+
+                if pronostico_row is not None:
+                    p1_raw = pronostico_row.get("P1")
+                    p2_raw = pronostico_row.get("P2")
+                    pronostico_cargado = pd.notna(p1_raw) and pd.notna(p2_raw)
+                else:
+                    p1_raw = None
+                    p2_raw = None
+                    pronostico_cargado = False
+
+                resultado_para_puntos = None
+
+                if estado_live and pd.notna(live_r1_raw) and pd.notna(live_r2_raw):
+                    resultado_para_puntos = (live_r1_raw, live_r2_raw)
+                elif estado_finalizado and pd.notna(r1_raw) and pd.notna(r2_raw):
+                    resultado_para_puntos = (r1_raw, r2_raw)
+
+                if pronostico_cargado:
+                    p1_num = pd.to_numeric(p1_raw, errors="coerce")
+                    p2_num = pd.to_numeric(p2_raw, errors="coerce")
+                    pronostico_cargado = pd.notna(p1_num) and pd.notna(p2_num)
+
+                if pronostico_cargado:
+                    pronostico_text = f"{int(p1_num)} - {int(p2_num)}"
+
+                    if resultado_para_puntos is not None:
+                        puntos_card, _, _ = calcular_detalle(
+                            resultado_para_puntos[0],
+                            resultado_para_puntos[1],
+                            p1_num,
+                            p2_num
+                        )
+                        points_class = "positive" if puntos_card > 0 else "zero"
+                        points_text = f"+{puntos_card} Pts"
+                    else:
+                        points_class = "missing"
+                        points_text = "Pendiente"
+                else:
+                    pronostico_text = "Sin pronóstico"
+                    points_class = "missing"
+                    points_text = "-"
+
+                pronostico_html = (
+                    '<div class="match-user-result">'
+                    '<span class="user-result-label">Tu resultado</span>'
+                    f'<span class="user-result-score">{escape(pronostico_text)}</span>'
+                    f'<span class="user-result-points {points_class}">{escape(points_text)}</span>'
+                    '</div>'
+                )
         
                 dia = escape(str(row.get("DIA", "")))
                 hora = escape(str(row.get("HORA", "")))
@@ -3094,6 +3250,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 matches_html += f'<div class="{score_class}">{score_text}</div>'
                 matches_html += f'<div class="team-side right">{flag_html(flag_2)}<span class="team-name">{equipo_2}</span></div>'
                 matches_html += '</div>'
+                matches_html += pronostico_html
                 matches_html += '</div>'
         
         matches_html += '</div></div>'
