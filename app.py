@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 
 import base64
@@ -474,25 +473,9 @@ if not st.session_state['autenticado']:
                     st.session_state['registro_exitoso'] = False
 
                     if recordar_login:
-                        save_auth_cookie(
-                            usuario=user_match.iloc[0]["USUARIO"],
-                            cookie_manager=cookie_manager,
-                            secret=auth_cookie_secret
+                        st.session_state["auth_cookie_pending_usuario"] = str(
+                            user_match.iloc[0]["USUARIO"]
                         )
-
-                    if recordar_login:
-                        st.success("Sesi\u00f3n iniciada. Entrando al Prode...")
-                        components.html(
-                            """
-                            <script>
-                            setTimeout(function() {
-                                window.parent.location.reload();
-                            }, 700);
-                            </script>
-                            """,
-                            height=0,
-                        )
-                        st.stop()
 
                     st.rerun()
 
@@ -550,6 +533,14 @@ if not st.session_state['autenticado']:
             st.rerun()
 
     st.stop() # Freno para que no cargue el resto de la app sin estar logueado
+
+if st.session_state.get("auth_cookie_pending_usuario"):
+    if save_auth_cookie(
+        usuario=st.session_state["auth_cookie_pending_usuario"],
+        cookie_manager=cookie_manager,
+        secret=auth_cookie_secret,
+    ):
+        st.session_state.pop("auth_cookie_pending_usuario", None)
 
 #---------------------- SI Mantenimiento esta activo ---------------------------
 # Usamos estado_mantenimiento desde Supabase y .get para evitar errores de sesión
