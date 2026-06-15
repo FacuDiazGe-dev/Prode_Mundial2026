@@ -309,7 +309,6 @@ if (
     and not st.session_state.get("auth_cookie_checked")
 ):
     st.session_state["auth_cookie_checked"] = True
-    cookie_manager.refresh()
     st.info("Restaurando sesión...")
     st.stop()
 
