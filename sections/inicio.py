@@ -3129,7 +3129,7 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                 if estado_partido in ["", "Sin live"]:
                     estado_partido = "Pendiente"
 
-                estado_live = estado_partido in ["1T", "2T", "ET"]
+                estado_live = estado_partido in ["En Vivo", "Entretiempo"]
                 estado_finalizado = estado_partido == "Finalizado"
                 estado_pendiente = estado_partido == "Pendiente"
                 live_on = (
@@ -3226,9 +3226,14 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         
                 if estado_live:
                     card_class = "match-card live"
+                    live_label = (
+                        "ENTRETIEMPO"
+                        if estado_partido == "Entretiempo"
+                        else "EN VIVO"
+                    )
                     status_badge = (
                         f'<span class="match-status-badge live-badge">'
-                        f'EN VIVO {estado_partido}</span>'
+                        f'{live_label}</span>'
                     )
                 elif estado_finalizado:
                     card_class = "match-card finished"

@@ -1530,7 +1530,7 @@ def guardar_estado_partido_supabase(
     if estado_normalizado == "Sin live":
         estado_normalizado = "Pendiente"
 
-    estados_validos = ["Pendiente", "1T", "2T", "ET", "Finalizado"]
+    estados_validos = ["Pendiente", "En Vivo", "Entretiempo", "Finalizado"]
 
     if estado_normalizado not in estados_validos:
         return False, "Seleccioná un estado válido."
@@ -1541,7 +1541,7 @@ def guardar_estado_partido_supabase(
     r2_live = int(r2_live) if pd.notna(r2_live) else None
 
     es_finalizado = estado_normalizado == "Finalizado"
-    es_visual = estado_normalizado in ["1T", "2T", "ET"]
+    es_visual = estado_normalizado in ["En Vivo", "Entretiempo"]
 
     data_update = {
         "live": es_visual,
