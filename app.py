@@ -168,6 +168,7 @@ def save_auth_cookie(usuario, cookie_manager, secret):
         AUTH_COOKIE_NAME,
         token,
         expires=expires_at,
+        max_age=AUTH_COOKIE_DAYS * 24 * 60 * 60,
         same_site="lax"
     )
 
@@ -308,6 +309,7 @@ if (
     and not st.session_state.get("auth_cookie_checked")
 ):
     st.session_state["auth_cookie_checked"] = True
+    cookie_manager.refresh()
     st.info("Restaurando sesión...")
     st.stop()
 
