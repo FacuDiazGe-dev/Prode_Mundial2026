@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 
+import base64
+import hashlib
+import hmac
+import json
 from datetime import datetime, timedelta
 
 from ranking_logic import obtener_ranking_global
@@ -30,6 +34,11 @@ from services.supabase_service import (
     registrar_usuario_supabase
 )
 
+try:
+    from streamlit_cookies_controller import CookieController
+except Exception:
+    CookieController = None
+
 # ============================================================
 # ARRANQUE GENERAL
 # app.py coordina la aplicacion completa:
@@ -49,6 +58,125 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+AUTH_COOKIE_NAME = "prode_mundial_2026_auth"
+AUTH_COOKIE_DAYS = 30
+
+
+def get_cookie_manager():
+    if CookieController is None:
+        return None
+
+    return CookieController(key="prode_auth_cookie_manager")
+
+
+def get_auth_cookie_secret():
+    try:
+        return str(st.secrets.get("AUTH_COOKIE_SECRET", "")).strip()
+    except Exception:
+        return ""
+
+
+def encode_auth_cookie(usuario, secret):
+    payload = {
+        "usuario": str(usuario),
+        "exp": int(
+            (datetime.utcnow() + timedelta(days=AUTH_COOKIE_DAYS)).timestamp()
+        )
+    }
+    payload_json = json.dumps(
+        payload,
+        separators=(",", ":"),
+        sort_keys=True
+    ).encode("utf-8")
+    payload_b64 = base64.urlsafe_b64encode(payload_json).decode("utf-8")
+    signature = hmac.new(
+        secret.encode("utf-8"),
+        payload_b64.encode("utf-8"),
+        hashlib.sha256
+    ).hexdigest()
+
+    return f"{payload_b64}.{signature}"
+
+
+def decode_auth_cookie(token, secret):
+    try:
+        payload_b64, signature = str(token).split(".", 1)
+        expected_signature = hmac.new(
+            secret.encode("utf-8"),
+            payload_b64.encode("utf-8"),
+            hashlib.sha256
+        ).hexdigest()
+
+        if not hmac.compare_digest(signature, expected_signature):
+            return None
+
+        payload_json = base64.urlsafe_b64decode(
+            payload_b64.encode("utf-8")
+        )
+        payload = json.loads(payload_json.decode("utf-8"))
+
+        if int(payload.get("exp", 0)) < int(datetime.utcnow().timestamp()):
+            return None
+
+        usuario = str(payload.get("usuario", "")).strip()
+
+        if not usuario:
+            return None
+
+        return usuario
+
+    except Exception:
+        return None
+
+
+def restore_session_from_cookie(df_usuarios, cookie_manager, secret):
+    if (
+        st.session_state.get("autenticado")
+        or cookie_manager is None
+        or not secret
+        or df_usuarios is None
+        or df_usuarios.empty
+    ):
+        return
+
+    token = cookie_manager.get(AUTH_COOKIE_NAME)
+    usuario = decode_auth_cookie(token, secret) if token else None
+
+    if not usuario:
+        return
+
+    user_match = df_usuarios[
+        df_usuarios["USUARIO"].astype(str).str.strip() == usuario
+    ]
+
+    if user_match.empty:
+        cookie_manager.remove(AUTH_COOKIE_NAME)
+        return
+
+    st.session_state["autenticado"] = True
+    st.session_state["user_data"] = user_match.iloc[0].to_dict()
+
+
+def save_auth_cookie(usuario, cookie_manager, secret):
+    if cookie_manager is None or not secret:
+        return False
+
+    token = encode_auth_cookie(usuario, secret)
+    expires_at = datetime.utcnow() + timedelta(days=AUTH_COOKIE_DAYS)
+    cookie_manager.set(
+        AUTH_COOKIE_NAME,
+        token,
+        expires=expires_at,
+        same_site="lax"
+    )
+
+    return True
+
+
+def clear_auth_cookie(cookie_manager):
+    if cookie_manager is not None:
+        cookie_manager.remove(AUTH_COOKIE_NAME, same_site="lax")
 
 # ============================================================
 # DATOS PRINCIPALES DESDE SUPABASE
@@ -140,20 +268,20 @@ except Exception as e:
 ahora_arg = datetime.now() - timedelta(hours=3)
 fecha_limite_reg = datetime(2026, 6, 10, 23, 59, 59)
 registro_permitido_fecha = ahora_arg < fecha_limite_reg
-    
+
 # --- 3. FILTRO DE ACCESO (PROTECCIÓN) ---
 # Ahora 'estado_mantenimiento' existe sí o sí
 if estado_mantenimiento == "ON":
     # Verificamos si el usuario es admin (usando .get para evitar errores si no hay sesión)
     is_admin = st.session_state.get('user_data', {}).get('ROL') == 'admin'
-    
+
     if not is_admin:
         st.title("🏆 Prode Mundial 2026")
         st.warning("⚠️ Mantenimiento en curso. Estamos realizando ajustes técnicos. ¡Volvemos pronto!")
         st.info("Solo el Administrador tiene acceso en este momento.")
         if st.button("🚪 Reintentar / Login Admin"):
             st.rerun()
-        st.stop() 
+        st.stop()
 
 # --- LÓGICA DE INTERFAZ (LOGIN / REGISTRO) --------------------------------------------------------
 
@@ -169,6 +297,25 @@ if 'mostrar_registro' not in st.session_state:
     st.session_state['mostrar_registro'] = False
 if 'registro_exitoso' not in st.session_state:
     st.session_state['registro_exitoso'] = False
+
+cookie_manager = get_cookie_manager()
+auth_cookie_secret = get_auth_cookie_secret()
+
+if (
+    not st.session_state.get("autenticado")
+    and cookie_manager is not None
+    and auth_cookie_secret
+    and not st.session_state.get("auth_cookie_checked")
+):
+    st.session_state["auth_cookie_checked"] = True
+    st.info("Restaurando sesión...")
+    st.stop()
+
+restore_session_from_cookie(
+    df_usuarios=df_usuarios,
+    cookie_manager=cookie_manager,
+    secret=auth_cookie_secret
+)
 
 if not st.session_state['autenticado']:
     # 1. LEER CONFIGURACIÓN (Solo para no autenticados)
@@ -186,21 +333,21 @@ if not st.session_state['autenticado']:
     if not st.session_state['mostrar_registro']:
         if st.session_state['registro_exitoso']:
             st.success("✅ ¡Registro completado! Ya puedes ingresar.")
-    
+
         st.markdown(
             f"""
     <style>
     .login-hero-banner {{
         position: relative;
         overflow: hidden;
-    
+
         min-height: 210px;
         margin: 0 auto 24px auto;
         padding: 28px 22px;
-    
+
         border-radius: 22px;
         border: 1px solid rgba(244,197,66,0.24);
-    
+
         background:
             linear-gradient(
                 135deg,
@@ -208,32 +355,32 @@ if not st.session_state['autenticado']:
                 rgba(15,23,42,0.45)
             ),
             url("{HEADER_BACKGROUND}");
-    
+
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-    
+
         box-shadow:
             0 18px 42px rgba(15,23,42,0.18),
             inset 0 1px 0 rgba(255,255,255,0.08);
     }}
-    
+
     .login-hero-content {{
         position: relative;
         z-index: 2;
         max-width: 620px;
     }}
-    
+
     .login-hero-kicker {{
         display: inline-block;
-    
+
         margin-bottom: 10px;
         padding: 5px 10px;
-    
+
         border-radius: 999px;
         background: rgba(244,197,66,0.16);
         border: 1px solid rgba(244,197,66,0.28);
-    
+
         color: #F4C542;
         font-family: 'Montserrat', sans-serif;
         font-size: 11px;
@@ -241,17 +388,17 @@ if not st.session_state['autenticado']:
         text-transform: uppercase;
         letter-spacing: 0.08em;
     }}
-    
+
     .login-hero-title {{
         margin: 0 !important;
-    
+
         color: #FFFFFF !important;
         font-family: 'Montserrat', sans-serif !important;
         font-size: 34px !important;
         font-weight: 900 !important;
         line-height: 1.02 !important;
         letter-spacing: -0.04em !important;
-    
+
         text-shadow:
             0 2px 8px rgba(0,0,0,0.85),
             0 0 18px rgba(0,0,0,0.55) !important;
@@ -260,18 +407,18 @@ if not st.session_state['autenticado']:
     .login-hero-banner h1.login-hero-title {{
         color: #FFFFFF !important;
     }}
-        
+
     .login-hero-subtitle {{
         margin-top: 9px;
-    
+
         color: rgba(248,250,252,0.78);
         font-size: 14px;
         font-weight: 700;
         line-height: 1.35;
-    
+
         max-width: 460px;
     }}
-    
+
     @media (max-width: 768px) {{
         .login-hero-banner {{
             min-height: 180px;
@@ -279,17 +426,17 @@ if not st.session_state['autenticado']:
             border-radius: 18px;
             margin-bottom: 18px;
         }}
-    
+
         .login-hero-title {{
             font-size: 27px;
         }}
-    
+
         .login-hero-subtitle {{
             font-size: 12px;
         }}
     }}
     </style>
-    
+
     <div class="login-hero-banner">
         <div class="login-hero-content">
             <div class="login-hero-kicker">Prode Mundial 2026</div>
@@ -302,24 +449,49 @@ if not st.session_state['autenticado']:
     """,
             unsafe_allow_html=True
         )
-            
+
         with st.form("login_form"):
             st.subheader("🔐 Iniciar Sesión")
             u = st.text_input("Usuario")
+            recordar_login = st.checkbox(
+                "Recordarme en este dispositivo",
+                value=True,
+                disabled=(cookie_manager is None or not auth_cookie_secret)
+            )
             p = st.text_input("Contraseña", type="password")
-            
+
             if st.form_submit_button("Entrar", use_container_width=True):
                 # Normalización para ignorar mayúsculas
                 user_match = df_usuarios[
                     (df_usuarios["USUARIO"].astype(str).str.lower().str.strip() == u.lower().strip()) &
                     (df_usuarios["CONTRASEÑA"].astype(str).str.strip() == str(p).strip())
                 ]
-                
+
                 if not user_match.empty:
                     st.session_state['autenticado'] = True
                     st.session_state['user_data'] = user_match.iloc[0].to_dict()
                     st.session_state['registro_exitoso'] = False
-                    st.rerun()
+
+                    if recordar_login:
+                        save_auth_cookie(
+                            usuario=user_match.iloc[0]["USUARIO"],
+                            cookie_manager=cookie_manager,
+                            secret=auth_cookie_secret
+                        )
+
+                    if recordar_login:
+                        st.success("Sesión iniciada.")
+                        st.info(
+                            "La sesión quedó recordada en este dispositivo. "
+                            "Tocá el botón para entrar."
+                        )
+
+                        if st.form_submit_button("Entrar al Prode", use_container_width=True):
+                            st.rerun()
+
+                        st.stop()
+                    else:
+                        st.rerun()
                 else:
                     st.error("Usuario o contraseña incorrectos")
 
@@ -344,7 +516,7 @@ if not st.session_state['autenticado']:
             r_u = st.text_input("Nick de Usuario (para el ranking)")
             r_p = st.text_input("Contraseña", type="password")
             r_f = st.selectbox("Equipo Favorito", ["Argentina", "México", "España", "Brasil", "Uruguay", "Otro"])
-            
+
             # Botón único de envío
             if st.form_submit_button("🚀 FINALIZAR REGISTRO", use_container_width=True):
                 # Re-chequeo de seguridad
@@ -360,7 +532,7 @@ if not st.session_state['autenticado']:
                         )
                         if exito:
                             st.session_state['registro_exitoso'] = True
-                            st.session_state['mostrar_registro'] = False 
+                            st.session_state['mostrar_registro'] = False
                             st.rerun()
                         else:
                             st.error(mensaje)
@@ -380,7 +552,7 @@ if not st.session_state['autenticado']:
 if estado_mantenimiento == "ON" and st.session_state.get('user_data', {}).get('ROL') != 'admin':
     st.warning("⚠️ Estamos actualizando los servidores para la próxima fecha. ¡Volvemos en unos minutos!")
     st.info("Solo el Administrador tiene acceso en este momento.")
-    
+
     # Detenemos la ejecución para que no vean nada más
     if st.button("🔄 Reintentar"):
         st.rerun()
@@ -518,20 +690,20 @@ with st.sidebar:
         "💬 Comunidad",
         "📜 Reglas del Juego"
     ]
-    
+
     rol_usuario = str(
         st.session_state.get("user_data", {}).get("ROL", "")
     ).strip().lower()
 
     if rol_usuario == "admin":
         opciones.append("⚙️ Panel Control")
-    
+
     if "nav_destino" in st.session_state:
         destino = st.session_state.pop("nav_destino")
-    
+
         if destino in opciones:
             st.session_state["menu_principal"] = destino
-    
+
     menu = st.radio(
         "Ir a:",
         opciones,
@@ -547,7 +719,9 @@ with st.sidebar:
 """, unsafe_allow_html=True)
 
     if st.button("🚪 Cerrar Sesión", use_container_width=True):
+        clear_auth_cookie(cookie_manager)
         st.session_state["autenticado"] = False
+        st.session_state.pop("user_data", None)
         st.rerun()
 # ============================================================
 # ROUTER DE PANTALLAS
@@ -587,7 +761,7 @@ elif menu == "👥 Plantel":
         df_res=df_res,
         df_foro=df_foro
     )
-       
+
 # ---------- MENU FORO (DISEÑO OPTIMIZADO) ----------------------------------------------------
 elif menu == "💬 Comunidad":
     render_foro(
