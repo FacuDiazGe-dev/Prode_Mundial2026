@@ -43,6 +43,19 @@ Ese archivo no debe subirse a GitHub. Debe contener:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `[connections.gsheets]` con la service account de Google Cloud usada para subir imagenes.
+- `FOOTBALL_DATA_API_TOKEN` opcional para el prototipo de carga live por API externa.
+- `FOOTBALL_DATA_COMPETITION_CODE` opcional para limitar la consulta, por ejemplo `WC` si el proveedor lo soporta para Mundial.
+
+## Prototipo de API live
+
+- `services/football_data_service.py` consulta football-data.org y busca partidos por fecha/equipos.
+- El bloque en `sections/panel_control.py` consulta partidos visibles que no esten finalizados en la base local.
+- La API solo muestra sugerencias. La carga sigue siendo manual desde el formulario de estado live.
+- `IN_PLAY` se muestra como `En Vivo` porque football-data no informa de forma confiable si es primer o segundo tiempo.
+- `PAUSED` se muestra como `Entretiempo`.
+- `.github/workflows/sync-live-matches.yml` puede ejecutar `scripts/sync_live_matches.py` cada 10 minutos.
+- El sync automatico actualiza solo `estado_partido`, `live`, `live_r1` y `live_r2` para partidos visibles no finalizados.
+- Si la API marca `FINISHED`, el sync guarda el resultado live pero no cambia `estado_partido` a `Finalizado` ni toca `R1/R2`.
 
 ## Zonas para limpiar de a poco
 

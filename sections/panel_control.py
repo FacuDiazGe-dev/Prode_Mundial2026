@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 
+from services.football_data_service import sugerir_estados_partidos_api
 from services.supabase_service import (
     get_resultados_supabase,
     get_usuarios_supabase,
@@ -385,7 +386,7 @@ def render_panel_control(
 
             st.markdown("### Estado en vivo del partido")
             st.caption(
-                "Pendiente no afecta el resultado. 1T, 2T y ET son visuales para Inicio. Finalizado copia el resultado "
+                "Pendiente no afecta el resultado. En Vivo y Entretiempo son visuales para Inicio. Finalizado copia el resultado "
                 "a R1/R2 y entonces aplica al ranking."
             )
 
@@ -398,6 +399,116 @@ def render_panel_control(
                     else:
                         df_estado_partidos[col] = None
 
+            estado_no_finalizado_api = (
+                df_estado_partidos["ESTADO_PARTIDO"]
+                .fillna("Pendiente")
+                .astype(str)
+                .str.strip()
+                .ne("Finalizado")
+            )
+
+            def _es_visible_api(value):
+                return (
+                    str(value)
+                    .strip()
+                    .upper()
+                    in ["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"]
+                )
+
+            if "VIZ" in df_estado_partidos.columns:
+                viz_mask_api = df_estado_partidos["VIZ"].apply(_es_visible_api)
+            else:
+                viz_mask_api = pd.Series(False, index=df_estado_partidos.index)
+
+            df_partidos_visibles_api = df_estado_partidos[
+                viz_mask_api & estado_no_finalizado_api
+            ].copy()
+
+            with st.expander("Prototipo API externa", expanded=False):
+                st.caption(
+                    "Consulta football-data.org para partidos visibles. "
+                    "Muestra sugerencias de estado y resultado para validar manualmente. "
+                    "No aplica cambios automaticamente."
+                )
+
+                if df_partidos_visibles_api.empty:
+                    st.info("No hay partidos visibles no finalizados para consultar.")
+                else:
+                    st.write(
+                        f"Partidos visibles no finalizados a consultar: {len(df_partidos_visibles_api)}"
+                    )
+
+                    if st.button(
+                        "Consultar API partidos visibles",
+                        key="admin_api_live_consultar_visibles",
+                        use_container_width=True
+                    ):
+                        st.session_state["admin_api_live_resultado"] = (
+                            sugerir_estados_partidos_api(df_partidos_visibles_api)
+                        )
+                        st.rerun()
+
+                    resultado_api_live = st.session_state.get(
+                        "admin_api_live_resultado"
+                    )
+
+                    if resultado_api_live:
+                        if not resultado_api_live.get("ok"):
+                            st.warning(resultado_api_live.get("mensaje"))
+                        else:
+                            sugerencias = resultado_api_live.get("sugerencias", [])
+                            st.success(resultado_api_live.get("mensaje"))
+
+                            resumen_rows = []
+                            for sugerencia in sugerencias:
+                                resumen_rows.append(
+                                    {
+                                        "Partido": sugerencia.get("n_partido"),
+                                        "Prode": (
+                                            f"{sugerencia.get('equipo_1')} vs "
+                                            f"{sugerencia.get('equipo_2')}"
+                                        ),
+                                        "Encontrado": "Si" if sugerencia.get("ok") else "No",
+                                        "Estado API": sugerencia.get("status_api", ""),
+                                        "Estado visual API": sugerencia.get(
+                                            "estado_visual",
+                                            sugerencia.get("estado", "")
+                                        ),
+                                        "Resultado": (
+                                            f"{sugerencia.get('r1')} - {sugerencia.get('r2')}"
+                                            if sugerencia.get("r1") is not None
+                                            and sugerencia.get("r2") is not None
+                                            else ""
+                                        ),
+                                        "Partido API": (
+                                            f"{sugerencia.get('home', '')} vs "
+                                            f"{sugerencia.get('away', '')}"
+                                        ),
+                                    }
+                                )
+
+                            st.dataframe(
+                                pd.DataFrame(resumen_rows),
+                                hide_index=True,
+                                use_container_width=True
+                            )
+
+                            st.info(
+                                "La API solo informa sugerencias. Revisalas y, si corresponde, "
+                                "cargalas manualmente en el formulario de estado en vivo."
+                            )
+
+                            finalizados_detectados = [
+                                s for s in sugerencias
+                                if s.get("ok") and s.get("estado") == "Finalizado"
+                            ]
+
+                            if finalizados_detectados:
+                                st.warning(
+                                    "Hay partidos finalizados detectados. No se aplican desde la API: "
+                                    "validalos manualmente antes de guardar."
+                                )
+
             opciones_partidos = df_estado_partidos["N_PARTIDO"].astype(int).tolist()
 
             if opciones_partidos:
@@ -406,7 +517,7 @@ def render_panel_control(
                     .fillna("")
                     .astype(str)
                     .str.strip()
-                    .isin(["1T", "2T", "ET"])
+                    .isin(["En Vivo", "Entretiempo"])
                 ]
 
                 partido_default = opciones_partidos[0]
@@ -447,9 +558,9 @@ def render_panel_control(
                         .upper()
                         in ["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÃƒÂ"]
                     )
-                    estado_actual = "1T" if live_actual else "Pendiente"
+                    estado_actual = "En Vivo" if live_actual else "Pendiente"
 
-                estados_partido = ["Pendiente", "1T", "2T", "ET", "Finalizado"]
+                estados_partido = ["Pendiente", "En Vivo", "Entretiempo", "Finalizado"]
 
                 if estado_actual not in estados_partido:
                     estado_actual = "Pendiente"
@@ -465,6 +576,27 @@ def render_panel_control(
                     else partido_row.get("R2")
                 )
 
+                r1_key = f"admin_live_r1_input_{partido_sel}"
+                r2_key = f"admin_live_r2_input_{partido_sel}"
+                estado_key = f"admin_estado_partido_input_{partido_sel}"
+
+                if r1_key not in st.session_state:
+                    st.session_state[r1_key] = (
+                        int(valor_r1_actual)
+                        if pd.notna(valor_r1_actual)
+                        else 0
+                    )
+
+                if r2_key not in st.session_state:
+                    st.session_state[r2_key] = (
+                        int(valor_r2_actual)
+                        if pd.notna(valor_r2_actual)
+                        else 0
+                    )
+
+                if estado_key not in st.session_state:
+                    st.session_state[estado_key] = estado_actual
+
                 with st.form(f"form_estado_partido_live_{partido_sel}"):
                     col_r1_live, col_estado_live, col_r2_live = st.columns([1, 1.4, 1])
 
@@ -474,20 +606,14 @@ def render_panel_control(
                             min_value=0,
                             max_value=20,
                             step=1,
-                            value=(
-                                int(valor_r1_actual)
-                                if pd.notna(valor_r1_actual)
-                                else 0
-                            ),
-                            key=f"admin_live_r1_input_{partido_sel}"
+                            key=r1_key
                         )
 
                     with col_estado_live:
                         estado_partido = st.selectbox(
                             "Estado",
                             options=estados_partido,
-                            index=estados_partido.index(estado_actual),
-                            key=f"admin_estado_partido_input_{partido_sel}"
+                            key=estado_key
                         )
 
                     with col_r2_live:
@@ -496,12 +622,7 @@ def render_panel_control(
                             min_value=0,
                             max_value=20,
                             step=1,
-                            value=(
-                                int(valor_r2_actual)
-                                if pd.notna(valor_r2_actual)
-                                else 0
-                            ),
-                            key=f"admin_live_r2_input_{partido_sel}"
+                            key=r2_key
                         )
 
                     guardar_estado = st.form_submit_button(
@@ -509,7 +630,7 @@ def render_panel_control(
                         use_container_width=True
                     )
                 if guardar_estado:
-                    if estado_partido in ["1T", "2T", "ET"]:
+                    if estado_partido in ["En Vivo", "Entretiempo"]:
                         otros_live = df_estado_partidos[
                             (
                                 df_estado_partidos["N_PARTIDO"] != partido_sel
@@ -519,7 +640,7 @@ def render_panel_control(
                                 .fillna("")
                                 .astype(str)
                                 .str.strip()
-                                .isin(["1T", "2T", "ET"])
+                                .isin(["En Vivo", "Entretiempo"])
                             )
                         ]
 
