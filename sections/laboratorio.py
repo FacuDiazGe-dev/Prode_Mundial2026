@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 import streamlit_antd_components as sac
+from html import escape
 
 from components.ui_button import ui_button
 from styles_shared import css_panel_header, css_section_title, css_surface
+from ranking_logic import calcular_detalle
 
 try:
     from streamlit_elements import elements, mui, sync
@@ -15,7 +17,448 @@ except Exception:
     ELEMENTS_AVAILABLE = False
 
 
-def render_laboratorio(df_usuarios=None, df_ranking=None):
+def _render_lab_impacto_resultados(df_usuarios, df_res, df_pro, mapa_banderas):
+    st.markdown("""
+<div class="lab-panel">
+<h3>Impacto en resultados oficiales</h3>
+<div class="lab-note">
+Prototipo visual: click en la franja "Tu resultado" para abrir el detalle de jugadores que suman.
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+    if (
+        df_res is None or df_res.empty
+        or df_pro is None or df_pro.empty
+        or not {"N_PARTIDO", "Equipo_1", "Equipo_2", "ESTADO_PARTIDO"}.issubset(df_res.columns)
+        or not {"N_PARTIDO", "USUARIO", "P1", "P2"}.issubset(df_pro.columns)
+    ):
+        st.info("Faltan resultados o pronosticos para probar esta card.")
+        return
+
+    mapa_banderas = mapa_banderas or {}
+    df_demo = df_res.copy()
+    df_demo["N_PARTIDO_NUM"] = pd.to_numeric(df_demo["N_PARTIDO"], errors="coerce")
+    estados_demo = df_demo["ESTADO_PARTIDO"].fillna("Pendiente").astype(str).str.strip()
+    live_values = (
+        df_demo["LIVE"].astype(bool)
+        if "LIVE" in df_demo.columns
+        else pd.Series(False, index=df_demo.index)
+    )
+    es_live = estados_demo.isin(["En Vivo", "Entretiempo"]) | live_values
+    es_final = estados_demo.eq("Finalizado")
+    df_demo = df_demo[es_live | es_final].sort_values("N_PARTIDO_NUM", ascending=False)
+
+    if df_demo.empty:
+        st.info("No hay partidos en vivo, entretiempo o finalizados para mostrar.")
+        return
+
+    opciones_partido = [
+        f"#{int(row['N_PARTIDO_NUM'])} - {row.get('Equipo_1', '')} vs {row.get('Equipo_2', '')}"
+        for _, row in df_demo.iterrows()
+    ]
+    elegido_label = st.selectbox(
+        "Partido de prueba",
+        options=opciones_partido,
+        index=0,
+        key="lab_impacto_partido"
+    )
+
+    partido_row = df_demo.iloc[opciones_partido.index(elegido_label)]
+    n_partido = int(partido_row["N_PARTIDO_NUM"])
+    estado = str(partido_row.get("ESTADO_PARTIDO", "Pendiente") or "Pendiente").strip()
+    live_flag = bool(partido_row.get("LIVE", False))
+    es_live_partido = estado in ["En Vivo", "Entretiempo"] or live_flag
+    es_final_partido = estado == "Finalizado"
+
+    def _to_int(value):
+        try:
+            if pd.isna(value):
+                return None
+            return int(value)
+        except Exception:
+            return None
+
+    if es_live_partido:
+        r1 = _to_int(partido_row.get("LIVE_R1"))
+        r2 = _to_int(partido_row.get("LIVE_R2"))
+        estado_label = "ENTRETIEMPO" if estado == "Entretiempo" else "EN VIVO"
+        card_class = "live"
+    elif es_final_partido:
+        r1 = _to_int(partido_row.get("R1"))
+        r2 = _to_int(partido_row.get("R2"))
+        estado_label = "FINALIZADO"
+        card_class = "finished"
+    else:
+        r1 = None
+        r2 = None
+        estado_label = "PROXIMAMENTE"
+        card_class = "pending"
+
+    usuario_actual = str(st.session_state.get("user_data", {}).get("USUARIO", "") or "")
+    df_pro_demo = df_pro.copy()
+    df_pro_demo["N_PARTIDO_NUM"] = pd.to_numeric(df_pro_demo["N_PARTIDO"], errors="coerce")
+    pronos_partido = df_pro_demo[df_pro_demo["N_PARTIDO_NUM"] == n_partido].copy()
+    grupos = {3: [], 1: [], 0: []}
+
+    def _nombre_usuario(usuario):
+        if df_usuarios is None or df_usuarios.empty or "USUARIO" not in df_usuarios.columns:
+            return str(usuario)
+        match = df_usuarios[df_usuarios["USUARIO"].astype(str).str.strip() == str(usuario).strip()]
+        if match.empty:
+            return str(usuario)
+        nombre = str(match.iloc[0].get("NOMBRE", "") or "").strip()
+        return nombre or str(usuario)
+
+    for _, pron in pronos_partido.iterrows():
+        p1 = _to_int(pron.get("P1"))
+        p2 = _to_int(pron.get("P2"))
+        puntos, _, _ = calcular_detalle(r1, r2, p1, p2)
+        usuario = str(pron.get("USUARIO", "") or "").strip()
+        grupos[int(puntos)].append({
+            "nombre": _nombre_usuario(usuario),
+            "usuario": usuario,
+            "p1": p1,
+            "p2": p2,
+        })
+
+    pron_usuario = pronos_partido[
+        pronos_partido["USUARIO"].astype(str).str.strip() == usuario_actual
+    ]
+    if not pron_usuario.empty:
+        p1_user = _to_int(pron_usuario.iloc[0].get("P1"))
+        p2_user = _to_int(pron_usuario.iloc[0].get("P2"))
+        pron_text = f"{p1_user} - {p2_user}"
+        puntos_user, _, _ = calcular_detalle(r1, r2, p1_user, p2_user)
+        puntos_text = f"+{puntos_user} Pts" if r1 is not None and r2 is not None else "Pendiente"
+        points_class = "positive" if puntos_user > 0 else "zero"
+    else:
+        pron_text = "Sin pronostico"
+        puntos_text = "-"
+        points_class = "missing"
+
+    def _flag_html(equipo):
+        flag_value = str(mapa_banderas.get(equipo, "⚽"))
+        if flag_value.startswith("data:image"):
+            return f'<img src="{flag_value}" class="lab-impact-flag">'
+        return f'<span class="lab-impact-flag-fallback">{escape(flag_value)}</span>'
+
+    def _lista(items, limite=9):
+        if not items:
+            return '<div class="lab-impact-empty">Nadie</div>'
+
+        html_items = ""
+        for item in items[:limite]:
+            html_items += (
+                "<li>"
+                f"<strong>{escape(item['nombre'])}</strong> "
+                f"<span>@{escape(item['usuario'])}</span> "
+                f"<em>{item['p1']}-{item['p2']}</em>"
+                "</li>"
+            )
+        if len(items) > limite:
+            html_items += f'<li class="more">y {len(items) - limite} mas...</li>'
+        return f"<ul>{html_items}</ul>"
+
+    equipo_1_raw = str(partido_row.get("Equipo_1", "") or "")
+    equipo_2_raw = str(partido_row.get("Equipo_2", "") or "")
+    score_text = f"{r1} : {r2}" if r1 is not None and r2 is not None else "VS"
+    exactos = len(grupos[3])
+    generales = len(grupos[1])
+    dia = escape(str(partido_row.get("DIA", "") or ""))
+    hora = escape(str(partido_row.get("HORA", "") or ""))
+
+    st.markdown(
+        f"""
+<style>
+.lab-impact-wrap {{
+    max-width: 680px;
+    margin: 12px auto 0;
+}}
+.lab-impact-match {{
+    position: relative;
+    overflow: visible;
+    padding: 12px 13px;
+    border-radius: 16px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.72), rgba(248,250,252,0.58)),
+        url("https://storage.googleapis.com/foto-prode2026/Banners/FONDO_CARD_INICIO.png");
+    background-size: cover;
+    background-position: center;
+    border: 1px solid rgba(148,163,184,0.38);
+    box-shadow: 0 8px 18px rgba(15,23,42,0.055), inset 0 1px 0 rgba(255,255,255,0.75);
+}}
+.lab-impact-match.live {{
+    border-color: rgba(22,163,74,0.55);
+    box-shadow: 0 12px 26px rgba(15,23,42,0.09), 0 0 16px rgba(22,163,74,0.14), inset 0 1px 0 rgba(255,255,255,0.82);
+}}
+.lab-impact-match.live::after {{
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    border-radius: 16px 0 0 16px;
+    background: linear-gradient(180deg, #22c55e, #f4c542);
+}}
+.lab-impact-meta {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 11px;
+    font-size: 9.5px;
+    font-weight: 900;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.065em;
+}}
+.lab-impact-badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 9px;
+    margin-left: 6px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 950;
+    letter-spacing: 0.08em;
+}}
+.lab-impact-badge.live {{
+    background: linear-gradient(180deg, #34d399, #10b981);
+    border: 1px solid rgba(5,150,105,0.88);
+    color: #fff;
+    box-shadow: 0 5px 11px rgba(5,150,105,0.18), 0 0 14px rgba(52,211,153,0.26);
+}}
+.lab-impact-badge.live::before {{
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: #ef4444;
+    box-shadow: 0 0 7px rgba(239,68,68,0.78);
+}}
+.lab-impact-badge.finished {{
+    background: rgba(100,116,139,0.12);
+    border: 1px solid rgba(100,116,139,0.25);
+    color: #475569;
+}}
+.lab-impact-body {{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 74px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+}}
+.lab-impact-team {{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 900;
+    color: #0f172a;
+}}
+.lab-impact-team.left {{
+    justify-content: flex-end;
+    text-align: right;
+}}
+.lab-impact-team.right {{
+    justify-content: flex-start;
+    text-align: left;
+}}
+.lab-impact-team .name {{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}}
+.lab-impact-flag {{
+    width: 30px;
+    height: 21px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.85);
+    box-shadow: 0 3px 7px rgba(15,23,42,0.18);
+    flex-shrink: 0;
+}}
+.lab-impact-score {{
+    background: radial-gradient(circle at 50% 0%, rgba(244,197,66,0.22), transparent 48%), linear-gradient(180deg, #0f172a, #07111F);
+    color: #f8fafc;
+    border-radius: 12px;
+    padding: 8px 8px;
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    border: 1px solid rgba(244,197,66,0.30);
+    box-shadow: 0 7px 16px rgba(7,17,31,0.20);
+}}
+.lab-impact-details {{
+    position: relative;
+    margin-top: 11px;
+}}
+.lab-impact-details summary {{
+    list-style: none;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(226,232,240,0.82);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.76);
+}}
+.lab-impact-details summary::-webkit-details-marker {{
+    display: none;
+}}
+.lab-impact-details summary:hover {{
+    border-color: rgba(244,197,66,0.58);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.86), 0 8px 18px rgba(244,197,66,0.10);
+}}
+.lab-impact-label {{
+    font-size: 9px;
+    font-weight: 950;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.055em;
+    white-space: nowrap;
+}}
+.lab-impact-user-score {{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 950;
+    color: #0f172a;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}}
+.lab-impact-points {{
+    justify-self: end;
+    font-size: 10px;
+    font-weight: 950;
+    white-space: nowrap;
+}}
+.lab-impact-points.positive {{
+    color: #16a34a;
+}}
+.lab-impact-points.zero {{
+    color: #64748b;
+}}
+.lab-impact-points.missing {{
+    color: #94a3b8;
+}}
+.lab-impact-pop {{
+    width: min(360px, calc(100vw - 56px));
+    margin-top: 8px;
+    padding: 11px 12px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.98);
+    border: 1px solid rgba(203,213,225,0.96);
+    box-shadow: 0 18px 34px rgba(15,23,42,0.16), inset 0 1px 0 rgba(255,255,255,0.88);
+}}
+.lab-impact-pop h4 {{
+    margin: 0 0 7px;
+    color: #07111F;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 950;
+}}
+.lab-impact-pop .summary {{
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 850;
+    margin-bottom: 8px;
+}}
+.lab-impact-pop .group-title {{
+    color: #334155;
+    font-size: 11px;
+    font-weight: 950;
+    margin: 8px 0 4px;
+}}
+.lab-impact-pop ul {{
+    margin: 0;
+    padding-left: 17px;
+}}
+.lab-impact-pop li {{
+    margin: 3px 0;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 750;
+}}
+.lab-impact-pop li span {{
+    color: #64748b;
+}}
+.lab-impact-pop li em {{
+    color: #0f172a;
+    font-style: normal;
+    font-weight: 950;
+}}
+.lab-impact-empty {{
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 800;
+}}
+@media (max-width: 768px) {{
+    .lab-impact-body {{
+        grid-template-columns: minmax(0, 1fr) 62px minmax(0, 1fr);
+        gap: 8px;
+    }}
+    .lab-impact-team {{
+        font-size: 12px;
+    }}
+    .lab-impact-score {{
+        font-size: 13px;
+        padding: 7px 6px;
+    }}
+    .lab-impact-details summary {{
+        grid-template-columns: 1fr auto;
+        gap: 6px 10px;
+    }}
+    .lab-impact-points {{
+        grid-column: 1 / -1;
+    }}
+}}
+</style>
+
+<div class="lab-impact-wrap">
+<div class="lab-impact-match {card_class}">
+<div class="lab-impact-meta">
+<span>Partido #{n_partido}<span class="lab-impact-badge {card_class}">{estado_label}</span></span>
+<span>{dia} | {hora}</span>
+</div>
+<div class="lab-impact-body">
+<div class="lab-impact-team left"><span class="name">{escape(equipo_1_raw)}</span>{_flag_html(equipo_1_raw)}</div>
+<div class="lab-impact-score">{score_text}</div>
+<div class="lab-impact-team right">{_flag_html(equipo_2_raw)}<span class="name">{escape(equipo_2_raw)}</span></div>
+</div>
+<details class="lab-impact-details">
+<summary>
+<span class="lab-impact-label">Tu resultado</span>
+<span class="lab-impact-user-score">{escape(pron_text)}</span>
+<span class="lab-impact-points {points_class}">{escape(puntos_text)}</span>
+</summary>
+<div class="lab-impact-pop">
+<h4>Impacto con este resultado</h4>
+<div class="summary">{exactos + generales} jugadores suman · {exactos} exactos · {generales} tendencia</div>
+<div class="group-title">+3 pts exactos</div>
+{_lista(grupos[3])}
+<div class="group-title">+1 pt tendencia</div>
+{_lista(grupos[1])}
+</div>
+</details>
+</div>
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+
+def render_laboratorio(
+    df_usuarios=None,
+    df_ranking=None,
+    df_res=None,
+    df_pro=None,
+    mapa_banderas=None,
+):
     css_laboratorio = (
         """
 <style>
@@ -340,6 +783,7 @@ def render_laboratorio(df_usuarios=None, df_ranking=None):
             sac.TabsItem("Foro MUI", icon="chat-dots"),
             sac.TabsItem("Botones", icon="collection"),
             sac.TabsItem("UI Button", icon="cursor"),
+            sac.TabsItem("Impacto resultados", icon="graph-up"),
             sac.TabsItem("Filtros", icon="funnel"),
             sac.TabsItem("Insignias", icon="award"),
         ],
@@ -981,7 +1425,19 @@ Prueba visual y funcional del boton reutilizable. El click devuelve True una sol
             )
 
     # ============================================================
-    # TAB 6 — FILTROS
+    # TAB 6 — IMPACTO RESULTADOS
+    # ============================================================
+
+    elif tab == "Impacto resultados":
+        _render_lab_impacto_resultados(
+            df_usuarios=df_usuarios,
+            df_res=df_res,
+            df_pro=df_pro,
+            mapa_banderas=mapa_banderas,
+        )
+
+    # ============================================================
+    # TAB 7 — FILTROS
     # ============================================================
 
     elif tab == "Filtros":
