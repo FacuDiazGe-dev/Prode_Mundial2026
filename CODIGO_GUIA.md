@@ -67,3 +67,35 @@ Ese archivo no debe subirse a GitHub. Debe contener:
 ## Regla de trabajo segura
 
 Como la web productiva usa Supabase real, probar navegacion local no modifica datos. Pero editar perfil, foro, noticias, resultados, roles o pronosticos desde local si puede escribir en la base real si usas los mismos secretos.
+
+## Sync live con Supabase Edge Function
+
+GitHub Actions queda como respaldo manual, pero el sync automatico recomendado pasa a Supabase porque el cron de GitHub puede demorarse o no disparar con confiabilidad.
+
+Archivos:
+
+- `supabase/functions/sync-live-matches/index.ts`: Edge Function que consulta football-data.org y actualiza Supabase.
+- `supabase/sql/schedule_sync_live_matches.sql`: SQL para programar la funcion cada 5 minutos con `pg_cron` + `pg_net`.
+- `supabase/config.toml`: configuracion minima de la funcion.
+
+Secrets necesarios en Supabase Edge Functions:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `FOOTBALL_DATA_API_TOKEN`
+- `FOOTBALL_DATA_COMPETITION_CODE` opcional, recomendado `WC`.
+
+Comportamiento seguro:
+
+- Solo toma partidos con `viz = true` y `estado_partido` distinto de `Finalizado`.
+- Actualiza `estado_partido`, `live`, `live_r1` y `live_r2`.
+- Si la API devuelve `FINISHED`, guarda el resultado live pero no cambia `estado_partido` a `Finalizado` y no toca `r1/r2`.
+- La validacion final sigue siendo manual desde Panel de Control.
+
+Activacion resumida:
+
+1. Desplegar la Edge Function `sync-live-matches`.
+2. Crear los secrets de la funcion en Supabase.
+3. En Supabase Vault guardar `project_url` y `anon_key`.
+4. Ejecutar `supabase/sql/schedule_sync_live_matches.sql` en SQL Editor.
+5. Revisar `cron.job_run_details` o los logs de la Edge Function.

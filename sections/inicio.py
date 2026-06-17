@@ -2822,6 +2822,90 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.76);
         }}
 
+        .match-impact-details {{
+            position: relative;
+            z-index: 4;
+            margin-top: 11px;
+        }}
+
+        .match-impact-details summary {{
+            list-style: none;
+            cursor: pointer;
+        }}
+
+        .match-impact-details summary::-webkit-details-marker {{
+            display: none;
+        }}
+
+        .match-impact-details summary:hover .match-user-result {{
+            border-color: rgba(244,197,66,0.58);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.86),
+                0 8px 18px rgba(244,197,66,0.10);
+        }}
+
+        .match-impact-popover {{
+            width: min(360px, calc(100vw - 56px));
+            margin-top: 8px;
+            padding: 11px 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.98);
+            border: 1px solid rgba(203,213,225,0.96);
+            box-shadow:
+                0 18px 34px rgba(15,23,42,0.16),
+                inset 0 1px 0 rgba(255,255,255,0.88);
+        }}
+
+        .match-impact-popover h4 {{
+            margin: 0 0 7px;
+            color: #07111F;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 950;
+        }}
+
+        .match-impact-summary {{
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 850;
+            margin-bottom: 8px;
+        }}
+
+        .match-impact-group-title {{
+            color: #334155;
+            font-size: 11px;
+            font-weight: 950;
+            margin: 8px 0 4px;
+        }}
+
+        .match-impact-popover ul {{
+            margin: 0;
+            padding-left: 17px;
+        }}
+
+        .match-impact-popover li {{
+            margin: 3px 0;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 750;
+        }}
+
+        .match-impact-popover li span {{
+            color: #64748b;
+        }}
+
+        .match-impact-popover li em {{
+            color: #0f172a;
+            font-style: normal;
+            font-weight: 950;
+        }}
+
+        .match-impact-empty {{
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 800;
+        }}
+
         .user-result-label {{
             font-size: 9px;
             font-weight: 950;
@@ -3071,6 +3155,46 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
         )
         pronosticos_usuario_map = {}
 
+        def nombre_usuario_impacto(usuario):
+            if (
+                df_usuarios is None
+                or df_usuarios.empty
+                or "USUARIO" not in df_usuarios.columns
+            ):
+                return str(usuario)
+
+            match_usuario = df_usuarios[
+                df_usuarios["USUARIO"].astype(str).str.strip()
+                == str(usuario).strip()
+            ]
+
+            if match_usuario.empty:
+                return str(usuario)
+
+            nombre = str(match_usuario.iloc[0].get("NOMBRE", "") or "").strip()
+            return nombre or str(usuario)
+
+        def lista_impacto_html(items, limite=9):
+            if not items:
+                return '<div class="match-impact-empty">Nadie</div>'
+
+            html_items = ""
+            for item in items[:limite]:
+                html_items += (
+                    "<li>"
+                    f"<strong>{escape(item['nombre'])}</strong> "
+                    f"<span>@{escape(item['usuario'])}</span> "
+                    f"<em>{item['p1']}-{item['p2']}</em>"
+                    "</li>"
+                )
+
+            if len(items) > limite:
+                html_items += (
+                    f'<li class="more">y {len(items) - limite} mas...</li>'
+                )
+
+            return f"<ul>{html_items}</ul>"
+
         if (
             df_pro is not None
             and not df_pro.empty
@@ -3213,14 +3337,82 @@ Cuando haya novedades del Prode o del Mundial aparecerán acá.
                     points_class = "missing"
                     points_text = "-"
 
+                grupos_impacto = {3: [], 1: [], 0: []}
+
+                if (
+                    resultado_para_puntos is not None
+                    and df_pro is not None
+                    and not df_pro.empty
+                    and {"N_PARTIDO", "USUARIO", "P1", "P2"}.issubset(df_pro.columns)
+                    and isinstance(partido, int)
+                ):
+                    df_pro_impacto = df_pro.copy()
+                    df_pro_impacto["_N_PARTIDO_IMPACTO"] = pd.to_numeric(
+                        df_pro_impacto["N_PARTIDO"],
+                        errors="coerce"
+                    )
+                    pronos_partido = df_pro_impacto[
+                        df_pro_impacto["_N_PARTIDO_IMPACTO"] == partido
+                    ].copy()
+
+                    for _, pron_impacto in pronos_partido.iterrows():
+                        p1_impacto = pd.to_numeric(
+                            pron_impacto.get("P1"),
+                            errors="coerce"
+                        )
+                        p2_impacto = pd.to_numeric(
+                            pron_impacto.get("P2"),
+                            errors="coerce"
+                        )
+
+                        puntos_impacto, _, _ = calcular_detalle(
+                            resultado_para_puntos[0],
+                            resultado_para_puntos[1],
+                            p1_impacto,
+                            p2_impacto
+                        )
+                        usuario_impacto = str(
+                            pron_impacto.get("USUARIO", "") or ""
+                        ).strip()
+                        grupos_impacto[int(puntos_impacto)].append(
+                            {
+                                "nombre": nombre_usuario_impacto(usuario_impacto),
+                                "usuario": usuario_impacto,
+                                "p1": int(p1_impacto) if pd.notna(p1_impacto) else "-",
+                                "p2": int(p2_impacto) if pd.notna(p2_impacto) else "-",
+                            }
+                        )
+
+                exactos_impacto = len(grupos_impacto[3])
+                generales_impacto = len(grupos_impacto[1])
+                impacto_disponible = resultado_para_puntos is not None
+                impacto_summary = (
+                    f"{exactos_impacto + generales_impacto} jugadores suman "
+                    f"&middot; {exactos_impacto} exactos "
+                    f"&middot; {generales_impacto} tendencia"
+                    if impacto_disponible
+                    else "Todavia no hay resultado para calcular impacto."
+                )
+
                 pronostico_html = (
+                    '<details class="match-impact-details">'
+                    '<summary>'
                     '<div class="match-user-result">'
                     '<span class="user-result-label">Tu resultado</span>'
                     f'<span class="user-result-score">{escape(pronostico_text)}</span>'
                     f'<span class="user-result-points {points_class}">{escape(points_text)}</span>'
                     '</div>'
+                    '</summary>'
+                    '<div class="match-impact-popover">'
+                    '<h4>Impacto con este resultado</h4>'
+                    f'<div class="match-impact-summary">{impacto_summary}</div>'
+                    '<div class="match-impact-group-title">+3 pts exactos</div>'
+                    f'{lista_impacto_html(grupos_impacto[3])}'
+                    '<div class="match-impact-group-title">+1 pt tendencia</div>'
+                    f'{lista_impacto_html(grupos_impacto[1])}'
+                    '</div>'
+                    '</details>'
                 )
-        
                 dia = escape(str(row.get("DIA", "")))
                 hora = escape(str(row.get("HORA", "")))
         
