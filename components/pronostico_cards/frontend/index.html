@@ -37,11 +37,11 @@
 
     .pred-card {
       position: relative;
-      overflow: visible;
-      min-height: 96px;
+      overflow: hidden;
+      min-height: 124px;
       border: 1px solid rgba(148, 163, 184, 0.34);
       border-radius: 16px;
-      padding: 13px 14px;
+      padding: 11px 14px 15px;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(248, 250, 252, 0.62)),
         var(--card-bg);
@@ -73,7 +73,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      margin-bottom: 13px;
+      margin-bottom: 9px;
       color: #94a3b8;
       font-size: 10px;
       font-weight: 900;
@@ -171,6 +171,50 @@
       box-shadow: 0 0 0 3px rgba(244, 197, 66, 0.18);
     }
 
+    .qualified-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      max-width: 100%;
+      margin: 9px auto 0;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(226, 232, 240, 0.76);
+      color: #64748b;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.045em;
+      text-transform: uppercase;
+    }
+
+    .qualified-pill,
+    .qualified-select {
+      min-height: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.32);
+      border-radius: 999px;
+      padding: 2px 9px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #07111f;
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: none;
+      letter-spacing: 0;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+    }
+
+    .qualified-select {
+      cursor: pointer;
+      outline: none;
+    }
+
+    .qualified-select:focus {
+      border-color: rgba(244, 197, 66, 0.95);
+      box-shadow: 0 0 0 3px rgba(244, 197, 66, 0.16);
+    }
+
     .score-colon {
       color: #94a3b8;
       font-size: 11px;
@@ -226,7 +270,8 @@
 
     @media (max-width: 520px) {
       .pred-card {
-        padding: 12px 10px;
+        min-height: 120px;
+        padding: 10px 9px 14px;
       }
 
       .pred-row {
@@ -264,6 +309,21 @@
       .score-colon {
         font-size: 10px;
       }
+
+      .qualified-row {
+        margin-top: 8px;
+        padding: 2px 6px;
+        font-size: 8px;
+      }
+
+      .qualified-pill,
+      .qualified-select {
+        max-width: 160px;
+        min-width: 0;
+        min-height: 24px;
+        padding: 2px 7px;
+        font-size: 9px;
+      }
     }
   </style>
 </head>
@@ -286,7 +346,7 @@
     }
 
     function setFrameHeight() {
-      const targetHeight = Math.min(document.body.scrollHeight, 575);
+      const targetHeight = Math.min(document.body.scrollHeight + 8, 620);
       sendMessage("streamlit:setFrameHeight", { height: targetHeight });
     }
 
@@ -295,6 +355,7 @@
         N_PARTIDO: item.N_PARTIDO,
         P1: item.P1,
         P2: item.P2,
+        CLASIFICADO_LADO: resolveQualifiedSide(item),
       }));
     }
 
@@ -317,6 +378,7 @@
       }
 
       target[side] = nextValue;
+      target.CLASIFICADO_LADO = resolveQualifiedSide(target);
       return nextValue;
     }
 
@@ -359,6 +421,49 @@
       return Math.max(0, Math.min(20, parsed));
     }
 
+    function resolveQualifiedSide(item) {
+      const p1 = Number.parseInt(item.P1, 10);
+      const p2 = Number.parseInt(item.P2, 10);
+
+      if (!Number.isNaN(p1) && !Number.isNaN(p2)) {
+        if (p1 > p2) {
+          return "equipo_1";
+        }
+
+        if (p2 > p1) {
+          return "equipo_2";
+        }
+      }
+
+      return item.CLASIFICADO_LADO === "equipo_2" ? "equipo_2" : "equipo_1";
+    }
+
+    function qualifiedHtml(item, equipo1, equipo2) {
+      const p1 = Number.parseInt(item.P1, 10);
+      const p2 = Number.parseInt(item.P2, 10);
+      const qualifiedSide = resolveQualifiedSide(item);
+      const label = qualifiedSide === "equipo_2" ? equipo2 : equipo1;
+
+      if (!Number.isNaN(p1) && !Number.isNaN(p2) && p1 === p2) {
+        return `
+          <div class="qualified-row">
+            <span>Clasifica</span>
+            <select class="qualified-select" data-match="${escapeHtml(item.N_PARTIDO)}">
+              <option value="equipo_1" ${qualifiedSide === "equipo_1" ? "selected" : ""}>${escapeHtml(equipo1)}</option>
+              <option value="equipo_2" ${qualifiedSide === "equipo_2" ? "selected" : ""}>${escapeHtml(equipo2)}</option>
+            </select>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="qualified-row">
+          <span>Clasifica</span>
+          <span class="qualified-pill">${escapeHtml(label)}</span>
+        </div>
+      `;
+    }
+
     function render(args) {
       const incoming = Array.isArray(args.pronosticos) ? args.pronosticos : [];
       values = incoming.map((item) => ({
@@ -366,6 +471,7 @@
         N_PARTIDO: Number.parseInt(item.N_PARTIDO, 10),
         P1: clampScore(item.P1),
         P2: clampScore(item.P2),
+        CLASIFICADO_LADO: item.CLASIFICADO_LADO || item.clasificado_lado || "equipo_1",
       }));
 
       if (values.length === 0) {
@@ -413,6 +519,7 @@
                   <span class="team-name">${equipo2}</span>
                 </div>
               </div>
+              ${qualifiedHtml(item, equipo1Raw, equipo2Raw)}
             </div>
           `;
         })
@@ -445,12 +552,14 @@
           const matchId = input.dataset.match;
           const side = input.dataset.side;
           input.value = updateValue(matchId, side, input.value);
+          render({ pronosticos: values });
         });
 
         input.addEventListener("blur", () => {
           const matchId = input.dataset.match;
           const side = input.dataset.side;
           input.value = updateValue(matchId, side, input.value);
+          render({ pronosticos: values });
         });
 
         input.addEventListener("keydown", (event) => {
@@ -463,6 +572,16 @@
       root.querySelectorAll(".action-button").forEach((button) => {
         button.addEventListener("click", () => {
           sendAction(button.dataset.action);
+        });
+      });
+
+      root.querySelectorAll(".qualified-select").forEach((select) => {
+        select.addEventListener("change", () => {
+          const target = values.find((item) => String(item.N_PARTIDO) === String(select.dataset.match));
+
+          if (target) {
+            target.CLASIFICADO_LADO = select.value === "equipo_2" ? "equipo_2" : "equipo_1";
+          }
         });
       });
 

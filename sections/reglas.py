@@ -263,10 +263,11 @@ def render_reglas():
 <div>¿Cómo se suman puntos?</div>
 </div>
 <ul class="faq-list">
-<li>0 puntos: Si no acertás el resultado.</li>
-<li>1 punto: Por acertar el resultado general (Ganador o Empate).</li>
-<li>2 puntos adicionales: Por acertar el resultado exacto.</li>
-<li>3 puntos: Es la cantidad máxima por partido.</li>
+<li><strong>Fase de grupos:</strong> 1 punto por acertar la tendencia general (gana equipo 1, empate o gana equipo 2) y 2 puntos extra por acertar el resultado exacto.</li>
+<li><strong>Máximo fase de grupos:</strong> 3 puntos por partido.</li>
+<li><strong>⚽ Fase eliminatoria:</strong> se pronostica el resultado de los 90 minutos. También suma 1 punto por tendencia y 2 puntos extra por resultado exacto.</li>
+<li><strong>Clasificado:</strong> en eliminatorias se suma 1 punto extra por acertar qué equipo avanza. Si pronosticás empate, tenés que elegir el clasificado por alargue o penales.</li>
+<li><strong>Máximo fase eliminatoria:</strong> 4 puntos por partido.</li>
 </ul>
 </div>
 

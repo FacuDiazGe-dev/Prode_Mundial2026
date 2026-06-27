@@ -55,6 +55,288 @@ def calcular_detalle(r1, r2, p1, p2):
     return puntos, exactos, generales
 
 
+def _lado_resultado_eliminatoria(r1, r2):
+    if pd.isna(r1) or pd.isna(r2):
+        return ""
+
+    r1 = safe_int(r1)
+    r2 = safe_int(r2)
+
+    if r1 > r2:
+        return "equipo_1"
+
+    if r2 > r1:
+        return "equipo_2"
+
+    return "empate"
+
+
+def _clasificado_lado_eliminatoria(r1, r2, clasificado_lado=None):
+    lado_resultado = _lado_resultado_eliminatoria(r1, r2)
+
+    if lado_resultado in ["equipo_1", "equipo_2"]:
+        return lado_resultado
+
+    lado = str(clasificado_lado or "").strip()
+
+    if lado in ["equipo_1", "equipo_2"]:
+        return lado
+
+    return ""
+
+
+def calcular_detalle_eliminatoria(
+    r1,
+    r2,
+    p1,
+    p2,
+    clasificado_lado=None,
+    pronostico_clasificado_lado=None
+):
+    """
+    Calcula eliminatoria:
+    +1 tendencia, +2 exacto, +1 clasificado. Maximo 4 puntos.
+    """
+
+    if pd.isna(r1) or pd.isna(r2) or pd.isna(p1) or pd.isna(p2):
+        return 0, 0, 0, 0
+
+    r1 = safe_int(r1)
+    r2 = safe_int(r2)
+    p1 = safe_int(p1)
+    p2 = safe_int(p2)
+
+    puntos = 0
+    exactos = 0
+    generales = 0
+    clasificados = 0
+
+    tendencia_real = _lado_resultado_eliminatoria(r1, r2)
+    tendencia_pron = _lado_resultado_eliminatoria(p1, p2)
+
+    if tendencia_real and tendencia_real == tendencia_pron:
+        generales = 1
+        puntos += 1
+
+    if r1 == p1 and r2 == p2:
+        exactos = 1
+        puntos += 2
+
+    clasificado_real = _clasificado_lado_eliminatoria(
+        r1,
+        r2,
+        clasificado_lado
+    )
+    clasificado_pron = _clasificado_lado_eliminatoria(
+        p1,
+        p2,
+        pronostico_clasificado_lado
+    )
+
+    if clasificado_real and clasificado_pron and clasificado_real == clasificado_pron:
+        clasificados = 1
+        puntos += 1
+
+    return puntos, exactos, generales, clasificados
+
+
+def crear_ranking_eliminatoria_vacio():
+    return pd.DataFrame(
+        columns=[
+            "Nº",
+            "ID_PARA_FOTO",
+            "JUGADOR",
+            "PUNTOS",
+            "EXACTOS",
+            "GENERALES",
+            "CLASIFICADOS",
+            "USUARIO",
+        ]
+    )
+
+
+def _resultado_eliminatoria_para_ranking(partido, incluir_live=True):
+    estado = str(partido.get("estado_partido", "") or "").strip()
+
+    if incluir_live and estado in ["En Vivo", "Entretiempo"]:
+        r1 = partido.get("live_r1")
+        r2 = partido.get("live_r2")
+    elif estado == "Finalizado":
+        r1 = partido.get("r1")
+        r2 = partido.get("r2")
+    else:
+        return None
+
+    r1 = pd.to_numeric(r1, errors="coerce")
+    r2 = pd.to_numeric(r2, errors="coerce")
+
+    if pd.isna(r1) or pd.isna(r2):
+        return None
+
+    return int(r1), int(r2)
+
+
+@st.cache_data(ttl=60)
+def obtener_ranking_eliminatoria(
+    df_users,
+    df_pronosticos_eliminatoria,
+    df_resultados_eliminatoria,
+    incluir_live=True
+):
+    """
+    Ranking preview para eliminatoria.
+    Puede incluir resultados live para validar puntaje virtual.
+    """
+
+    if df_users is None or df_users.empty:
+        return crear_ranking_eliminatoria_vacio()
+
+    if (
+        df_pronosticos_eliminatoria is None
+        or df_pronosticos_eliminatoria.empty
+        or df_resultados_eliminatoria is None
+        or df_resultados_eliminatoria.empty
+    ):
+        return crear_ranking_eliminatoria_vacio()
+
+    df_users_rank = df_users.copy()
+    df_pro = df_pronosticos_eliminatoria.copy()
+    df_res = df_resultados_eliminatoria.copy()
+
+    if "ELIMINATORIA" in df_users_rank.columns:
+        df_users_rank = df_users_rank[
+            df_users_rank["ELIMINATORIA"]
+            .fillna(True)
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+        ].copy()
+
+        if df_users_rank.empty:
+            return crear_ranking_eliminatoria_vacio()
+
+    rename_pro = {
+        "usuario": "USUARIO",
+        "n_partido": "N_PARTIDO",
+        "p1": "P1",
+        "p2": "P2",
+        "clasificado_lado": "CLASIFICADO_LADO",
+    }
+    rename_res = {
+        "n_partido": "partido",
+        "r1_live": "live_r1",
+        "r2_live": "live_r2",
+    }
+
+    df_pro = df_pro.rename(columns=rename_pro)
+    df_res = df_res.rename(columns=rename_res)
+
+    columnas_pro = ["USUARIO", "N_PARTIDO", "P1", "P2", "CLASIFICADO_LADO"]
+    columnas_res = ["partido", "r1", "r2", "live_r1", "live_r2", "estado_partido", "clasificado_lado"]
+
+    for col in columnas_pro:
+        if col not in df_pro.columns:
+            df_pro[col] = ""
+
+    for col in columnas_res:
+        if col not in df_res.columns:
+            df_res[col] = None
+
+    df_pro["N_PARTIDO"] = pd.to_numeric(df_pro["N_PARTIDO"], errors="coerce")
+    df_res["partido"] = pd.to_numeric(df_res["partido"], errors="coerce")
+    df_pro = df_pro.dropna(subset=["N_PARTIDO"]).copy()
+    df_res = df_res.dropna(subset=["partido"]).copy()
+    df_pro["N_PARTIDO"] = df_pro["N_PARTIDO"].astype(int)
+    df_res["partido"] = df_res["partido"].astype(int)
+
+    resultados_map = {
+        int(row["partido"]): row
+        for _, row in df_res.iterrows()
+    }
+
+    ranking_data = []
+
+    for _, usuario_row in df_users_rank.iterrows():
+        usuario = str(usuario_row.get("USUARIO", "") or "").strip()
+
+        if not usuario:
+            continue
+
+        pro_user = df_pro[
+            df_pro["USUARIO"].astype(str).str.strip() == usuario
+        ]
+
+        puntos_t = 0
+        exactos_t = 0
+        generales_t = 0
+        clasificados_t = 0
+
+        for _, pronostico in pro_user.iterrows():
+            n_partido = safe_int(pronostico.get("N_PARTIDO"), None)
+
+            if n_partido is None or n_partido not in resultados_map:
+                continue
+
+            partido = resultados_map[n_partido]
+            resultado = _resultado_eliminatoria_para_ranking(
+                partido,
+                incluir_live=incluir_live
+            )
+
+            if resultado is None:
+                continue
+
+            p1 = pd.to_numeric(pronostico.get("P1"), errors="coerce")
+            p2 = pd.to_numeric(pronostico.get("P2"), errors="coerce")
+
+            if pd.isna(p1) or pd.isna(p2):
+                continue
+
+            puntos, exactos, generales, clasificados = calcular_detalle_eliminatoria(
+                resultado[0],
+                resultado[1],
+                int(p1),
+                int(p2),
+                partido.get("clasificado_lado"),
+                pronostico.get("CLASIFICADO_LADO")
+            )
+
+            puntos_t += puntos
+            exactos_t += exactos
+            generales_t += generales
+            clasificados_t += clasificados
+
+        ranking_data.append(
+            {
+                "ID_PARA_FOTO": usuario_row.get("ID", ""),
+                "JUGADOR": usuario_row.get("NOMBRE", usuario),
+                "PUNTOS": puntos_t,
+                "EXACTOS": exactos_t,
+                "GENERALES": generales_t,
+                "CLASIFICADOS": clasificados_t,
+                "USUARIO": usuario,
+            }
+        )
+
+    if not ranking_data:
+        return crear_ranking_eliminatoria_vacio()
+
+    df_rank = (
+        pd.DataFrame(ranking_data)
+        .sort_values(
+            by=["PUNTOS", "EXACTOS", "CLASIFICADOS", "GENERALES"],
+            ascending=False
+        )
+        .reset_index(drop=True)
+    )
+
+    df_rank.index = df_rank.index + 1
+    df_rank.insert(0, "Nº", df_rank.index.map(lambda x: str(x)))
+
+    return df_rank
+
+
 def calcular_stats_pronosticos_badges(df_rank, df_pro):
     stats_pronosticos = []
 
