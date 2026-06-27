@@ -267,7 +267,7 @@ except Exception as e:
 
 # --- 3. LÓGICA DE TIEMPOS ---
 ahora_arg = datetime.now() - timedelta(hours=3)
-fecha_limite_reg = datetime(2026, 6, 10, 23, 59, 59)
+fecha_limite_reg = datetime(2026, 7, 20, 23, 59, 59)
 registro_permitido_fecha = ahora_arg < fecha_limite_reg
 
 # --- 3. FILTRO DE ACCESO (PROTECCIÓN) ---
