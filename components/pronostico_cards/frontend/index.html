@@ -464,6 +464,34 @@
       `;
     }
 
+    function bindQualifiedSelects(scope = root) {
+      scope.querySelectorAll(".qualified-select").forEach((select) => {
+        select.addEventListener("change", () => {
+          const target = values.find((item) => String(item.N_PARTIDO) === String(select.dataset.match));
+
+          if (target) {
+            target.CLASIFICADO_LADO = select.value === "equipo_2" ? "equipo_2" : "equipo_1";
+          }
+        });
+      });
+    }
+
+    function updateQualifiedForMatch(matchId) {
+      const target = values.find((item) => String(item.N_PARTIDO) === String(matchId));
+      const slot = root.querySelector(`.qualified-slot[data-match="${CSS.escape(String(matchId))}"]`);
+
+      if (!target || !slot) {
+        return;
+      }
+
+      const equipo1Raw = pick(target, ["equipo_1", "Equipo 1", "Equipo_1", "equipo1"], "Equipo 1");
+      const equipo2Raw = pick(target, ["equipo_2", "Equipo 2", "Equipo_2", "equipo2"], "Equipo 2");
+
+      slot.innerHTML = qualifiedHtml(target, equipo1Raw, equipo2Raw);
+      bindQualifiedSelects(slot);
+      setFrameHeight();
+    }
+
     function render(args) {
       const incoming = Array.isArray(args.pronosticos) ? args.pronosticos : [];
       values = incoming.map((item) => ({
@@ -496,7 +524,7 @@
           const bg = escapeHtml(item.FONDO || "none");
 
           return `
-            <div class="pred-card" style="--card-bg: url('${bg}')">
+            <div class="pred-card" data-match="${id}" style="--card-bg: url('${bg}')">
               <div class="pred-meta">
                 <span>Partido #${id}</span>
                 <span>${dia} | ${hora}</span>
@@ -519,7 +547,9 @@
                   <span class="team-name">${equipo2}</span>
                 </div>
               </div>
-              ${qualifiedHtml(item, equipo1Raw, equipo2Raw)}
+              <div class="qualified-slot" data-match="${id}">
+                ${qualifiedHtml(item, equipo1Raw, equipo2Raw)}
+              </div>
             </div>
           `;
         })
@@ -552,14 +582,14 @@
           const matchId = input.dataset.match;
           const side = input.dataset.side;
           input.value = updateValue(matchId, side, input.value);
-          render({ pronosticos: values });
+          updateQualifiedForMatch(matchId);
         });
 
         input.addEventListener("blur", () => {
           const matchId = input.dataset.match;
           const side = input.dataset.side;
           input.value = updateValue(matchId, side, input.value);
-          render({ pronosticos: values });
+          updateQualifiedForMatch(matchId);
         });
 
         input.addEventListener("keydown", (event) => {
@@ -575,15 +605,7 @@
         });
       });
 
-      root.querySelectorAll(".qualified-select").forEach((select) => {
-        select.addEventListener("change", () => {
-          const target = values.find((item) => String(item.N_PARTIDO) === String(select.dataset.match));
-
-          if (target) {
-            target.CLASIFICADO_LADO = select.value === "equipo_2" ? "equipo_2" : "equipo_1";
-          }
-        });
-      });
+      bindQualifiedSelects(root);
 
       setFrameHeight();
     }
