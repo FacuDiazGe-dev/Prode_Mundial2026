@@ -86,6 +86,57 @@ def get_pronosticos_supabase():
 
     return pd.DataFrame(data)
 
+
+@st.cache_data(ttl=300)
+def get_eliminatoria_supabase():
+    """Lee la tabla de fase eliminatoria sin modificar datos."""
+
+    supabase = get_supabase_client()
+    table_name = str(
+        st.secrets.get(
+            "SUPABASE_ELIMINATORIA_TABLE",
+            "resultados_eliminatoria"
+        )
+    ).strip() or "resultados_eliminatoria"
+
+    response = (
+        supabase
+        .table(table_name)
+        .select("*")
+        .order("n_partido")
+        .execute()
+    )
+
+    data = response.data or []
+
+    return pd.DataFrame(data)
+
+
+@st.cache_data(ttl=300)
+def get_pronosticos_eliminatoria_supabase():
+    """Lee pronosticos de fase eliminatoria sin modificar datos."""
+
+    supabase = get_supabase_client()
+    table_name = str(
+        st.secrets.get(
+            "SUPABASE_PRONOSTICOS_ELIMINATORIA_TABLE",
+            "pronosticos_eliminatoria"
+        )
+    ).strip() or "pronosticos_eliminatoria"
+
+    response = (
+        supabase
+        .table(table_name)
+        .select("*")
+        .order("usuario")
+        .order("n_partido")
+        .execute()
+    )
+
+    data = response.data or []
+
+    return pd.DataFrame(data)
+
 # ============================================================
 # ESCRITURA DE PRONOSTICOS
 # Usa upsert: crea el pronostico si no existe o actualiza si ya
@@ -154,6 +205,96 @@ def guardar_pronosticos_supabase(df_nuevos):
 
     except Exception as e:
         return False, f"Error al guardar en Supabase: {e}"
+
+
+def guardar_pronosticos_eliminatoria_supabase(df_nuevos):
+    """
+    Guarda pronosticos de fase eliminatoria usando upsert.
+    No toca la tabla historica de pronosticos de fase de grupos.
+    """
+
+    supabase = get_supabase_client()
+    table_name = str(
+        st.secrets.get(
+            "SUPABASE_PRONOSTICOS_ELIMINATORIA_TABLE",
+            "pronosticos_eliminatoria"
+        )
+    ).strip() or "pronosticos_eliminatoria"
+
+    if df_nuevos is None or df_nuevos.empty:
+        return False, "No hay pronosticos para guardar."
+
+    df_save = df_nuevos.copy()
+
+    rename_map = {
+        "USUARIO": "usuario",
+        "N_PARTIDO": "n_partido",
+        "P1": "p1",
+        "P2": "p2",
+        "CLASIFICADO_LADO": "clasificado_lado",
+        "clasificado_lado": "clasificado_lado",
+    }
+
+    df_save = df_save.rename(columns=rename_map)
+    columnas_requeridas = ["usuario", "n_partido", "p1", "p2"]
+
+    for col in columnas_requeridas:
+        if col not in df_save.columns:
+            return False, f"Falta la columna requerida: {col}"
+
+    if "clasificado_lado" not in df_save.columns:
+        df_save["clasificado_lado"] = None
+
+    df_save = df_save[columnas_requeridas + ["clasificado_lado"]].copy()
+    df_save["usuario"] = df_save["usuario"].astype(str).str.strip()
+    df_save["n_partido"] = pd.to_numeric(
+        df_save["n_partido"],
+        errors="coerce"
+    )
+    df_save["p1"] = pd.to_numeric(df_save["p1"], errors="coerce")
+    df_save["p2"] = pd.to_numeric(df_save["p2"], errors="coerce")
+
+    df_save = df_save.dropna(subset=["usuario", "n_partido", "p1", "p2"])
+
+    if df_save.empty:
+        return False, "No hay pronosticos validos para guardar."
+
+    df_save["n_partido"] = df_save["n_partido"].astype(int)
+    df_save["p1"] = df_save["p1"].astype(int)
+    df_save["p2"] = df_save["p2"].astype(int)
+
+    def resolver_clasificado(row):
+        if row["p1"] > row["p2"]:
+            return "equipo_1"
+
+        if row["p2"] > row["p1"]:
+            return "equipo_2"
+
+        valor = str(row.get("clasificado_lado") or "").strip()
+
+        if valor in ["equipo_1", "equipo_2"]:
+            return valor
+
+        return "equipo_1"
+
+    df_save["clasificado_lado"] = df_save.apply(resolver_clasificado, axis=1)
+
+    records = df_save.to_dict(orient="records")
+
+    try:
+        (
+            supabase
+            .table(table_name)
+            .upsert(records, on_conflict="usuario,n_partido")
+            .execute()
+        )
+
+        get_pronosticos_eliminatoria_supabase.clear()
+
+        return True, "Pronosticos de eliminatoria guardados correctamente."
+
+    except Exception as e:
+        return False, f"Error al guardar pronosticos de eliminatoria: {e}"
         
 # ============================================================
 # ADAPTADORES PARA LA APP
@@ -248,6 +389,438 @@ def get_resultados_app():
     return df[columnas_necesarias]
 
 
+
+
+def get_eliminatoria_app():
+    """
+    Devuelve la llave eliminatoria normalizada para Inicio V2.
+    Si Supabase no responde o la tabla todavia no existe, devuelve un DataFrame vacio
+    para que la vista use su mock local como respaldo.
+    """
+
+    columnas_necesarias = [
+        "partido",
+        "slot",
+        "equipo_1",
+        "equipo_2",
+        "fase",
+        "dia",
+        "hora",
+        "llave",
+        "origen_1",
+        "origen_2",
+        "sig",
+        "lado",
+        "r1",
+        "r2",
+        "live",
+        "live_r1",
+        "live_r2",
+        "estado_partido",
+        "viz",
+        "ganador",
+        "perdedor",
+        "clasificado_lado",
+    ]
+
+    try:
+        df = get_eliminatoria_supabase()
+    except Exception:
+        return pd.DataFrame(columns=columnas_necesarias)
+
+    if df.empty:
+        return pd.DataFrame(columns=columnas_necesarias)
+
+    df = df.rename(
+        columns={
+            "n_partido": "partido",
+            "HS": "hora",
+            "hs": "hora",
+            "partido_origen1": "origen_1",
+            "partido_origen2": "origen_2",
+            "siguiente_partido_ganador": "sig",
+            "lado_siguiente_ganador": "lado",
+            "r1_live": "live_r1",
+            "r2_live": "live_r2",
+        }
+    )
+
+    for col in columnas_necesarias:
+        if col not in df.columns:
+            if col in ["partido", "slot"]:
+                df[col] = 0
+            elif col in ["r1", "r2", "live_r1", "live_r2", "origen_1", "origen_2", "sig"]:
+                df[col] = None
+            elif col in ["live", "viz"]:
+                df[col] = False
+            elif col == "estado_partido":
+                df[col] = "Pendiente"
+            else:
+                df[col] = ""
+
+    for col in ["partido", "slot", "origen_1", "origen_2", "sig"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    for col in ["r1", "r2", "live_r1", "live_r2"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    for col in ["equipo_1", "equipo_2", "fase", "dia", "hora", "llave", "lado", "estado_partido", "ganador", "perdedor", "clasificado_lado"]:
+        df[col] = df[col].fillna("").astype(str).str.strip()
+
+    df["estado_partido"] = df["estado_partido"].replace({"": "Pendiente"})
+    df["clasificado_lado"] = df["clasificado_lado"].where(
+        df["clasificado_lado"].isin(["equipo_1", "equipo_2"]),
+        ""
+    )
+
+    fase_orden = {
+        "16avos": 1,
+        "Octavos": 2,
+        "Cuartos": 3,
+        "Semifinal": 4,
+        "Final": 5,
+        "Tercer Puesto": 6,
+    }
+    df["_fase_orden"] = df["fase"].map(fase_orden).fillna(99)
+
+    df = df.sort_values(
+        by=["_fase_orden", "llave", "slot", "partido"],
+        na_position="last"
+    )
+
+    return df[columnas_necesarias]
+
+
+def actualizar_equipos_eliminatoria_supabase(df_equipos):
+    """
+    Actualiza manualmente los equipos base de 16avos.
+    No modifica resultados, estados ni la logica de avance del bracket.
+    """
+
+    supabase = get_supabase_client()
+    table_name = str(
+        st.secrets.get(
+            "SUPABASE_ELIMINATORIA_TABLE",
+            "resultados_eliminatoria"
+        )
+    ).strip() or "resultados_eliminatoria"
+
+    if df_equipos is None or df_equipos.empty:
+        return False, "No hay equipos para guardar."
+
+    df_save = df_equipos.copy()
+    df_save = df_save.rename(
+        columns={
+            "N_PARTIDO": "n_partido",
+            "partido": "n_partido",
+            "Equipo_1": "equipo_1",
+            "Equipo_2": "equipo_2",
+            "EQUIPO_1": "equipo_1",
+            "EQUIPO_2": "equipo_2",
+        }
+    )
+
+    columnas_requeridas = ["n_partido", "equipo_1", "equipo_2"]
+    faltantes = [col for col in columnas_requeridas if col not in df_save.columns]
+
+    if faltantes:
+        return False, f"Faltan columnas requeridas: {', '.join(faltantes)}"
+
+    df_save["n_partido"] = pd.to_numeric(df_save["n_partido"], errors="coerce")
+    df_save = df_save.dropna(subset=["n_partido"]).copy()
+    df_save["n_partido"] = df_save["n_partido"].astype(int)
+    df_save = df_save[
+        df_save["n_partido"].between(1, 16)
+    ].copy()
+
+    if df_save.empty:
+        return False, "No hay partidos de 16avos para actualizar."
+
+    try:
+        actualizados = 0
+
+        for _, row in df_save.iterrows():
+            n_partido = int(row["n_partido"])
+            equipo_1 = str(row.get("equipo_1", "")).strip() or "Equipo 1"
+            equipo_2 = str(row.get("equipo_2", "")).strip() or "Equipo 2"
+
+            supabase.table(table_name).update(
+                {
+                    "equipo_1": equipo_1,
+                    "equipo_2": equipo_2,
+                }
+            ).eq(
+                "n_partido",
+                n_partido
+            ).execute()
+
+            actualizados += 1
+
+        get_eliminatoria_supabase.clear()
+
+        return True, f"Equipos iniciales actualizados: {actualizados} partidos."
+
+    except Exception as e:
+        return False, f"Error al actualizar equipos de eliminatoria: {e}"
+
+
+def guardar_resultado_eliminatoria_supabase(
+    n_partido,
+    r1,
+    r2,
+    clasificado_lado=None,
+    estado_partido="Finalizado"
+):
+    """
+    Guarda el estado de un partido eliminatorio.
+    En Vivo/Entretiempo actualiza marcador live. Finalizado actualiza resultado oficial.
+    """
+
+    supabase = get_supabase_client()
+    table_name = str(
+        st.secrets.get(
+            "SUPABASE_ELIMINATORIA_TABLE",
+            "resultados_eliminatoria"
+        )
+    ).strip() or "resultados_eliminatoria"
+
+    try:
+        n_partido = int(n_partido)
+    except (TypeError, ValueError):
+        return False, "Selecciona un partido valido."
+
+    r1_val = pd.to_numeric(r1, errors="coerce")
+    r2_val = pd.to_numeric(r2, errors="coerce")
+
+    estado_normalizado = str(estado_partido or "").strip()
+    if estado_normalizado == "Sin live":
+        estado_normalizado = "Pendiente"
+
+    estados_validos = ["Pendiente", "En Vivo", "Entretiempo", "Finalizado"]
+
+    if estado_normalizado not in estados_validos:
+        return False, "Selecciona un estado valido."
+
+    if pd.isna(r1_val) or pd.isna(r2_val):
+        return False, "Carga ambos resultados."
+
+    r1_val = int(r1_val)
+    r2_val = int(r2_val)
+
+    try:
+        es_visual = estado_normalizado in ["En Vivo", "Entretiempo"]
+        es_finalizado = estado_normalizado == "Finalizado"
+        lado = str(clasificado_lado or "").strip()
+
+        data_update = {
+            "estado_partido": estado_normalizado,
+            "live": es_visual,
+        }
+
+        data_update["clasificado_lado"] = (
+            lado
+            if lado in ["equipo_1", "equipo_2"]
+            else None
+        )
+
+        if estado_normalizado == "Pendiente":
+            data_update.update(
+                {
+                    "live": False,
+                    "live_r1": None,
+                    "live_r2": None,
+                }
+            )
+
+        if es_visual:
+            data_update.update(
+                {
+                    "live_r1": r1_val,
+                    "live_r2": r2_val,
+                }
+            )
+
+        if not es_finalizado:
+            try:
+                (
+                    supabase
+                    .table(table_name)
+                    .update(data_update)
+                    .eq("n_partido", n_partido)
+                    .execute()
+                )
+            except Exception:
+                data_update_alt = dict(data_update)
+
+                if "live_r1" in data_update_alt:
+                    data_update_alt["r1_live"] = data_update_alt.pop("live_r1")
+
+                if "live_r2" in data_update_alt:
+                    data_update_alt["r2_live"] = data_update_alt.pop("live_r2")
+
+                try:
+                    (
+                        supabase
+                        .table(table_name)
+                        .update(data_update_alt)
+                        .eq("n_partido", n_partido)
+                        .execute()
+                    )
+                except Exception:
+                    data_update_min = {
+                        "estado_partido": estado_normalizado,
+                    }
+                    (
+                        supabase
+                        .table(table_name)
+                        .update(data_update_min)
+                        .eq("n_partido", n_partido)
+                        .execute()
+                    )
+
+            get_eliminatoria_supabase.clear()
+            return True, f"Estado del partido #{n_partido} actualizado."
+
+        response = (
+            supabase
+            .table(table_name)
+            .select("equipo_1,equipo_2")
+            .eq("n_partido", n_partido)
+            .limit(1)
+            .execute()
+        )
+
+        rows = response.data or []
+
+        if not rows:
+            return False, f"No se encontro el partido #{n_partido}."
+
+        partido = rows[0]
+        equipo_1 = str(partido.get("equipo_1", "") or "").strip()
+        equipo_2 = str(partido.get("equipo_2", "") or "").strip()
+
+        lado = str(clasificado_lado or "").strip()
+
+        if r1_val > r2_val:
+            lado = "equipo_1"
+        elif r2_val > r1_val:
+            lado = "equipo_2"
+        elif lado not in ["equipo_1", "equipo_2"]:
+            return False, "En un empate selecciona que equipo clasifica."
+
+        ganador = equipo_1 if lado == "equipo_1" else equipo_2
+        perdedor = equipo_2 if lado == "equipo_1" else equipo_1
+
+        data_update = {
+            "r1": r1_val,
+            "r2": r2_val,
+            "estado_partido": estado_normalizado,
+            "clasificado_lado": lado,
+            "ganador": ganador,
+            "perdedor": perdedor,
+        }
+
+        data_update_con_live = {
+            **data_update,
+            "live": False,
+            "live_r1": None,
+            "live_r2": None,
+        }
+
+        try:
+            (
+                supabase
+                .table(table_name)
+                .update(data_update_con_live)
+                .eq("n_partido", n_partido)
+                .execute()
+            )
+        except Exception:
+            data_update_con_live_alt = {
+                **data_update,
+                "live": False,
+                "r1_live": None,
+                "r2_live": None,
+            }
+
+            try:
+                (
+                    supabase
+                    .table(table_name)
+                    .update(data_update_con_live_alt)
+                    .eq("n_partido", n_partido)
+                    .execute()
+                )
+            except Exception:
+                (
+                    supabase
+                    .table(table_name)
+                    .update(data_update)
+                    .eq("n_partido", n_partido)
+                    .execute()
+                )
+
+        get_eliminatoria_supabase.clear()
+
+        return True, f"Resultado oficial del partido #{n_partido} guardado."
+
+    except Exception as e:
+        return False, f"Error al guardar resultado eliminatorio: {e}"
+
+
+def get_pronosticos_eliminatoria_app():
+    """
+    Devuelve pronosticos de eliminatoria normalizados.
+    Si la tabla todavia no existe, devuelve vacio para que Inicio V2 no falle.
+    """
+
+    columnas_necesarias = [
+        "USUARIO",
+        "N_PARTIDO",
+        "P1",
+        "P2",
+        "CLASIFICADO_LADO",
+    ]
+
+    try:
+        df = get_pronosticos_eliminatoria_supabase()
+    except Exception:
+        return pd.DataFrame(columns=columnas_necesarias)
+
+    if df.empty:
+        return pd.DataFrame(columns=columnas_necesarias)
+
+    df = df.rename(
+        columns={
+            "usuario": "USUARIO",
+            "n_partido": "N_PARTIDO",
+            "p1": "P1",
+            "p2": "P2",
+            "clasificado_lado": "CLASIFICADO_LADO",
+        }
+    )
+
+    for col in columnas_necesarias:
+        if col not in df.columns:
+            if col in ["N_PARTIDO", "P1", "P2"]:
+                df[col] = None
+            else:
+                df[col] = ""
+
+    df["USUARIO"] = df["USUARIO"].fillna("").astype(str).str.strip()
+    df["N_PARTIDO"] = pd.to_numeric(df["N_PARTIDO"], errors="coerce")
+    df["P1"] = pd.to_numeric(df["P1"], errors="coerce")
+    df["P2"] = pd.to_numeric(df["P2"], errors="coerce")
+    df["CLASIFICADO_LADO"] = (
+        df["CLASIFICADO_LADO"]
+        .fillna("")
+        .astype(str)
+        .str.strip()
+    )
+
+    return df[columnas_necesarias]
+
+
 def get_usuarios_app():
     df = get_usuarios_supabase()
 
@@ -263,7 +836,8 @@ def get_usuarios_app():
                 "EDAD",
                 "DESCRIPCION",
                 "ROL",
-                "APORTE_REALIZADO"
+                "APORTE_REALIZADO",
+                "ELIMINATORIA"
             ]
         )
 
@@ -278,7 +852,8 @@ def get_usuarios_app():
             "edad": "EDAD",
             "descripcion": "DESCRIPCION",
             "rol": "ROL",
-            "aporte_realizado": "APORTE_REALIZADO"
+            "aporte_realizado": "APORTE_REALIZADO",
+            "eliminatoria": "ELIMINATORIA"
         }
     )
 
@@ -292,7 +867,8 @@ def get_usuarios_app():
         "EDAD",
         "DESCRIPCION",
         "ROL",
-        "APORTE_REALIZADO"
+        "APORTE_REALIZADO",
+        "ELIMINATORIA"
     ]
 
     for col in columnas_necesarias:
@@ -301,12 +877,23 @@ def get_usuarios_app():
                 df[col] = range(1, len(df) + 1)
             elif col == "APORTE_REALIZADO":
                 df[col] = False
+            elif col == "ELIMINATORIA":
+                df[col] = True
             else:
                 df[col] = ""
 
     df["APORTE_REALIZADO"] = (
         df["APORTE_REALIZADO"]
         .fillna(False)
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .isin(["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"])
+    )
+
+    df["ELIMINATORIA"] = (
+        df["ELIMINATORIA"]
+        .fillna(True)
         .astype(str)
         .str.strip()
         .str.upper()
@@ -994,7 +1581,8 @@ def actualizar_usuario_supabase(usuario, datos):
         "EDAD": "edad",
         "DESCRIPCION": "descripcion",
         "ROL": "rol",
-        "APORTE_REALIZADO": "aporte_realizado"
+        "APORTE_REALIZADO": "aporte_realizado",
+        "ELIMINATORIA": "eliminatoria"
     }
 
     data_update = {}
@@ -1010,7 +1598,8 @@ def actualizar_usuario_supabase(usuario, datos):
             "edad",
             "descripcion",
             "rol",
-            "aporte_realizado"
+            "aporte_realizado",
+            "eliminatoria"
         ]:
             if pd.isna(value):
                 value = None
@@ -1022,6 +1611,14 @@ def actualizar_usuario_supabase(usuario, datos):
                     value = None
 
             if col == "aporte_realizado":
+                value = (
+                    str(value)
+                    .strip()
+                    .upper()
+                    in ["TRUE", "1", "1.0", "VERDADERO", "T", "SI", "SÍ"]
+                )
+
+            if col == "eliminatoria":
                 value = (
                     str(value)
                     .strip()
@@ -1068,6 +1665,27 @@ def actualizar_aporte_usuario_supabase(usuario, aporte_realizado):
     except Exception as e:
         return False, f"Error al actualizar aporte del usuario: {e}"
 
+
+def actualizar_eliminatoria_usuario_supabase(usuario, eliminatoria):
+    """
+    Marca si un usuario participa en la fase eliminatoria.
+    Actualiza solo la columna eliminatoria en Supabase.
+    """
+
+    if not usuario:
+        return False, "Usuario invalido."
+
+    try:
+        eliminatoria_bool = bool(eliminatoria)
+
+        return actualizar_usuario_supabase(
+            usuario=usuario,
+            datos={"ELIMINATORIA": eliminatoria_bool}
+        )
+
+    except Exception as e:
+        return False, f"Error al actualizar eliminatoria del usuario: {e}"
+
 def registrar_usuario_supabase(
     nombre,
     usuario,
@@ -1112,7 +1730,8 @@ def registrar_usuario_supabase(
             "edad": None,
             "descripcion": "",
             "rol": rol,
-            "aporte_realizado": False
+            "aporte_realizado": False,
+            "eliminatoria": True
         }
 
         response = (
@@ -1245,7 +1864,13 @@ def get_config_app():
         "mantenimiento": "OFF",
         "registro": "ON",
         "pronosticos_estado": "ON",
-        "cierre_pronosticos": "2026-06-11 15:00"
+        "cierre_pronosticos": "2026-06-11 15:00",
+        "pronosticos_eliminatoria_estado": "ON",
+        "cierre_eliminatoria_16avos": "2026-06-28 12:00",
+        "cierre_eliminatoria_octavos": "2026-07-03 23:59",
+        "cierre_eliminatoria_cuartos": "2026-07-08 23:59",
+        "cierre_eliminatoria_semifinal": "2026-07-13 23:59",
+        "cierre_eliminatoria_final": "2026-07-17 23:59"
     }
 
     config_dict = valores_default.copy()
@@ -1263,6 +1888,9 @@ def get_config_app():
     registro = str(config_dict["registro"]).strip().upper()
     pronosticos_estado = str(config_dict["pronosticos_estado"]).strip().upper()
     cierre_pronosticos = str(config_dict["cierre_pronosticos"]).strip()
+    pronosticos_eliminatoria_estado = (
+        str(config_dict["pronosticos_eliminatoria_estado"]).strip().upper()
+    )
 
     if mantenimiento not in ["ON", "OFF"]:
         mantenimiento = "OFF"
@@ -1273,6 +1901,9 @@ def get_config_app():
     if pronosticos_estado not in ["ON", "OFF"]:
         pronosticos_estado = "ON"
 
+    if pronosticos_eliminatoria_estado not in ["ON", "OFF"]:
+        pronosticos_eliminatoria_estado = "ON"
+
     if cierre_pronosticos == "":
         cierre_pronosticos = "2026-06-11 15:00"
 
@@ -1282,7 +1913,13 @@ def get_config_app():
                 "MANTENIMIENTO": mantenimiento,
                 "REGISTRO": registro,
                 "PRONOSTICOS_ESTADO": pronosticos_estado,
-                "CIERRE_PRONOSTICOS": cierre_pronosticos
+                "CIERRE_PRONOSTICOS": cierre_pronosticos,
+                "PRONOSTICOS_ELIMINATORIA_ESTADO": pronosticos_eliminatoria_estado,
+                "CIERRE_ELIMINATORIA_16AVOS": str(config_dict["cierre_eliminatoria_16avos"]).strip(),
+                "CIERRE_ELIMINATORIA_OCTAVOS": str(config_dict["cierre_eliminatoria_octavos"]).strip(),
+                "CIERRE_ELIMINATORIA_CUARTOS": str(config_dict["cierre_eliminatoria_cuartos"]).strip(),
+                "CIERRE_ELIMINATORIA_SEMIFINAL": str(config_dict["cierre_eliminatoria_semifinal"]).strip(),
+                "CIERRE_ELIMINATORIA_FINAL": str(config_dict["cierre_eliminatoria_final"]).strip()
             }
         ]
     )
@@ -1306,7 +1943,13 @@ def actualizar_config_supabase(campo, valor):
         "mantenimiento",
         "registro",
         "pronosticos_estado",
-        "cierre_pronosticos"
+        "cierre_pronosticos",
+        "pronosticos_eliminatoria_estado",
+        "cierre_eliminatoria_16avos",
+        "cierre_eliminatoria_octavos",
+        "cierre_eliminatoria_cuartos",
+        "cierre_eliminatoria_semifinal",
+        "cierre_eliminatoria_final"
     ]
 
     if campo not in campos_validos:
@@ -1315,14 +1958,22 @@ def actualizar_config_supabase(campo, valor):
     if campo in [
         "mantenimiento",
         "registro",
-        "pronosticos_estado"
+        "pronosticos_estado",
+        "pronosticos_eliminatoria_estado"
     ]:
         valor = str(valor).strip().upper()
 
         if valor not in ["ON", "OFF"]:
             return False, "Valor inválido. Usá ON u OFF."
 
-    elif campo == "cierre_pronosticos":
+    elif campo in [
+        "cierre_pronosticos",
+        "cierre_eliminatoria_16avos",
+        "cierre_eliminatoria_octavos",
+        "cierre_eliminatoria_cuartos",
+        "cierre_eliminatoria_semifinal",
+        "cierre_eliminatoria_final"
+    ]:
         valor = str(valor).strip()
 
         if not valor:

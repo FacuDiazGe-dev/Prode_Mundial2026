@@ -18,7 +18,9 @@ from styles_config import (
 from tools import get_flag_img_cached
 
 from sections.inicio import render_inicio
+from sections.inicio_v2 import render_inicio_v2
 from sections.mis_pronosticos import render_mis_pronosticos
+from sections.mis_pronosticos_v2 import render_mis_pronosticos_v2
 from sections.jugadores import render_jugadores
 from sections.foro import render_foro
 from sections.reglas import render_reglas
@@ -679,17 +681,24 @@ with st.sidebar:
 </div>
 """, unsafe_allow_html=True)
 
-    opciones = [
-        "🏠 Inicio",
-        "📝 Mi Prode",
-        "👥 Plantel",
-        "💬 Comunidad",
-        "📜 Reglas del Juego"
-    ]
-
     rol_usuario = str(
         st.session_state.get("user_data", {}).get("ROL", "")
     ).strip().lower()
+
+    opciones = []
+
+    if rol_usuario == "admin":
+        opciones.append("Eliminatoria")
+
+    opciones.extend(
+        [
+            "🏠 Fase de Grupos",
+            "📝 Mi Prode",
+            "👥 Plantel",
+            "💬 Comunidad",
+            "📜 Reglas del Juego"
+        ]
+    )
 
     if rol_usuario == "admin":
         opciones.append("⚙️ Panel Control")
@@ -725,7 +734,7 @@ with st.sidebar:
 # la carpeta sections/.
 # ============================================================
 
-if menu == "🏠 Inicio":
+if menu == "🏠 Fase de Grupos":
     render_inicio(
         df_ranking=df_ranking,
         df_usuarios=df_usuarios,
@@ -739,10 +748,8 @@ if menu == "🏠 Inicio":
 #---------- MENU MIS PRONOSTICOS (CÓDIGO CORREGIDO Y COMPLETO) ----------------------------------
 
 elif menu == "📝 Mi Prode":
-    render_mis_pronosticos(
-        df_res=df_res,
+    render_mis_pronosticos_v2(
         df_usuarios=df_usuarios,
-        df_pro=df_pro,
         df_ranking=df_ranking,
         mapa_banderas=mapa_banderas
     )
@@ -784,4 +791,10 @@ elif menu.endswith("Panel Control"):
         df_ranking=df_ranking,
         registro_permitido_fecha=registro_permitido_fecha,
         estado_mantenimiento=estado_mantenimiento
+    )
+
+elif menu == "Eliminatoria":
+    render_inicio_v2(
+        usuario_actual=st.session_state.get("user_data", {}).get("USUARIO", ""),
+        mapa_banderas=mapa_banderas
     )
