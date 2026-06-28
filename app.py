@@ -685,20 +685,14 @@ with st.sidebar:
         st.session_state.get("user_data", {}).get("ROL", "")
     ).strip().lower()
 
-    opciones = []
-
-    if rol_usuario == "admin":
-        opciones.append("Eliminatoria")
-
-    opciones.extend(
-        [
-            "🏠 Fase de Grupos",
-            "📝 Mi Prode",
-            "👥 Plantel",
-            "💬 Comunidad",
-            "📜 Reglas del Juego"
-        ]
-    )
+    opciones = [
+        "⚽ Eliminatoria",
+        "🏠 Fase de Grupos",
+        "📝 Mi Prode",
+        "👥 Plantel",
+        "💬 Comunidad",
+        "📜 Reglas del Juego"
+    ]
 
     if rol_usuario == "admin":
         opciones.append("⚙️ Panel Control")
@@ -793,7 +787,7 @@ elif menu.endswith("Panel Control"):
         estado_mantenimiento=estado_mantenimiento
     )
 
-elif menu == "Eliminatoria":
+elif menu == "⚽ Eliminatoria":
     render_inicio_v2(
         usuario_actual=st.session_state.get("user_data", {}).get("USUARIO", ""),
         mapa_banderas=mapa_banderas
