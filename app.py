@@ -217,8 +217,22 @@ equipos_2 = (
     else []
 )
 
+equipos_base_mundial = [
+    "Alemania", "Arabia Saudita", "Argelia", "Argentina",
+    "Australia", "Austria", "Bélgica", "Bosnia y Herzegovina",
+    "Brasil", "Cabo Verde", "Canadá", "Catar", "Colombia",
+    "Corea del Sur", "Costa de Marfil", "Croacia", "Curazao",
+    "Ecuador", "Egipto", "Escocia", "España", "Estados Unidos",
+    "Francia", "Ghana", "Haití", "Inglaterra", "Irak", "Irán",
+    "Japón", "Jordania", "Marruecos", "México", "Noruega",
+    "Nueva Zelanda", "Países Bajos", "Panamá", "Paraguay",
+    "Portugal", "República Checa", "República Democrática del Congo",
+    "Senegal", "Sudáfrica", "Suecia", "Suiza", "Túnez",
+    "Turquía", "Uruguay", "Uzbekistán"
+]
+
 equipos_unicos = sorted(
-    set(equipos_1 + equipos_2)
+    set(equipos_1 + equipos_2 + equipos_base_mundial)
 )
 
 mapa_banderas = {}

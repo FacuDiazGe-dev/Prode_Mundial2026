@@ -113,7 +113,19 @@ def _render_editor_equipos_eliminatoria_16avos(df_res=None):
         st.markdown("---")
         st.caption("Asistente: elegí partido y equipos desde la lista oficial.")
 
-        equipos_disponibles = []
+        equipos_disponibles = [
+            "Alemania", "Arabia Saudita", "Argelia", "Argentina",
+            "Australia", "Austria", "Bélgica", "Bosnia y Herzegovina",
+            "Brasil", "Cabo Verde", "Canadá", "Catar", "Colombia",
+            "Corea del Sur", "Costa de Marfil", "Croacia", "Curazao",
+            "Ecuador", "Egipto", "Escocia", "España", "Estados Unidos",
+            "Francia", "Ghana", "Haití", "Inglaterra", "Irak", "Irán",
+            "Japón", "Jordania", "Marruecos", "México", "Noruega",
+            "Nueva Zelanda", "Países Bajos", "Panamá", "Paraguay",
+            "Portugal", "República Checa", "República Democrática del Congo",
+            "Senegal", "Sudáfrica", "Suecia", "Suiza", "Túnez",
+            "Turquía", "Uruguay", "Uzbekistán"
+        ]
 
         if df_res is not None and not df_res.empty:
             for col in ["Equipo_1", "Equipo_2"]:
@@ -1844,6 +1856,10 @@ def render_panel_control(
                     
         st.markdown("---")
         st.markdown("### Fase Eliminatoria")
+        st.caption(
+            "Estos valores se guardan en la tabla config como filas clave/valor. "
+            "Si una clave no existe, el boton Guardar cierres eliminatoria la crea."
+        )
 
         try:
             estado_eliminatoria = (
@@ -1853,7 +1869,7 @@ def render_panel_control(
             )
 
             cierres_eliminatoria = {
-                "16avos": str(df_config.iloc[0].get("CIERRE_ELIMINATORIA_16AVOS", "2026-06-28 12:00")).strip(),
+                "16avos": str(df_config.iloc[0].get("CIERRE_ELIMINATORIA_16AVOS", "2026-06-28 15:00")).strip(),
                 "Octavos": str(df_config.iloc[0].get("CIERRE_ELIMINATORIA_OCTAVOS", "2026-07-03 23:59")).strip(),
                 "Cuartos": str(df_config.iloc[0].get("CIERRE_ELIMINATORIA_CUARTOS", "2026-07-08 23:59")).strip(),
                 "Semifinal": str(df_config.iloc[0].get("CIERRE_ELIMINATORIA_SEMIFINAL", "2026-07-13 23:59")).strip(),
@@ -1862,7 +1878,7 @@ def render_panel_control(
         except Exception:
             estado_eliminatoria = "ON"
             cierres_eliminatoria = {
-                "16avos": "2026-06-28 12:00",
+                "16avos": "2026-06-28 15:00",
                 "Octavos": "2026-07-03 23:59",
                 "Cuartos": "2026-07-08 23:59",
                 "Semifinal": "2026-07-13 23:59",
@@ -1896,7 +1912,7 @@ def render_panel_control(
 
         with col_elim_1:
             if st.button(
-                "Guardar cierres eliminatoria",
+                "Guardar / crear cierres eliminatoria",
                 use_container_width=True
             ):
                 errores = []

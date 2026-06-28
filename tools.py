@@ -27,6 +27,7 @@ def get_flag_img(pais):
         "España": "es", "Estados Unidos": "us", "Francia": "fr", "Ghana": "gh",
         "Haití": "ht", "Inglaterra": "gb-eng", "Irak": "iq", "Irán": "ir",
         "Japón": "jp", "Jordania": "jo", "Marruecos": "ma", "México": "mx",
+        "Mexico": "mx", "Mejico": "mx",
         "Noruega": "no", "Nueva Zelanda": "nz", "Países Bajos": "nl", "Panamá": "pa",
         "Paraguay": "py", "Portugal": "pt", "República Checa": "cz", 
         "República Democrática del Congo": "cd", "Senegal": "sn", "Sudáfrica": "za",

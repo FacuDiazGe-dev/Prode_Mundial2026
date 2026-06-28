@@ -2607,7 +2607,7 @@ div[aria-label="Fase eliminatoria"] label:has(input:checked) span {
         )
     
         cierres_eliminatoria_config = {
-            "16avos": str(df_config_pronosticos.iloc[0].get("CIERRE_ELIMINATORIA_16AVOS", "2026-06-28 12:00")).strip(),
+            "16avos": str(df_config_pronosticos.iloc[0].get("CIERRE_ELIMINATORIA_16AVOS", "2026-06-28 15:00")).strip(),
             "Octavos": str(df_config_pronosticos.iloc[0].get("CIERRE_ELIMINATORIA_OCTAVOS", "2026-07-03 23:59")).strip(),
             "Cuartos": str(df_config_pronosticos.iloc[0].get("CIERRE_ELIMINATORIA_CUARTOS", "2026-07-08 23:59")).strip(),
             "Semifinales": str(df_config_pronosticos.iloc[0].get("CIERRE_ELIMINATORIA_SEMIFINAL", "2026-07-13 23:59")).strip(),
@@ -2617,7 +2617,7 @@ div[aria-label="Fase eliminatoria"] label:has(input:checked) span {
     except Exception:
         estado_pronosticos = "ON"
         cierres_eliminatoria_config = {
-            "16avos": "2026-06-28 12:00",
+            "16avos": "2026-06-28 15:00",
             "Octavos": "2026-07-03 23:59",
             "Cuartos": "2026-07-08 23:59",
             "Semifinales": "2026-07-13 23:59",
@@ -2679,7 +2679,7 @@ div[aria-label="Fase eliminatoria"] label:has(input:checked) span {
 
         cierre_pronosticos_txt = cierres_eliminatoria_config.get(
             tanda_seleccionada,
-            "2026-06-28 12:00"
+            "2026-06-28 15:00"
         )
         fecha_limite = parse_fecha_cierre(cierre_pronosticos_txt)
         fecha_limite_visible = fecha_limite.strftime("%d/%m/%Y %H:%M")

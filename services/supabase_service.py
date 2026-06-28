@@ -1866,7 +1866,7 @@ def get_config_app():
         "pronosticos_estado": "ON",
         "cierre_pronosticos": "2026-06-11 15:00",
         "pronosticos_eliminatoria_estado": "ON",
-        "cierre_eliminatoria_16avos": "2026-06-28 12:00",
+        "cierre_eliminatoria_16avos": "2026-06-28 15:00",
         "cierre_eliminatoria_octavos": "2026-07-03 23:59",
         "cierre_eliminatoria_cuartos": "2026-07-08 23:59",
         "cierre_eliminatoria_semifinal": "2026-07-13 23:59",
